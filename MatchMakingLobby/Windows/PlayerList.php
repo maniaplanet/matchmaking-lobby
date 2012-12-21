@@ -7,7 +7,7 @@
  * @date        $Date: 2012-12-12 16:37:36 +0100 (mer., 12 déc. 2012) $:
  */
 
-namespace ManiaLivePlugins\ManiaHall\Windows;
+namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 class PlayerList extends \ManiaLive\Gui\Window
 {
@@ -30,7 +30,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 	function addPlayer($login, $ready = false)
 	{
 		$storage = \ManiaLive\Data\Storage::getInstance();
-		$tmp = new \ManiaLivePlugins\ManiaHall\Controls\Player($storage->getPlayerObject($login)->nickName);
+		$tmp = new \ManiaLivePlugins\MatchMakingLobby\Controls\Player($storage->getPlayerObject($login)->nickName);
 		$tmp->setReady($ready);
 		$this->playerList[$login] = $tmp;
 		$this->frame->addComponent($this->playerList[$login]);

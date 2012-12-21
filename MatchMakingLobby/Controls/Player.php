@@ -7,9 +7,8 @@
  * @date        $Date: 2012-12-12 16:37:36 +0100 (mer., 12 déc. 2012) $:
  */
 
-namespace ManiaLivePlugins\ManiaHall\Controls;
+namespace ManiaLivePlugins\MatchMakingLobby\Controls;
 
-use ManiaLivePlugins\ManiaHall\LobbyControl\PlayerInfo;
 use ManiaLib\Gui\Elements;
 
 class Player extends \ManiaLive\Gui\Control

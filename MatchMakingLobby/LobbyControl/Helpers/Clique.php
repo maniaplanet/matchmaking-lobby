@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\ManiaHall\LobbyControl\Helpers;
+namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
 
 class Clique
 {

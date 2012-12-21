@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\ManiaHall\Windows;
+namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 class ForceManialink extends \ManiaLive\Gui\Window
 {

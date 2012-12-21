@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\ManiaHall\LobbyControl;
+namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
 
 class MatchMaker extends \ManiaLib\Utils\Singleton
 {

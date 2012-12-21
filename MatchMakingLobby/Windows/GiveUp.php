@@ -7,7 +7,7 @@
  * @author      $Author: philippe $:
  * @date        $Date: 2012-12-07 15:12:49 +0100 (ven., 07 déc. 2012) $:
  */
-namespace ManiaLivePlugins\ManiaHall\Windows;
+namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 use ManiaLib\Gui\Elements\Bgs1InRace;
 use ManiaLib\Gui\Elements\Button;

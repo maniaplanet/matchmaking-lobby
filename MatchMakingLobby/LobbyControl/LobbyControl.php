@@ -7,13 +7,13 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\ManiaHall\LobbyControl;
+namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
 
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLive\Gui\Group;
-use ManiaLivePlugins\ManiaHall\Windows;
+use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLive\Gui\Windows\Shortkey;
-use ManiaLivePlugins\ManiaHall\Windows\Label;
+use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
 
 class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 {
