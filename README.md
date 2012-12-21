@@ -1,7 +1,7 @@
-LobbyServer
+MatchMaking Lobby
 ===========
 
-ManiaLive plugins to run Lobby server
+ManiaLive plugins to run Lobby server and have automatic match making depending ladder points
 
 ===========
 Requirements
