@@ -12,7 +12,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
 class MatchMaker extends \ManiaLib\Utils\Singleton
 {
 	const WAITING_STEP = 60;
-	const DISTANCE_THRESHOLD = 500;
+	const DISTANCE_THRESHOLD = 20;
 	
 	/** @var Helpers\Graph */
 	private $graph;

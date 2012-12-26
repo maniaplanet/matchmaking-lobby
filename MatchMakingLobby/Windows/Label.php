@@ -26,7 +26,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 
 	protected function onConstruct()
 	{
-		$this->label = new \ManiaLib\Gui\Elements\Label(240);
+		$this->label = new \ManiaLib\Gui\Elements\Label(400);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setScale(0.6);
 		$this->label->setHalign('center');

@@ -72,12 +72,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->registerLobby();
 		
 		$playersCount = $this->getReadyPlayersCount();
-		$matchsCount = $this->getMatchesCount();
+		$totalPlayerCount = $this->getTotalPlayerCount();
 		
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->setAlign('right', 'bottom');
 		$lobbyWindow->setPosition(170, 45);
-		$lobbyWindow->set($this->storage->server->name, $playersCount, $matchsCount);
+		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
 		$lobbyWindow->show();
 	}
 	
@@ -197,6 +197,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	private function createLabel($login, $message, $countdown = null)
 	{
+		Label::Erase($login);
 		$confirm = Label::Create($login);
 		$confirm->setPosition(0, 40);
 		$confirm->setMessage($message, $countdown);
@@ -206,9 +207,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function updateLobbyWindow()
 	{
 		$playersCount = $this->getReadyPlayersCount();
-		$matchsCount = $this->getMatchesCount();
+		$totalPlayerCount = $this->getTotalPlayerCount();
 		$lobbyWindow = Windows\LobbyWindow::Create();
-		$lobbyWindow->set($this->storage->server->name, $playersCount, $matchsCount);
+		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
 		$lobbyWindow->show();
 	}
 	
@@ -240,9 +241,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s', $this->db->quote($server)
 		);
 		
-		foreach($players as $login)
+		foreach($players as $playerLogin)
 		{
-			$this->onPlayerNotReady($login);
+			if($playerLogin != $login)
+			{
+				$this->onPlayerReady($playerLogin);
+			}
 		}
 	}
 	
@@ -260,10 +264,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
 		
-		foreach($players as $player)
+		foreach($players as $key => $player)
 		{
 			PlayerInfo::Get($player)->setMatch($server, $players);
-			$this->createLabel($player, '$0F0Match will start in $<$FFF%d$>, F6 to cancel...', 10);
+			$opponent = $this->storage->getPlayerObject($players[($key + 1) % 2])->nickName;
+			$this->createLabel($player,
+				sprintf('$0F0Match against $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $opponent), 10);
 		}
 	}
 	
@@ -278,20 +284,26 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		return $count;
 	}
 	
-	private function getMatchesCount()
+	private function getTotalPlayerCount()
 	{
-		return $this->db->execute(
+		$matchCount = $this->db->execute(
 				'SELECT COUNT(*) FROM Servers '.
 				'WHERE '.$this->modeClause.' AND hall = %s',
 				$this->db->quote($this->storage->serverLogin)
 			)->fetchSingleValue(null);
+		
+		$playerCount = count($this->connection->getPlayerList(-1, 0));
+		
+		return $playerCount + $matchCount * 2;
 	}
 	
 	private function registerLobby()
 	{
 		$this->db->execute(
-			'INSERT INTO Halls VALUES (%s, %d, %s, %s) ON DUPLICATE KEY UPDATE readyPlayers = VALUES(readyPlayers)',
+			'INSERT INTO Halls VALUES (%s, %d, %d, %s, %s) '.
+			'ON DUPLICATE KEY UPDATE readyPlayers = VALUES(readyPlayers), connectedPlayers = VALUES(connectedPlayers)',
 			$this->db->quote($this->storage->serverLogin), $this->getReadyPlayersCount(),
+			count($this->connection->getPlayerList(-1, 0)),
 			$this->db->quote($this->storage->server->name), $this->db->quote($this->hall)
 		);
 	}
@@ -301,12 +313,15 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->db->execute(
 			<<<EOHalls
 CREATE TABLE IF NOT EXISTS `Halls` (
- `login` varchar(25) NOT NULL,
- `readyPlayers` int(11) NOT NULL,
- `name` varchar(76) NOT NULL,
- `backLink` varchar(76) NOT NULL,
- PRIMARY KEY (`login`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	`login` VARCHAR(25) NOT NULL,
+	`readyPlayers` INT(10) NOT NULL,
+	`connectedPlayers` INT(10) NOT NULL,
+	`name` VARCHAR(76) NOT NULL,
+	`backLink` VARCHAR(76) NOT NULL,
+	PRIMARY KEY (`login`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
 EOHalls
 		);
 		$this->db->execute(

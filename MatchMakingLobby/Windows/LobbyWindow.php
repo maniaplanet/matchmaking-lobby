@@ -26,7 +26,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	/**
 	 * @var Elements\Label
 	 */
-	protected $matchInProgress;
+	protected $totalPlayers;
 
 	protected function onConstruct()
 	{
@@ -52,44 +52,52 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->addComponent($this->serverName);
 		
 		$ui = new Elements\Label(30);
-		$ui->setText('Ready players');
+		$ui->setText('Players');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(10, -10);
+		$ui->setPosition(20, -9);
+		$ui->setScale(0.6);
+		$this->addComponent($ui);
+		
+		$ui = new Elements\Label(30);
+		$ui->setText('Ready');
+		$ui->setStyle(null);
+		$ui->setAlign('center', 'center2');
+		$ui->setPosition(10, -12);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 		
 		
 		$this->readyPlayers = new Elements\Label(17);
 		$this->readyPlayers->setAlign('center', 'center2');
-		$this->readyPlayers->setPosition(10, -16);
+		$this->readyPlayers->setPosition(10, -18);
 		$this->readyPlayers->setStyle(Elements\Label::TextRaceChrono);
 		$this->readyPlayers->setText(6);
 		$this->readyPlayers->setScale(0.75);
 		$this->addComponent($this->readyPlayers);
 		
 		$ui = new Elements\Label(30);
-		$ui->setText('Current matchs');
+		$ui->setText('Total');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(30, -10);
+		$ui->setPosition(30, -12);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 		
-		$this->matchInProgress = new Elements\Label(17);
-		$this->matchInProgress->setAlign('center', 'center2');
-		$this->matchInProgress->setPosition(30, -16);
-		$this->matchInProgress->setStyle(Elements\Label::TextRaceChrono);
-		$this->matchInProgress->setText(6);
-		$this->matchInProgress->setScale(0.75);
-		$this->addComponent($this->matchInProgress);
+		$this->totalPlayers = new Elements\Label(17);
+		$this->totalPlayers->setAlign('center', 'center2');
+		$this->totalPlayers->setPosition(30, -18);
+		$this->totalPlayers->setStyle(Elements\Label::TextRaceChrono);
+		$this->totalPlayers->setText(6);
+		$this->totalPlayers->setScale(0.75);
+		$this->addComponent($this->totalPlayers);
 	}
 	
-	function set($serverName, $readyPlayersCount, $matchInProgress)
+	function set($serverName, $readyPlayersCount, $totalPlayers)
 	{
 		$this->serverName->setText($serverName);
 		$this->readyPlayers->setText($readyPlayersCount);
-		$this->matchInProgress->setText($matchInProgress);
+		$this->totalPlayers->setText($totalPlayers);
 	}
 }
 

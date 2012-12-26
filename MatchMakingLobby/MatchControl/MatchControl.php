@@ -69,7 +69,10 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		if(new \DateTime() < $this->nextTick)
 			return;
-		
+		if($this->state != self::SLEEPING)
+		{
+			$this->updateLobbyWindow();
+		}
 		switch($this->state)
 		{
 			case self::SLEEPING:
@@ -81,23 +84,18 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 				}
 				$this->prepare($next->hall, $next->players);
 				$this->wait();
-				$this->updateLobbyWindow();
 				break;
 			case self::DECIDING:
 				$this->play();
-				$this->updateLobbyWindow();
 				break;
 			case self::WAITING:
 				$this->cancel();
-				$this->updateLobbyWindow();
 				break;
 			case self::ABORTING:
 				$this->cancel();
-				$this->updateLobbyWindow();
 				break;
 			case self::OVER:
 				$this->end();
-				$this->updateLobbyWindow();
 		}
 	}
 	
@@ -136,14 +134,14 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private function updateLobbyWindow()
 	{
 		$obj = $this->db->execute(
-			'SELECT H.login, H.name, H.readyPlayers FROM Halls H '.
+			'SELECT H.* FROM Halls H '.
 			'INNER JOIN Servers S ON H.login = S.hall '.
 			'WHERE S.login = %s',
 			$this->db->quote($this->storage->serverLogin)
 			)->fetchObject();
 		if($obj)
 		{
-			$obj->matchInProgress = $this->db->execute(
+			$obj->totalPlayers = $this->db->execute(
 			'SELECT COUNT(*) FROM Servers WHERE hall = %s',
 			$this->db->quote($obj->login)
 			)->fetchSingleValue();
@@ -151,7 +149,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$lobbyWindow = Windows\LobbyWindow::Create();
 			$lobbyWindow->setAlign('right', 'bottom');
 			$lobbyWindow->setPosition(170, 45);
-			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->matchInProgress);
+			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->totalPlayers * 2 + $obj->connectedPlayers);
 			$lobbyWindow->show();
 		}
 	}
@@ -306,12 +304,15 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->db->execute(
 			<<<EOHalls
 CREATE TABLE IF NOT EXISTS `Halls` (
- `login` varchar(25) NOT NULL,
- `readyPlayers` int(11) NOT NULL,
- `name` varchar(76) NOT NULL,
- `backLink` varchar(76) NOT NULL,
- PRIMARY KEY (`login`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	`login` VARCHAR(25) NOT NULL,
+	`readyPlayers` INT(10) NOT NULL,
+	`connectedPlayers` INT(10) NOT NULL,
+	`name` VARCHAR(76) NOT NULL,
+	`backLink` VARCHAR(76) NOT NULL,
+	PRIMARY KEY (`login`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
 EOHalls
 		);
 		$this->db->execute(
