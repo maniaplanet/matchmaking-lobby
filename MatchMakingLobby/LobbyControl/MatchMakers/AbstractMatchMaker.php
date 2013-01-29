@@ -1,21 +1,24 @@
 <?php
+
 /**
- * @copyright   Copyright (c) 2009-2012 NADEO (http://www.nadeo.com)
+ * @copyright   Copyright (c) 2009-2013 NADEO (http://www.nadeo.com)
  * @license     http://www.gnu.org/licenses/lgpl.html LGPL License 3
  * @version     $Revision: $:
  * @author      $Author: $:
  * @date        $Date: $:
  */
+namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
+use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
+use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
 
-class MatchMaker extends \ManiaLib\Utils\Singleton
+abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 {
 	const WAITING_STEP = 60;
-	const DISTANCE_THRESHOLD = 20;
+	const DISTANCE_THRESHOLD = 300;
 	
 	/** @var Helpers\Graph */
-	private $graph;
+	protected $graph;
 	
 	function run($matchSize)
 	{
@@ -33,11 +36,17 @@ class MatchMaker extends \ManiaLib\Utils\Singleton
 			$this->graph->deleteNodes(reset($cliques)->getNodes());
 			$nodes = $this->graph->getNodes();
 		}
-		
+		$matches = array_map(function (array $m)
+			{
+				$match = new Match();
+				$match->players = $m;
+				return $match;
+			}, $matches);
+
 		return $matches;
 	}
 	
-	private function buildGraph()
+	protected function buildGraph()
 	{
 		$this->graph = new Helpers\Graph();
 		
@@ -51,7 +60,7 @@ class MatchMaker extends \ManiaLib\Utils\Singleton
 	 * @param PlayerInfo[] $followers
 	 * @return float[string]
 	 */
-	private function computeDistances($player, $followers)
+	protected function computeDistances($player, $followers)
 	{
 		$distances = array();
 		foreach($followers as $follower)
@@ -63,7 +72,7 @@ class MatchMaker extends \ManiaLib\Utils\Singleton
 	 * @param PlayerInfo $p1
 	 * @param PlayerInfo $p2
 	 */
-	private function distance($p1, $p2)
+	protected function distance($p1, $p2)
 	{
 		$distance = abs($p1->ladderPoints - $p2->ladderPoints);
 		
@@ -73,6 +82,8 @@ class MatchMaker extends \ManiaLib\Utils\Singleton
 		
 		return $distance;
 	}
+	
+	abstract function getPlayerScore($login);
 }
 
 ?>

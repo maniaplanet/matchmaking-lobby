@@ -35,6 +35,8 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private $players = array();
 	/** @var string */
 	private $hall = null;
+	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match */
+	private $match = null;
 
 	function onInit()
 	{
@@ -82,7 +84,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 					$this->sleep();
 					break;
 				}
-				$this->prepare($next->hall, $next->players);
+				$this->prepare($next->hall, $next->match);
 				$this->wait();
 				break;
 			case self::DECIDING:
@@ -102,6 +104,11 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerConnect($login, $isSpectator)
 	{
 		$this->players[$login] = true;
+		if(\ManiaLivePlugins\MatchMakingLobby\LobbyControl\Config::getInstance()->isTeamMode)
+		{
+			$team = (array_search($login, $this->match->team1) ? 0 : 1);
+			$this->connection->forcePlayerTeam($login, $team);
+		}
 		if($this->isEverybodyHere())
 		{
 			if($this->state == self::WAITING)
@@ -170,7 +177,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private function getNext()
 	{
 		$result = $this->db->execute(
-				'SELECT H.backLink as hall, S.players FROM Servers  S '.
+				'SELECT H.backLink as hall, S.players as `match` FROM Servers  S '.
 				'INNER JOIN Halls H ON S.hall = H.login '.
 				'WHERE S.login=%s',
 				$this->db->quote($this->storage->serverLogin)
@@ -179,14 +186,15 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		if(!$result || !$result->hall)
 			return false;
 		
-		$result->players = json_decode($result->players);
+		$result->match = json_decode($result->match);
 		return $result;
 	}
 	
-	private function prepare($hall, $players)
+	private function prepare($hall, $match)
 	{
 		$this->hall = $hall;
-		$this->players = array_fill_keys($players, false);
+		$this->players = array_fill_keys($match->players, false);
+		$this->match = $match;
 		Windows\ForceManialink::EraseAll();
 		
 		$giveUp = Windows\GiveUp::Create();
@@ -195,7 +203,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
 		$giveUp->show();
 		
-		foreach($players as $login)
+		foreach($match->players as $login)
 			$this->connection->addGuest($login, true);
 		$this->connection->executeMulticall();
 		
@@ -245,7 +253,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private function decide()
 	{
 		if($this->state != self::DECIDING)
-			$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
+				$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
 		$this->changeState(self::DECIDING);
 	}
 	

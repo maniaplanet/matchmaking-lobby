@@ -35,7 +35,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->setVersion('1.0');
 		$this->config = Config::getInstance();
-		$this->matchMaker = MatchMaker::getInstance();
+		$scriptName = $this->config->script;
+		if(!class_exists('\ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers\\'.$scriptName,false))
+		{
+			throw new \UnexpectedValueException($scriptName.' has no matchMaker');
+		}
+			$this->matchMaker = $scriptName::getInstance();			
 	}
 	
 	function onLoad()
@@ -44,10 +49,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->createTables();
 		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT);
 		$this->enableTickerEvent();
-		
-		$scriptSettings = $this->connection->getModeScriptSettings();
-		$scriptSettings['S_UseLobby'] = true;
-		$this->connection->setModeScriptSettings($scriptSettings);
 		
 		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
 		$this->hall = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->connection->getSystemInfo()->titleId;
@@ -86,7 +87,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		if($this->isInMatch($login))
 		{
 			//TODO Change The Label
-			list($server, $players) = PlayerInfo::Get($login)->getMatch();
+			list($server, ) = PlayerInfo::Get($login)->getMatch();
 			$jumper = Windows\ForceManialink::Create($login);
 			$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
 			$jumper->show();
@@ -96,12 +97,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		}
 		
 		$message = '';
-		$playerObject = $this->storage->getPlayerObject($login);
 		$player = PlayerInfo::Get($login);
 		$message = ($player->ladderPoints ? 'Welcome back. ' : '').'Press F6 to find a match.';
 		$player->setAway(false);
 		$player->setMatch();
-		$player->ladderPoints = $this->getPlayerScore($login);
+		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 		$this->newPlayers[] = $login;
 		
 		$this->createLabel($login, $message);
@@ -130,10 +130,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		{
 			case 0:
 				$matches = $this->matchMaker->run($this->config->playersNeeded);
-				foreach($matches as $players)
+				foreach($matches as $match)
 				{
 					if(!($server = $this->getServer())) break;
-					$this->prepareMatch($server, $players);
+					$this->prepareMatch($server, $match);
 				}
 				$this->updateLobbyWindow();
 				$this->registerLobby();
@@ -180,13 +180,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->updateLobbyWindow();
 	}
 	
-	private function getPlayerScore($login)
-	{
-		//Change here if new way to get Ladder points
-		return $this->storage->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
-	}
-
-
 	protected function onSetShortKey($login, $ready)
 	{
 		$shortKey = Shortkey::Create($login);
@@ -250,24 +243,24 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		}
 	}
 	
-	private function prepareMatch($server, $players)
+	private function prepareMatch($server, $match)
 	{
 		$this->db->execute(
 				'UPDATE Servers SET hall=%s, players=%s WHERE login=%s',
 				$this->db->quote($this->storage->serverLogin),
-				$this->db->quote(json_encode($players)),
+				$this->db->quote(json_encode($match)),
 				$this->db->quote($server)
 			);
 		
 		Group::Erase('match-'.$server);
-		$group = Group::Create('match-'.$server, $players);
+		$group = Group::Create('match-'.$server, $match->players);
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
 		
-		foreach($players as $key => $player)
+		foreach($match->players as $key => $player)
 		{
-			PlayerInfo::Get($player)->setMatch($server, $players);
-			$opponent = $this->storage->getPlayerObject($players[($key + 1) % 2])->nickName;
+			PlayerInfo::Get($player)->setMatch($server, $match->players);
+			$opponent = $this->storage->getPlayerObject($match->players[($key + 1) % 2])->nickName;
 			$this->createLabel($player,
 				sprintf('$0F0Match against $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $opponent), 10);
 		}
