@@ -104,7 +104,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerConnect($login, $isSpectator)
 	{
 		$this->players[$login] = true;
-		if(\ManiaLivePlugins\MatchMakingLobby\LobbyControl\Config::getInstance()->isTeamMode)
+		if($this->match->team1 && $this->match->team2)
 		{
 			$team = (array_search($login, $this->match->team1) ? 0 : 1);
 			$this->connection->forcePlayerTeam($login, $team);

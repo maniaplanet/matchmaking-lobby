@@ -73,6 +73,46 @@ class Elite extends AbstractMatchMaker
 			$m->addPlayerInTeam($player, $teamNumber);
 			if($key % 2 == 0) $teamNumber = !$teamNumber;
 		}
+		
+		$player = reset($m->team1);
+		while(!$player->allies && $player = next($m->team1));
+		
+		if($player->allies)
+		{
+			$alliesKeys = array_keys($m->team2, $player->allies);
+			foreach($m->team1 as $key => $teammate)
+			{
+				if($teammate == $player)
+				{
+					continue;
+				}
+				$tmp = $m->team2[current($alliesKeys)];
+				$m->team2[current($alliesKeys)] = $teammate;
+				$m->team1[$key] = $tmp;
+				next($alliesKeys);
+			}
+		}
+		else
+		{
+			$player = reset($m->team2);
+			while(!$player->allies && $player = next($m->team2));
+			if($player->allies)
+			{
+				$alliesKeys = array_keys($m->team1, $player->allies);
+				foreach($m->team2 as $key => $teammate)
+				{
+					if($teammate == $player)
+					{
+						continue;
+					}
+					$tmp = $m->team1[current($alliesKeys)];
+					$m->team2[current($alliesKeys)] = $teammate;
+					$m->team1[$key] = $tmp;
+					next($alliesKeys);
+				}
+			}
+		}
+
 		return $m;
 	}
 }
