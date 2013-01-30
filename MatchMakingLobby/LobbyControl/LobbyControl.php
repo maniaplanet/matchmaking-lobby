@@ -21,8 +21,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	/** @var Config */
 	private $config;
-	/** @var MatchMaker */
+	/** @var MatchMakers\AbstractMatchMaker */
 	private $matchMaker;
+	/** @var GUI\AbstractGUI */
+	private $gui;
 	
 	/** @var int */
 	private $tick = 0;
@@ -35,12 +37,24 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->setVersion('1.0');
 		$this->config = Config::getInstance();
-		$scriptName = $this->config->script;
-		if(!class_exists('\ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers\\'.$scriptName,false))
+		$scriptName = $this->connection->getScriptName();
+		$scriptName = end(explode('\\', $scriptName['CurrentValue']));
+		$scriptName = ($this->config->script ? : $scriptName);
+		$scriptName = str_ireplace('.script.txt', '', $scriptName);
+	
+		$matchMakerClassName = '\ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers\\'.$scriptName;
+		$guiClassName = '\ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\\'.$scriptName;
+		if(!class_exists($matchMakerClassName))
 		{
-			throw new \UnexpectedValueException($scriptName.' has no matchMaker');
+			throw new \UnexpectedValueException($scriptName.' has no matchMaker class');
 		}
-			$this->matchMaker = $scriptName::getInstance();			
+		$this->matchMaker = $matchMakerClassName::getInstance();			
+		
+		if(!class_exists($guiClassName))
+		{
+			throw new \UnexpectedValueException($guiClassName.' has no GUI class');
+		}
+		$this->gui = $guiClassName::getInstance();			
 	}
 	
 	function onLoad()
@@ -77,7 +91,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->setAlign('right', 'bottom');
-		$lobbyWindow->setPosition(170, 45);
+		$lobbyWindow->setPosition(170, $this->gui->lobbyBoxPosY);
 		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
 		$lobbyWindow->show();
 	}
@@ -92,13 +106,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
 			$jumper->show();
 			
-			$this->createLabel($login, 'You have a match in progress. Prepare to be transfered.');
+			$this->createLabel($login, $this->gui->getMatchInProgressText());
 			return;
 		}
 		
 		$message = '';
 		$player = PlayerInfo::Get($login);
-		$message = ($player->ladderPoints ? 'Welcome back. ' : '').'Press F6 to find a match.';
+		$message = ($player->ladderPoints ? $this->gui->getPlayerBackLabelPrefix() : '').$this->gui->getNotReadyText();
 		$player->setAway(false);
 		$player->setMatch();
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
@@ -129,7 +143,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		switch(++$this->tick % 15)
 		{
 			case 0:
-				$matches = $this->matchMaker->run($this->config->playersNeeded);
+				$matches = $this->matchMaker->run();
 				foreach($matches as $match)
 				{
 					if(!($server = $this->getServer())) break;
@@ -154,7 +168,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		PlayerInfo::Get($login)->setReady(true);
 		$this->onSetShortKey($login, true);
-		$this->createLabel($login, 'Searching for an opponent, F6 to cancel.');
+		$this->createLabel($login, $this->gui->getReadyText());
 		
 		$playerList = Windows\PlayerList::Create();
 		$playerList->setPlayer($login, true);
@@ -171,7 +185,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->cancelMatch($login);
 		}
-		$this->createLabel($login, 'Press F6 to find a match.');
+		$this->createLabel($login, $this->gui->getNotReadyText());
 
 		$playerList = Windows\PlayerList::Create();
 		$playerList->setPlayer($login, false);
@@ -184,8 +198,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$shortKey = Shortkey::Create($login);
 		$callback = array($this, $ready ? 'onPlayerNotReady' : 'onPlayerReady');
-		$shortKey->removeCallback(Shortkey::F6);
-		$shortKey->addCallback(Shortkey::F6, $callback);
+		$shortKey->removeCallback($this->gui->actionKey);
+		$shortKey->addCallback($this->gui->actionKey, $callback);
 	}
 	
 	private function createLabel($login, $message, $countdown = null)
@@ -260,9 +274,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		foreach($match->players as $key => $player)
 		{
 			PlayerInfo::Get($player)->setMatch($server, $match->players);
-			$opponent = $this->storage->getPlayerObject($match->players[($key + 1) % 2])->nickName;
-			$this->createLabel($player,
-				sprintf('$0F0Match against $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $opponent), 10);
+			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), 10);
 		}
 	}
 	

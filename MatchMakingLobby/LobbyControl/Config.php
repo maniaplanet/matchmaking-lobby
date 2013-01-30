@@ -12,8 +12,6 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
 class Config extends \ManiaLib\Utils\Singleton
 {
 	public $script;
-	public $playersNeeded = 2;
-	public $isTeamMode = false;
 }
 
 ?>

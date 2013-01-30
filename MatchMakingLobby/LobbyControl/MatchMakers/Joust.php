@@ -11,7 +11,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
 class Joust extends AbstractMatchMaker
 {
-	const DISTANCE_THRESHOLD = 300;
+	const DISTANCE_THRESHOLD = 1000;
 	
 	function run()
 	{

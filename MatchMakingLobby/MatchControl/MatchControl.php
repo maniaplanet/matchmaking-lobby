@@ -104,11 +104,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerConnect($login, $isSpectator)
 	{
 		$this->players[$login] = true;
-		if($this->match->team1 && $this->match->team2)
-		{
-			$team = (array_search($login, $this->match->team1) ? 0 : 1);
-			$this->connection->forcePlayerTeam($login, $team);
-		}
+		$this->forcePlayerTeam($login);
 		if($this->isEverybodyHere())
 		{
 			if($this->state == self::WAITING)
@@ -116,6 +112,11 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			else // if($this->state == self::ABORTING)
 				$this->play();
 		}
+	}
+	
+	function onPlayerInfoChanged($playerInfo)
+	{
+		$this->forcePlayerTeam($playerInfo['Login']);
 	}
 	
 	function onPlayerDisconnect($login)
@@ -158,6 +159,15 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$lobbyWindow->setPosition(170, 45);
 			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->totalPlayers * 2 + $obj->connectedPlayers);
 			$lobbyWindow->show();
+		}
+	}
+	
+	private function forcePlayerTeam($login)
+	{
+		if($this->match->team1 && $this->match->team2)
+		{
+			$team = (array_keys($this->match->team1, $login) ? 0 : 1);
+			$this->connection->forcePlayerTeam($login, $team);
 		}
 	}
 	

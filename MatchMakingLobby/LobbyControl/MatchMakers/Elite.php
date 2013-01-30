@@ -10,12 +10,13 @@
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
 use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
+use ManiaLivePlugins\MatchMakingLobby\LobbyControl\PlayerInfo;
 
 class Elite extends AbstractMatchMaker
 {
+	protected $isTeamMode = true;
 	
-	const DISTANCE_THRESHOLD = 500;
+	const DISTANCE_THRESHOLD = 1000;
 
 	public function getPlayerScore($login)
 	{
@@ -25,11 +26,8 @@ class Elite extends AbstractMatchMaker
 	function run()
 	{
 		$matches = parent::run(6);
-		
-			if(Config::getInstance()->isTeamMode)
-			{
-				$matches = array_map(array($this, 'distributePlayers'), $matches);
-			}
+
+		$matches = array_map(array($this, 'distributePlayers'), $matches);
 
 		return $matches;
 	}
@@ -75,11 +73,15 @@ class Elite extends AbstractMatchMaker
 		}
 		
 		$player = reset($m->team1);
-		while(!$player->allies && $player = next($m->team1));
-		
-		if($player->allies)
+		do
 		{
-			$alliesKeys = array_keys($m->team2, $player->allies);
+			$playerObj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($player);
+		}
+		while(!$playerObj->allies && $player = next($m->team1));
+		
+		if($playerObj->allies)
+		{
+			$alliesKeys = array_keys($m->team2, $playerObj->allies);
 			foreach($m->team1 as $key => $teammate)
 			{
 				if($teammate == $player)
@@ -89,16 +91,23 @@ class Elite extends AbstractMatchMaker
 				$tmp = $m->team2[current($alliesKeys)];
 				$m->team2[current($alliesKeys)] = $teammate;
 				$m->team1[$key] = $tmp;
-				next($alliesKeys);
+				if(!next($alliesKeys))
+				{
+					break;
+				}
 			}
 		}
 		else
 		{
 			$player = reset($m->team2);
-			while(!$player->allies && $player = next($m->team2));
-			if($player->allies)
+			do
 			{
-				$alliesKeys = array_keys($m->team1, $player->allies);
+				$playerObj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($player);
+			}
+			while(!$playerObj->allies && $player = next($m->team2));
+			if($playerObj->allies)
+			{
+				$alliesKeys = array_keys($m->team1, $playerObj->allies);
 				foreach($m->team2 as $key => $teammate)
 				{
 					if($teammate == $player)
@@ -108,10 +117,16 @@ class Elite extends AbstractMatchMaker
 					$tmp = $m->team1[current($alliesKeys)];
 					$m->team2[current($alliesKeys)] = $teammate;
 					$m->team1[$key] = $tmp;
-					next($alliesKeys);
+					if(!next($alliesKeys))
+					{
+						break;
+					}
 				}
 			}
 		}
+		
+		$m->team1 = array_unique($m->team1);
+		$m->team2 = array_unique($m->team2);
 
 		return $m;
 	}

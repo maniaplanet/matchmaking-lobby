@@ -11,12 +11,18 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
 use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
 use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
+use ManiaLivePlugins\MatchMakingLobby\LobbyControl\PlayerInfo;
 
 abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 {
 	const WAITING_STEP = 60;
 	const DISTANCE_THRESHOLD = 300;
 	
+	/**
+	 * if override to true. Override method distributePlayers to put players in different teams
+	 * @var bool
+	 */
+	protected $isTeamMode = false;
 	/** @var Helpers\Graph */
 	protected $graph;
 	
@@ -42,6 +48,11 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 				$match->players = $m;
 				return $match;
 			}, $matches);
+		
+		if($this->isTeamMode)
+		{
+			$matches = array_map(array($this,'distributePlayers'), $matches);
+		}
 
 		return $matches;
 	}
@@ -81,6 +92,11 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		$distance *= exp(-log(2) * $waitingTime / self::WAITING_STEP);
 		
 		return $distance;
+	}
+	
+	protected function distributePlayers(Match $m)
+	{
+		
 	}
 	
 	abstract function getPlayerScore($login);
