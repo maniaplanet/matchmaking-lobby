@@ -18,6 +18,8 @@ class PlayerInfo
 	public $login;
 	/** @var float */
 	public $ladderPoints;
+	/** @var array */
+	public $allies = array();
 	/** @var \DateTime */
 	private $readySince = null;
 	/** @var \DateTime */

@@ -14,15 +14,24 @@ use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
 
 class Elite extends AbstractGUI
 {
+
 	public $actionKey = Shortkey::F7;
-	
 	public $lobbyBoxPosY = 0;
-	
-	public function getLaunchMatchText(\ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match $m, $player)
+
+	public function getLaunchMatchText(Match $m, $player)
 	{
-		$key = array_search($player, $m->players);
-		$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3])->nickName;
-		$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3])->nickName;
+		$key = array_search($player, $m->team1);
+		if($key)
+		{
+			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3])->nickName;
+			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3])->nickName;
+		}
+		else
+		{
+			$key = array_search($player, $m->team2);
+			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3])->nickName;
+			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3])->nickName;
+		}
 		return sprintf('$0F0Match with $<%s$> & $<%s$> starts in $<$FFF%%2d$>, F7 to cancel...', $mate1, $mate2);
 	}
 
@@ -45,6 +54,7 @@ class Elite extends AbstractGUI
 	{
 		return 'You have a match in progress. Prepare to be transfered.';
 	}
+
 }
 
 ?>

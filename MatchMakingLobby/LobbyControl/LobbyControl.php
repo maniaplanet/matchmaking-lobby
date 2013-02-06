@@ -70,9 +70,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		if(strpos($this->connection->getSystemInfo()->titleId, '@') === false)
 			$this->modeClause .= sprintf(' AND script=%s', $this->db->quote($this->config->script));
 		
+		$availableSlots = $this->getAvailableSlots();
+		$this->connection->setLobbyInfo(true, 0, $availableSlots);
 		$playerList = Windows\PlayerList::Create();
 		$playerList->setAlign('right');
-		$playerList->setPosition(170, 48);
+		$playerList->setPosition(170, $this->gui->lobbyBoxPosY + 3);
 		$playerList->show();
 		
 		foreach($this->storage->players as $login => $player)
@@ -96,6 +98,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$lobbyWindow->show();
 	}
 	
+	function onUnload()
+	{
+		$this->connection->setLobbyInfo(false, 0);
+		parent::onUnload();
+	}
+	
 	function onPlayerConnect($login, $isSpectator)
 	{
 		if($this->isInMatch($login))
@@ -116,6 +124,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$player->setAway(false);
 		$player->setMatch();
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
+		$player->allies = $this->connection->getDetailedPlayerInfo($login)->allies;
 		$this->newPlayers[] = $login;
 		
 		$this->createLabel($login, $message);
@@ -166,7 +175,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	function onPlayerReady($login)
 	{
-		PlayerInfo::Get($login)->setReady(true);
+		$player = PlayerInfo::Get($login);
+		$player->setReady(true);
+		$player->allies = $this->connection->getDetailedPlayerInfo($login)->allies;
 		$this->onSetShortKey($login, true);
 		$this->createLabel($login, $this->gui->getReadyText());
 		
@@ -215,6 +226,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
+		$availableSlots = $this->getAvailableSlots();
+		
+		$this->connection->setLobbyInfo(true, $totalPlayerCount, $availableSlots);
+		
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
 		$lobbyWindow->show();
@@ -300,6 +315,14 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$playerCount = count($this->connection->getPlayerList(-1, 0));
 		
 		return $playerCount + $matchCount * 2;
+	}
+	
+	private function getAvailableSlots()
+	{
+		return $this->db->execute(
+				'SELECT COUNT(*) FROM Servers '.
+				'WHERE '.$this->modeClause
+			)->fetchSingleValue(null);
 	}
 	
 	private function registerLobby()

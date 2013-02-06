@@ -28,7 +28,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 	{
 		$this->label = new \ManiaLib\Gui\Elements\Label(400);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
-		$this->label->setScale(0.6);
+		$this->label->setTextSize(5);
 		$this->label->setHalign('center');
 		$this->addComponent($this->label);
 		

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @copyright   Copyright (c) 2009-2013 NADEO (http://www.nadeo.com)
  * @license     http://www.gnu.org/licenses/lgpl.html LGPL License 3
@@ -7,6 +6,7 @@
  * @author      $Author: $:
  * @date        $Date: $:
  */
+
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
 use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
@@ -14,9 +14,10 @@ use ManiaLivePlugins\MatchMakingLobby\LobbyControl\PlayerInfo;
 
 class Elite extends AbstractMatchMaker
 {
+
 	protected $isTeamMode = true;
-	
-	const DISTANCE_THRESHOLD = 1000;
+
+	const DISTANCE_THRESHOLD = 100000;
 
 	public function getPlayerScore($login)
 	{
@@ -25,11 +26,7 @@ class Elite extends AbstractMatchMaker
 
 	function run()
 	{
-		$matches = parent::run(6);
-
-		$matches = array_map(array($this, 'distributePlayers'), $matches);
-
-		return $matches;
+		return parent::run(6);
 	}
 
 	/**
@@ -44,13 +41,16 @@ class Elite extends AbstractMatchMaker
 		{
 			return 0;
 		}
-		
+
 		return parent::distance($p1, $p2);
 	}
 
 	protected function distributePlayers(Match $m)
 	{
+		/* @var $storage \ManiaLive\Data\Storage */
+		$storage = \ManiaLive\Data\Storage::getInstance();
 		$players = $m->players;
+
 		usort($players,
 			function ($a, $b)
 			{
@@ -63,6 +63,25 @@ class Elite extends AbstractMatchMaker
 				return ($pa->ladderPoints > $pb->ladderPoints) ? -1 : 1;
 			}
 		);
+		$playersInfo = array();
+		
+		foreach($players as $player)
+		{
+			$playersInfo[$player] = PlayerInfo::Get($player);
+		}
+
+		$alliesCountPlayers = array();
+		foreach($playersInfo as $player)
+		{
+			if(count($player->allies) == 2)
+			{
+				$alliesCountPlayers[2][] = $player->login;
+			}
+			elseif(count($player->allies) == 1)
+			{
+				$alliesCountPlayers[1][] = $player->login;
+			}
+		}
 
 		$teamNumber = false;
 		foreach($players as $key => $player)
@@ -71,65 +90,52 @@ class Elite extends AbstractMatchMaker
 			$m->addPlayerInTeam($player, $teamNumber);
 			if($key % 2 == 0) $teamNumber = !$teamNumber;
 		}
+
 		
-		$player = reset($m->team1);
-		do
+		if(isset($alliesCountPlayers[2]) && count($alliesCountPlayers[2])) $ally = array_shift($alliesCountPlayers[2]);
+		elseif(isset($alliesCountPlayers[1]) && count($alliesCountPlayers[1])) $ally = array_shift($alliesCountPlayers[1]);
+		else $ally = null;
+
+		if($ally)
 		{
-			$playerObj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($player);
-		}
-		while(!$playerObj->allies && $player = next($m->team1));
-		
-		if($playerObj->allies)
-		{
-			$alliesKeys = array_keys($m->team2, $playerObj->allies);
-			foreach($m->team1 as $key => $teammate)
+			$allies = $playersInfo[$ally]->allies;
+			$allies[] = $ally;
+			
+			if(array_search($ally, $m->team1))
 			{
-				if($teammate == $player)
-				{
-					continue;
-				}
-				$tmp = $m->team2[current($alliesKeys)];
-				$m->team2[current($alliesKeys)] = $teammate;
-				$m->team1[$key] = $tmp;
-				if(!next($alliesKeys))
-				{
-					break;
-				}
+				list($m->team2, $m->team1) = $this->teamSwitch($m->team2, $m->team1, $allies);
+			}
+			elseif(array_search($ally, $m->team2))
+			{
+				list($m->team1, $m->team2) = $this->teamSwitch($m->team1, $m->team2, $allies);
 			}
 		}
-		else
-		{
-			$player = reset($m->team2);
-			do
-			{
-				$playerObj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($player);
-			}
-			while(!$playerObj->allies && $player = next($m->team2));
-			if($playerObj->allies)
-			{
-				$alliesKeys = array_keys($m->team1, $playerObj->allies);
-				foreach($m->team2 as $key => $teammate)
-				{
-					if($teammate == $player)
-					{
-						continue;
-					}
-					$tmp = $m->team1[current($alliesKeys)];
-					$m->team2[current($alliesKeys)] = $teammate;
-					$m->team1[$key] = $tmp;
-					if(!next($alliesKeys))
-					{
-						break;
-					}
-				}
-			}
-		}
-		
-		$m->team1 = array_unique($m->team1);
-		$m->team2 = array_unique($m->team2);
 
 		return $m;
 	}
+
+	protected function teamSwitch(array $aTeam, array $bTeam, array $fixPlayers)
+	{
+		$movingAllies = array_diff($fixPlayers, $bTeam);
+		foreach($bTeam as $key => $player)
+		{
+			if(in_array($player, $fixPlayers))
+			{
+				continue;
+			}
+			$allyKey = array_search(current($movingAllies), $aTeam);
+			$tmp = $aTeam[$allyKey];
+			$aTeam[$allyKey] = $player;
+			$bTeam[$key] = $tmp;
+			if(!next($movingAllies))
+			{
+				break;
+			}
+		}
+
+		return array($aTeam, $bTeam);
+	}
+
 }
 
 ?>

@@ -37,6 +37,8 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private $hall = null;
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match */
 	private $match = null;
+	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\AbstractGUI */
+	private $gui;
 
 	function onInit()
 	{
@@ -63,6 +65,17 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->enableDatabase();
 		$this->enableTickerEvent();
 		$this->createTables();
+		
+		$scriptName = $this->connection->getScriptName();
+		$scriptName = end(explode('\\', $scriptName['CurrentValue']));
+		$scriptName = str_ireplace('.script.txt', '', $scriptName);
+	
+		$guiClassName = '\ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\\'.$scriptName;
+		if(!class_exists($guiClassName))
+		{
+			throw new \UnexpectedValueException($guiClassName.' has no GUI class');
+		}
+		$this->gui = $guiClassName::getInstance();	
 		
 		$this->updateLobbyWindow();
 	}
@@ -156,7 +169,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 			$lobbyWindow = Windows\LobbyWindow::Create();
 			$lobbyWindow->setAlign('right', 'bottom');
-			$lobbyWindow->setPosition(170, 45);
+			$lobbyWindow->setPosition(170, $this->gui->lobbyBoxPosY);
 			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->totalPlayers * 2 + $obj->connectedPlayers);
 			$lobbyWindow->show();
 		}
