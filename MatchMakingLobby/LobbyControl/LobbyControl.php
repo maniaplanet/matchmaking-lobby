@@ -71,7 +71,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->modeClause .= sprintf(' AND script=%s', $this->db->quote($this->config->script));
 		
 		$availableSlots = $this->getAvailableSlots();
-		$this->connection->setLobbyInfo(true, 0, $availableSlots);
+		$this->connection->setLobbyInfo(true, 0, $availableSlots, $availableSlots);
 		$playerList = Windows\PlayerList::Create();
 		$playerList->setAlign('right');
 		$playerList->setPosition(170, $this->gui->lobbyBoxPosY + 3);
@@ -100,7 +100,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	function onUnload()
 	{
-		$this->connection->setLobbyInfo(false, 0);
+		$this->connection->setLobbyInfo(false, 0, $this->storage->server->currentMaxPlayers);
 		parent::onUnload();
 	}
 	
@@ -228,7 +228,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$totalPlayerCount = $this->getTotalPlayerCount();
 		$availableSlots = $this->getAvailableSlots();
 		
-		$this->connection->setLobbyInfo(true, $totalPlayerCount, $availableSlots);
+		$this->connection->setLobbyInfo(true, $totalPlayerCount, $availableSlots, $totalPlayerCount);
 		
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
@@ -322,7 +322,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		return $this->db->execute(
 				'SELECT COUNT(*) FROM Servers '.
 				'WHERE '.$this->modeClause
-			)->fetchSingleValue(null);
+			)->fetchSingleValue(null) * 6 + $this->storage->server->currentMaxPlayers;
 	}
 	
 	private function registerLobby()
