@@ -15,7 +15,7 @@ use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
 class Elite extends AbstractGUI
 {
 
-	public $actionKey = Shortkey::F7;
+	public $actionKey = Shortkey::F6;
 	public $lobbyBoxPosY = 0;
 
 	public function getLaunchMatchText(Match $m, $player)
@@ -32,12 +32,12 @@ class Elite extends AbstractGUI
 			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3])->nickName;
 			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3])->nickName;
 		}
-		return sprintf('$0F0Match with $<%s$> & $<%s$> starts in $<$FFF%%2d$>, F7 to cancel...', $mate1, $mate2);
+		return sprintf('$0F0Match with $<%s$> & $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $mate1, $mate2);
 	}
 
 	public function getNotReadyText()
 	{
-		return 'Press F7 to find a match.';
+		return 'Press F6 to find a match.';
 	}
 
 	public function getPlayerBackLabelPrefix()
@@ -47,7 +47,7 @@ class Elite extends AbstractGUI
 
 	public function getReadyText()
 	{
-		return 'Searching for an opponent, F7 to cancel.';
+		return 'Searching for an opponent, F6 to cancel.';
 	}
 
 	public function getMatchInProgressText()

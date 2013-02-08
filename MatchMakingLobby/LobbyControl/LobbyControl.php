@@ -205,6 +205,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->updateLobbyWindow();
 	}
 	
+	function onPlayerAlliesChanged($login)
+	{
+		PlayerInfo::Get($login)->allies = $this->getPlayerObject($login)->allies;
+	}
+	
 	protected function onSetShortKey($login, $ready)
 	{
 		$shortKey = Shortkey::Create($login);
