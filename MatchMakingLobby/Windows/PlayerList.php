@@ -38,8 +38,11 @@ class PlayerList extends \ManiaLive\Gui\Window
 	
 	function removePlayer($login)
 	{
-		$this->frame->removeComponent($this->playerList[$login]);
-		unset($this->playerList[$login]);
+		if(array_key_exists($login, $this->playerList))
+		{
+			$this->frame->removeComponent($this->playerList[$login]);
+			unset($this->playerList[$login]);
+		}
 	}
 	
 	function setPlayer($login, $ready)
