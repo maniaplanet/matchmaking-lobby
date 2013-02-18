@@ -64,7 +64,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT);
 		$this->enableTickerEvent();
 		
-		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
 		$this->hall = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->connection->getSystemInfo()->titleId;
 		$this->modeClause = sprintf('title=%s', $this->db->quote($this->connection->getSystemInfo()->titleId));
 		if(strpos($this->connection->getSystemInfo()->titleId, '@') === false)
@@ -233,7 +232,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$totalPlayerCount = $this->getTotalPlayerCount();
 		$availableSlots = $this->getAvailableSlots();
 		
-		$this->connection->setLobbyInfo(true, $totalPlayerCount, $availableSlots, $totalPlayerCount);
+		$this->connection->setLobbyInfo(true, $totalPlayerCount, $availableSlots);
 		
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
