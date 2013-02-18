@@ -21,7 +21,7 @@ class Elite extends AbstractGUI
 	public function getLaunchMatchText(Match $m, $player)
 	{
 		$key = array_search($player, $m->team1);
-		if($key)
+		if($key !== false)
 		{
 			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3])->nickName;
 			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3])->nickName;
@@ -29,8 +29,8 @@ class Elite extends AbstractGUI
 		else
 		{
 			$key = array_search($player, $m->team2);
-			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3])->nickName;
-			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3])->nickName;
+			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team2[($key + 1) % 3])->nickName;
+			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team2[($key + 2) % 3])->nickName;
 		}
 		return sprintf('$0F0Match with $<%s$> & $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $mate1, $mate2);
 	}

@@ -222,7 +222,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
-		$giveUp->setPosition(160.1, 50);
+		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
 		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
 		$giveUp->show();
 		

@@ -32,6 +32,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private $hall;
 	/** @var string */
 	private $modeClause;
+	/** @var int[] */
+	private $countDown = array();
 
 	function onInit()
 	{
@@ -138,7 +140,18 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	function onPlayerDisconnect($login)
 	{
-		PlayerInfo::Get($login)->setAway();
+		$player = PlayerInfo::Get($login);
+		$player->setAway();
+		
+		list($server, ) = $player->getMatch();
+		$groupName = 'match-'.$server;
+		$group = Group::Get($groupName);
+
+		if($group && $group->contains($login) && $this->countDown[$groupName] > 0)
+		{
+			$this->onPlayerNotReady($login);
+		}
+		
 		$playerList = Windows\PlayerList::Create();
 		$playerList->removePlayer($login);
 		$playerList->redraw();
@@ -148,7 +161,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	function onTick()
 	{
-		switch(++$this->tick % 15)
+		switch(++$this->tick % 5)
 		{
 			case 0:
 				$matches = $this->matchMaker->run();
@@ -163,12 +176,22 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			case 5:
 				PlayerInfo::CleanUp();
 				break;
-			case 10:
-				foreach(Windows\ForceManialink::GetAll() as $jumper)
+		}
+		
+		foreach($this->countDown as $groupName => $value)
+		{
+			switch(--$value)
+			{
+				case -1:
+					 Windows\ForceManialink::Erase(Group::Get($groupName));
+					unset($this->countDown[$groupName]);
+					break;
+				case 0:
+					$jumper = Windows\ForceManialink::Get(Group::Get($groupName));
 					$jumper->show();
-				break;
-			case 11:
-				Windows\ForceManialink::EraseAll();
+				default:
+					$this->countDown[$groupName] = $value;
+			}
 		}
 	}
 	
@@ -176,7 +199,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$player = PlayerInfo::Get($login);
 		$player->setReady(true);
-		$player->allies = $this->connection->getDetailedPlayerInfo($login)->allies;
+//		$player->allies = $this->connection->getDetailedPlayerInfo($login)->allies;
 		$this->onSetShortKey($login, true);
 		$this->createLabel($login, $this->gui->getReadyText());
 		
@@ -189,9 +212,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	function onPlayerNotReady($login)
 	{
-		PlayerInfo::Get($login)->setReady(false);
+		$player = PlayerInfo::Get($login);
+		$player->setReady(false);
 		$this->onSetShortKey($login, false);
-		if($this->isInMatch($login))
+		if($player->isInMatch())
 		{
 			$this->cancelMatch($login);
 		}
@@ -206,7 +230,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	function onPlayerAlliesChanged($login)
 	{
+		\ManiaLive\Utilities\Console::print_rln(PlayerInfo::Get($login)->allies);
 		PlayerInfo::Get($login)->allies = $this->getPlayerObject($login)->allies;
+		\ManiaLive\Utilities\Console::print_rln(PlayerInfo::Get($login)->allies);
 	}
 	
 	protected function onSetShortKey($login, $ready)
@@ -262,7 +288,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function cancelMatch($login)
 	{
 		list($server, $players) = PlayerInfo::Get($login)->getMatch();
-		Group::Erase('match-'.$server);
+		$groupName = 'match-'.$server;
+		Group::Erase($groupName);
+		unset($this->countDown[$groupName]);
 		$this->db->execute(
 			'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s', $this->db->quote($server)
 		);
@@ -285,15 +313,17 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 				$this->db->quote($server)
 			);
 		
-		Group::Erase('match-'.$server);
+		$groupName = 'match-'.$server;
+		Group::Erase($groupName);
 		$group = Group::Create('match-'.$server, $match->players);
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
+		$this->countDown[$groupName] = 10;
 		
-		foreach($match->players as $key => $player)
+		foreach($match->players as $player)
 		{
 			PlayerInfo::Get($player)->setMatch($server, $match->players);
-			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), 10);
+			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName]);
 		}
 	}
 	

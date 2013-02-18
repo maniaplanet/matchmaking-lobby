@@ -36,19 +36,15 @@ class Elite extends AbstractMatchMaker
 	protected function distance($p1, $p2)
 	{
 		// If players are allies there is no distance between them
-		$playerObj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($p1->login);
-		if(in_array($p2->login, $playerObj->allies))
+		if(in_array($p2->login, $p1->allies))
 		{
-			return 0;
+			return -1;
 		}
-
 		return parent::distance($p1, $p2);
 	}
 
 	protected function distributePlayers(Match $m)
 	{
-		/* @var $storage \ManiaLive\Data\Storage */
-		$storage = \ManiaLive\Data\Storage::getInstance();
 		$players = $m->players;
 
 		usort($players,

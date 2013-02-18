@@ -30,7 +30,14 @@ class PlayerList extends \ManiaLive\Gui\Window
 	function addPlayer($login, $ready = false)
 	{
 		$storage = \ManiaLive\Data\Storage::getInstance();
-		$tmp = new \ManiaLivePlugins\MatchMakingLobby\Controls\Player($storage->getPlayerObject($login)->nickName);
+		try
+		{
+			$tmp = new \ManiaLivePlugins\MatchMakingLobby\Controls\Player($storage->getPlayerObject($login)->nickName);
+		}
+		catch(\Exception $e)
+		{
+			return;
+		}
 		$tmp->setReady($ready);
 		$this->playerList[$login] = $tmp;
 		$this->frame->addComponent($this->playerList[$login]);
@@ -40,9 +47,11 @@ class PlayerList extends \ManiaLive\Gui\Window
 	{
 		if(array_key_exists($login, $this->playerList))
 		{
-			$this->frame->removeComponent($this->playerList[$login]);
 			unset($this->playerList[$login]);
 		}
+		$this->frame->clearComponents();
+		foreach($this->playerList as $component)
+			$this->frame->addComponent($component);
 	}
 	
 	function setPlayer($login, $ready)
