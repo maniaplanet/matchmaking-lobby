@@ -16,6 +16,7 @@ class Elite extends AbstractMatchMaker
 {
 
 	protected $isTeamMode = true;
+	public $playerPerMatch = 6;
 
 	const DISTANCE_THRESHOLD = 100000;
 
@@ -26,7 +27,7 @@ class Elite extends AbstractMatchMaker
 
 	function run()
 	{
-		return parent::run(6);
+		return parent::run($this->playerPerMatch);
 	}
 
 	/**

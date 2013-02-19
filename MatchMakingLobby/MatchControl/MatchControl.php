@@ -230,7 +230,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->addGuest($login, true);
 		$this->connection->executeMulticall();
 		
-		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_END_MATCH);
+		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_END_MATCH | ServerEvent::ON_PLAYER_INFO_CHANGED);
 		Label::EraseAll();
 	}
 	

@@ -63,7 +63,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->enableDatabase();
 		$this->createTables();
-		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT);
+		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_PLAYER_ALLIES_CHANGED);
 		$this->enableTickerEvent();
 		
 		$this->hall = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->connection->getSystemInfo()->titleId;
@@ -71,8 +71,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		if(strpos($this->connection->getSystemInfo()->titleId, '@') === false)
 			$this->modeClause .= sprintf(' AND script=%s', $this->db->quote($this->config->script));
 		
-		$availableSlots = $this->getAvailableSlots();
-		$this->connection->setLobbyInfo(true, 0, $availableSlots, $availableSlots);
+		$this->setLobbyInfo();
 		$playerList = Windows\PlayerList::Create();
 		$playerList->setAlign('right');
 		$playerList->setPosition(170, $this->gui->lobbyBoxPosY + 3);
@@ -101,7 +100,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	function onUnload()
 	{
-		$this->connection->setLobbyInfo(false, 0, $this->storage->server->currentMaxPlayers);
+		$this->setLobbyInfo(false);
 		parent::onUnload();
 	}
 	
@@ -125,7 +124,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$player->setAway(false);
 		$player->setMatch();
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
-		$player->allies = $this->connection->getDetailedPlayerInfo($login)->allies;
+		$player->allies = $this->storage->getPlayerObject($login)->allies;
 		$this->newPlayers[] = $login;
 		
 		$this->createLabel($login, $message);
@@ -187,8 +186,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 					unset($this->countDown[$groupName]);
 					break;
 				case 0:
-					$jumper = Windows\ForceManialink::Get(Group::Get($groupName));
-					$jumper->show();
+					Windows\ForceManialink::Create(Group::Get($groupName))->show();
 				default:
 					$this->countDown[$groupName] = $value;
 			}
@@ -199,7 +197,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$player = PlayerInfo::Get($login);
 		$player->setReady(true);
-//		$player->allies = $this->connection->getDetailedPlayerInfo($login)->allies;
 		$this->onSetShortKey($login, true);
 		$this->createLabel($login, $this->gui->getReadyText());
 		
@@ -230,9 +227,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	function onPlayerAlliesChanged($login)
 	{
-		\ManiaLive\Utilities\Console::print_rln(PlayerInfo::Get($login)->allies);
-		PlayerInfo::Get($login)->allies = $this->getPlayerObject($login)->allies;
-		\ManiaLive\Utilities\Console::print_rln(PlayerInfo::Get($login)->allies);
+		PlayerInfo::Get($login)->allies = $this->storage->getPlayerObject($login)->allies;
 	}
 	
 	protected function onSetShortKey($login, $ready)
@@ -256,9 +251,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
-		$availableSlots = $this->getAvailableSlots();
 		
-		$this->connection->setLobbyInfo(true, $totalPlayerCount, $availableSlots);
+		$this->setLobbyInfo();
 		
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
@@ -348,7 +342,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		
 		$playerCount = count($this->connection->getPlayerList(-1, 0));
 		
-		return $playerCount + $matchCount * 2;
+		return $playerCount + $matchCount * $this->matchMaker->playerPerMatch;
 	}
 	
 	private function getAvailableSlots()
@@ -356,7 +350,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		return $this->db->execute(
 				'SELECT COUNT(*) FROM Servers '.
 				'WHERE '.$this->modeClause
-			)->fetchSingleValue(null) * 6 + $this->storage->server->currentMaxPlayers;
+			)->fetchSingleValue(null) * $this->matchMaker->playerPerMatch + $this->storage->server->currentMaxPlayers;
 	}
 	
 	private function registerLobby()
@@ -368,6 +362,21 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			count($this->connection->getPlayerList(-1, 0)),
 			$this->db->quote($this->storage->server->name), $this->db->quote($this->hall)
 		);
+	}
+	
+	private function setLobbyInfo($enable = true)
+	{
+		if($enable)
+		{
+			$lobbyPlayers = $this->getTotalPlayerCount();
+			$maxPlayers = $this->getAvailableSlots();
+		}
+		else
+		{
+			$lobbyPlayers = count($this->connection->getPlayerList(-1, 0));
+			$maxPlayers = $this->storage->server->currentMaxPlayers;
+		}
+		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);
 	}
 	
 	private function createTables()

@@ -26,6 +26,8 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	/** @var Helpers\Graph */
 	protected $graph;
 	
+	public $playerPerMatch = 0;
+	
 	function run($matchSize)
 	{
 		$matches = array();
@@ -90,6 +92,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		// Waiting time coefficient
 		$waitingTime = $p1->getWaitingTime() + $p2->getWaitingTime();
 		$distance *= exp(-log(2) * $waitingTime / self::WAITING_STEP);
+		\ManiaLive\Utilities\Logger::getLog('matchMakingDebug')->write(sprintf('distance %d, P1:%s|P2:%s',$distance,$p1->login, $p2->login));
 		
 		return $distance;
 	}

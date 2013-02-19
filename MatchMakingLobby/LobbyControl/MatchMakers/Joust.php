@@ -11,11 +11,13 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
 class Joust extends AbstractMatchMaker
 {
-	const DISTANCE_THRESHOLD = 1000;
+	public $playerPerMatch = 2;
+	
+	const DISTANCE_THRESHOLD = 10000;
 	
 	function run()
 	{
-		return parent::run(2);
+		return parent::run($this->playerPerMatch);
 	}
 	
 	protected function distance($p1, $p2)
