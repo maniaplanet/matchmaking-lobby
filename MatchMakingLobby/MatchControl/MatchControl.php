@@ -44,6 +44,8 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\AbstractGUI */
 	private $gui;
+	
+	private $waitingTime = 0;
 
 	function onInit()
 	{
@@ -61,7 +63,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->nextTick = new \DateTime();
 		$this->intervals = array(
 			self::ABORTING => '1 minute',
-			self::WAITING => '1 minute',
+			self::WAITING => '5 seconds',
 			self::SLEEPING => '5 seconds',
 			self::DECIDING => '30 seconds',
 			self::PLAYING => null,
@@ -108,7 +110,17 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 				$this->play();
 				break;
 			case self::WAITING:
-				$this->cancel();
+				$this->waitingTime += 5;
+				$current = $this->getNext();
+				if($this->waitingTime >= 60 || !$current->hall || !$current->match)
+				{
+					$this->cancel();
+				}
+				if($current->hall != $this->hall || $current->match != $this->match)
+				{
+					$this->prepare($current->hall, $current->match);
+					$this->wait();
+				}
 				break;
 			case self::ABORTING:
 				$this->cancel();
@@ -236,6 +248,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private function wait()
 	{
 		$this->changeState(self::WAITING);
+		$this->waitingTime = 0;
 	}
 
 	private function abort()
