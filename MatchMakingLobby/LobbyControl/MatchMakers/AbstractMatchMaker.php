@@ -47,7 +47,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 			$this->graph->deleteNodes(reset($cliques)->getNodes());
 			$nodes = $this->graph->getNodes();
 		}
-		$matches = array_map(function (array $m)
+		$matchObjects = array_map(function (array $m)
 			{
 				$match = new Match();
 				$match->players = $m;
@@ -56,19 +56,22 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 
 		if($this->isTeamMode)
 		{
-			$matches = array_map(array($this, 'distributePlayers'), $matches);
+			$matches = array_map(array($this, 'distributePlayers'), $matchObjects);
 		}
 
-		return $matches;
+		return $matchObjects;
 	}
 
 	protected function buildGraph()
 	{
 		$this->graph = new Helpers\Graph();
 
-		$followers = PlayerInfo::GetReady();
+		$readyPlayers = PlayerInfo::GetReady();
+		$followers = array_filter($readyPlayers, function ($f) { return !$f->isInMatch(); });
 		while($player = array_shift($followers))
+		{
 			$this->graph->addNode($player->login, $this->computeDistances($player, $followers));
+		}
 	}
 
 	/**

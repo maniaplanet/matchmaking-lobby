@@ -29,9 +29,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	/** @var GUI\AbstractGUI */
 	private $gui;
 
-	/** @var int */
-	private $tick = 0;
-
 	/** @var string */
 	private $hall;
 
@@ -39,7 +36,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private $modeClause;
 
 	/** @var int[] */
-	private $preparedMatches = array();
+	private $countDown = array();
 	
 	/** @var array */
 	private $newPlayers = array();
@@ -153,7 +150,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$groupName = 'match-'.$server;
 		$group = Group::Get($groupName);
 
-		if($group && $group->contains($login) && $this->preparedMatches[$groupName]['countDown'] > 0)
+		if($group && $group->contains($login) && $this->countDown > 0)
 		{
 			$this->onPlayerNotReady($login);
 		}
@@ -170,15 +167,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$matches = $this->matchMaker->run();
 		foreach($matches as $match)
 		{
-			$alreadyExist = false;
-			foreach($this->preparedMatches as $m)
-			{
-				if($m['match'] == $match)
-				{
-					$alreadyExist = true;
-				}
-			}
-			if($alreadyExist || !($server = $this->getServer())) break;
+			if(!($server = $this->getServer())) break;
 			$this->prepareMatch($server, $match);
 		}
 		$this->updateLobbyWindow();
@@ -198,19 +187,19 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 
-		foreach($this->preparedMatches as $groupName => $data)
+		foreach($this->countDown as $groupName => $countDown)
 		{
-			switch(--$data['countDown'])
+			switch(--$countDown)
 			{
 				case -1:
 					Windows\ForceManialink::Erase(Group::Get($groupName));
 					Group::Erase($groupName);
-					unset($this->preparedMatches[$groupName]);
+					unset($this->countDown[$groupName]);
 					break;
 				case 0:
 					Windows\ForceManialink::Create(Group::Get($groupName))->show();
 				default:
-					$this->preparedMatches[$groupName] = $data;
+					$this->countDown[$groupName] = $countDown;
 			}
 		}
 	}
@@ -310,7 +299,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$groupName = 'match-'.$server;
 		Windows\ForceManialink::Erase(Group::Get($groupName));
 		Group::Erase($groupName);
-		unset($this->preparedMatches[$groupName]);
+		unset($this->countDown[$groupName]);
 		$this->db->execute(
 			'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s', $this->db->quote($server)
 		);
@@ -321,16 +310,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			{
 				$this->onPlayerReady($playerLogin);
 			}
+			PlayerInfo::Get($playerLogin)->setMatch();
 		}
 	}
 
 	private function prepareMatch($server, $match)
 	{
 		$groupName = 'match-'.$server;
-		if(array_key_exists($groupName, $this->preparedMatches))
-		{
-			return;
-		}
 		$this->db->execute(
 			'UPDATE Servers SET hall=%s, players=%s WHERE login=%s', $this->db->quote($this->storage->serverLogin),
 			$this->db->quote(json_encode($match)), $this->db->quote($server)
@@ -340,13 +326,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$group = Group::Create('match-'.$server, $match->players);
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
-		$this->preparedMatches[$groupName]['countDown'] = 11;
-		$this->preparedMatches[$groupName]['match'] = $match;
+		$this->countDown[$groupName] = 11;
 
 		foreach($match->players as $player)
 		{
 			PlayerInfo::Get($player)->setMatch($server, $match->players);
-			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->preparedMatches[$groupName]['countDown'] - 1);
+			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
 		}
 	}
 
@@ -377,7 +362,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		return $this->db->execute(
 				'SELECT COUNT(*) FROM Servers '.
-				'WHERE '.$this->modeClause
+				'WHERE DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() AND '.$this->modeClause
 			)->fetchSingleValue(null) * $this->matchMaker->playerPerMatch + $this->storage->server->currentMaxPlayers;
 	}
 
