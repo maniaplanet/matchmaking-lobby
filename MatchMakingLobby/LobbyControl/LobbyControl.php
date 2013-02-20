@@ -164,22 +164,15 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onTick()
 	{
-		switch(++$this->tick % 5)
+		$matches = $this->matchMaker->run();
+		foreach($matches as $match)
 		{
-			case 0:
-				$matches = $this->matchMaker->run();
-				foreach($matches as $match)
-				{
-					if(!($server = $this->getServer())) break;
-					$this->prepareMatch($server, $match);
-				}
-				$this->updateLobbyWindow();
-				$this->registerLobby();
-				break;
-			case 5:
-				PlayerInfo::CleanUp();
-				break;
+			if(!($server = $this->getServer())) break;
+			$this->prepareMatch($server, $match);
 		}
+		$this->updateLobbyWindow();
+		$this->registerLobby();
+		PlayerInfo::CleanUp();
 
 		foreach($this->countDown as $groupName => $value)
 		{
@@ -303,12 +296,16 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	private function prepareMatch($server, $match)
 	{
+		$groupName = 'match-'.$server;
+		if(array_key_exists($groupName, $this->countDown) && $this->countDown[$groupName] > 0)
+		{
+			return;
+		}
 		$this->db->execute(
 			'UPDATE Servers SET hall=%s, players=%s WHERE login=%s', $this->db->quote($this->storage->serverLogin),
 			$this->db->quote(json_encode($match)), $this->db->quote($server)
 		);
 
-		$groupName = 'match-'.$server;
 		Group::Erase($groupName);
 		$group = Group::Create('match-'.$server, $match->players);
 		$jumper = Windows\ForceManialink::Create($group);

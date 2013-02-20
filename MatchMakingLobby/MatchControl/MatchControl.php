@@ -124,7 +124,8 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->forcePlayerTeam($login);
 		if($this->isEverybodyHere())
 		{
-			if($this->state == self::WAITING) $this->decide(); else // if($this->state == self::ABORTING) $this->play();
+			if($this->state == self::WAITING) $this->decide(); 
+			elseif($this->state == self::ABORTING) $this->play();
 		}
 	}
 
@@ -142,7 +143,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
 		if($this->state == self::PLAYING) $this->over();
-		else if($this->state == self::DECIDING) $this->decide();
+		elseif($this->state == self::DECIDING) $this->decide();
 	}
 
 	function onGiveUp($login)
