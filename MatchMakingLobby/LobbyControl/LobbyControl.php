@@ -209,6 +209,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerReady($login)
 	{
+		if(array_key_exists($login, $this->newPlayers))
+		{
+			unset($this->newPlayers[$login]);
+		}
 		$player = PlayerInfo::Get($login);
 		$player->setReady(true);
 		$this->onSetShortKey($login, true);
