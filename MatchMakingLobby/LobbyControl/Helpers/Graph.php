@@ -11,9 +11,10 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
 
 class Graph
 {
+
 	/** @var float[string][string] */
 	private $distances = array();
-	
+
 	/**
 	 * @param string $name
 	 * @param float[string] $distances
@@ -22,7 +23,7 @@ class Graph
 	{
 		$this->distances[$name] = $distances;
 	}
-	
+
 	/**
 	 * @param string[] $names
 	 */
@@ -33,7 +34,7 @@ class Graph
 		foreach($this->distances as &$followersDistances)
 			$followersDistances = array_diff_key($followersDistances, $diffArray);
 	}
-	
+
 	/**
 	 * @return string[]
 	 */
@@ -41,7 +42,7 @@ class Graph
 	{
 		return array_keys($this->distances);
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @param float $threshold
@@ -49,9 +50,12 @@ class Graph
 	 */
 	function getNeighbours($name, $threshold)
 	{
-		return array_filter($this->distances[$name], function($d) use($threshold) { return $d <= $threshold; });
+		return array_filter($this->distances[$name], function($d) use($threshold)
+				{
+					return $d <= $threshold;
+				});
 	}
-	
+
 	/**
 	 * @param int $size
 	 * @param float $threshold
@@ -61,22 +65,21 @@ class Graph
 	{
 		$cliques = array();
 		$temp[] = new Clique($startNode, $this->getNeighbours($startNode, $threshold));
-		
+
 		while($clique = array_shift($temp))
 		{
 			foreach(array_keys($clique->getNeighbours()) as $neighbourName)
 			{
 				$extendedClique = clone $clique;
 				$extendedClique->addNode($neighbourName, $this->getNeighbours($neighbourName, $threshold));
-				if($extendedClique->getSize() == $size)
-					$cliques[] = $extendedClique;
-				else if($extendedClique->getPossibleSize() >= $size)
-					$temp[] = $extendedClique;
+				if($extendedClique->getSize() == $size) $cliques[] = $extendedClique;
+				else if($extendedClique->getPossibleSize() >= $size) $temp[] = $extendedClique;
 			}
 		}
-		
+
 		return $cliques;
 	}
+
 }
 
 ?>

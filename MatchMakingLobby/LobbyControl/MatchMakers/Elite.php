@@ -61,7 +61,7 @@ class Elite extends AbstractMatchMaker
 			}
 		);
 		$playersInfo = array();
-		
+
 		foreach($players as $player)
 		{
 			$playersInfo[$player] = PlayerInfo::Get($player);
@@ -88,7 +88,7 @@ class Elite extends AbstractMatchMaker
 			if($key % 2 == 0) $teamNumber = !$teamNumber;
 		}
 
-		
+
 		if(isset($alliesCountPlayers[2]) && count($alliesCountPlayers[2])) $ally = array_shift($alliesCountPlayers[2]);
 		elseif(isset($alliesCountPlayers[1]) && count($alliesCountPlayers[1])) $ally = array_shift($alliesCountPlayers[1]);
 		else $ally = null;
@@ -97,7 +97,7 @@ class Elite extends AbstractMatchMaker
 		{
 			$allies = $playersInfo[$ally]->allies;
 			$allies[] = $ally;
-			
+
 			if(array_search($ally, $m->team1))
 			{
 				list($m->team2, $m->team1) = $this->teamSwitch($m->team2, $m->team1, $allies);

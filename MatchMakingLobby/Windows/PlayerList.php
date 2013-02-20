@@ -11,22 +11,22 @@ namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 class PlayerList extends \ManiaLive\Gui\Window
 {
+
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $frame;
-	
 	protected $playerList = array();
-	
+
 	protected function onConstruct()
 	{
 		$this->setSize(50, 100);
-		
+
 		$this->frame = new \ManiaLive\Gui\Controls\Frame(0, 0, new \ManiaLib\Gui\Layouts\Column());
 		$this->playerList = array();
 		$this->addComponent($this->frame);
 	}
-	
+
 	function addPlayer($login, $ready = false)
 	{
 		$storage = \ManiaLive\Data\Storage::getInstance();
@@ -42,7 +42,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->playerList[$login] = $tmp;
 		$this->frame->addComponent($this->playerList[$login]);
 	}
-	
+
 	function removePlayer($login)
 	{
 		if(array_key_exists($login, $this->playerList))
@@ -53,7 +53,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		foreach($this->playerList as $component)
 			$this->frame->addComponent($component);
 	}
-	
+
 	function setPlayer($login, $ready)
 	{
 		if(array_key_exists($login, $this->playerList))
@@ -65,6 +65,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$this->addPlayer($login, $ready);
 		}
 	}
+
 }
 
 ?>

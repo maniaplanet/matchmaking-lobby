@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @copyright   Copyright (c) 2009-2013 NADEO (http://www.nadeo.com)
  * @license     http://www.gnu.org/licenses/lgpl.html LGPL License 3
@@ -7,6 +6,7 @@
  * @author      $Author: $:
  * @date        $Date: $:
  */
+
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI;
 
 use ManiaLive\Gui\Windows\Shortkey;
@@ -14,10 +14,10 @@ use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
 
 class Joust extends AbstractGUI
 {
+
 	public $actionKey = Shortkey::F6;
-	
 	public $lobbyBoxPosY = 45;
-	
+
 	public function getLaunchMatchText(Match $m, $player)
 	{
 		$key = array_search($player, $m->players);
@@ -44,6 +44,7 @@ class Joust extends AbstractGUI
 	{
 		return 'You have a match in progress. Prepare to be transfered.';
 	}
+
 }
 
 ?>

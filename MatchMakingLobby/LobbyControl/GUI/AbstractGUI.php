@@ -6,6 +6,7 @@
  * @author      $Author: $:
  * @date        $Date: $:
  */
+
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI;
 
 use ManiaLive\Gui\Windows\Shortkey;
@@ -13,18 +14,19 @@ use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
 
 abstract class AbstractGUI extends \ManiaLib\Utils\Singleton
 {
+
 	public $actionKey = Shortkey::F6;
-	
 	public $lobbyBoxPosY = 0;
-	
+
 	abstract function getNotReadyText();
-	
+
 	abstract function getReadyText();
-	
+
 	abstract function getPlayerBackLabelPrefix();
-	
+
 	abstract function getLaunchMatchText(Match $m, $player);
-	
+
 	abstract function getMatchInProgressText();
 }
+
 ?>

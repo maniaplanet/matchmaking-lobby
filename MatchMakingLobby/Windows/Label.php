@@ -12,17 +12,13 @@ namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLive\Features\Tick;
 use ManiaLive\Event\Dispatcher;
 
-
 class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 {
-	protected $label;
-	
-	protected $countdown = 0;
-	
-	protected $message = '';
-	
-	protected $sound;
 
+	protected $label;
+	protected $countdown = 0;
+	protected $message = '';
+	protected $sound;
 
 	protected function onConstruct()
 	{
@@ -31,26 +27,25 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 		$this->label->setTextSize(5);
 		$this->label->setHalign('center');
 		$this->addComponent($this->label);
-		
+
 		$this->sound = new \ManiaLib\Gui\Elements\Audio();
 		$this->sound->setData('http://static.maniaplanet.com/manialinks/lobbyTimer.wav', true);
 		$this->sound->setPosition(200);
 		$this->sound->autoPlay();
 	}
-	
+
 	function onTick()
 	{
 		$this->setMessage($this->message, --$this->countdown);
 		$this->redraw();
 	}
 
-
 	function setMessage($message, $countdown = null)
 	{
 		$this->message = $message;
 		$this->countdown = $countdown;
 		$this->label->setText(sprintf($this->message, $countdown));
-		
+
 		if($this->countdown)
 		{
 			$this->addComponent($this->sound);
@@ -62,6 +57,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 			$this->removeComponent($this->sound);
 		}
 	}
+
 }
 
 ?>

@@ -11,7 +11,9 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
 
 class Config extends \ManiaLib\Utils\Singleton
 {
+
 	public $script;
+
 }
 
 ?>

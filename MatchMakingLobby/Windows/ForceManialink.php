@@ -11,18 +11,20 @@ namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 class ForceManialink extends \ManiaLive\Gui\Window
 {
+
 	private $xml;
-	
+
 	protected function onConstruct()
 	{
 		$this->xml = new \ManiaLive\Gui\Elements\Xml();
 		$this->addComponent($this->xml);
 	}
-	
+
 	function set($to)
 	{
 		$this->xml->setContent('<script><!--main() { OpenLink("'.$to.'", CMlScript::LinkType::ManialinkBrowser); }--></script>');
 	}
+
 }
 
 ?>

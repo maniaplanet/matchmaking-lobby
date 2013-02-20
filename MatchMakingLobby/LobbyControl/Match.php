@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @copyright   Copyright (c) 2009-2013 NADEO (http://www.nadeo.com)
  * @license     http://www.gnu.org/licenses/lgpl.html LGPL License 3
@@ -7,17 +6,19 @@
  * @author      $Author: $:
  * @date        $Date: $:
  */
+
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
 
 class Match
 {
+
 	public $players = array();
 	public $team1 = array();
 	public $team2 = array();
-	
+
 	function addPlayerInTeam($login, $teamId)
 	{
-		switch ($teamId)
+		switch($teamId)
 		{
 			case 0:
 				if(array_search($login, $this->team2))
@@ -43,6 +44,7 @@ class Match
 				throw new \InvalidArgumentException();
 		}
 	}
+
 }
 
 ?>

@@ -11,13 +11,16 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
 
 class Clique
 {
+
 	/** @var string[] */
 	private $nodes;
+
 	/** @var float[string] */
 	private $neighbours;
+
 	/** @var float */
 	private $radius;
-	
+
 	/**
 	 * @param string $name
 	 * @param float[string] $neighbours
@@ -28,7 +31,7 @@ class Clique
 		$this->neighbours = $neighbours;
 		$this->radius = 0;
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @param float[string] $neighbours
@@ -41,7 +44,7 @@ class Clique
 		foreach($this->neighbours as $name => $distance)
 			$this->neighbours[$name] = max($distance, $neighbours[$name]);
 	}
-	
+
 	/**
 	 * @return string[]
 	 */
@@ -49,7 +52,7 @@ class Clique
 	{
 		return $this->nodes;
 	}
-	
+
 	/**
 	 * @return int
 	 */
@@ -57,15 +60,15 @@ class Clique
 	{
 		return count($this->nodes);
 	}
-	
+
 	/**
 	 * @return int
 	 */
 	function getPossibleSize()
 	{
-		return $this->getSize()+count($this->neighbours);
+		return $this->getSize() + count($this->neighbours);
 	}
-	
+
 	/**
 	 * @return float
 	 */
@@ -73,7 +76,7 @@ class Clique
 	{
 		return $this->radius;
 	}
-	
+
 	/**
 	 * @return float[string]
 	 */
@@ -81,7 +84,7 @@ class Clique
 	{
 		return $this->neighbours;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -89,6 +92,7 @@ class Clique
 	{
 		return implode(',', $this->nodes);
 	}
+
 }
 
 ?>

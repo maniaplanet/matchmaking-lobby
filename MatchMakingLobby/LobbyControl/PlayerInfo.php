@@ -11,59 +11,70 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
 
 class PlayerInfo
 {
+
 	/** @var PlayerInfo[] */
 	static private $instances = array();
-	
+
 	/** @var string */
 	public $login;
+
 	/** @var float */
 	public $ladderPoints;
+
 	/** @var array */
 	public $allies = array();
+
 	/** @var \DateTime */
 	private $readySince = null;
+
 	/** @var \DateTime */
 	private $awaySince = null;
+
 	/** @var array */
 	private $opponents = array();
+
 	/** @var string */
 	private $server = null;
-	
+
 	/**
 	 * @param string $login
 	 * @return PlayerInfo
 	 */
 	static function Get($login)
 	{
-		if(!isset(self::$instances[$login]))
-			self::$instances[$login] = new PlayerInfo($login);
-		
+		if(!isset(self::$instances[$login])) self::$instances[$login] = new PlayerInfo($login);
+
 		return self::$instances[$login];
 	}
-	
+
 	/**
 	 * @return PlayerInfo[]
 	 */
 	static function GetReady()
 	{
-		$ready = array_filter(self::$instances, function($p) { return $p->isReady(); });
-		usort($ready, function($a, $b) { return $b->getWaitingTime() - $a->getWaitingTime(); });
+		$ready = array_filter(self::$instances, function($p)
+			{
+				return $p->isReady();
+			});
+		usort($ready, function($a, $b)
+			{
+				return $b->getWaitingTime() - $a->getWaitingTime();
+			});
 		return $ready;
 	}
-	
+
 	static function CleanUp()
 	{
 		$limit = new \DateTime('-1 hour');
 		foreach(self::$instances as $login => $player)
-			if($player->awaySince && $player->awaySince < $limit)
-				unset(self::$instances[$login]);
+			if($player->awaySince && $player->awaySince < $limit) unset(self::$instances[$login]);
 	}
-	
+
 	private function __construct($login)
 	{
 		$this->login = $login;
 	}
-	
+
 	/**
 	 * @return bool
 	 */
@@ -71,7 +82,7 @@ class PlayerInfo
 	{
 		return (bool) $this->readySince;
 	}
-	
+
 	/**
 	 * @return int
 	 */
@@ -79,39 +90,40 @@ class PlayerInfo
 	{
 		return time() - $this->readySince->getTimestamp();
 	}
-	
+
 	/**
 	 * @param bool $ready
 	 */
-	function setReady($ready=true)
+	function setReady($ready = true)
 	{
 		$this->readySince = $ready ? new \DateTime() : null;
 	}
-	
+
 	/**
 	 * @param bool $away
 	 */
-	function setAway($away=true)
+	function setAway($away = true)
 	{
 		$this->awaySince = $away ? new \DateTime() : null;
 		$this->readySince = null;
 	}
-	
+
 	function isInMatch()
 	{
 		return $this->server && $this->opponents;
 	}
-	
+
 	function setMatch($server = null, array $players = array())
 	{
 		$this->server = $server;
 		$this->opponents = $players;
 	}
-	
+
 	function getMatch()
 	{
 		return array($this->server, $this->opponents);
 	}
+
 }
 
 ?>

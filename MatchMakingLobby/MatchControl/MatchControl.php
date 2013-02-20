@@ -15,28 +15,33 @@ use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
 
 class MatchControl extends \ManiaLive\PluginHandler\Plugin
 {
+
 	const ABORTING = -2;
 	const WAITING = -1;
 	const SLEEPING = 0;
 	const DECIDING = 1;
 	const PLAYING = 2;
 	const OVER = 3;
-	
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
-	
+
 	/** @var int */
 	private $state = self::SLEEPING;
+
 	/** @var \DateTime */
 	private $nextTick = null;
+
 	/** @var string[] */
 	private $intervals = array();
-	
+
 	/** @var bool[string] */
 	private $players = array();
+
 	/** @var string */
 	private $hall = null;
+
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match */
 	private $match = null;
+
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\AbstractGUI */
 	private $gui;
 
@@ -44,7 +49,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->setVersion('0.1');
 	}
-	
+
 	function onLoad()
 	{
 		$this->connection->cleanGuestList();
@@ -65,25 +70,24 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->enableDatabase();
 		$this->enableTickerEvent();
 		$this->createTables();
-		
+
 		$scriptName = $this->connection->getScriptName();
 		$scriptName = end(explode('\\', $scriptName['CurrentValue']));
 		$scriptName = str_ireplace('.script.txt', '', $scriptName);
-	
+
 		$guiClassName = '\ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\\'.$scriptName;
 		if(!class_exists($guiClassName))
 		{
 			throw new \UnexpectedValueException($guiClassName.' has no GUI class');
 		}
-		$this->gui = $guiClassName::getInstance();	
-		
+		$this->gui = $guiClassName::getInstance();
+
 		$this->updateLobbyWindow();
 	}
-	
+
 	function onTick()
 	{
-		if(new \DateTime() < $this->nextTick)
-			return;
+		if(new \DateTime() < $this->nextTick) return;
 		if($this->state != self::SLEEPING)
 		{
 			$this->updateLobbyWindow();
@@ -113,59 +117,51 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 				$this->end();
 		}
 	}
-	
+
 	function onPlayerConnect($login, $isSpectator)
 	{
 		$this->players[$login] = true;
 		$this->forcePlayerTeam($login);
 		if($this->isEverybodyHere())
 		{
-			if($this->state == self::WAITING)
-				$this->decide();
-			else // if($this->state == self::ABORTING)
-				$this->play();
+			if($this->state == self::WAITING) $this->decide(); else // if($this->state == self::ABORTING) $this->play();
 		}
 	}
-	
+
 	function onPlayerInfoChanged($playerInfo)
 	{
 		$this->forcePlayerTeam($playerInfo['Login']);
 	}
-	
+
 	function onPlayerDisconnect($login)
 	{
 		$this->players[$login] = false;
-		if(in_array($this->state, array(self::DECIDING, self::PLAYING)))
-			$this->abort();
+		if(in_array($this->state, array(self::DECIDING, self::PLAYING))) $this->abort();
 	}
-	
+
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
-		if($this->state == self::PLAYING)
-			$this->over();
-		else if($this->state == self::DECIDING)
-			$this->decide();
+		if($this->state == self::PLAYING) $this->over();
+		else if($this->state == self::DECIDING) $this->decide();
 	}
-	
+
 	function onGiveUp($login)
 	{
 		$this->giveUp($login);
 	}
-	
+
 	private function updateLobbyWindow()
 	{
 		$obj = $this->db->execute(
-			'SELECT H.* FROM Halls H '.
-			'INNER JOIN Servers S ON H.login = S.hall '.
-			'WHERE S.login = %s',
-			$this->db->quote($this->storage->serverLogin)
+				'SELECT H.* FROM Halls H '.
+				'INNER JOIN Servers S ON H.login = S.hall '.
+				'WHERE S.login = %s', $this->db->quote($this->storage->serverLogin)
 			)->fetchObject();
 		if($obj)
 		{
 			$obj->totalPlayers = $this->db->execute(
-			'SELECT COUNT(*) FROM Servers WHERE hall = %s',
-			$this->db->quote($obj->login)
-			)->fetchSingleValue();
+					'SELECT COUNT(*) FROM Servers WHERE hall = %s', $this->db->quote($obj->login)
+				)->fetchSingleValue();
 
 			$lobbyWindow = Windows\LobbyWindow::Create();
 			$lobbyWindow->setAlign('right', 'bottom');
@@ -174,7 +170,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$lobbyWindow->show();
 		}
 	}
-	
+
 	private function forcePlayerTeam($login)
 	{
 		if($this->match->team1 && $this->match->team2)
@@ -183,74 +179,71 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->forcePlayerTeam($login, $team);
 		}
 	}
-	
+
 	private function live()
 	{
 		$script = $this->connection->getScriptName();
 		$script = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 		$this->db->execute(
-				'INSERT INTO Servers(login, title, script, lastLive) VALUES(%s, %s, %s, NOW()) '.
-				'ON DUPLICATE KEY UPDATE title=VALUES(title), script=VALUES(script), lastLive=VALUES(lastLive)',
-				$this->db->quote($this->storage->serverLogin),
-				$this->db->quote($this->connection->getSystemInfo()->titleId),
-				$this->db->quote($script)
-			);
+			'INSERT INTO Servers(login, title, script, lastLive) VALUES(%s, %s, %s, NOW()) '.
+			'ON DUPLICATE KEY UPDATE title=VALUES(title), script=VALUES(script), lastLive=VALUES(lastLive)',
+			$this->db->quote($this->storage->serverLogin), $this->db->quote($this->connection->getSystemInfo()->titleId),
+			$this->db->quote($script)
+		);
 	}
-	
+
 	private function getNext()
 	{
 		$result = $this->db->execute(
 				'SELECT H.backLink as hall, S.players as `match` FROM Servers  S '.
 				'INNER JOIN Halls H ON S.hall = H.login '.
-				'WHERE S.login=%s',
-				$this->db->quote($this->storage->serverLogin)
+				'WHERE S.login=%s', $this->db->quote($this->storage->serverLogin)
 			)->fetchObject();
-		
-		if(!$result || !$result->hall)
-			return false;
-		
+
+		if(!$result || !$result->hall) return false;
+
 		$result->match = json_decode($result->match);
 		return $result;
 	}
-	
+
 	private function prepare($hall, $match)
 	{
 		$this->hall = $hall;
 		$this->players = array_fill_keys($match->players, false);
 		$this->match = $match;
 		Windows\ForceManialink::EraseAll();
-		
+
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
 		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
 		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
 		$giveUp->show();
-		
+
 		foreach($match->players as $login)
 			$this->connection->addGuest($login, true);
 		$this->connection->executeMulticall();
-		
+
 		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_END_MATCH | ServerEvent::ON_PLAYER_INFO_CHANGED);
 		Label::EraseAll();
 	}
-	
+
 	private function sleep()
 	{
 		$this->changeState(self::SLEEPING);
 	}
-	
+
 	private function wait()
 	{
 		$this->changeState(self::WAITING);
 	}
-	
+
 	private function abort()
 	{
 		Windows\GiveUp::EraseAll();
 		$this->connection->chatSendServerMessage('A player quits... If he does not come back soon, match will be aborted.');
 		$this->changeState(self::ABORTING);
 	}
-	
+
 	private function giveUp($login)
 	{
 		$confirm = Label::Create();
@@ -258,11 +251,11 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$confirm->setMessage('Match over. You will be transfered back.');
 		$confirm->show();
 		Windows\GiveUp::EraseAll();
-		$this->connection->chatSendServerMessage(sprintf('Match aborted because $<%s$> gave up.', 
-			$this->storage->getPlayerObject($login)->nickName));
+		$this->connection->chatSendServerMessage(sprintf('Match aborted because $<%s$> gave up.',
+				$this->storage->getPlayerObject($login)->nickName));
 		$this->changeState(self::OVER);
 	}
-	
+
 	private function cancel()
 	{
 		$confirm = Label::Create();
@@ -272,37 +265,34 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->chatSendServerMessage('Match aborted.');
 		$this->changeState(self::OVER);
 	}
-	
+
 	private function decide()
 	{
 		if($this->state != self::DECIDING)
 				$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
 		$this->changeState(self::DECIDING);
 	}
-	
+
 	private function play()
 	{
-		if($this->state == self::DECIDING)
-			$this->connection->chatSendServerMessage('Time to change map is over!');
-		else
-			$this->connection->chatSendServerMessage('Player is back, match continues.');
+		if($this->state == self::DECIDING) $this->connection->chatSendServerMessage('Time to change map is over!');
+		else $this->connection->chatSendServerMessage('Player is back, match continues.');
 		$this->changeState(self::PLAYING);
 	}
-	
+
 	private function over()
 	{
 		Windows\GiveUp::EraseAll();
 //		$this->connection->chatSendServerMessage('Match over! You will be transfered back to the lobby.');
 		$this->changeState(self::OVER);
 	}
-	
+
 	private function end()
 	{
 		$this->db->execute(
-				'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s',
-				$this->db->quote($this->storage->serverLogin)
-			);
-		
+			'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s', $this->db->quote($this->storage->serverLogin)
+		);
+
 		$jumper = Windows\ForceManialink::Create();
 		$jumper->set('maniaplanet://#qjoin='.$this->hall);
 		$jumper->show();
@@ -311,7 +301,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		usleep(20);
 		$this->connection->restartMap();
 	}
-	
+
 	private function changeState($state)
 	{
 		if($this->intervals[$state])
@@ -319,17 +309,16 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$this->nextTick = new \DateTime($this->intervals[$state]);
 			$this->enableTickerEvent();
 		}
-		else
-			$this->disableTickerEvent();
-		
+		else $this->disableTickerEvent();
+
 		$this->state = $state;
 	}
-	
+
 	private function isEverybodyHere()
 	{
 		return count(array_filter($this->players)) == count($this->players);
 	}
-	
+
 	private function createTables()
 	{
 		$this->db->execute(
@@ -363,6 +352,7 @@ CREATE TABLE IF NOT EXISTS `Servers` (
 EOServers
 		);
 	}
+
 }
 
 ?>
