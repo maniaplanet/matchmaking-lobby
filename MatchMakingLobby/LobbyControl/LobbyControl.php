@@ -400,7 +400,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	private function getCurrentMatch()
 	{
-		$matches = $this->db->query('SELECT players FROM Servers WHERE hall = %s AND NOT ISNULL(players)')->fetchArrayOfSingleValues();
+		$matches = $this->db->query('SELECT players FROM Servers WHERE hall = %s AND NOT ISNULL(players)',
+			$this->db->quote($this->storage->serverLogin))->fetchArrayOfSingleValues();
 		return array_map('unserialize', $matches);
 	}
 
