@@ -39,7 +39,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private $modeClause;
 
 	/** @var int[] */
-	private $countDown = array();
+	private $preparedMatches = array();
 	
 	/** @var array */
 	private $newPlayers = array();
@@ -153,7 +153,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$groupName = 'match-'.$server;
 		$group = Group::Get($groupName);
 
-		if($group && $group->contains($login) && $this->countDown[$groupName] > 0)
+		if($group && $group->contains($login) && $this->preparedMatches[$groupName]['countDown'] > 0)
 		{
 			$this->onPlayerNotReady($login);
 		}
@@ -170,7 +170,15 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$matches = $this->matchMaker->run();
 		foreach($matches as $match)
 		{
-			if(!($server = $this->getServer())) break;
+			$alreadyExist = false;
+			foreach($this->preparedMatches as $m)
+			{
+				if($m['match'] == $match)
+				{
+					$alreadyExist = true;
+				}
+			}
+			if($alreadyExist || !($server = $this->getServer())) break;
 			$this->prepareMatch($server, $match);
 		}
 		$this->updateLobbyWindow();
@@ -190,19 +198,19 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 
-		foreach($this->countDown as $groupName => $value)
+		foreach($this->preparedMatches as $groupName => $data)
 		{
-			switch(--$value)
+			switch(--$data['countDown'])
 			{
 				case -1:
 					Windows\ForceManialink::Erase(Group::Get($groupName));
 					Group::Erase($groupName);
-					unset($this->countDown[$groupName]);
+					unset($this->preparedMatches[$groupName]);
 					break;
 				case 0:
 					Windows\ForceManialink::Create(Group::Get($groupName))->show();
 				default:
-					$this->countDown[$groupName] = $value;
+					$this->preparedMatches[$groupName] = $data;
 			}
 		}
 	}
@@ -302,7 +310,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$groupName = 'match-'.$server;
 		Windows\ForceManialink::Erase(Group::Get($groupName));
 		Group::Erase($groupName);
-		unset($this->countDown[$groupName]);
+		unset($this->preparedMatches[$groupName]);
 		$this->db->execute(
 			'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s', $this->db->quote($server)
 		);
@@ -319,7 +327,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function prepareMatch($server, $match)
 	{
 		$groupName = 'match-'.$server;
-		if(in_array($match, $this->getCurrentMatch()) || array_key_exists($groupName, $this->countDown))
+		if(array_key_exists($groupName, $this->preparedMatches))
 		{
 			return;
 		}
@@ -332,12 +340,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$group = Group::Create('match-'.$server, $match->players);
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
-		$this->countDown[$groupName] = 11;
+		$this->preparedMatches[$groupName]['countDown'] = 11;
+		$this->preparedMatches[$groupName]['match'] = $match;
 
 		foreach($match->players as $player)
 		{
 			PlayerInfo::Get($player)->setMatch($server, $match->players);
-			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
+			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->preparedMatches[$groupName]['countDown'] - 1);
 		}
 	}
 
@@ -398,13 +407,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);
 	}
 	
-	private function getCurrentMatch()
-	{
-		$matches = $this->db->query('SELECT players FROM Servers WHERE hall = %s AND NOT ISNULL(players)',
-			$this->db->quote($this->storage->serverLogin))->fetchArrayOfSingleValues();
-		return array_map('json_decode', $matches);
-	}
-
 	private function createTables()
 	{
 		$this->db->execute(
