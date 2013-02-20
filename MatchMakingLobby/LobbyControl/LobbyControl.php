@@ -40,6 +40,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var int[] */
 	private $countDown = array();
+	
+	/** @var array */
+	private $newPlayers = array();
 
 	function onInit()
 	{
@@ -129,7 +132,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$player->setMatch();
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
-		$this->newPlayers[] = $login;
+		$this->newPlayers[$login] = 20;
 
 		$this->createLabel($login, $message);
 		$this->onSetShortKey($login, false);
@@ -173,6 +176,19 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->updateLobbyWindow();
 		$this->registerLobby();
 		PlayerInfo::CleanUp();
+		
+		foreach($this->newPlayers as $login => $time)
+		{
+			if(--$time)
+			{
+				$this->newPlayers[$login] = $time;
+			}
+			else
+			{
+				unset($this->newPlayers[$login]);
+				$this->onPlayerReady($login);
+			}
+		}
 
 		foreach($this->countDown as $groupName => $value)
 		{
@@ -180,6 +196,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			{
 				case -1:
 					Windows\ForceManialink::Erase(Group::Get($groupName));
+					Group::Erase($groupName);
 					unset($this->countDown[$groupName]);
 					break;
 				case 0:
@@ -279,6 +296,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		list($server, $players) = PlayerInfo::Get($login)->getMatch();
 		$groupName = 'match-'.$server;
+		Windows\ForceManialink::Erase(Group::Get($groupName));
 		Group::Erase($groupName);
 		unset($this->countDown[$groupName]);
 		$this->db->execute(
@@ -297,7 +315,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function prepareMatch($server, $match)
 	{
 		$groupName = 'match-'.$server;
-		if(array_key_exists($groupName, $this->countDown) && $this->countDown[$groupName] > 0)
+		if(array_key_exists($groupName, $this->countDown))
 		{
 			return;
 		}
@@ -310,12 +328,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$group = Group::Create('match-'.$server, $match->players);
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
-		$this->countDown[$groupName] = 10;
+		$this->countDown[$groupName] = 11;
 
 		foreach($match->players as $player)
 		{
 			PlayerInfo::Get($player)->setMatch($server, $match->players);
-			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName]);
+			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
 		}
 	}
 
