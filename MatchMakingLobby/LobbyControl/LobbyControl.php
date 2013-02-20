@@ -319,7 +319,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function prepareMatch($server, $match)
 	{
 		$groupName = 'match-'.$server;
-		if(array_key_exists($groupName, $this->countDown))
+		if(in_array($match, $this->getCurrentMatch()) || array_key_exists($groupName, $this->countDown))
 		{
 			return;
 		}
@@ -396,6 +396,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$maxPlayers = $this->storage->server->currentMaxPlayers;
 		}
 		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);
+	}
+	
+	private function getCurrentMatch()
+	{
+		$matches = $this->db->query('SELECT players FROM Servers WHERE hall = %s and players IS NOT NULL')->fetchArrayOfSingleValues();
+		return array_map('unserialize', $matches);
 	}
 
 	private function createTables()
