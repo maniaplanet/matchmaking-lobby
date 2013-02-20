@@ -112,7 +112,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING:
 				$this->waitingTime += 5;
 				$current = $this->getNext();
-				if($this->waitingTime >= 60 || !$current->hall || !$current->match)
+				if($this->waitingTime >= 60 || !$current)
 				{
 					$this->cancel();
 				}
