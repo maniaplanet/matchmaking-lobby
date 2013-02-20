@@ -150,7 +150,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$groupName = 'match-'.$server;
 		$group = Group::Get($groupName);
 
-		if($group && $group->contains($login) && $this->countDown > 0)
+		if($group && $group->contains($login) && $this->countDown[$groupName] > 0)
 		{
 			$this->onPlayerNotReady($login);
 		}
