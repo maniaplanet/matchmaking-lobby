@@ -129,7 +129,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$player->setMatch();
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
-		$this->newPlayers[$login] = 20;
+		$this->newPlayers[$login] = 45;
 
 		$this->createLabel($login, $message);
 		$this->onSetShortKey($login, false);

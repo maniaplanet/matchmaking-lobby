@@ -296,7 +296,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$script = $this->connection->getScriptName();
 			$script = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 			$this->db->execute(
-				'INSERT INTO PlayedMatchs (server, title, script, match, playedDate) VALUES (%s, %s, %s, %s, NOW())',
+				'INSERT INTO PlayedMatchs (`server`, `title`, `script`, `match`, `playedDate`) VALUES (%s, %s, %s, %s, NOW())',
 				$this->db->quote($this->storage->serverLogin), 
 				$this->db->quote($this->connection->getSystemInfo()->titleId),
 				$this->db->quote($script),
