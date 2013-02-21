@@ -348,10 +348,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	private function getTotalPlayerCount()
 	{
+		//Number of matchs in DB minus matchs prepared
+		//Because player are still on the server
 		$matchCount = $this->db->execute(
 				'SELECT COUNT(*) FROM Servers '.
 				'WHERE '.$this->modeClause.' AND hall = %s', $this->db->quote($this->storage->serverLogin)
-			)->fetchSingleValue(null);
+			)->fetchSingleValue(null) - count(array_filter($this->countDown, function ($c) { return $c > 0; }));
 
 		$playerCount = count($this->connection->getPlayerList(-1, 0));
 
@@ -423,6 +425,22 @@ CREATE TABLE IF NOT EXISTS `Servers` (
   KEY `lastLive` (`lastLive`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 EOServers
+		);
+		
+				$this->db->execute(
+			<<<EOMatchs
+CREATE TABLE `PlayedMatchs` (
+	`id` INT(10) NOT NULL AUTO_INCREMENT,
+	`server` VARCHAR(25) NOT NULL,
+	`title` varchar(51) NOT NULL,
+	`script` VARCHAR(50) NOT NULL,
+	`match` TEXT NOT NULL,
+	`playedDate` DATETIME NOT NULL,
+	PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+EOMatchs
 		);
 	}
 

@@ -21,7 +21,8 @@ class Joust extends AbstractGUI
 	public function getLaunchMatchText(Match $m, $player)
 	{
 		$key = array_search($player, $m->players);
-		$opponent = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->players[($key + 1) % 2])->nickName;
+		$opponentObj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->players[($key + 1) % 2]);
+		$opponent = ($opponentObj ? $opponentObj->nickName : $m->players[($key + 1) % 2]);
 		return sprintf('$0F0Match against $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $opponent);
 	}
 

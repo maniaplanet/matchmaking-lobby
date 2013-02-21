@@ -43,23 +43,18 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 					$radiusDiff = $a->getRadius() - $b->getRadius();
 					return $radiusDiff < 0 ? -1 : ($radiusDiff > 0 ? 1 : 0);
 				});
-			$matches[] = reset($cliques)->getNodes();
+			$match = new Match();
+			$match->players = reset($cliques)->getNodes();
+			if($this->isTeamMode)
+			{
+				$match = $this->distributePlayers($match);
+			}
+			$matches[] = $match;
 			$this->graph->deleteNodes(reset($cliques)->getNodes());
 			$nodes = $this->graph->getNodes();
 		}
-		$matchObjects = array_map(function (array $m)
-			{
-				$match = new Match();
-				$match->players = $m;
-				return $match;
-			}, $matches);
 
-		if($this->isTeamMode)
-		{
-			$matches = array_map(array($this, 'distributePlayers'), $matchObjects);
-		}
-
-		return $matchObjects;
+		return $matches;
 	}
 
 	protected function buildGraph()

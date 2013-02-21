@@ -45,7 +45,11 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\AbstractGUI */
 	private $gui;
 	
+	/** @var int */
 	private $waitingTime = 0;
+	
+	/** @var int */
+	private $matchId = 0;
 
 	function onInit()
 	{
@@ -202,7 +206,8 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->db->execute(
 			'INSERT INTO Servers(login, title, script, lastLive) VALUES(%s, %s, %s, NOW()) '.
 			'ON DUPLICATE KEY UPDATE title=VALUES(title), script=VALUES(script), lastLive=VALUES(lastLive)',
-			$this->db->quote($this->storage->serverLogin), $this->db->quote($this->connection->getSystemInfo()->titleId),
+			$this->db->quote($this->storage->serverLogin), 
+			$this->db->quote($this->connection->getSystemInfo()->titleId),
 			$this->db->quote($script)
 		);
 	}
@@ -286,6 +291,18 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		if($this->state != self::DECIDING)
 				$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
+		if(!$this->matchId)
+		{
+			$script = $this->connection->getScriptName();
+			$script = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
+			$this->db->execute(
+				'INSERT INTO PlayedMatchs (server, title, script, match, playedDate) VALUES (%s, %s, %s, %s, NOW())',
+				$this->db->quote($this->storage->serverLogin), 
+				$this->db->quote($this->connection->getSystemInfo()->titleId),
+				$this->db->quote($script),
+				$this->db->quote(json_encode($this->match))
+			);
+		}
 		$this->changeState(self::DECIDING);
 	}
 
@@ -351,6 +368,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 EOHalls
 		);
+		
 		$this->db->execute(
 			<<<EOServers
 CREATE TABLE IF NOT EXISTS `Servers` (
@@ -366,6 +384,22 @@ CREATE TABLE IF NOT EXISTS `Servers` (
   KEY `lastLive` (`lastLive`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 EOServers
+		);
+		
+		$this->db->execute(
+			<<<EOMatchs
+CREATE TABLE `PlayedMatchs` (
+	`id` INT(10) NOT NULL AUTO_INCREMENT,
+	`server` VARCHAR(25) NOT NULL,
+	`title` varchar(51) NOT NULL,
+	`script` VARCHAR(50) NOT NULL,
+	`match` TEXT NOT NULL,
+	`playedDate` DATETIME NOT NULL,
+	PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+EOMatchs
 		);
 	}
 
