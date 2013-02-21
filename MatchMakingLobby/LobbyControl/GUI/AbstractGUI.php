@@ -27,6 +27,8 @@ abstract class AbstractGUI extends \ManiaLib\Utils\Singleton
 	abstract function getLaunchMatchText(Match $m, $player);
 
 	abstract function getMatchInProgressText();
+	
+	abstract function getBadKarmaText($time);
 }
 
 ?>

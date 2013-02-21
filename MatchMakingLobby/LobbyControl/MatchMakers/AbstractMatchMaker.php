@@ -29,13 +29,13 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	protected $graph;
 	public $playerPerMatch = 0;
 
-	function run($matchSize)
+	final function run(array $bannedPlayers = array())
 	{
 		$matches = array();
-		$this->buildGraph();
+		$this->buildGraph($bannedPlayers);
 
 		$nodes = $this->graph->getNodes();
-		while($nodes && $cliques = $this->graph->findCliques(reset($nodes), $matchSize, self::DISTANCE_THRESHOLD))
+		while($nodes && $cliques = $this->graph->findCliques(reset($nodes), $this->playerPerMatch, self::DISTANCE_THRESHOLD))
 		{
 			usort($cliques,
 				function($a, $b)
@@ -57,12 +57,14 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		return $matches;
 	}
 
-	protected function buildGraph()
+	final protected function buildGraph(array $bannedPlayers = array())
 	{
 		$this->graph = new Helpers\Graph();
 
 		$readyPlayers = PlayerInfo::GetReady();
 		$followers = array_filter($readyPlayers, function ($f) { return !$f->isInMatch(); });
+		$followers = array_filter($readyPlayers, function ($f) use ($bannedPlayers) { return !in_array($f->login, $bannedPlayers); });
+		
 		while($player = array_shift($followers))
 		{
 			$this->graph->addNode($player->login, $this->computeDistances($player, $followers));
@@ -74,7 +76,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	 * @param PlayerInfo[] $followers
 	 * @return float[string]
 	 */
-	protected function computeDistances($player, $followers)
+	final protected function computeDistances($player, $followers)
 	{
 		$distances = array();
 		foreach($followers as $follower)
@@ -101,7 +103,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	{
 		
 	}
-
+	
 	abstract function getPlayerScore($login);
 }
 

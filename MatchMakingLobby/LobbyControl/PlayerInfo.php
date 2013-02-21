@@ -23,6 +23,9 @@ class PlayerInfo
 
 	/** @var array */
 	public $allies = array();
+	
+	/** @var int */
+	public  $karma = 0;
 
 	/** @var \DateTime */
 	private $readySince = null;
@@ -30,8 +33,8 @@ class PlayerInfo
 	/** @var \DateTime */
 	private $awaySince = null;
 
-	/** @var array */
-	private $opponents = array();
+	/** @var Match */
+	private $match = null;
 
 	/** @var string */
 	private $server = null;
@@ -110,18 +113,18 @@ class PlayerInfo
 
 	function isInMatch()
 	{
-		return $this->server && $this->opponents;
+		return $this->server && $this->match;
 	}
 
-	function setMatch($server = null, array $players = array())
+	function setMatch($server = null, $players = null)
 	{
 		$this->server = $server;
-		$this->opponents = $players;
+		$this->match = $players;
 	}
 
 	function getMatch()
 	{
-		return array($this->server, $this->opponents);
+		return array($this->server, $this->match);
 	}
 
 }

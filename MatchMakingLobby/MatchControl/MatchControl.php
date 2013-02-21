@@ -274,11 +274,20 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		Windows\GiveUp::EraseAll();
 		$this->connection->chatSendServerMessage(sprintf('Match aborted because $<%s$> gave up.',
 				$this->storage->getPlayerObject($login)->nickName));
+		$this->registerQuiter($login);
 		$this->changeState(self::OVER);
 	}
 
 	private function cancel()
 	{
+		if($this->state == self::ABORTING)
+		{
+			$logins = array_keys($this->players, false);
+			foreach($logins as $login)
+			{
+				$this->registerQuiter($login);
+			}
+		}
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
 		$confirm->setMessage('Match over. You will be transfered back.');
@@ -351,6 +360,11 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		return count(array_filter($this->players)) == count($this->players);
 	}
+	
+	private function registerQuiter($login)
+	{
+		$this->db->execute('INSERT INTO Quiters VALUES (%s,NOW())',$this->db->quote($login));
+	}
 
 	private function createTables()
 	{
@@ -400,6 +414,17 @@ CREATE TABLE IF NOT EXISTS `PlayedMatchs` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 EOMatchs
+		);
+		
+		$this->db->execute(
+			<<<EOQuiters
+CREATE TABLE IF NOT EXISTS `Quiters` (
+	`playerLogin` VARCHAR(25) NOT NULL,
+	`creationDate` DATETIME NOT NULL
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+EOQuiters
 		);
 	}
 

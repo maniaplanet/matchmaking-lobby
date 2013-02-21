@@ -45,6 +45,11 @@ class Joust extends AbstractGUI
 	{
 		return 'You have a match in progress. Prepare to be transfered.';
 	}
+	
+	public function getBadKarmaText($time)
+	{
+		return sprintf('$F00You leaved your last match. You are suspended for %d minutes', $time);
+	}
 
 }
 

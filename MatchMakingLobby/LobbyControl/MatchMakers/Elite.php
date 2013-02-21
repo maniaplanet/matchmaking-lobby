@@ -25,11 +25,6 @@ class Elite extends AbstractMatchMaker
 		return \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
 	}
 
-	function run()
-	{
-		return parent::run($this->playerPerMatch);
-	}
-
 	/**
 	 * @param PlayerInfo $p1
 	 * @param PlayerInfo $p2

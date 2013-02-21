@@ -16,11 +16,6 @@ class Joust extends AbstractMatchMaker
 
 	const DISTANCE_THRESHOLD = 10000;
 
-	function run()
-	{
-		return parent::run($this->playerPerMatch);
-	}
-
 	protected function distance($p1, $p2)
 	{
 		return parent::distance($p1, $p2);
