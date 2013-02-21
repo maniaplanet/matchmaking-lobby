@@ -38,9 +38,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	/** @var int[] */
 	private $countDown = array();
 	
-	/** @var array */
-	private $newPlayers = array();
-
 	function onInit()
 	{
 		$this->setVersion('1.0');
@@ -129,7 +126,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$player->setMatch();
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
-		$this->newPlayers[$login] = 45;
 
 		$this->createLabel($login, $message);
 		$this->onSetShortKey($login, false);
@@ -174,19 +170,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->registerLobby();
 		PlayerInfo::CleanUp();
 		
-		foreach($this->newPlayers as $login => $time)
-		{
-			if(--$time)
-			{
-				$this->newPlayers[$login] = $time;
-			}
-			else
-			{
-				unset($this->newPlayers[$login]);
-				$this->onPlayerReady($login);
-			}
-		}
-
 		foreach($this->countDown as $groupName => $countDown)
 		{
 			switch(--$countDown)
@@ -206,10 +189,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerReady($login)
 	{
-		if(array_key_exists($login, $this->newPlayers))
-		{
-			unset($this->newPlayers[$login]);
-		}
 		$player = PlayerInfo::Get($login);
 		$player->setReady(true);
 		$this->onSetShortKey($login, true);
