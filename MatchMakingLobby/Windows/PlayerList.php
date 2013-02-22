@@ -27,7 +27,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->addComponent($this->frame);
 	}
 
-	function addPlayer($login, $ready = false)
+	function addPlayer($login, $state = 0)
 	{
 		$storage = \ManiaLive\Data\Storage::getInstance();
 		try
@@ -38,7 +38,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		{
 			return;
 		}
-		$tmp->setReady($ready);
+		$tmp->setState($state);
 		$this->playerList[$login] = $tmp;
 		$this->frame->addComponent($this->playerList[$login]);
 	}
@@ -54,15 +54,15 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$this->frame->addComponent($component);
 	}
 
-	function setPlayer($login, $ready)
+	function setPlayer($login, $state)
 	{
 		if(array_key_exists($login, $this->playerList))
 		{
-			$this->playerList[$login]->setReady($ready);
+			$this->playerList[$login]->setState($state);
 		}
 		else
 		{
-			$this->addPlayer($login, $ready);
+			$this->addPlayer($login, $state);
 		}
 	}
 

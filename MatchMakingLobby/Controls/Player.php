@@ -48,9 +48,23 @@ class Player extends \ManiaLive\Gui\Control
 		$this->addComponent($this->label);
 	}
 
-	function setReady($ready = true)
+	function setState($state = 1)
 	{
-		$this->icon->setSubStyle($ready ? Elements\Icons64x64_1::LvlGreen : Elements\Icons64x64_1::LvlRed);
+		switch($state)
+		{
+			case 1:
+				$subStyle = Elements\Icons64x64_1::LvlGreen;
+				break;
+			case 2:
+				$subStyle = Elements\Icons64x64_1::LvlYellow;
+				break;
+			case 3:
+				$subStyle = Elements\Icons64x64_1::StatePrivate;
+				break;
+			default:
+				$subStyle = Elements\Icons64x64_1::LvlRed;
+		}
+		$this->icon->setSubStyle($subStyle);
 	}
 
 }

@@ -46,7 +46,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('1.0');
+		$this->setVersion('0.1');
 		$this->config = Config::getInstance();
 		$scriptInfo = $this->connection->getModeScriptInfo();
 		$scriptName = ($this->config->script ? : end(explode('\\', $scriptInfo->name)));
@@ -100,7 +100,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->setAlign('right', 'bottom');
-		$lobbyWindow->setPosition(170, $this->gui->lobbyBoxPosY);
+		$lobbyWindow->setPosition(170, 45);
 		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
 		$lobbyWindow->show();
 	}
@@ -204,7 +204,14 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 				case 0:
 					$group = Group::Get($groupName);
 					$players = array_map(array($this->storage, 'getPlayerObject'), $group->toArray());
-					$nicknames = \DedicatedApi\Structures\Player::getPropertyFromArray($players, 'nickName');
+					
+					$nicknames = array();
+					foreach($players as $player)
+					{
+						if($player)
+							$nicknames[] = '$<'.$player->nickName.'$>';
+					}
+					
 					Windows\ForceManialink::Create($group)->show();
 					$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
 				default:
@@ -226,7 +233,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->createLabel($login, $this->gui->getReadyText());
 
 		$playerList = Windows\PlayerList::Create();
-		$playerList->setPlayer($login, true);
+		$playerList->setPlayer($login, 1);
 		$playerList->redraw();
 
 		$this->updateLobbyWindow();
@@ -244,7 +251,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->createLabel($login, $this->gui->getNotReadyText());
 
 		$playerList = Windows\PlayerList::Create();
-		$playerList->setPlayer($login, false);
+		$playerList->setPlayer($login, 0);
 		$playerList->redraw();
 
 		$this->updateLobbyWindow();
@@ -342,11 +349,14 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
 		$this->countDown[$groupName] = 11;
 
+		$playerList = Windows\PlayerList::Create();
 		foreach($match->players as $player)
 		{
+			$playerList->setPlayer($player, 2);
 			PlayerInfo::Get($player)->setMatch($server, $match);
 			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
 		}
+		$playerList->redraw();
 	}
 
 	private function getReadyPlayersCount()
@@ -421,8 +431,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			'WHERE playerLogin = %s '.
 			'AND hall = %s '.
 			'AND DATE_ADD(creationDate, INTERVAL 1 HOUR) > NOW()',
-			$this->db->quote($this->storage->serverLogin),
-			$this->db->quote($login)
+			$this->db->quote($login),
+			$this->db->quote($this->storage->serverLogin)
 		)->fetchSingleValue();
 		if(PlayerInfo::Get($login)->karma < $karma)
 		{
@@ -435,6 +445,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->chatSendServerMessage(
 				sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.',$player->nickName, pow(2, $karma))
 			);
+			$playerList = Windows\PlayerList::Create();
+			$playerList->setPlayer($login, 3);
+			$playerList->redraw();
 		}
 		PlayerInfo::Get($login)->karma = $karma;
 	}

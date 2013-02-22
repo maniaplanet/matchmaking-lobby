@@ -369,7 +369,10 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	
 	private function registerQuiter($login)
 	{
-		$this->db->execute('INSERT INTO Quitters VALUES (%s,NOW(), %s)',$this->db->quote($login), $this->db->quote($this->hall));
+		$this->db->execute(
+			'INSERT INTO Quitters VALUES (%s,NOW(), (SELECT hall FROM Servers WHERE login = %s))', $this->db->quote($login),
+			$this->db->quote($this->storage->serverLogin)
+		);
 	}
 
 	private function createTables()
