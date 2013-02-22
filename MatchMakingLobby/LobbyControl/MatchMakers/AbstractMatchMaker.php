@@ -35,6 +35,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		$this->buildGraph($bannedPlayers);
 
 		$nodes = $this->graph->getNodes();
+		\ManiaLive\Utilities\Console::print_rln($nodes);
 		while($nodes && $cliques = $this->graph->findCliques(reset($nodes), $this->playerPerMatch, self::DISTANCE_THRESHOLD))
 		{
 			usort($cliques,

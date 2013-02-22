@@ -18,7 +18,7 @@ use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
 class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 {
 
-	const PREFIX = 'Lobby$08fInfo$000»$8f0 ';
+	const PREFIX = 'LobbyInfo$000»$8f0 ';
 	
 	/** @var int */
 	private $tick;
@@ -113,17 +113,17 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerConnect($login, $isSpectator)
 	{
-//		if($this->isInMatch($login))
-//		{
-//			//TODO Change The Label
-//			list($server, ) = PlayerInfo::Get($login)->getMatch();
-//			$jumper = Windows\ForceManialink::Create($login);
-//			$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
-//			$jumper->show();
-//
-//			$this->createLabel($login, $this->gui->getMatchInProgressText());
-//			return;
-//		}
+		if($this->isInMatch($login))
+		{
+			//TODO Change The Label
+			list($server, ) = PlayerInfo::Get($login)->getMatch();
+			$jumper = Windows\ForceManialink::Create($login);
+			$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
+			$jumper->show();
+
+			$this->createLabel($login, $this->gui->getMatchInProgressText());
+			return;
+		}
 
 		$message = '';
 		$player = PlayerInfo::Get($login);
@@ -203,8 +203,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 					break;
 				case 0:
 					$group = Group::Get($groupName);
+					$players = array_map(array($this->storage, 'getPlayerObject'), $group->toArray());
+					$nicknames = \DedicatedApi\Structures\Player::getPropertyFromArray($players, 'nickName');
 					Windows\ForceManialink::Create($group)->show();
-					$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $group->toArray()).' join their match server.', null);
+					$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
 				default:
 					$this->countDown[$groupName] = $countDown;
 			}
@@ -307,7 +309,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	private function cancelMatch($login)
 	{
-		list($server, $players) = PlayerInfo::Get($login)->getMatch();
+		list($server, $match) = PlayerInfo::Get($login)->getMatch();
 		$groupName = 'match-'.$server;
 		Windows\ForceManialink::Erase(Group::Get($groupName));
 		Group::Erase($groupName);
@@ -316,7 +318,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s', $this->db->quote($server)
 		);
 
-		foreach($players as $playerLogin)
+		foreach($match->players as $playerLogin)
 		{
 			if($playerLogin != $login)
 			{
@@ -415,7 +417,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function checkKarma($login)
 	{
 		$karma = $this->db->query(
-			'SELECT count(*) FROM Quiters WHERE playerLogin = %s AND DATE_ADD(creationDate, INTERVAL 1 HOUR) > NOW()',
+			'SELECT count(*) FROM Quiters '.
+			'WHERE playerLogin = %s '.
+			'AND hall = %s '.
+			'AND DATE_ADD(creationDate, INTERVAL 1 HOUR) > NOW()',
+			$this->db->quote($this->storage->serverLogin),
 			$this->db->quote($login)
 		)->fetchSingleValue();
 		if(PlayerInfo::Get($login)->karma < $karma)
@@ -425,6 +431,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->createLabel($login, $this->gui->getBadKarmaText(pow(2, $karma)));
 			$shortKey = Shortkey::Create($login);
 			$shortKey->removeCallback($this->gui->actionKey);
+			$player = $this->storage->getPlayerObject($login);
+			$this->connection->chatSendServerMessage(
+				sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.',$player->nickName, pow(2, $karma))
+			);
 		}
 		PlayerInfo::Get($login)->karma = $karma;
 	}
@@ -485,9 +495,10 @@ EOMatchs
 		
 		$this->db->execute(
 			<<<EOQuiters
-CREATE TABLE IF NOT EXISTS `Quiters` (
+CREATE TABLE `Quiters` (
 	`playerLogin` VARCHAR(25) NOT NULL,
-	`creationDate` DATETIME NOT NULL
+	`creationDate` DATETIME NOT NULL,
+	`hall` VARCHAR(25) NOT NULL
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;

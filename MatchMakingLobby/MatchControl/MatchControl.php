@@ -317,6 +317,12 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	private function play()
 	{
+		$giveUp = Windows\GiveUp::Create();
+		$giveUp->setAlign('right');
+		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
+		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
+		$giveUp->show();
+		
 		if($this->state == self::DECIDING) $this->connection->chatSendServerMessage('Time to change map is over!');
 		else $this->connection->chatSendServerMessage('Player is back, match continues.');
 		$this->changeState(self::PLAYING);
@@ -363,7 +369,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	
 	private function registerQuiter($login)
 	{
-		$this->db->execute('INSERT INTO Quiters VALUES (%s,NOW())',$this->db->quote($login));
+		$this->db->execute('INSERT INTO Quiters VALUES (%s,NOW(), %s)',$this->db->quote($login), $this->db->quote($this->hall));
 	}
 
 	private function createTables()
@@ -418,9 +424,10 @@ EOMatchs
 		
 		$this->db->execute(
 			<<<EOQuiters
-CREATE TABLE IF NOT EXISTS `Quiters` (
+CREATE TABLE `Quiters` (
 	`playerLogin` VARCHAR(25) NOT NULL,
-	`creationDate` DATETIME NOT NULL
+	`creationDate` DATETIME NOT NULL,
+	`hall` VARCHAR(25) NOT NULL
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
