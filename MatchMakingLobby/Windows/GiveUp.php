@@ -16,7 +16,7 @@ class GiveUp extends \ManiaLive\Gui\Window
 {
 
 	/** @var Button */
-	private $message;
+	protected $message;
 
 	protected function onConstruct()
 	{

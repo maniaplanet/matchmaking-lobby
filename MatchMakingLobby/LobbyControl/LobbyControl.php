@@ -81,7 +81,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->setLobbyInfo();
 		$playerList = Windows\PlayerList::Create();
 		$playerList->setAlign('right');
-		$playerList->setPosition(170, $this->gui->lobbyBoxPosY + 3);
+		$playerList->setPosition(170, 48);
 		$playerList->show();
 
 		foreach($this->storage->players as $login => $player)
@@ -103,6 +103,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$lobbyWindow->setPosition(170, 45);
 		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
 		$lobbyWindow->show();
+		
+		$feedback = Windows\Feedback::Create();
+		$feedback->setAlign('right', 'bottom');
+		$feedback->setPosition(160.1, 75);
+		$feedback->show();
 	}
 
 	function onUnload()
