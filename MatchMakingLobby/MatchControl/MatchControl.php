@@ -424,7 +424,7 @@ EOMatchs
 		
 		$this->db->execute(
 			<<<EOQuitters
-CREATE TABLE `Quitters` (
+CREATE TABLE IF NOT EXISTS `Quitters` (
 	`playerLogin` VARCHAR(25) NOT NULL,
 	`creationDate` DATETIME NOT NULL,
 	`hall` VARCHAR(25) NOT NULL

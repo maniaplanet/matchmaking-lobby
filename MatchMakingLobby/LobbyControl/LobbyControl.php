@@ -479,7 +479,7 @@ EOServers
 
 		$this->db->execute(
 			<<<EOMatchs
-CREATE TABLE  IF NOT EXISTS `PlayedMatchs` (
+CREATE TABLE IF NOT EXISTS `PlayedMatchs` (
 	`id` INT(10) NOT NULL AUTO_INCREMENT,
 	`server` VARCHAR(25) NOT NULL,
 	`title` varchar(51) NOT NULL,
@@ -495,7 +495,7 @@ EOMatchs
 		
 		$this->db->execute(
 			<<<EOQuitters
-CREATE TABLE `Quitters` (
+CREATE TABLE IF NOT EXISTS `Quitters` (
 	`playerLogin` VARCHAR(25) NOT NULL,
 	`creationDate` DATETIME NOT NULL,
 	`hall` VARCHAR(25) NOT NULL
