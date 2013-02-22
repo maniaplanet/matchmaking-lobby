@@ -417,7 +417,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function checkKarma($login)
 	{
 		$karma = $this->db->query(
-			'SELECT count(*) FROM Quiters '.
+			'SELECT count(*) FROM Quitters '.
 			'WHERE playerLogin = %s '.
 			'AND hall = %s '.
 			'AND DATE_ADD(creationDate, INTERVAL 1 HOUR) > NOW()',
@@ -441,7 +441,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	private function cleanKarma()
 	{
-		$this->db->execute('DELETE FROM Quiters WHERE DATE_ADD(creationDate, INTERVAL 1 HOUR) < NOW()');
+		$this->db->execute('DELETE FROM Quitters WHERE DATE_ADD(creationDate, INTERVAL 1 HOUR) < NOW()');
 	}
 
 	private function createTables()
@@ -494,15 +494,15 @@ EOMatchs
 		);
 		
 		$this->db->execute(
-			<<<EOQuiters
-CREATE TABLE `Quiters` (
+			<<<EOQuitters
+CREATE TABLE `Quitters` (
 	`playerLogin` VARCHAR(25) NOT NULL,
 	`creationDate` DATETIME NOT NULL,
 	`hall` VARCHAR(25) NOT NULL
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
-EOQuiters
+EOQuitters
 		);
 	}
 

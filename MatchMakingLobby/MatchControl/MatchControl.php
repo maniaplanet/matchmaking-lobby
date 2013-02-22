@@ -369,7 +369,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	
 	private function registerQuiter($login)
 	{
-		$this->db->execute('INSERT INTO Quiters VALUES (%s,NOW(), %s)',$this->db->quote($login), $this->db->quote($this->hall));
+		$this->db->execute('INSERT INTO Quitters VALUES (%s,NOW(), %s)',$this->db->quote($login), $this->db->quote($this->hall));
 	}
 
 	private function createTables()
@@ -423,15 +423,15 @@ EOMatchs
 		);
 		
 		$this->db->execute(
-			<<<EOQuiters
-CREATE TABLE `Quiters` (
+			<<<EOQuitters
+CREATE TABLE `Quitters` (
 	`playerLogin` VARCHAR(25) NOT NULL,
 	`creationDate` DATETIME NOT NULL,
 	`hall` VARCHAR(25) NOT NULL
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
-EOQuiters
+EOQuitters
 		);
 	}
 
