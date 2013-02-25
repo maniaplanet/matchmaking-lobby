@@ -69,7 +69,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		do
 		{
 			$this->graph->addNode($player->login, $this->computeDistances($player, $followers));
-		}while($player = array_shift($followers));
+		}while($player = next($followers));
 	}
 
 	/**
