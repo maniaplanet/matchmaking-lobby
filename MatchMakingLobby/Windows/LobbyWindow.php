@@ -28,6 +28,11 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	 * @var Elements\Label
 	 */
 	protected $totalPlayers;
+	
+	/**
+	 * @var Elements\Label
+	 */
+	protected $playingPlayers;
 
 	protected function onConstruct()
 	{
@@ -64,40 +69,58 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$ui->setText('Ready');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(10, -12);
+		$ui->setPosition(7, -12);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 
 
 		$this->readyPlayers = new Elements\Label(17);
 		$this->readyPlayers->setAlign('center', 'center2');
-		$this->readyPlayers->setPosition(10, -18);
+		$this->readyPlayers->setPosition(7, -18);
 		$this->readyPlayers->setStyle(Elements\Label::TextRaceChrono);
 		$this->readyPlayers->setText(6);
 		$this->readyPlayers->setScale(0.75);
 		$this->addComponent($this->readyPlayers);
+		
+		$ui = new Elements\Label(30);
+		$ui->setText('Playing');
+		$ui->setStyle(null);
+		$ui->setAlign('center', 'center2');
+		$ui->setPosition(20, -12);
+		$ui->setScale(0.6);
+		$this->addComponent($ui);
+
+
+		$this->playingPlayers = new Elements\Label(17);
+		$this->playingPlayers->setAlign('center', 'center2');
+		$this->playingPlayers->setPosition(20, -18);
+		$this->playingPlayers->setStyle(Elements\Label::TextRaceChrono);
+		$this->playingPlayers->setText(6);
+		$this->playingPlayers->setScale(0.75);
+		$this->addComponent($this->playingPlayers);
 
 		$ui = new Elements\Label(30);
 		$ui->setText('Total');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(30, -12);
+		$ui->setPosition(33, -12);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 
 		$this->totalPlayers = new Elements\Label(17);
 		$this->totalPlayers->setAlign('center', 'center2');
-		$this->totalPlayers->setPosition(30, -18);
+		$this->totalPlayers->setPosition(33, -18);
 		$this->totalPlayers->setStyle(Elements\Label::TextRaceChrono);
 		$this->totalPlayers->setText(6);
 		$this->totalPlayers->setScale(0.75);
 		$this->addComponent($this->totalPlayers);
 	}
 
-	function set($serverName, $readyPlayersCount, $totalPlayers)
+	function set($serverName, $readyPlayersCount, $totalPlayers, $playingPlayersCount)
 	{
 		$this->serverName->setText($serverName);
 		$this->readyPlayers->setText($readyPlayersCount);
+		$this->playingPlayers->setText($playingPlayersCount);
 		$this->totalPlayers->setText($totalPlayers);
 	}
 

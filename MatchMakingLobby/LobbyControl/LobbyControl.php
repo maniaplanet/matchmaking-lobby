@@ -102,7 +102,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->setAlign('right', 'bottom');
 		$lobbyWindow->setPosition(170, 45);
-		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
+		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount, $this->getPlayingPlayersCount());
 		$lobbyWindow->show();
 		
 		$feedback = Windows\Feedback::Create();
@@ -297,7 +297,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->setLobbyInfo();
 
 		$lobbyWindow = Windows\LobbyWindow::Create();
-		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount);
+		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount, $this->getPlayingPlayersCount());
 		$lobbyWindow->show();
 	}
 
@@ -367,30 +367,31 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	private function getReadyPlayersCount()
 	{
-		$count = 0;
-		foreach($this->storage->players as $player)
-			$count += PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
-		foreach($this->storage->spectators as $player)
-			$count += PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
-
-		return $count;
+		return count(PlayerInfo::GetReady());
 	}
 
 	private function getTotalPlayerCount()
 	{
 		//Number of matchs in DB minus matchs prepared
 		//Because player are still on the server
-		$matchCount = $this->db->execute(
-				'SELECT COUNT(*) FROM Servers '.
-				'WHERE '.$this->modeClause.' AND hall = %s', $this->db->quote($this->storage->serverLogin)
-			)->fetchSingleValue(null) - count(array_filter($this->countDown, function ($c)
-					{
-						return $c > 0;
-					}));
+		$playingPlayers = $this->getPlayingPlayersCount();
 
 		$playerCount = count($this->connection->getPlayerList(-1, 0));
 
-		return $playerCount + $matchCount * $this->matchMaker->playerPerMatch;
+		return $playerCount + $playingPlayers;
+	}
+	
+	private function getPlayingPlayersCount()
+	{
+		$matchCount = $this->db->execute(
+				'SELECT COUNT(*) FROM Servers '.
+				'WHERE '.$this->modeClause.' AND hall = %s', $this->db->quote($this->storage->serverLogin)
+			)->fetchSingleValue(0);
+		$readyToGoPlayersCount = count(array_filter($this->countDown, function ($c)
+					{
+						return $c > 0;
+					}));
+		return $matchCount * $this->matchMaker->playerPerMatch  - $readyToGoPlayersCount;
 	}
 
 	private function getAvailableSlots()
@@ -404,10 +405,16 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function registerLobby()
 	{
 		$this->db->execute(
-			'INSERT INTO Halls VALUES (%s, %d, %d, %s, %s) '.
-			'ON DUPLICATE KEY UPDATE readyPlayers = VALUES(readyPlayers), connectedPlayers = VALUES(connectedPlayers)',
-			$this->db->quote($this->storage->serverLogin), $this->getReadyPlayersCount(),
-			count($this->connection->getPlayerList(-1, 0)), $this->db->quote($this->storage->server->name),
+			'INSERT INTO Halls VALUES (%s, %d, %d, %d, %s, %s) '.
+			'ON DUPLICATE KEY UPDATE '.
+			'readyPlayers = VALUES(readyPlayers), '.
+			'connectedPlayers = VALUES(connectedPlayers), '.
+			'playingPlayers = VALUES(playingPlayers)',
+			$this->db->quote($this->storage->serverLogin), 
+			$this->getReadyPlayersCount(),
+			count($this->connection->getPlayerList(-1, 0)),
+			$this->getTotalPlayerCount(),
+			$this->db->quote($this->storage->server->name),
 			$this->db->quote($this->hall)
 		);
 	}
@@ -471,6 +478,7 @@ CREATE TABLE IF NOT EXISTS `Halls` (
 	`login` VARCHAR(25) NOT NULL,
 	`readyPlayers` INT(10) NOT NULL,
 	`connectedPlayers` INT(10) NOT NULL,
+	`playingPlayers` INT(10) NOT NULL,
 	`name` VARCHAR(76) NOT NULL,
 	`backLink` VARCHAR(76) NOT NULL,
 	PRIMARY KEY (`login`)

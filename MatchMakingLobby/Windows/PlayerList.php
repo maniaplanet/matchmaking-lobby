@@ -15,16 +15,22 @@ class PlayerList extends \ManiaLive\Gui\Window
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
-	protected $frame;
+//	protected $frame;
 	protected $playerList = array();
+	/**
+	 * @var \ManiaLive\Gui\Controls\Pager
+	 */
+	protected $pager;
 
 	protected function onConstruct()
 	{
 		$this->setSize(50, 100);
 
-		$this->frame = new \ManiaLive\Gui\Controls\Frame(0, 0, new \ManiaLib\Gui\Layouts\Column());
+//		$this->frame = new \ManiaLive\Gui\Controls\Frame(0, 0, new \ManiaLib\Gui\Layouts\Column());
+		$this->pager = new \ManiaLive\Gui\Controls\Pager();
+		$this->pager->setSize(40, 100);
 		$this->playerList = array();
-		$this->addComponent($this->frame);
+		$this->addComponent($this->pager);
 	}
 
 	function addPlayer($login, $state = 0)
@@ -40,7 +46,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		}
 		$tmp->setState($state);
 		$this->playerList[$login] = $tmp;
-		$this->frame->addComponent($this->playerList[$login]);
+		$this->pager->addItem($this->playerList[$login]);
 	}
 
 	function removePlayer($login)
@@ -49,9 +55,9 @@ class PlayerList extends \ManiaLive\Gui\Window
 		{
 			unset($this->playerList[$login]);
 		}
-		$this->frame->clearComponents();
+		$this->pager->clearItems();
 		foreach($this->playerList as $component)
-			$this->frame->addComponent($component);
+			$this->pager->addItem($component);
 	}
 
 	function setPlayer($login, $state)

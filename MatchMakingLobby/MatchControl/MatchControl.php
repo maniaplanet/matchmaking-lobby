@@ -185,7 +185,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$lobbyWindow = Windows\LobbyWindow::Create();
 			$lobbyWindow->setAlign('right', 'bottom');
 			$lobbyWindow->setPosition(170, $this->gui->lobbyBoxPosY);
-			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->totalPlayers * 2 + $obj->connectedPlayers);
+			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->totalPlayers, $obj->playingPlayers);
 			$lobbyWindow->show();
 		}
 	}
@@ -383,6 +383,7 @@ CREATE TABLE IF NOT EXISTS `Halls` (
 	`login` VARCHAR(25) NOT NULL,
 	`readyPlayers` INT(10) NOT NULL,
 	`connectedPlayers` INT(10) NOT NULL,
+	`playingPlayers` INT(10) NOT NULL,
 	`name` VARCHAR(76) NOT NULL,
 	`backLink` VARCHAR(76) NOT NULL,
 	PRIMARY KEY (`login`)
