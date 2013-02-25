@@ -48,8 +48,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->setVersion('0.1');
 		$this->config = Config::getInstance();
-		$scriptInfo = $this->connection->getModeScriptInfo();
-		$scriptName = ($this->config->script ? : end(explode('\\', $scriptInfo->name)));
+		$scriptName = $this->connection->getScriptName();
+		$scriptName = end(explode('\\', $scriptName['CurrentValue']));
+		$scriptName = str_ireplace('.script.txt', '', $scriptName);
 
 		$matchMakerClassName = '\ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers\\'.$scriptName;
 		$guiClassName = '\ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\\'.$scriptName;

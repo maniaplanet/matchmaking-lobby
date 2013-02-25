@@ -65,11 +65,13 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		$followers = array_filter($readyPlayers, function ($f) { return !$f->isInMatch(); });
 		$followers = array_filter($readyPlayers, function ($f) use ($bannedPlayers) { return !in_array($f->login, $bannedPlayers); });
 		
-		$player = reset($followers);
-		do
+		while($player = array_shift($followers))
 		{
-			$this->graph->addNode($player->login, $this->computeDistances($player, $followers));
-		}while($player = next($followers));
+			$this->graph->addNode(
+				$player->login, 
+				$this->computeDistances($player, $followers)
+				);
+		}
 	}
 
 	/**
