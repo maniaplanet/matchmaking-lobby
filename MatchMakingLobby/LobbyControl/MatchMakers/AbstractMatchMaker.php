@@ -53,7 +53,6 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 			$this->graph->deleteNodes(reset($cliques)->getNodes());
 			$nodes = $this->graph->getNodes();
 		}
-
 		return $matches;
 	}
 
@@ -63,7 +62,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 
 		$readyPlayers = PlayerInfo::GetReady();
 		$followers = array_filter($readyPlayers, function ($f) { return !$f->isInMatch(); });
-		$followers = array_filter($readyPlayers, function ($f) use ($bannedPlayers) { return !in_array($f->login, $bannedPlayers); });
+		$followers = array_filter($followers, function ($f) use ($bannedPlayers) { return !in_array($f->login, $bannedPlayers); });
 		
 		while($player = array_shift($followers))
 		{
