@@ -387,9 +387,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 				'SELECT COUNT(*) FROM Servers '.
 				'WHERE '.$this->modeClause.' AND hall = %s', $this->db->quote($this->storage->serverLogin)
 			)->fetchSingleValue(0);
-		$readyToGoPlayersCount = count(array_filter($this->countDown, function ($c)
+		$readyToGoPlayersCount = count(array_filter(PlayerInfo::GetReady(), function ($p)
 					{
-						return $c > 0;
+						return $p->isInMatch();
 					}));
 		return $matchCount * $this->matchMaker->playerPerMatch  - $readyToGoPlayersCount;
 	}
