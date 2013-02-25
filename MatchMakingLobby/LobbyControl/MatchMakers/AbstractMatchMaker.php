@@ -35,7 +35,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		$this->buildGraph($bannedPlayers);
 
 		$nodes = $this->graph->getNodes();
-		while($nodes && $cliques = $this->graph->findCliques(reset($nodes), $this->playerPerMatch, self::DISTANCE_THRESHOLD))
+		while($nodes && $cliques = $this->graph->findCliques(reset($nodes), $this->playerPerMatch, static::DISTANCE_THRESHOLD))
 		{
 			usort($cliques,
 				function($a, $b)
@@ -65,10 +65,11 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		$followers = array_filter($readyPlayers, function ($f) { return !$f->isInMatch(); });
 		$followers = array_filter($readyPlayers, function ($f) use ($bannedPlayers) { return !in_array($f->login, $bannedPlayers); });
 		
-		while($player = array_shift($followers))
+		$player = reset($followers);
+		do
 		{
 			$this->graph->addNode($player->login, $this->computeDistances($player, $followers));
-		}
+		}while($player = array_shift($followers));
 	}
 
 	/**
@@ -80,7 +81,11 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	{
 		$distances = array();
 		foreach($followers as $follower)
+		{
+			if($follower->login == $player->login)
+				continue;
 			$distances[$follower->login] = $this->distance($player, $follower);
+		}
 		return $distances;
 	}
 

@@ -18,7 +18,7 @@ class Elite extends AbstractMatchMaker
 	protected $isTeamMode = true;
 	public $playerPerMatch = 6;
 
-	const DISTANCE_THRESHOLD = 100000;
+	const DISTANCE_THRESHOLD = 20000;
 
 	public function getPlayerScore($login)
 	{
@@ -74,7 +74,6 @@ class Elite extends AbstractMatchMaker
 				$alliesCountPlayers[1][] = $player->login;
 			}
 		}
-
 		$teamNumber = false;
 		foreach($players as $key => $player)
 		{
@@ -93,11 +92,11 @@ class Elite extends AbstractMatchMaker
 			$allies = $playersInfo[$ally]->allies;
 			$allies[] = $ally;
 
-			if(array_search($ally, $m->team1))
+			if(array_search($ally, $m->team1)!== false)
 			{
 				list($m->team2, $m->team1) = $this->teamSwitch($m->team2, $m->team1, $allies);
 			}
-			elseif(array_search($ally, $m->team2))
+			elseif(array_search($ally, $m->team2)!== false)
 			{
 				list($m->team1, $m->team2) = $this->teamSwitch($m->team1, $m->team2, $allies);
 			}

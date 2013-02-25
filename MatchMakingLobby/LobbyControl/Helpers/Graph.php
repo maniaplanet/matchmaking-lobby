@@ -65,7 +65,6 @@ class Graph
 	{
 		$cliques = array();
 		$temp[] = new Clique($startNode, $this->getNeighbours($startNode, $threshold));
-
 		while($clique = array_shift($temp))
 		{
 			foreach(array_keys($clique->getNeighbours()) as $neighbourName)
