@@ -18,6 +18,10 @@ class Player extends \ManiaLive\Gui\Control
 	 * @var Elements\Icons64x64_1
 	 */
 	protected $icon;
+	/**
+	 * @var Elements\Icons64x64_1
+	 */
+	protected $allyIcon;
 
 	/**
 	 * @var Elements\Label
@@ -27,7 +31,6 @@ class Player extends \ManiaLive\Gui\Control
 	function __construct($nickname)
 	{
 		$this->setSize(50, 5);
-		$storage = \ManiaLive\Data\Storage::getInstance();
 
 		$ui = new Elements\Bgs1InRace(50, 5);
 		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
@@ -38,17 +41,23 @@ class Player extends \ManiaLive\Gui\Control
 		$this->icon->setValign('center');
 		$this->icon->setPosition(1, -2.5);
 		$this->addComponent($this->icon);
+		
+		$this->allyIcon = new Elements\Icons64x64_1(2.5, 2.5);
+		$this->allyIcon->setSubStyle(Elements\Icons64x64_1::Buddy);
+		$this->allyIcon->setValign('center');
+		$this->allyIcon->setPosition(4, -2.5);
+		$this->addComponent($this->allyIcon);
 
 		$this->label = new Elements\Label(30);
 		$this->label->setValign('center2');
-		$this->label->setPosition(5, -2.5);
+		$this->label->setPosition(7.5, -2.5);
 		$this->label->setText($nickname);
 		$this->label->setTextColor('fff');
 		$this->label->setScale(0.75);
 		$this->addComponent($this->label);
 	}
 
-	function setState($state = 1)
+	function setState($state = 1, $isAlly = false)
 	{
 		switch($state)
 		{
@@ -65,6 +74,8 @@ class Player extends \ManiaLive\Gui\Control
 				$subStyle = Elements\Icons64x64_1::LvlRed;
 		}
 		$this->icon->setSubStyle($subStyle);
+		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
+		
 	}
 
 }

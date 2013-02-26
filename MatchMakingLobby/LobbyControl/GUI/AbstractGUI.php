@@ -17,6 +17,7 @@ abstract class AbstractGUI extends \ManiaLib\Utils\Singleton
 
 	public $actionKey = Shortkey::F6;
 	public $lobbyBoxPosY = 0;
+	public $displayAllies = false;
 
 	abstract function getNotReadyText();
 

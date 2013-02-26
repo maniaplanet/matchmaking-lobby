@@ -83,10 +83,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 				$this->modeClause .= sprintf(' AND script=%s', $this->db->quote($this->config->script));
 
 		$this->setLobbyInfo();
-		$playerList = Windows\PlayerList::Create();
-		$playerList->setAlign('right');
-		$playerList->setPosition(170, 48);
-		$playerList->show();
+		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
+		{
+			$this->createPlayerList($login);
+		}
 
 		foreach($this->storage->players as $login => $player)
 		{
@@ -145,9 +145,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->createLabel($login, $message);
 		$this->onSetShortKey($login, false);
 
-		$playerList = Windows\PlayerList::Create();
-		$playerList->addPlayer($login);
-		$playerList->redraw();
+		$this->updatePlayerList($login);
+		$this->createPlayerList($login);
 
 		$this->updateLobbyWindow();
 		$this->checkKarma($login);
@@ -171,9 +170,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->onPlayerNotReady($login);
 		}
 
-		$playerList = Windows\PlayerList::Create();
-		$playerList->removePlayer($login);
-		$playerList->redraw();
+		$this->removePlayerFromPlayerList($login);
+		$this->updatePlayerList($login);
 
 		$this->updateLobbyWindow();
 	}
@@ -244,9 +242,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 		
-		if(++$this->tick % 3600)
+		if(++$this->tick % 3600 == 0)
 		{
 			$this->cleanKarma();
+		}
+		if($this->tick % 108000 == 0)
+		{
+			$this->connection->nextMap();
 		}
 	}
 
@@ -257,9 +259,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->onSetShortKey($login, true);
 		$this->createLabel($login, $this->gui->getReadyText());
 
-		$playerList = Windows\PlayerList::Create();
-		$playerList->setPlayer($login, 1);
-		$playerList->redraw();
+		$this->updatePlayerList($login);
 
 		$this->updateLobbyWindow();
 		
@@ -280,9 +280,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		}
 		$this->createLabel($login, $this->gui->getNotReadyText());
 
-		$playerList = Windows\PlayerList::Create();
-		$playerList->setPlayer($login, 0);
-		$playerList->redraw();
+		$this->updatePlayerList($login);
 
 		$this->updateLobbyWindow();
 	}
@@ -293,6 +291,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		if($player)
 		{
 			PlayerInfo::Get($login)->allies = $player->allies;
+			$this->updatePlayerList($login);
 		}
 	}
 
@@ -362,6 +361,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerReady($playerLogin);
 			}
 			PlayerInfo::Get($playerLogin)->setMatch();
+			$this->updatePlayerList($playerLogin);
 		}
 	}
 
@@ -379,14 +379,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
 		$this->countDown[$groupName] = 11;
 
-		$playerList = Windows\PlayerList::Create();
 		foreach($match->players as $player)
 		{
-			$playerList->setPlayer($player, 2);
 			PlayerInfo::Get($player)->setMatch($server, $match);
 			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
+			$this->updatePlayerList($player);
 		}
-		$playerList->redraw();
 	}
 
 	private function getReadyPlayersCount()
@@ -488,11 +486,60 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->chatSendServerMessage(
 				sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.',$player->nickName, pow(2, $karma))
 			);
-			$playerList = Windows\PlayerList::Create();
-			$playerList->setPlayer($login, 3);
-			$playerList->redraw();
+			$this->updatePlayerList($login);
 		}
 		PlayerInfo::Get($login)->karma = $karma;
+	}
+	
+	private function updatePlayerList($login)
+	{
+		$currentPlayerObj = $this->storage->getPlayerObject($login);
+		$playerInfo = PlayerInfo::Get($login);
+		$state = 0;
+		if($playerInfo->isReady()) $state = 1;
+		if($playerInfo->isInMatch()) $state = 2;
+		if(array_key_exists($login, $this->blockedPlayers)) $state = 3;
+		
+		$playerLists = Windows\PlayerList::GetAll();
+		foreach($playerLists as $playerList)
+		{
+			/* @var $playerList Windows\PlayerList */
+			$isAlly = $this->gui->displayAllies && $currentPlayerObj && in_array($playerList->getRecipient(), $currentPlayerObj->allies);
+			$playerList->setPlayer($login, $state, $isAlly);
+		}
+		Windows\PlayerList::RedrawAll();
+	}
+	
+	private function removePlayerFromPlayerList($login)
+	{
+		$playerLists = Windows\PlayerList::GetAll();
+
+		foreach($playerLists as $playerList)
+		{
+			$playerList->removePlayer($login);
+			$playerList->redraw();
+		}
+		Windows\PlayerList::RedrawAll();
+	}
+	
+	private function createPlayerList($login)
+	{
+		$playerList = Windows\PlayerList::Create($login);
+		$playerList->setAlign('right');
+		$playerList->setPosition(170, 48);
+		
+		$currentPlayerObj = $this->storage->getPlayerObject($login);
+		foreach(array_merge($this->storage->players, $this->storage->players) as $login => $object)
+		{
+			$playerInfo = PlayerInfo::Get($login);
+			$state = 0;
+			if($playerInfo->isReady()) $state = 1;
+			if($playerInfo->isInMatch()) $state = 2;
+			if(array_key_exists($login, $this->blockedPlayers)) $state = 3;
+			$isAlly = ($this->gui->displayAllies && $currentPlayerObj && in_array($login, $currentPlayerObj->allies));
+			$playerList->setPlayer($login, $state, $isAlly);
+		}
+		$playerList->show();
 	}
 	
 	private function cleanKarma()

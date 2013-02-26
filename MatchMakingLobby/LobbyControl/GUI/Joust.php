@@ -17,6 +17,7 @@ class Joust extends AbstractGUI
 
 	public $actionKey = Shortkey::F6;
 	public $lobbyBoxPosY = 45;
+	public $displayAllies = false;
 
 	public function getLaunchMatchText(Match $m, $player)
 	{

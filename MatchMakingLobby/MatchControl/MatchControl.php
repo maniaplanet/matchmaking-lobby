@@ -149,7 +149,17 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerInfoChanged($playerInfo)
 	{
-		$this->forcePlayerTeam($playerInfo['Login']);
+		try
+		{
+			$this->forcePlayerTeam($playerInfo['Login']);
+		}
+		catch(\Exception $e)
+		{
+			if($e->getMessage != 'Login unknown.')
+			{
+				throw $e;
+			}
+		}
 	}
 
 	function onPlayerDisconnect($login)
