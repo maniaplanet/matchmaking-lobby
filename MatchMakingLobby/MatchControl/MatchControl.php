@@ -240,7 +240,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$giveUp->show();
 
 		foreach($match->players as $login)
-			$this->connection->addGuest($login, true);
+			$this->connection->addGuest((string)$login, true);
 		$this->connection->executeMulticall();
 
 		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_END_MATCH | ServerEvent::ON_PLAYER_INFO_CHANGED);
