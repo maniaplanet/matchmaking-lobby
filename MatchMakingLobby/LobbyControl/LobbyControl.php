@@ -391,7 +391,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	private function getReadyPlayersCount()
 	{
-		return count(PlayerInfo::GetReady());
+		$count = 0;
+		foreach($this->storage->players as $player)
+			$count += PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
+		foreach($this->storage->spectators as $player)
+			$count += PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
+
+		return $count;
 	}
 
 	private function getTotalPlayerCount()
