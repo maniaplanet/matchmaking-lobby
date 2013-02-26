@@ -23,14 +23,18 @@ class Elite extends AbstractGUI
 		$key = array_search($player, $m->team1);
 		if($key !== false)
 		{
-			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3])->nickName;
-			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3])->nickName;
+			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3]);
+			$mate1 = ($mate1 ? $mate1->nickName : $m->team1[($key + 1) % 3]);
+			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3]);
+			$mate2 = ($mate2 ? $mate2->nickName : $m->team1[($key + 2) % 3]);
 		}
 		else
 		{
 			$key = array_search($player, $m->team2);
-			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team2[($key + 1) % 3])->nickName;
+			$mate1 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team2[($key + 1) % 3]);
+			$mate1 = ($mate1 ? $mate1->nickName : $m->team2[($key + 1) % 3]);
 			$mate2 = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team2[($key + 2) % 3])->nickName;
+			$mate2 = ($mate2 ? $mate2->nickName : $m->team2[($key + 2) % 3]);
 		}
 		return sprintf('$0F0Match with $<%s$> & $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $mate1, $mate2);
 	}
