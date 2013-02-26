@@ -43,6 +43,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	/** @var int[string] */
 	private $blockedPlayers = array();
+	
+	/** @var int[string] */
+	private $newCommers = array();
 
 	function onInit()
 	{
@@ -148,6 +151,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 		$this->updateLobbyWindow();
 		$this->checkKarma($login);
+		if(!array_key_exists($login, $this->blockedPlayers))
+		{
+			$this->newCommers[$login] = 60;
+		}
 	}
 
 	function onPlayerDisconnect($login)
@@ -173,6 +180,18 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onTick()
 	{
+		foreach($this->newCommers as $login => $time)
+		{
+			if(--$time == 0)
+			{
+				$this->onPlayerReady($login);
+			}
+			else
+			{
+				$this->newCommers[$login] = $time;
+			}
+		}
+		
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
 		{
 			$this->checkKarma($player->login);
@@ -243,6 +262,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$playerList->redraw();
 
 		$this->updateLobbyWindow();
+		
+		if(array_key_exists($login, $this->newCommers))
+		{
+			unset($this->newCommers[$login]);
+		}
 	}
 
 	function onPlayerNotReady($login)
