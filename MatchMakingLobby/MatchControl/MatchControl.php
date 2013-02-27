@@ -119,7 +119,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING:
 				$this->waitingTime += 5;
 				$current = $this->getNext();
-				if($this->waitingTime >= 60 || $current === false)
+				if($this->waitingTime > 120 || $current === false)
 				{
 					$this->cancel();
 					break;
@@ -164,7 +164,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
-		if($this->state == self::PLAYING) $this->over();
+		if($this->state == self::PLAYING || $this->state == self::WAITING) $this->over();
 		elseif($this->state == self::DECIDING) $this->decide();
 	}
 

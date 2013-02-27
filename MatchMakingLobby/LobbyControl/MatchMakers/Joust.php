@@ -14,7 +14,7 @@ class Joust extends AbstractMatchMaker
 
 	public $playerPerMatch = 2;
 
-	const DISTANCE_THRESHOLD = 10000;
+	const DISTANCE_THRESHOLD = 1000;
 
 	protected function distance($p1, $p2)
 	{

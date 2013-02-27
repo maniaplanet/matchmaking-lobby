@@ -252,6 +252,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->connection->nextMap();
 		}
+		if($this->tick % 300 == 0)
+		{
+			foreach(PlayerInfo::GetReady() as $player)
+			{
+				$this->isPlayerMatchStillExist($player->login);
+			}
+		}
 	}
 
 	function onPlayerReady($login)
@@ -536,7 +543,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$playerInfo = PlayerInfo::Get($login);
 			$state = 0;
 			if($playerInfo->isReady()) $state = 1;
-			if($playerInfo->isInMatch()) $state = 2;
+			if($playerInfo->isInMatch() && $this->isPlayerMatchExist($login)) $state = 2;
 			if(array_key_exists($login, $this->blockedPlayers)) $state = 3;
 			$isAlly = ($this->gui->displayAllies && $currentPlayerObj && in_array($login, $currentPlayerObj->allies));
 			$playerList->setPlayer($login, $state, $isAlly);
@@ -547,6 +554,24 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function cleanKarma()
 	{
 		$this->db->execute('DELETE FROM Quitters WHERE DATE_ADD(creationDate, INTERVAL 1 HOUR) < NOW()');
+	}
+	
+	private function cleanPlayerStillMatch($login)
+	{
+		if(!$this->isPlayerMatchExist($login))
+		{
+			PlayerInfo::Get($login)->setMatch();
+		}
+	}
+	
+	private function isPlayerMatchExist($login)
+	{
+		list($server, $match) = PlayerInfo::Get($login)->getMatch();
+		
+		return $this->db->query('SELECT IF(count(*), TRUE, FALSE) FROM Servers WHERE login = %s and match = %s',
+			$this->db->quote($server),
+			$this->db->quote(json_encode($match))
+		)->fetchSingleValue();
 	}
 
 	private function createTables()

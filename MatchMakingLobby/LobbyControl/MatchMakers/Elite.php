@@ -18,7 +18,7 @@ class Elite extends AbstractMatchMaker
 	protected $isTeamMode = true;
 	public $playerPerMatch = 6;
 
-	const DISTANCE_THRESHOLD = 20000;
+	const DISTANCE_THRESHOLD = 2000;
 
 	public function getPlayerScore($login)
 	{
