@@ -191,14 +191,10 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			)->fetchObject();
 		if($obj)
 		{
-			$obj->totalPlayers = $this->db->execute(
-					'SELECT COUNT(*) FROM Servers WHERE hall = %s', $this->db->quote($obj->login)
-				)->fetchSingleValue();
-
 			$lobbyWindow = Windows\LobbyWindow::Create();
 			$lobbyWindow->setAlign('right', 'bottom');
 			$lobbyWindow->setPosition(170, $this->gui->lobbyBoxPosY);
-			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->totalPlayers, $obj->playingPlayers);
+			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->connectedPlayers + $obj->playingPlayers, $obj->playingPlayers);
 			$lobbyWindow->show();
 		}
 	}
@@ -228,7 +224,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private function getNext()
 	{
 		$result = $this->db->execute(
-				'SELECT H.backLink, H.login as hall, S.players as `match` FROM Servers  S '.
+				'SELECT H.backLink, S.hall, S.players as `match` FROM Servers  S '.
 				'INNER JOIN Halls H ON S.hall = H.login '.
 				'WHERE S.login=%s', $this->db->quote($this->storage->serverLogin)
 			)->fetchObject();
@@ -385,8 +381,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->db->execute(
 			'INSERT INTO Quitters VALUES (%s,NOW(), %s)', 
 			$this->db->quote($login),
-			$this->db->quote($this->storage->serverLogin),
-			$this->db->quote($this->backLink)
+			$this->db->quote($this->hall)
 		);
 	}
 
