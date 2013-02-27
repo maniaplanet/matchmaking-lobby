@@ -347,7 +347,14 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->cleanGuestList();
 		$this->sleep();
 		usleep(20);
-		$this->connection->restartMap();
+		try
+		{
+			$this->connection->restartMap();
+		}
+		catch(\Exception $e)
+		{
+			
+		}
 	}
 
 	private function changeState($state)

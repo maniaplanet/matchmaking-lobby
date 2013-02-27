@@ -169,6 +169,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->onPlayerNotReady($login);
 		}
+		
+		if(array_key_exists($login, $this->newCommers))
+			unset($this->newCommers[$login]);
 
 		$this->removePlayerFromPlayerList($login);
 
