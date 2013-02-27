@@ -568,7 +568,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		list($server, $match) = PlayerInfo::Get($login)->getMatch();
 		
-		return $this->db->query('SELECT IF(count(*), TRUE, FALSE) FROM Servers WHERE login = %s and `match` = %s',
+		return $this->db->query('SELECT IF(count(*), TRUE, FALSE) FROM Servers WHERE login = %s and `players` = %s',
 			$this->db->quote($server),
 			$this->db->quote(json_encode($match))
 		)->fetchSingleValue();
