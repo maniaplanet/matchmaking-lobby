@@ -38,7 +38,10 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var string */
 	private $hall = null;
-
+	
+	/** @var string */
+	private $backLink = null;
+	
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match */
 	private $match = null;
 
@@ -107,7 +110,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 					$this->sleep();
 					break;
 				}
-				$this->prepare($next->hall, $next->match);
+				$this->prepare($next->backLink, $next->hall, $next->match);
 				$this->wait();
 				break;
 			case self::DECIDING:
@@ -121,9 +124,9 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 					$this->cancel();
 					break;
 				}
-				if($current->hall != $this->hall || $current->match != $this->match)
+				if($current->backLink != $this->backLink || $current->hall != $this->hall || $current->match != $this->match)
 				{
-					$this->prepare($current->hall, $current->match);
+					$this->prepare($current->backLink, $current->hall ,$current->match);
 					$this->wait();
 					break;
 				}
@@ -225,19 +228,19 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private function getNext()
 	{
 		$result = $this->db->execute(
-				'SELECT H.backLink as hall, S.players as `match` FROM Servers  S '.
+				'SELECT H.backLink, H.login as hall, S.players as `match` FROM Servers  S '.
 				'INNER JOIN Halls H ON S.hall = H.login '.
 				'WHERE S.login=%s', $this->db->quote($this->storage->serverLogin)
 			)->fetchObject();
 
-		if(!$result || !$result->hall) return false;
-
+		if(!$result || !$result->backLink) return false;
 		$result->match = json_decode($result->match);
 		return $result;
 	}
 
-	private function prepare($hall, $match)
+	private function prepare($backLink, $hall, $match)
 	{
+		$this->backLink = $backLink;
 		$this->hall = $hall;
 		$this->players = array_fill_keys($match->players, false);
 		$this->match = $match;
@@ -352,7 +355,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		);
 
 		$jumper = Windows\ForceManialink::Create();
-		$jumper->set('maniaplanet://#qjoin='.$this->hall);
+		$jumper->set('maniaplanet://#qjoin='.$this->backLink);
 		$jumper->show();
 		$this->connection->cleanGuestList();
 		$this->sleep();
@@ -380,8 +383,10 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	private function registerQuiter($login)
 	{
 		$this->db->execute(
-			'INSERT INTO Quitters VALUES (%s,NOW(), (SELECT hall FROM Servers WHERE login = %s))', $this->db->quote($login),
-			$this->db->quote($this->storage->serverLogin)
+			'INSERT INTO Quitters VALUES (%s,NOW(), %s)', 
+			$this->db->quote($login),
+			$this->db->quote($this->storage->serverLogin),
+			$this->db->quote($this->backLink)
 		);
 	}
 
