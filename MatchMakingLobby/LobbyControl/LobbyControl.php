@@ -171,7 +171,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		$this->removePlayerFromPlayerList($login);
-		$this->updatePlayerList($login);
 
 		$this->updateLobbyWindow();
 	}
@@ -292,6 +291,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		{
 			PlayerInfo::Get($login)->allies = $player->allies;
 			$this->updatePlayerList($login);
+			foreach($player->allies as $ally)
+				$this->updatePlayerList($ally);
 		}
 	}
 
@@ -415,11 +416,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 				'SELECT COUNT(*) FROM Servers '.
 				'WHERE '.$this->modeClause.' AND hall = %s', $this->db->quote($this->storage->serverLogin)
 			)->fetchSingleValue(0);
-		$readyToGoPlayersCount = count(array_filter($this->countDown, function ($c)
-					{
-						return $c > 0;
-					}));
-		return $matchCount * $this->matchMaker->playerPerMatch  - $readyToGoPlayersCount;
+		
+		return ($matchCount - count($this->countDown)) * $this->matchMaker->playerPerMatch;
 	}
 
 	private function getAvailableSlots()
@@ -512,6 +510,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	private function removePlayerFromPlayerList($login)
 	{
+		Windows\PlayerList::Erase($login);
 		$playerLists = Windows\PlayerList::GetAll();
 
 		foreach($playerLists as $playerList)
