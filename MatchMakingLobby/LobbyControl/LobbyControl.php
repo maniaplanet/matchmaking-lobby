@@ -22,6 +22,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	/** @var int */
 	private $tick;
+	
+	/** @var int */
+	private $mapTick;
 
 	/** @var Config */
 	private $config;
@@ -74,7 +77,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->enableDatabase();
 		$this->createTables();
-		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_PLAYER_ALLIES_CHANGED);
+		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_PLAYER_ALLIES_CHANGED | ServerEvent::ON_BEGIN_MAP);
 		$this->enableTickerEvent();
 
 		$this->hall = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->connection->getSystemInfo()->titleId;
@@ -177,6 +180,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 		$this->updateLobbyWindow();
 	}
+	
+	function onBeginMap($map, $warmUp, $matchContinuation)
+	{
+		$this->mapTick = 0;
+	}
 
 	function onTick()
 	{
@@ -245,17 +253,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		}
 		
 		if(++$this->tick % 3600 == 0)
-		{
 			$this->cleanKarma();
-		}
-		if($this->tick % 1800 == 0)
-		{
+		if(++$this->mapTick % 1800 == 0)
 			$this->connection->nextMap();
-		}
 		if($this->tick % 30 == 0)
-		{
 			array_map(array($this,'cleanPlayerStillMatch'), PlayerInfo::GetReady());
-		}
 	}
 
 	function onPlayerReady($login)
