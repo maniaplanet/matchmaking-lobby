@@ -248,16 +248,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->cleanKarma();
 		}
-		if($this->tick % 108000 == 0)
+		if($this->tick % 1800 == 0)
 		{
 			$this->connection->nextMap();
 		}
-		if($this->tick % 300 == 0)
+		if($this->tick % 30 == 0)
 		{
-			foreach(PlayerInfo::GetReady() as $player)
-			{
-				$this->cleanPlayerStillMatch($player->login);
-			}
+			array_map(array($this,'cleanPlayerStillMatch'), PlayerInfo::GetReady());
 		}
 	}
 
