@@ -19,6 +19,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 {
 
 	const PREFIX = 'LobbyInfo$000»$8f0 ';
+	const PENALTY_TIME = 4;
 	
 	/** @var int */
 	private $tick;
@@ -47,12 +48,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	/** @var int[string] */
 	private $blockedPlayers = array();
 	
-	/** @var int[string] */
-	private $newCommers = array();
-	
 	function onInit()
 	{
-		$this->setVersion('0.1');
+		$this->setVersion('0.2');
 		$this->config = Config::getInstance();
 		$scriptName = $this->connection->getScriptName();
 		$scriptName = end(explode('\\', $scriptName['CurrentValue']));
@@ -153,10 +151,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 		$this->updateLobbyWindow();
 		$this->checkKarma($login);
-		if(!array_key_exists($login, $this->blockedPlayers))
-		{
-			$this->newCommers[$login] = 60;
-		}
 	}
 
 	function onPlayerDisconnect($login)
@@ -173,9 +167,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->onPlayerNotReady($login);
 		}
 		
-		if(array_key_exists($login, $this->newCommers))
-			unset($this->newCommers[$login]);
-
 		$this->removePlayerFromPlayerList($login);
 
 		$this->updateLobbyWindow();
@@ -188,18 +179,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onTick()
 	{
-		foreach($this->newCommers as $login => $time)
-		{
-			if(--$time == 0)
-			{
-				$this->onPlayerReady($login);
-			}
-			else
-			{
-				$this->newCommers[$login] = $time;
-			}
-		}
-		
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
 		{
 			$this->checkKarma($player->login);
@@ -270,11 +249,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->updatePlayerList($login);
 
 		$this->updateLobbyWindow();
-		
-		if(array_key_exists($login, $this->newCommers))
-		{
-			unset($this->newCommers[$login]);
-		}
 	}
 
 	function onPlayerNotReady($login)
@@ -430,11 +404,12 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		return ($matchCount - count($this->countDown)) * $this->matchMaker->playerPerMatch;
 	}
 
-	private function getAvailableSlots()
+	private function getTotalSlots()
 	{
 		return $this->db->execute(
 				'SELECT COUNT(*) FROM Servers '.
-				'WHERE DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() AND '.$this->modeClause
+				'WHERE (DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() AND %s) OR '.
+				'hall = %s', $this->modeClause, $this->db->quote($this->storage->serverLogin)
 			)->fetchSingleValue(null) * $this->matchMaker->playerPerMatch + $this->storage->server->currentMaxPlayers;
 	}
 
@@ -460,7 +435,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		if($enable)
 		{
 			$lobbyPlayers = $this->getTotalPlayerCount();
-			$maxPlayers = $this->getAvailableSlots();
+			$maxPlayers = $this->getTotalSlots();
 		}
 		else
 		{
@@ -486,13 +461,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		if(PlayerInfo::Get($login)->karma < $karma)
 		{
 			$this->onPlayerNotReady($login);
-			$this->blockedPlayers[$login] = 60 * pow(2, $karma);
-			$this->createLabel($login, $this->gui->getBadKarmaText(pow(2, $karma)));
+			$this->blockedPlayers[$login] = 60 * pow(static::PENALTY_TIME, $karma);
+			$this->createLabel($login, $this->gui->getBadKarmaText(pow(static::PENALTY_TIME, $karma)));
 			$shortKey = Shortkey::Create($login);
 			$shortKey->removeCallback($this->gui->actionKey);
 			$player = $this->storage->getPlayerObject($login);
 			$this->connection->chatSendServerMessage(
-				sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.',$player->nickName, pow(2, $karma))
+				sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.',$player->nickName, pow(static::PENALTY_TIME, $karma))
 			);
 			$this->updatePlayerList($login);
 		}

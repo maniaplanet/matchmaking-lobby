@@ -56,7 +56,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('0.1');
+		$this->setVersion('0.2');
 	}
 
 	function onLoad()
@@ -164,7 +164,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
-		if($this->state == self::PLAYING || $this->state == self::WAITING) $this->over();
+		if($this->state == self::PLAYING || $this->state == self::WAITING || $this->state == self::ABORTING) $this->over();
 		elseif($this->state == self::DECIDING) $this->decide();
 	}
 
