@@ -46,7 +46,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	/** @var int[string] */
 	private $newCommers = array();
-
+	
 	function onInit()
 	{
 		$this->setVersion('0.1');
@@ -69,7 +69,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		}
 		$this->gui = $guiClassName::getInstance();
 	}
-
+	
 	function onLoad()
 	{
 		$this->enableDatabase();
@@ -361,6 +361,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->db->execute(
 			'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s', $this->db->quote($server)
 		);
+		$this->registerCancel($login);
 
 		foreach($match->players as $playerLogin)
 		{
@@ -446,7 +447,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->db->quote($this->storage->serverLogin), 
 			$this->getReadyPlayersCount(),
 			count($this->connection->getPlayerList(-1, 0)),
-			$this->getTotalPlayerCount(),
+			$this->getPlayingPlayersCount(),
 			$this->db->quote($this->storage->server->name),
 			$this->db->quote($this->hall)
 		);
@@ -494,6 +495,15 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->updatePlayerList($login);
 		}
 		PlayerInfo::Get($login)->karma = $karma;
+	}
+	
+	private function registerCancel($login)
+	{
+		$this->db->execute(
+			'INSERT INTO Quitters VALUES (%s,NOW(), %s)', 
+			$this->db->quote($login),
+			$this->db->quote($this->storage)
+		);
 	}
 	
 	private function updatePlayerList($login)
