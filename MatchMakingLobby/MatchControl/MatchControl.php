@@ -158,13 +158,13 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerDisconnect($login)
 	{
-		$this->players[$login] = false;
+		$this->players[$login] = (in_array($this->state, array(self::DECIDING, self::PLAYING, self::ABORTING)) ? -1 : false);
 		if(in_array($this->state, array(self::DECIDING, self::PLAYING))) $this->abort();
 	}
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
-		if($this->state == self::PLAYING || $this->state == self::WAITING || $this->state == self::ABORTING) $this->over();
+		if($this->state == self::PLAYING || $this->state == self::ABORTING) $this->over();
 		elseif($this->state == self::DECIDING) $this->decide();
 	}
 
@@ -282,7 +282,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		if($this->state == self::ABORTING)
 		{
-			$logins = array_keys($this->players, false);
+			$logins = array_keys($this->players, -1);
 			foreach($logins as $login)
 			{
 				$this->registerQuiter($login);
@@ -371,7 +371,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	private function isEverybodyHere()
 	{
-		return count(array_filter($this->players)) == count($this->players);
+		return count(array_filter($this->players, function ($p) { return $p > 0; })) == count($this->players);
 	}
 	
 	private function registerQuiter($login)

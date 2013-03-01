@@ -48,6 +48,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	/** @var int[string] */
 	private $blockedPlayers = array();
 	
+	private $penaltyTime;
+	
 	function onInit()
 	{
 		$this->setVersion('0.2');
@@ -69,6 +71,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			throw new \UnexpectedValueException($guiClassName.' has no GUI class');
 		}
 		$this->gui = $guiClassName::getInstance();
+		$this->penaltyTime = $this->config->penaltyTime;
 	}
 	
 	function onLoad()
@@ -150,7 +153,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->createPlayerList($login);
 
 		$this->updateLobbyWindow();
-		$this->checkKarma($login);
+		$leaves = $this->getLeavesCount($login);
+		$this->checkKarma($login, $leaves);
 	}
 
 	function onPlayerDisconnect($login)
@@ -181,7 +185,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
 		{
-			$this->checkKarma($player->login);
+			$leaves = $this->getLeavesCount($player->login);
+			$this->checkKarma($player->login, $leaves);
 		}
 		
 		foreach($this->blockedPlayers as $login => $countDown)
@@ -445,12 +450,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);
 	}
 	
-	/**
-	 * @param $login
-	 */
-	private function checkKarma($login)
+	private function getLeavesCount($login)
 	{
-		$karma = $this->db->query(
+		return $this->db->query(
 			'SELECT count(*) FROM Quitters '.
 			'WHERE playerLogin = %s '.
 			'AND hall = %s '.
@@ -458,20 +460,33 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->db->quote($login),
 			$this->db->quote($this->storage->serverLogin)
 		)->fetchSingleValue();
+	}
+	
+	/**
+	 * @param $login
+	 */
+	private function checkKarma($login, $leavesCount)
+	{
+		$karma = $this->calculateKama($login, $leavesCount);
 		if(PlayerInfo::Get($login)->karma < $karma)
 		{
 			$this->onPlayerNotReady($login);
-			$this->blockedPlayers[$login] = 60 * pow(static::PENALTY_TIME, $karma);
-			$this->createLabel($login, $this->gui->getBadKarmaText(pow(static::PENALTY_TIME, $karma)));
+			$this->blockedPlayers[$login] = 60 * pow($this->penaltyTime, $karma);
+			$this->createLabel($login, $this->gui->getBadKarmaText(pow($this->penaltyTime, $karma)));
 			$shortKey = Shortkey::Create($login);
 			$shortKey->removeCallback($this->gui->actionKey);
 			$player = $this->storage->getPlayerObject($login);
 			$this->connection->chatSendServerMessage(
-				sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.',$player->nickName, pow(static::PENALTY_TIME, $karma))
+				sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.',$player->nickName, pow($this->penaltyTime, $karma))
 			);
 			$this->updatePlayerList($login);
 		}
 		PlayerInfo::Get($login)->karma = $karma;
+	}
+	
+	private function calculateKama($login, $leavesCount)
+	{
+		return $leavesCount;
 	}
 	
 	private function registerCancel($login)

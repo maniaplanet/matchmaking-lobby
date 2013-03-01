@@ -13,6 +13,7 @@ class Config extends \ManiaLib\Utils\Singleton
 {
 
 	public $script;
+	public $penaltyTime = 4;
 
 }
 
