@@ -479,7 +479,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->db->execute(
 			'INSERT INTO Quitters VALUES (%s,NOW(), %s)', 
 			$this->db->quote($login),
-			$this->db->quote($this->storage)
+			$this->db->quote($this->storage->serverLogin)
 		);
 	}
 	
@@ -540,11 +540,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->db->execute('DELETE FROM Quitters WHERE DATE_ADD(creationDate, INTERVAL 1 HOUR) < NOW()');
 	}
 	
-	private function cleanPlayerStillMatch($login)
+	private function cleanPlayerStillMatch(PlayerInfo $player)
 	{
-		if(!$this->isPlayerMatchExist($login))
+		if(!$this->isPlayerMatchExist($player->login))
 		{
-			PlayerInfo::Get($login)->setMatch();
+			$player->setMatch();
 		}
 	}
 	
