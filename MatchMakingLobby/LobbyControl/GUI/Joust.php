@@ -49,6 +49,7 @@ class Joust extends AbstractGUI
 	
 	public function getBadKarmaText($time)
 	{
+		$time = ceil($time / 60.);
 		return sprintf('$F00You leaved your last match. You are suspended for %d minutes', $time);
 	}
 

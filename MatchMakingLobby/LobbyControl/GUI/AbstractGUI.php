@@ -10,9 +10,12 @@
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI;
 
 use ManiaLive\Gui\Windows\Shortkey;
+use ManiaLive\Data\Storage;
+use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
+use ManiaLivePlugins\MatchMakingLobby\LobbyControl\PlayerInfo;
 
-abstract class AbstractGUI extends \ManiaLib\Utils\Singleton
+abstract class AbstractGUI
 {
 
 	public $actionKey = Shortkey::F6;
@@ -30,6 +33,35 @@ abstract class AbstractGUI extends \ManiaLib\Utils\Singleton
 	abstract function getMatchInProgressText();
 	
 	abstract function getBadKarmaText($time);
+	
+	final function updateLobbyWindow($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount)
+	{
+		$playersCount = $this->getReadyPlayersCount();
+		$totalPlayerCount = $this->getTotalPlayerCount();
+
+		$lobbyWindow = Windows\LobbyWindow::Create();
+		$lobbyWindow->set($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount);
+		$lobbyWindow->show();
+	}
+	
+	final function updatePlayerList($login, array $blockedPlayerList)
+	{
+		$currentPlayerObj = Storage::getInstance()->getPlayerObject($login);
+		$playerInfo = PlayerInfo::Get($login);
+		$state = 0;
+		if($playerInfo->isReady()) $state = 1;
+		if($playerInfo->isInMatch()) $state = 2;
+		if(array_key_exists($login, $blockedPlayers)) $state = 3;
+		
+		$playerLists = Windows\PlayerList::GetAll();
+		foreach($playerLists as $playerList)
+		{
+			/* @var $playerList Windows\PlayerList */
+			$isAlly = $this->gui->displayAllies && $currentPlayerObj && in_array($playerList->getRecipient(), $currentPlayerObj->allies);
+			$playerList->setPlayer($login, $state, $isAlly);
+		}
+		Windows\PlayerList::RedrawAll();
+	}
 }
 
 ?>
