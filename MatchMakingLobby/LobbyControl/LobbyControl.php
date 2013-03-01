@@ -83,7 +83,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->setLobbyInfo();
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
-			$this->createPlayerList($login);
+			$this->gui->createPlayerList($login, $this->blockedPlayers);
 		}
 
 		foreach($this->storage->players as $login => $player)
@@ -128,7 +128,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
 			$jumper->show();
 
-			$this->createLabel($login, $this->gui->getMatchInProgressText());
+			$this->gui->createLabel($login, $this->gui->getMatchInProgressText());
 			return;
 		}
 
@@ -140,11 +140,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
 		
-		$this->createLabel($login, $message);
+		$this->gui->createLabel($login, $message);
 		$this->onSetShortKey($login, false);
 
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
-		$this->createPlayerList($login);
+		$this->gui->createPlayerList($login, $this->blockedPlayers);
 
 		$this->updateLobbyWindow();
 		$leaves = $this->getLeavesCount($login);
@@ -165,7 +165,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->onPlayerNotReady($login);
 		}
 		
-		$this->removePlayerFromPlayerList($login);
+		$this->gui->removePlayerFromPlayerList($login);
 
 		$this->updateLobbyWindow();
 	}
@@ -245,7 +245,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$player = PlayerInfo::Get($login);
 		$player->setReady(true);
 		$this->onSetShortKey($login, true);
-		$this->createLabel($login, $this->gui->getReadyText());
+		$this->gui->createLabel($login, $this->gui->getReadyText());
 
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
 
@@ -262,7 +262,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->cancelMatch($login);
 		}
-		$this->createLabel($login, $this->gui->getNotReadyText());
+		$this->gui->createLabel($login, $this->gui->getNotReadyText());
 
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
 
@@ -341,7 +341,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		foreach($match->players as $player)
 		{
 			PlayerInfo::Get($player)->setMatch($server, $match);
-			$this->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
+			$this->gui->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
 			$this->gui->updatePlayerList($player, $this->blockedPlayers);
 		}
 	}
@@ -404,21 +404,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		);
 	}
 	
-	private function setLobbyInfo($enable = true)
-	{
-		if($enable)
-		{
-			$lobbyPlayers = $this->getTotalPlayerCount();
-			$maxPlayers = $this->getTotalSlots();
-		}
-		else
-		{
-			$lobbyPlayers = count($this->connection->getPlayerList(-1, 0));
-			$maxPlayers = $this->storage->server->currentMaxPlayers;
-		}
-		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);
-	}
-	
 	private function getLeavesCount($login)
 	{
 		return $this->db->query(
@@ -451,12 +436,17 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			}
 			
 			$this->onPlayerNotReady($login);
-			$this->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
+			$this->gui->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
 			$shortKey = Shortkey::Create($login);
 			$shortKey->removeCallback($this->gui->actionKey);
 			$this->gui->updatePlayerList($login, $this->blockedPlayers);
 		}
 		PlayerInfo::Get($login)->karma = $karma;
+	}
+	
+	private function cleanKarma()
+	{
+		$this->db->execute('DELETE FROM Quitters WHERE DATE_ADD(creationDate, INTERVAL 1 HOUR) < NOW()');
 	}
 	
 	private function registerCancel($login)
@@ -466,24 +456,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$this->db->quote($login),
 			$this->db->quote($this->storage->serverLogin)
 		);
-	}
-	
-	private function removePlayerFromPlayerList($login)
-	{
-		Windows\PlayerList::Erase($login);
-		$playerLists = Windows\PlayerList::GetAll();
-
-		foreach($playerLists as $playerList)
-		{
-			$playerList->removePlayer($login);
-			$playerList->redraw();
-		}
-		Windows\PlayerList::RedrawAll();
-	}
-	
-	private function cleanKarma()
-	{
-		$this->db->execute('DELETE FROM Quitters WHERE DATE_ADD(creationDate, INTERVAL 1 HOUR) < NOW()');
 	}
 	
 	private function cleanPlayerStillMatch(PlayerInfo $player)
@@ -504,26 +476,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		)->fetchSingleValue();
 	}
 	
-	private function createPlayerList($login)
-	{
-		$playerList = Windows\PlayerList::Create($login);
-		$playerList->setAlign('right');
-		$playerList->setPosition(170, 48);
-		
-		$currentPlayerObj = $this->storage->getPlayerObject($login);
-		foreach(array_merge($this->storage->players, $this->storage->players) as $login => $object)
-		{
-			$playerInfo = PlayerInfo::Get($login);
-			$state = 0;
-			if($playerInfo->isReady()) $state = 1;
-			if($playerInfo->isInMatch() && $this->isPlayerMatchExist($login)) $state = 2;
-			if(array_key_exists($login, $this->blockedPlayers)) $state = 3;
-			$isAlly = ($this->gui->displayAllies && $currentPlayerObj && in_array($login, $currentPlayerObj->allies));
-			$playerList->setPlayer($login, $state, $isAlly);
-		}
-		$playerList->show();
-	}
-	
 	protected function onSetShortKey($login, $ready)
 	{
 		$shortKey = Shortkey::Create($login);
@@ -532,21 +484,27 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$shortKey->addCallback($this->gui->actionKey, $callback);
 	}
 
-	private function createLabel($login, $message, $countdown = null)
-	{
-		Label::Erase($login);
-		$confirm = Label::Create($login);
-		$confirm->setPosition(0, 40);
-		$confirm->setMessage($message, $countdown);
-		$confirm->show();
-	}
-
 	private function updateLobbyWindow()
 	{
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
 		$playingPlayersCount = $this->getPlayingPlayersCount();
 		$this->gui->updateLobbyWindow($this->storage->server->name, $playersCount, $totalPlayerCount, $playingPlayersCount);
+	}
+	
+	private function setLobbyInfo($enable = true)
+	{
+		if($enable)
+		{
+			$lobbyPlayers = $this->getTotalPlayerCount();
+			$maxPlayers = $this->getTotalSlots();
+		}
+		else
+		{
+			$lobbyPlayers = count($this->connection->getPlayerList(-1, 0));
+			$maxPlayers = $this->storage->server->currentMaxPlayers;
+		}
+		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);
 	}
 	
 	protected function setGui(GUI\AbstractGUI $GUI)
