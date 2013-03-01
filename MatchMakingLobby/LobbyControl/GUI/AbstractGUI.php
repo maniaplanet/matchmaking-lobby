@@ -36,8 +36,8 @@ abstract class AbstractGUI
 	
 	final function createLabel($login, $message, $countdown = null)
 	{
-		Label::Erase($login);
-		$confirm = Label::Create($login);
+		Windows\Label::Erase($login);
+		$confirm = Windows\Label::Create($login);
 		$confirm->setPosition(0, 40);
 		$confirm->setMessage($message, $countdown);
 		$confirm->show();
@@ -45,9 +45,6 @@ abstract class AbstractGUI
 	
 	final function updateLobbyWindow($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount)
 	{
-		$playersCount = $this->getReadyPlayersCount();
-		$totalPlayerCount = $this->getTotalPlayerCount();
-
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->set($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount);
 		$lobbyWindow->show();
@@ -68,7 +65,7 @@ abstract class AbstractGUI
 			if($playerInfo->isReady()) $state = 1;
 			if($playerInfo->isInMatch() && $this->isPlayerMatchExist($login)) $state = 2;
 			if(array_key_exists($login, $blockedPlayerList)) $state = 3;
-			$isAlly = ($this->gui->displayAllies && $currentPlayerObj && in_array($login, $currentPlayerObj->allies));
+			$isAlly = ($this->displayAllies && $currentPlayerObj && in_array($login, $currentPlayerObj->allies));
 			$playerList->setPlayer($login, $state, $isAlly);
 		}
 		$playerList->show();
@@ -87,7 +84,7 @@ abstract class AbstractGUI
 		foreach($playerLists as $playerList)
 		{
 			/* @var $playerList Windows\PlayerList */
-			$isAlly = $this->gui->displayAllies && $currentPlayerObj && in_array($playerList->getRecipient(), $currentPlayerObj->allies);
+			$isAlly = $this->displayAllies && $currentPlayerObj && in_array($playerList->getRecipient(), $currentPlayerObj->allies);
 			$playerList->setPlayer($login, $state, $isAlly);
 		}
 		Windows\PlayerList::RedrawAll();

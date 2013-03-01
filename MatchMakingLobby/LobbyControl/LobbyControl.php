@@ -422,13 +422,13 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function checkKarma($login, $leavesCount)
 	{
 		
-		$karma = call_user_func($this->config->penaltyClass.'::calculateKama', $login, $leavesCount);
+		$karma = $this->penaltiesCalculator->calculateKarma($login, $leavesCount);
 		if(PlayerInfo::Get($login)->karma < $karma || array_key_exists($login, $this->blockedPlayers))
 		{
 			$player = $this->storage->getPlayerObject($login);
 			if(!array_key_exists($login, $this->blockedPlayers))
 			{
-				$penalty = call_user_func($this->config->penaltyClass.'::getPenalty', $login, $karma);
+				$penalty = $this->penaltiesCalculator->getPenalty($login, $karma);
 				$this->blockedPlayers[$login] = 60 * $penalty;
 				$this->connection->chatSendServerMessage(
 					sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.', $player->nickName, $penalty)
@@ -519,7 +519,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	
 	protected function setPenaltiesCalculator(Helpers\PenaltiesCalculator $penaltiesCalculator)
 	{
-		$this->penaltyCalculator = $penaltiesCalculator;
+		$this->penaltiesCalculator = $penaltiesCalculator;
 	}
 	
 	private function createTables()

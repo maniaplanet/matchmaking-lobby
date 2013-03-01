@@ -32,7 +32,7 @@ class PenaltiesCalculator
 	 * @param int $leavesCount
 	 * @return int
 	 */
-	function calculateKama($login, $leavesCount)
+	function calculateKarma($login, $leavesCount)
 	{
 		return $leavesCount;
 	}
