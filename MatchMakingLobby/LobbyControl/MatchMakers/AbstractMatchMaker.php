@@ -9,7 +9,7 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
+use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
 use ManiaLivePlugins\MatchMakingLobby\LobbyControl\PlayerInfo;
 

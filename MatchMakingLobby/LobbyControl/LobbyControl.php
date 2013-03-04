@@ -13,17 +13,18 @@ use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLive\Gui\Group;
 use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLive\Gui\Windows\Shortkey;
-use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
+use DedicatedApi\Structures;
+use ManiaLivePlugins\MatchMakingLobby\Services;
 
 class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 {
 
 	const PREFIX = 'LobbyInfo$000»$8f0 ';
 	const PENALTY_TIME = 4;
-	
+
 	/** @var int */
 	protected $tick;
-	
+
 	/** @var int */
 	protected $mapTick;
 
@@ -37,45 +38,59 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	protected $gui;
 
 	/** @var string */
-	protected $hall;
+	protected $backLink;
 
 	/** @var string */
 	protected $modeClause;
 
 	/** @var int[string] */
 	protected $countDown = array();
-	
+
 	/** @var int[string] */
 	protected $blockedPlayers = array();
-	
+
 	/** @var Helpers\PenaltiesCalculator */
 	protected $penaltiesCalculator;
-	
+
+	/** @var Services\MatchService */
+	protected $matchService;
+
 	function onInit()
 	{
 		$this->setVersion('0.2');
 		$this->config = Config::getInstance();
-		$scriptName = $this->connection->getScriptName();
-		$scriptName = end(explode('\\', $scriptName['CurrentValue']));
-		$scriptName = str_ireplace('.script.txt', '', $scriptName);
+		$script = $this->connection->getScriptName();
+		$scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 
 		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$scriptName;
 		$guiClassName = $this->config->guiClassName ? : __NAMESPACE__.'\GUI\\'.$scriptName;
 		$penaltiesCalculatorClassName = $this->config->penaltiesCalculatorClassName ? : __NAMESPACE__.'\Helpers\PenaltiesCalculator';
-		
+
 		$this->setGui(new $guiClassName());
 		$this->setMatchMaker($matchMakerClassName::getInstance());
 		$this->setPenaltiesCalculator(new $penaltiesCalculatorClassName);
 	}
-	
+
 	function onLoad()
 	{
+		if($this->isPluginLoaded('MatchMakingLobby/MatchControl'))
+		{
+			throw new Exception('Lobby and match cannot be one the same server.');
+		}
 		$this->enableDatabase();
 		$this->createTables();
-		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_PLAYER_ALLIES_CHANGED | ServerEvent::ON_BEGIN_MAP);
+		$this->enableDedicatedEvents(
+			ServerEvent::ON_PLAYER_CONNECT |
+			ServerEvent::ON_PLAYER_DISCONNECT |
+			ServerEvent::ON_PLAYER_ALLIES_CHANGED |
+			ServerEvent::ON_BEGIN_MAP |
+			ServerEvent::ON_PLAYER_INFO_CHANGED
+		);
 		$this->enableTickerEvent();
 
-		$this->hall = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->connection->getSystemInfo()->titleId;
+		$this->matchService = new Services\MatchService($this->connection->getSystemInfo()->titleId, $this->config->script);
+
+		$this->backLink = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->connection->getSystemInfo()->titleId;
 		$this->modeClause = sprintf('title=%s', $this->db->quote($this->connection->getSystemInfo()->titleId));
 		if(strpos($this->connection->getSystemInfo()->titleId, '@') === false)
 				$this->modeClause .= sprintf(' AND script=%s', $this->db->quote($this->config->script));
@@ -105,7 +120,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$lobbyWindow->setPosition(170, 45);
 		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount, $this->getPlayingPlayersCount());
 		$lobbyWindow->show();
-		
+
 		$feedback = Windows\Feedback::Create();
 		$feedback->setAlign('right', 'bottom');
 		$feedback->setPosition(160.1, 75);
@@ -120,26 +135,14 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerConnect($login, $isSpectator)
 	{
-		if($this->isInMatch($login))
-		{
-			//TODO Change The Label
-			list($server, ) = PlayerInfo::Get($login)->getMatch();
-			$jumper = Windows\ForceManialink::Create($login);
-			$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
-			$jumper->show();
-
-			$this->gui->createLabel($login, $this->gui->getMatchInProgressText());
-			return;
-		}
-
 		$message = '';
-		$player = PlayerInfo::Get($login);
+		$player = Services\PlayerInfo::Get($login);
 		$message = ($player->ladderPoints ? $this->gui->getPlayerBackLabelPrefix() : '').$this->gui->getNotReadyText();
 		$player->setAway(false);
 		$player->setMatch();
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
-		
+
 		$this->gui->createLabel($login, $message);
 		$this->onSetShortKey($login, false);
 
@@ -153,7 +156,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerDisconnect($login)
 	{
-		$player = PlayerInfo::Get($login);
+		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
 
 		list($server, ) = $player->getMatch();
@@ -164,12 +167,33 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->onPlayerNotReady($login);
 		}
-		
+
 		$this->gui->removePlayerFromPlayerList($login);
 
 		$this->updateLobbyWindow();
 	}
-	
+
+	function onPlayerInfoChanged($playerInfo)
+	{
+		$playerInfo = Structures\Player::fromArray($playerInfo);
+		if($playerInfo->hasJoinedGame)
+		{
+			if($this->matchService->isInMatch($playerInfo->login))
+			{
+				//TODO Change The Label
+				list($server, ) = Services\PlayerInfo::Get($playerInfo->login)->getMatch();
+				$jumper = Windows\ForceManialink::Create($playerInfo->login);
+				$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
+				$jumper->show();
+
+				$this->gui->createLabel($playerInfo->login, $this->gui->getMatchInProgressText());
+				return;
+			}
+
+			//TODO Something for new players to set them ready ?
+		}
+	}
+
 	function onBeginMap($map, $warmUp, $matchContinuation)
 	{
 		$this->mapTick = 0;
@@ -182,7 +206,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			$leaves = $this->getLeavesCount($player->login);
 			$this->checkKarma($player->login, $leaves);
 		}
-		
+
 		foreach($this->blockedPlayers as $login => $countDown)
 		{
 			$this->blockedPlayers[$login] = --$countDown;
@@ -192,14 +216,14 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerNotReady($login);
 			}
 		}
-		
+
 		$matches = $this->matchMaker->run(array_keys($this->blockedPlayers));
 		foreach($matches as $match)
 		{
-			if(!($server = $this->getServer())) break;
+			if(!($server = $this->matchService->getServer())) break;
 			$this->prepareMatch($server, $match);
 		}
-		
+
 		foreach($this->countDown as $groupName => $countDown)
 		{
 			switch(--$countDown)
@@ -212,37 +236,32 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 				case 0:
 					$group = Group::Get($groupName);
 					$players = array_map(array($this->storage, 'getPlayerObject'), $group->toArray());
-					
+
 					$nicknames = array();
 					foreach($players as $player)
 					{
-						if($player)
-							$nicknames[] = '$<'.$player->nickName.'$>';
+						if($player) $nicknames[] = '$<'.$player->nickName.'$>';
 					}
-					
+
 					Windows\ForceManialink::Create($group)->show();
 					$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
 				default:
 					$this->countDown[$groupName] = $countDown;
 			}
 		}
-		
-		if(++$this->tick % 3600 == 0)
-			$this->cleanKarma();
-		if(++$this->mapTick % 1800 == 0)
-			$this->connection->nextMap();
-		if($this->tick % 30 == 0)
-			array_map(array($this,'cleanPlayerStillMatch'), PlayerInfo::GetReady());
-		
+
+		if(++$this->mapTick % 1800 == 0) $this->connection->nextMap();
+		if(++$this->tick % 30 == 0) array_map(array($this, 'cleanPlayerStillMatch'), Services\PlayerInfo::GetReady());
+
 		$this->setLobbyInfo();
 		$this->updateLobbyWindow();
 		$this->registerLobby();
-		PlayerInfo::CleanUp();
+		Services\PlayerInfo::CleanUp();
 	}
 
 	function onPlayerReady($login)
 	{
-		$player = PlayerInfo::Get($login);
+		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(true);
 		$this->onSetShortKey($login, true);
 		$this->gui->createLabel($login, $this->gui->getReadyText());
@@ -255,10 +274,10 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerNotReady($login)
 	{
-		$player = PlayerInfo::Get($login);
+		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(false);
 		$this->onSetShortKey($login, false);
-		if($player->isInMatch())
+		if($this->matchService->isInMatch($login))
 		{
 			$this->cancelMatch($login);
 		}
@@ -275,43 +294,23 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$player = $this->storage->getPlayerObject($login);
 		if($player)
 		{
-			PlayerInfo::Get($login)->allies = $player->allies;
+			Services\PlayerInfo::Get($login)->allies = $player->allies;
 			$this->gui->updatePlayerList($login, $this->blockedPlayers);
 			foreach($player->allies as $ally)
 				$this->gui->updatePlayerList($ally, $this->blockedPlayers);
 		}
 	}
 
-	private function getServer()
-	{
-		return $this->db->execute(
-				'SELECT login FROM Servers '.
-				'WHERE '.$this->modeClause.' AND hall IS NULL AND DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() '.
-				'ORDER BY RAND() LIMIT 1'
-			)->fetchSingleValue(null);
-	}
-
-	private function isInMatch($login)
-	{
-		list($server, $players) = PlayerInfo::Get($login)->getMatch();
-		return $this->db->execute(
-				'SELECT count(*) FROM Servers '.
-				'WHERE login = %s and players = %s', $this->db->quote($server), $this->db->quote(json_encode($players))
-			)->fetchSingleValue(false);
-		;
-	}
-
 	private function cancelMatch($login)
 	{
-		list($server, $match) = PlayerInfo::Get($login)->getMatch();
+		list($server, $match) = Services\PlayerInfo::Get($login)->getMatch();
 		$groupName = 'match-'.$server;
 		Windows\ForceManialink::Erase(Group::Get($groupName));
 		Group::Erase($groupName);
 		unset($this->countDown[$groupName]);
-		$this->db->execute(
-			'UPDATE Servers SET hall=NULL, players=NULL WHERE login=%s', $this->db->quote($server)
-		);
-		$this->registerCancel($login);
+		$this->matchService->removeMatch($server);
+		$quitterService = new Services\QuitterService($this->storage->serverLogin);
+		return $quitterService->register($login);
 
 		foreach($match->players as $playerLogin)
 		{
@@ -319,7 +318,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			{
 				$this->onPlayerReady($playerLogin);
 			}
-			PlayerInfo::Get($playerLogin)->setMatch();
+			Services\PlayerInfo::Get($playerLogin)->setMatch();
 			$this->gui->updatePlayerList($playerLogin, $this->blockedPlayers);
 		}
 	}
@@ -327,10 +326,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	private function prepareMatch($server, $match)
 	{
 		$groupName = 'match-'.$server;
-		$this->db->execute(
-			'UPDATE Servers SET hall=%s, players=%s WHERE login=%s', $this->db->quote($this->storage->serverLogin),
-			$this->db->quote(json_encode($match)), $this->db->quote($server)
-		);
+		$this->matchService->registerMatch($this->storage->serverLogin, $server, $match);
 
 		Group::Erase($groupName);
 		$group = Group::Create('match-'.$server, $match->players);
@@ -340,7 +336,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 		foreach($match->players as $player)
 		{
-			PlayerInfo::Get($player)->setMatch($server, $match);
+			Services\PlayerInfo::Get($player)->setMatch($server, $match);
 			$this->gui->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
 			$this->gui->updatePlayerList($player, $this->blockedPlayers);
 		}
@@ -350,9 +346,9 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$count = 0;
 		foreach($this->storage->players as $player)
-			$count += PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
+			$count += Services\PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
 		foreach($this->storage->spectators as $player)
-			$count += PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
+			$count += Services\PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
 
 		return $count;
 	}
@@ -367,63 +363,43 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 		return $playerCount + $playingPlayers;
 	}
-	
+
 	private function getPlayingPlayersCount()
 	{
-		$matchCount = $this->db->execute(
-				'SELECT COUNT(*) FROM Servers '.
-				'WHERE '.$this->modeClause.' AND hall = %s', $this->db->quote($this->storage->serverLogin)
-			)->fetchSingleValue(0);
-		
+		$matchCount = $this->matchService->getCount($this->storage->serverLogin);
+
 		return ($matchCount - count($this->countDown)) * $this->matchMaker->playerPerMatch;
 	}
 
 	private function getTotalSlots()
 	{
-		return $this->db->execute(
-				'SELECT COUNT(*) FROM Servers '.
-				'WHERE (DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() AND %s) OR '.
-				'hall = %s', $this->modeClause, $this->db->quote($this->storage->serverLogin)
-			)->fetchSingleValue(null) * $this->matchMaker->playerPerMatch + $this->storage->server->currentMaxPlayers;
+		$lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId,
+			$this->config->script);
+		return $lobbyService->getServersCount($this->storage->serverLogin) * $this->matchMaker->playerPerMatch + $this->storage->server->currentMaxPlayers;
 	}
 
 	private function registerLobby()
 	{
-		$this->db->execute(
-			'INSERT INTO Halls VALUES (%s, %d, %d, %d, %s, %s) '.
-			'ON DUPLICATE KEY UPDATE '.
-			'readyPlayers = VALUES(readyPlayers), '.
-			'connectedPlayers = VALUES(connectedPlayers), '.
-			'playingPlayers = VALUES(playingPlayers)',
-			$this->db->quote($this->storage->serverLogin), 
-			$this->getReadyPlayersCount(),
-			count($this->connection->getPlayerList(-1, 0)),
-			$this->getPlayingPlayersCount(),
-			$this->db->quote($this->storage->server->name),
-			$this->db->quote($this->hall)
-		);
+		$lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId,
+			$this->config->script);
+		$lobbyService->register($this->storage->serverLogin, $this->getReadyPlayersCount(), count($this->connection->getPlayerList(-1, 0)),
+			$this->getPlayingPlayersCount(), $this->storage->server->name, $this->backLink);
 	}
-	
+
 	private function getLeavesCount($login)
 	{
-		return $this->db->query(
-			'SELECT count(*) FROM Quitters '.
-			'WHERE playerLogin = %s '.
-			'AND hall = %s '.
-			'AND DATE_ADD(creationDate, INTERVAL 1 HOUR) > NOW()',
-			$this->db->quote($login),
-			$this->db->quote($this->storage->serverLogin)
-		)->fetchSingleValue();
+		$quitterService = new Services\QuitterService($this->storage->serverLogin);
+		return $quitterService->getCount($login);
 	}
-	
+
 	/**
 	 * @param $login
 	 */
 	private function checkKarma($login, $leavesCount)
 	{
-		
+
 		$karma = $this->penaltiesCalculator->calculateKarma($login, $leavesCount);
-		if(PlayerInfo::Get($login)->karma < $karma || array_key_exists($login, $this->blockedPlayers))
+		if(Services\PlayerInfo::Get($login)->karma < $karma || array_key_exists($login, $this->blockedPlayers))
 		{
 			$player = $this->storage->getPlayerObject($login);
 			if(!array_key_exists($login, $this->blockedPlayers))
@@ -434,48 +410,24 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 					sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.', $player->nickName, $penalty)
 				);
 			}
-			
+
 			$this->onPlayerNotReady($login);
 			$this->gui->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
 			$shortKey = Shortkey::Create($login);
 			$shortKey->removeCallback($this->gui->actionKey);
 			$this->gui->updatePlayerList($login, $this->blockedPlayers);
 		}
-		PlayerInfo::Get($login)->karma = $karma;
+		Services\PlayerInfo::Get($login)->karma = $karma;
 	}
-	
-	private function cleanKarma()
+
+	private function cleanPlayerStillMatch(Services\PlayerInfo $player)
 	{
-		$this->db->execute('DELETE FROM Quitters WHERE DATE_ADD(creationDate, INTERVAL 1 HOUR) < NOW()');
-	}
-	
-	private function registerCancel($login)
-	{
-		$this->db->execute(
-			'INSERT INTO Quitters VALUES (%s,NOW(), %s)', 
-			$this->db->quote($login),
-			$this->db->quote($this->storage->serverLogin)
-		);
-	}
-	
-	private function cleanPlayerStillMatch(PlayerInfo $player)
-	{
-		if(!$this->isPlayerMatchExist($player->login))
+		if(!$this->matchService->isInMatch($player->login))
 		{
 			$player->setMatch();
 		}
 	}
-	
-	private function isPlayerMatchExist($login)
-	{
-		list($server, $match) = PlayerInfo::Get($login)->getMatch();
-		
-		return $this->db->query('SELECT IF(count(*), TRUE, FALSE) FROM Servers WHERE hall = %s and `players` = %s',
-			$this->db->quote($server),
-			$this->db->quote(json_encode($match))
-		)->fetchSingleValue();
-	}
-	
+
 	protected function onSetShortKey($login, $ready)
 	{
 		$shortKey = Shortkey::Create($login);
@@ -491,7 +443,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$playingPlayersCount = $this->getPlayingPlayersCount();
 		$this->gui->updateLobbyWindow($this->storage->server->name, $playersCount, $totalPlayerCount, $playingPlayersCount);
 	}
-	
+
 	private function setLobbyInfo($enable = true)
 	{
 		if($enable)
@@ -506,27 +458,27 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		}
 		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);
 	}
-	
+
 	protected function setGui(GUI\AbstractGUI $GUI)
 	{
 		$this->gui = $GUI;
 	}
-	
+
 	protected function setMatchMaker(MatchMakers\AbstractMatchMaker $matchMaker)
 	{
 		$this->matchMaker = $matchMaker;
 	}
-	
+
 	protected function setPenaltiesCalculator(Helpers\PenaltiesCalculator $penaltiesCalculator)
 	{
 		$this->penaltiesCalculator = $penaltiesCalculator;
 	}
-	
+
 	private function createTables()
 	{
 		$this->db->execute(
-			<<<EOHalls
-CREATE TABLE IF NOT EXISTS `Halls` (
+			<<<EOLobbies
+CREATE TABLE IF NOT EXISTS `Lobbies` (
 	`login` VARCHAR(25) NOT NULL,
 	`readyPlayers` INT(10) NOT NULL,
 	`connectedPlayers` INT(10) NOT NULL,
@@ -537,7 +489,7 @@ CREATE TABLE IF NOT EXISTS `Halls` (
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
-EOHalls
+EOLobbies
 		);
 		$this->db->execute(
 			<<<EOServers
@@ -546,7 +498,7 @@ CREATE TABLE IF NOT EXISTS `Servers` (
   `title` varchar(51) NOT NULL,
   `script` varchar(50) DEFAULT NULL,
   `lastLive` datetime NOT NULL,
-  `hall` varchar(25) DEFAULT NULL COMMENT 'login@title',
+  `lobby` varchar(25) DEFAULT NULL COMMENT 'login@title',
   `players` text,
   PRIMARY KEY (`login`),
   KEY `title` (`title`),
@@ -571,13 +523,13 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 EOMatchs
 		);
-		
+
 		$this->db->execute(
 			<<<EOQuitters
 CREATE TABLE IF NOT EXISTS `Quitters` (
 	`playerLogin` VARCHAR(25) NOT NULL,
 	`creationDate` DATETIME NOT NULL,
-	`hall` VARCHAR(25) NOT NULL
+	`lobby` VARCHAR(25) NOT NULL
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;

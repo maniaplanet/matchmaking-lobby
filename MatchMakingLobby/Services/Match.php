@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
+namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class Match
 {

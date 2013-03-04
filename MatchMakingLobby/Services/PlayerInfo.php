@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
+namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class PlayerInfo
 {
@@ -116,6 +116,11 @@ class PlayerInfo
 		return $this->server && $this->match;
 	}
 
+	/**
+	 * 
+	 * @param string $server
+	 * @param Match $players
+	 */
 	function setMatch($server = null, $players = null)
 	{
 		$this->server = $server;
