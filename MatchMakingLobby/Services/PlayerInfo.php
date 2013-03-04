@@ -38,7 +38,7 @@ class PlayerInfo
 
 	/** @var string */
 	private $server = null;
-
+	
 	/**
 	 * @param string $login
 	 * @return PlayerInfo
@@ -66,6 +66,9 @@ class PlayerInfo
 		return $ready;
 	}
 
+	/**
+	 * Destroy players disconnected for more than 1 hour
+	 */
 	static function CleanUp()
 	{
 		$limit = new \DateTime('-1 hour');
@@ -111,13 +114,15 @@ class PlayerInfo
 		$this->readySince = null;
 	}
 
+	/**
+	 * @return bool
+	 */
 	function isInMatch()
 	{
 		return $this->server && $this->match;
 	}
 
 	/**
-	 * 
 	 * @param string $server
 	 * @param Match $players
 	 */
@@ -127,11 +132,15 @@ class PlayerInfo
 		$this->match = $players;
 	}
 
+	/**
+	 * Get match information
+	 * @return array
+	 */
 	function getMatch()
 	{
 		return array($this->server, $this->match);
 	}
-
+	
 }
 
 ?>

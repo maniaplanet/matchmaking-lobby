@@ -9,7 +9,7 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
 
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Config;
+use ManiaLivePlugins\MatchMakingLobby\Config;
 
 class PenaltiesCalculator
 {

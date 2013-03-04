@@ -29,6 +29,11 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	protected $graph;
 	public $playerPerMatch = 0;
 
+	/**
+	 * Entry point for the match making
+	 * @param array $bannedPlayers
+	 * @return Match
+	 */
 	final function run(array $bannedPlayers = array())
 	{
 		$matches = array();
@@ -56,10 +61,16 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 		return $matches;
 	}
 
+	/**
+	 * Create a graph where each ready player is a node
+	 * @param array $bannedPlayers
+	 * @return type
+	 */
 	final protected function buildGraph(array $bannedPlayers = array())
 	{
 		$this->graph = new Helpers\Graph();
 
+		//We remove from ready players, players that are in match and blocked
 		$readyPlayers = PlayerInfo::GetReady();
 		$followers = array_filter($readyPlayers, function ($f) { return !$f->isInMatch(); });
 		$followers = array_filter($followers, function ($f) use ($bannedPlayers) { return !in_array($f->login, $bannedPlayers); });
@@ -74,6 +85,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	}
 
 	/**
+	 * Compute distance for a player with all his followers
 	 * @param PlayerInfo $player
 	 * @param PlayerInfo[] $followers
 	 * @return float[string]
@@ -91,6 +103,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	}
 
 	/**
+	 * Give the distance between to player
 	 * @param PlayerInfo $p1
 	 * @param PlayerInfo $p2
 	 */

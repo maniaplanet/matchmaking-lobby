@@ -15,12 +15,12 @@ use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLive\Gui\Windows\Shortkey;
 use DedicatedApi\Structures;
 use ManiaLivePlugins\MatchMakingLobby\Services;
+use ManiaLivePlugins\MatchMakingLobby\Config;
 
 class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 {
 
 	const PREFIX = 'LobbyInfo$000»$8f0 ';
-	const PENALTY_TIME = 4;
 
 	/** @var int */
 	protected $tick;
@@ -54,7 +54,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('0.2');
+		$this->setVersion('0.3');
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
 		$script = $this->connection->getScriptName();

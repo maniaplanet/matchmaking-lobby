@@ -13,8 +13,14 @@ use ManiaLive\Database\MySQL\Connection;
 
 class MatchService
 {
+	/**
+	 * @var Connection
+	 */
 	protected $db;
 	
+	/**
+	 * @var string
+	 */
 	protected $modeClause;
 	
 	function __construct($titleIdString, $scriptName = '')
@@ -90,6 +96,7 @@ class MatchService
 	}
 	
 	/**
+	 * Remove a match from a server
 	 * @param string $serverLogin
 	 */
 	function removeMatch($serverLogin)

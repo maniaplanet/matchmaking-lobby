@@ -63,7 +63,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		
 	function onInit()
 	{
-		$this->setVersion('0.2');
+		$this->setVersion('0.3');
 	}
 
 	function onLoad()
@@ -175,6 +175,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerInfoChanged($playerInfo)
 	{
+		//TODO Find something to continue match at 2v3 for Elite
 		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::ABORTING)))
 			$this->forcePlayerTeam($playerInfo['Login']);
 	}
@@ -225,6 +226,13 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $script);
 	}
 
+	/**
+	 * Prepare the server config to host a match
+	 * Then wait players' connection
+	 * @param string $backLink
+	 * @param string $lobby
+	 * @param Services\Match $match
+	 */
 	protected function prepare($backLink, $lobby, $match)
 	{
 		$this->backLink = $backLink;

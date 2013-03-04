@@ -11,8 +11,20 @@ namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class MatchInfo
 {
+	/**
+	 * String to use in a maniaplanet link to switch players on the lobby
+	 * @var string
+	 */
 	public $backLink;
+	/**
+	 * Login of the lobby server
+	 * @var string
+	 */
 	public $lobby;
+	/**
+	 * The Match itself
+	 * @var Match
+	 */
 	public $match;
 	
 	function __construct()
