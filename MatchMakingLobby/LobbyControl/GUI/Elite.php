@@ -10,7 +10,7 @@
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI;
 
 use ManiaLive\Gui\Windows\Shortkey;
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
+use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 
 class Elite extends AbstractGUI
 {

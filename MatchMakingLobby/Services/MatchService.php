@@ -45,7 +45,7 @@ class MatchService
 				'SELECT H.backLink, S.lobby, S.players as `match` FROM Servers  S '.
 				'INNER JOIN Lobbies H ON S.lobby = H.login '.
 				'WHERE S.login=%s', $this->db->quote($serverLogin)
-			)->fetchObject();
+			)->fetchObject('\ManiaLivePlugins\MatchMakingLobby\Services\MatchInfo');
 	}
 	
 	/**
@@ -57,7 +57,7 @@ class MatchService
 	{
 		return $this->db->execute(
 				'SELECT COUNT(*) FROM Servers '.
-				'WHERE '.$this->modeClause.' AND hall = %s', $this->db->quote($lobbyLogin)
+				'WHERE '.$this->modeClause.' AND lobby = %s', $this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
 	}
 	

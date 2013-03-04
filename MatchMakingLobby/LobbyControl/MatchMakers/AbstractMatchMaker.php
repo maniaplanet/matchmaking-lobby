@@ -11,7 +11,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\PlayerInfo;
+use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
 abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 {

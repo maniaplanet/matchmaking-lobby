@@ -12,8 +12,8 @@ namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI;
 use ManiaLive\Gui\Windows\Shortkey;
 use ManiaLive\Data\Storage;
 use ManiaLivePlugins\MatchMakingLobby\Windows;
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match;
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\PlayerInfo;
+use ManiaLivePlugins\MatchMakingLobby\Services\Match;
+use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
 abstract class AbstractGUI
 {

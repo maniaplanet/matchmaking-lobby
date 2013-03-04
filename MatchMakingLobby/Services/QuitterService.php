@@ -9,6 +9,8 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
+use ManiaLive\Database\MySQL\Connection;
+
 class QuitterService
 {
 	/** @var string */
@@ -50,7 +52,7 @@ class QuitterService
 		return $this->db->query(
 				'SELECT count(*) FROM Quitters '.
 				'WHERE playerLogin = %s '.
-				'AND hall = %s '.
+				'AND lobby = %s '.
 				'AND DATE_ADD(creationDate, INTERVAL 1 HOUR) > NOW()', $this->db->quote($playerLogin),
 				$this->db->quote($this->lobbyLogin)
 			)->fetchSingleValue();

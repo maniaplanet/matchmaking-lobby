@@ -40,9 +40,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	/** @var string */
 	protected $backLink;
 
-	/** @var string */
-	protected $modeClause;
-
 	/** @var int[string] */
 	protected $countDown = array();
 
@@ -58,6 +55,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	function onInit()
 	{
 		$this->setVersion('0.2');
+		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
 		$script = $this->connection->getScriptName();
 		$scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
@@ -73,6 +71,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onLoad()
 	{
+		//Check if Lobby is not running with the match plugin
 		if($this->isPluginLoaded('MatchMakingLobby/MatchControl'))
 		{
 			throw new Exception('Lobby and match cannot be one the same server.');
@@ -91,9 +90,6 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->matchService = new Services\MatchService($this->connection->getSystemInfo()->titleId, $this->config->script);
 
 		$this->backLink = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->connection->getSystemInfo()->titleId;
-		$this->modeClause = sprintf('title=%s', $this->db->quote($this->connection->getSystemInfo()->titleId));
-		if(strpos($this->connection->getSystemInfo()->titleId, '@') === false)
-				$this->modeClause .= sprintf(' AND script=%s', $this->db->quote($this->config->script));
 
 		$this->setLobbyInfo();
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
@@ -191,6 +187,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 			}
 
 			//TODO Something for new players to set them ready ?
+			//TODO Splashscreen ??
 		}
 	}
 
@@ -199,6 +196,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->mapTick = 0;
 	}
 
+	//Core of the plugin
 	function onTick()
 	{
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)

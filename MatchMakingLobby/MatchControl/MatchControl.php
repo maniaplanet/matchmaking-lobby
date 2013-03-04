@@ -68,11 +68,13 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	function onLoad()
 	{
+		//Check if the plugin is not connected on the lobby server
 		if($this->isPluginLoaded('MatchMakingLobby/LobbyControl'))
 		{
 			throw new Exception('Lobby and match cannot be one the same server.');
 		}
 		
+		//Set the maxPlayer number to 0 to avoid unwanted connection
 		$this->connection->cleanGuestList();
 		$this->connection->addGuest('-_-');
 		$this->connection->setHideServer(1);
@@ -88,26 +90,32 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			self::PLAYING => null,
 			self::OVER => '10 seconds'
 		);
+		
 		$this->enableDatabase();
 		$this->enableTickerEvent();
 		$this->createTables();
 
+		//Get the Script name
 		$script = $this->connection->getScriptName();
 		$scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 		
+		//Load services
 		$this->matchService = new Services\MatchService($this->connection->getSystemInfo()->titleId, $scriptName);
 		$this->lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId, $scriptName);
 
+		//Get the GUI abstraction class
 		$guiClassName = '\ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\\'.$scriptName;
 		if(!class_exists($guiClassName))
 		{
 			throw new \UnexpectedValueException($guiClassName.' has no GUI class');
 		}
-		$this->gui = $guiClassName::getInstance();
+		$this->gui = new $guiClassName();
 
+		//setup the Lobby info window
 		$this->updateLobbyWindow();
 	}
 
+	//Core of the plugin
 	function onTick()
 	{
 		if(new \DateTime() < $this->nextTick) return;
@@ -131,6 +139,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 				$this->play();
 				break;
 			case self::WAITING:
+				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
 				$current = $this->matchService->get($this->storage->serverLogin);
 				if($this->waitingTime > 120 || $current === false)

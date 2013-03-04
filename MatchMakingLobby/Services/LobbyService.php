@@ -9,12 +9,11 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
+use ManiaLive\Database\MySQL\Connection;
+
 class LobbyService
 {
 
-	/** @var string */
-	protected $lobbyLogin;
-	
 	/** @var string */
 	protected $modeClause;
 
@@ -31,10 +30,8 @@ class LobbyService
 		$this->modeClause = sprintf('title=%s', $this->db->quote($titleIdString));
 		if(strpos($titleIdString, '@') === false)
 				$this->modeClause .= sprintf(' AND script=%s', $this->db->quote($scriptName));
-
-		$this->lobbyLogin = $lobbyLogin;
 	}
-	
+
 	/**
 	 * Get lobby information
 	 * @param string $lobbyLogin
@@ -56,12 +53,12 @@ class LobbyService
 	function getServersCount($lobbyLogin)
 	{
 		return $this->db->execute(
-			'SELECT COUNT(*) FROM Servers '.
-			'WHERE (DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() AND %s) OR '.
-			'hall = %s', $this->modeClause, $this->db->quote($lobbyLogin)
-		)->fetchSingleValue(0);
+				'SELECT COUNT(*) FROM Servers '.
+				'WHERE (DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() AND %s) OR '.
+				'lobby = %s', $this->modeClause, $this->db->quote($lobbyLogin)
+			)->fetchSingleValue(0);
 	}
-	
+
 	/**
 	 * Register a lobby server in the system
 	 * @param string $lobbyLogin
@@ -74,12 +71,12 @@ class LobbyService
 	function register($lobbyLogin, $readyPlayersCount, $connectedPlayersCount, $playingPlayersCount, $serverName, $backLink)
 	{
 		$this->db->execute(
-			'INSERT INTO Halls VALUES (%s, %d, %d, %d, %s, %s) '.
+			'INSERT INTO Lobbies VALUES (%s, %d, %d, %d, %s, %s) '.
 			'ON DUPLICATE KEY UPDATE '.
 			'readyPlayers = VALUES(readyPlayers), '.
 			'connectedPlayers = VALUES(connectedPlayers), '.
-			'playingPlayers = VALUES(playingPlayers)', $this->db->quote($lobbyLogin), $readyPlayersCount,
-			$connectedPlayersCount, $playingPlayersCount, $this->db->quote($serverName), $this->db->quote($backLink)
+			'playingPlayers = VALUES(playingPlayers)', $this->db->quote($lobbyLogin), $readyPlayersCount, $connectedPlayersCount,
+			$playingPlayersCount, $this->db->quote($serverName), $this->db->quote($backLink)
 		);
 	}
 

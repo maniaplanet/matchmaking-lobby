@@ -10,7 +10,7 @@
 namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
 
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\PlayerInfo;
+use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
 class Elite extends AbstractMatchMaker
 {
