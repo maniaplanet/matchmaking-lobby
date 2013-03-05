@@ -217,9 +217,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 	protected function live()
 	{
-		$script = $this->connection->getScriptName();
-		$script = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
-		$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $script);
+		$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $this->scriptName);
 	}
 
 	/**
