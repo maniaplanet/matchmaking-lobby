@@ -58,7 +58,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$this->setVersion('0.3');
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
-		$script = $this->connection->getScriptName();
+		$script = $this->storage->gameInfos->scriptName;
 		$scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 
 		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$scriptName;
@@ -359,7 +359,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		//Because player are still on the server
 		$playingPlayers = $this->getPlayingPlayersCount();
 
-		$playerCount = count($this->connection->getPlayerList(-1, 0));
+		$playerCount = count($this->storage->players) + count($this->storage->spectators);
 
 		return $playerCount + $playingPlayers;
 	}
@@ -382,7 +382,8 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 	{
 		$lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId,
 			$this->config->script);
-		$lobbyService->register($this->storage->serverLogin, $this->getReadyPlayersCount(), count($this->connection->getPlayerList(-1, 0)),
+		$connectedPlayerCount = count($this->storage->players) + count($this->storage->spectators);
+		$lobbyService->register($this->storage->serverLogin, $this->getReadyPlayersCount(), $connectedPlayerCount,
 			$this->getPlayingPlayersCount(), $this->storage->server->name, $this->backLink);
 	}
 
@@ -453,7 +454,7 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		}
 		else
 		{
-			$lobbyPlayers = count($this->connection->getPlayerList(-1, 0));
+			$lobbyPlayers = count($this->storage->players);
 			$maxPlayers = $this->storage->server->currentMaxPlayers;
 		}
 		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);

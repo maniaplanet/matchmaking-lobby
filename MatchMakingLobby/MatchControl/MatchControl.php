@@ -106,8 +106,9 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 		
 		//Load services
-		$this->matchService = new Services\MatchService($this->connection->getSystemInfo()->titleId, $this->scriptName);
-		$this->lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId, $this->scriptName);
+		$titleIdString = $this->connection->getSystemInfo()->titleId;
+		$this->matchService = new Services\MatchService($titleIdString, $this->scriptName);
+		$this->lobbyService = new Services\LobbyService($titleIdString, $this->scriptName);
 
 		//Get the GUI abstraction class
 		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
