@@ -74,7 +74,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onLoad()
 	{
 		//Check if Lobby is not running with the match plugin
-		if($this->isPluginLoaded('MatchMakingLobby/MatchControl'))
+		if($this->isPluginLoaded('MatchMakingLobby/Match'))
 		{
 			throw new Exception('Lobby and match cannot be one the same server.');
 		}
@@ -97,14 +97,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
 			$this->gui->createPlayerList($login, $this->blockedPlayers);
-		}
-
-		foreach($this->storage->players as $login => $player)
-		{
-			$this->onPlayerNotReady($login);
-		}
-		foreach($this->storage->spectators as $login => $player)
-		{
 			$this->onPlayerNotReady($login);
 		}
 
@@ -112,12 +104,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
-
-		$lobbyWindow = Windows\LobbyWindow::Create();
-		$lobbyWindow->setAlign('right', 'bottom');
-		$lobbyWindow->setPosition(170, 45);
-		$lobbyWindow->set($this->storage->server->name, $playersCount, $totalPlayerCount, $this->getPlayingPlayersCount());
-		$lobbyWindow->show();
+		
+		$this->gui->updateLobbyWindow($this->storage->server->name, $playersCount, $totalPlayerCount, $this->getPlayingPlayersCount());
 
 		$feedback = Windows\Feedback::Create();
 		$feedback->setAlign('right', 'bottom');
@@ -150,6 +138,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updateLobbyWindow();
 		$leaves = $this->getLeavesCount($login);
 		$this->checkKarma($login, $leaves);
+		
+		//TODO Rework text
+		$this->gui->showSplash($login, $this->storage->server->name,
+			array(
+			'Your are on a Lobby server',
+			'We will search an opponent of your level to play with',
+			'Queue until we find a match and a server for you',
+			'You will be automatically switch between the lobby and the match server',
+			'To abort a match, click on Ready',
+			'Click on Ready when you are',
+			'Use your "Alt" key to free your mouse'
+			), array($this, 'doNotShow')
+		);
 	}
 
 	function onPlayerDisconnect($login)
@@ -295,6 +296,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			foreach($player->allies as $ally)
 				$this->gui->updatePlayerList($ally, $this->blockedPlayers);
 		}
+	}
+	
+	function doNotShow($login)
+	{
+		//TODO store data
+		$this->gui->hideSplash($login);
 	}
 
 	function cancelMatch($login)

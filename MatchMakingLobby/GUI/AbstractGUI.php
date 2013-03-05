@@ -174,6 +174,21 @@ abstract class AbstractGUI
 		}
 		Windows\PlayerList::RedrawAll();
 	}
+	
+	final function showSplash($login, $serverName , array $lines, $callback)
+	{
+		$splash = Windows\Splash::Create($login);
+		$splash->set('Welcome on '.$serverName, $lines,
+			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this,'hideSplash')),
+			\ManiaLive\Gui\ActionHandler::getInstance()->createAction($callback)
+		);
+		$splash->show();
+	}
+	
+	final function hideSplash($login)
+	{
+		Windows\Splash::Erase($login);
+	}
 
 }
 
