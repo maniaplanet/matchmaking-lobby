@@ -15,6 +15,8 @@ use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
 use ManiaLivePlugins\MatchMakingLobby\Services;
 use ManiaLivePlugins\MatchMakingLobby\GUI;
 
+//TODO Convert chat message in big message on screen ?
+
 class MatchControl extends \ManiaLive\PluginHandler\Plugin
 {
 
@@ -128,7 +130,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			case self::SLEEPING:
 				if(!($next = $this->matchService->get($this->storage->serverLogin)))
 				{
-					$this->live();
+					$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $this->scriptName);
 					$this->sleep();
 					break;
 				}
@@ -176,7 +178,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerInfoChanged($playerInfo)
 	{
 		//TODO Find something to continue match at 2v3 for Elite
-		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::ABORTING)))
+		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::ABORTING)) && $playerInfo['HasJoinedGame'])
 			$this->forcePlayerTeam($playerInfo['Login']);
 	}
 
@@ -215,11 +217,6 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		}
 	}
 
-	protected function live()
-	{
-		$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $this->scriptName);
-	}
-
 	/**
 	 * Prepare the server config to host a match
 	 * Then wait players' connection
@@ -245,7 +242,12 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->addGuest((string)$login, true);
 		$this->connection->executeMulticall();
 
-		$this->enableDedicatedEvents(ServerEvent::ON_PLAYER_CONNECT | ServerEvent::ON_PLAYER_DISCONNECT | ServerEvent::ON_END_MATCH | ServerEvent::ON_PLAYER_INFO_CHANGED);
+		$this->enableDedicatedEvents(
+			ServerEvent::ON_PLAYER_CONNECT |
+			ServerEvent::ON_PLAYER_DISCONNECT |
+			ServerEvent::ON_END_MATCH |
+			ServerEvent::ON_PLAYER_INFO_CHANGED
+		);
 		Label::EraseAll();
 	}
 
