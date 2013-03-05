@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI;
+namespace ManiaLivePlugins\MatchMakingLobby\GUI;
 
 use ManiaLive\Gui\Windows\Shortkey;
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;

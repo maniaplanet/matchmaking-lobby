@@ -16,6 +16,7 @@ use ManiaLive\Gui\Windows\Shortkey;
 use DedicatedApi\Structures;
 use ManiaLivePlugins\MatchMakingLobby\Services;
 use ManiaLivePlugins\MatchMakingLobby\Config;
+use ManiaLivePlugins\MatchMakingLobby\GUI;
 
 class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 {
@@ -61,10 +62,11 @@ class LobbyControl extends \ManiaLive\PluginHandler\Plugin
 		$scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 
 		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$scriptName;
-		$guiClassName = $this->config->guiClassName ? : __NAMESPACE__.'\GUI\\'.$scriptName;
+		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$scriptName;
 		$penaltiesCalculatorClassName = $this->config->penaltiesCalculatorClassName ? : __NAMESPACE__.'\Helpers\PenaltiesCalculator';
 
 		$this->setGui(new $guiClassName());
+		$this->gui->lobbyBoxPosY = 45;
 		$this->setMatchMaker($matchMakerClassName::getInstance());
 		$this->setPenaltiesCalculator(new $penaltiesCalculatorClassName);
 	}

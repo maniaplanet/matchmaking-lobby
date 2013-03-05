@@ -13,6 +13,7 @@ use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
 use ManiaLivePlugins\MatchMakingLobby\Services;
+use ManiaLivePlugins\MatchMakingLobby\GUI;
 
 class MatchControl extends \ManiaLive\PluginHandler\Plugin
 {
@@ -46,7 +47,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match */
 	protected $match = null;
 
-	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\AbstractGUI */
+	/** @var GUI\AbstractGUI */
 	protected $gui;
 	
 	/** @var int */
@@ -60,6 +61,9 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	
 	/** @var Services\MatchService */
 	protected $matchService;
+	
+	/** @var string */
+	protected $scriptName;
 		
 	function onInit()
 	{
@@ -97,19 +101,15 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 
 		//Get the Script name
 		$script = $this->connection->getScriptName();
-		$scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
+		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 		
 		//Load services
-		$this->matchService = new Services\MatchService($this->connection->getSystemInfo()->titleId, $scriptName);
-		$this->lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId, $scriptName);
+		$this->matchService = new Services\MatchService($this->connection->getSystemInfo()->titleId, $this->scriptName);
+		$this->lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId, $this->scriptName);
 
 		//Get the GUI abstraction class
-		$guiClassName = '\ManiaLivePlugins\MatchMakingLobby\LobbyControl\GUI\\'.$scriptName;
-		if(!class_exists($guiClassName))
-		{
-			throw new \UnexpectedValueException($guiClassName.' has no GUI class');
-		}
-		$this->gui = new $guiClassName();
+		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
+		$this->setGui(new $guiClassName());
 
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
@@ -202,11 +202,7 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 		$obj = $this->lobbyService->get($this->lobby);
 		if($obj)
 		{
-			$lobbyWindow = Windows\LobbyWindow::Create();
-			$lobbyWindow->setAlign('right', 'bottom');
-			$lobbyWindow->setPosition(170, $this->gui->lobbyBoxPosY);
-			$lobbyWindow->set($obj->name, $obj->readyPlayers, $obj->connectedPlayers + $obj->playingPlayers, $obj->playingPlayers);
-			$lobbyWindow->show();
+			$this->gui->updateLobbyWindow($obj->name, $obj->readyPlayers, $obj->connectedPlayers + $obj->playingPlayers, $obj->playingPlayers);
 		}
 	}
 
@@ -312,13 +308,11 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 				$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
 		if(!$this->matchId)
 		{
-			$script = $this->connection->getScriptName();
-			$script = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 			$this->db->execute(
 				'INSERT INTO PlayedMatchs (`server`, `title`, `script`, `match`, `playedDate`) VALUES (%s, %s, %s, %s, NOW())',
 				$this->db->quote($this->storage->serverLogin), 
 				$this->db->quote($this->connection->getSystemInfo()->titleId),
-				$this->db->quote($script),
+				$this->db->quote($this->scriptName),
 				$this->db->quote(json_encode($this->match))
 			);
 		}
@@ -380,6 +374,11 @@ class MatchControl extends \ManiaLive\PluginHandler\Plugin
 	protected function isEverybodyHere()
 	{
 		return count(array_filter($this->players, function ($p) { return $p > 0; })) == count($this->players);
+	}
+	
+	protected function setGui(GUI\AbstractGUI $GUI)
+	{
+		$this->gui = $GUI;
 	}
 	
 	protected function createTables()
