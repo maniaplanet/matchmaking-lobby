@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
+namespace ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers;
 
 class Graph
 {

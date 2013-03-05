@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
+namespace ManiaLivePlugins\MatchMakingLobby\Lobby;
 
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLive\Gui\Group;
@@ -18,7 +18,7 @@ use ManiaLivePlugins\MatchMakingLobby\Services;
 use ManiaLivePlugins\MatchMakingLobby\Config;
 use ManiaLivePlugins\MatchMakingLobby\GUI;
 
-class LobbyControl extends \ManiaLive\PluginHandler\Plugin
+class Plugin extends \ManiaLive\PluginHandler\Plugin
 {
 
 	const PREFIX = 'LobbyInfo$000»$8f0 ';

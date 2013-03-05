@@ -17,7 +17,7 @@ use ManiaLivePlugins\MatchMakingLobby\GUI;
 
 //TODO Convert chat message in big message on screen ?
 
-class MatchControl extends \ManiaLive\PluginHandler\Plugin
+class Plugin extends \ManiaLive\PluginHandler\Plugin
 {
 
 	const ABORTING = -2;

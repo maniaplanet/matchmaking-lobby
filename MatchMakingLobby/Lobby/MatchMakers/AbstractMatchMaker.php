@@ -7,10 +7,10 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
+namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
-use ManiaLivePlugins\MatchMakingLobby\LobbyControl\Helpers;
+use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
 abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
