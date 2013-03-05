@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\MatchControl;
+namespace ManiaLivePlugins\MatchMakingLobby\Match;
 
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLivePlugins\MatchMakingLobby\Windows;
@@ -179,13 +179,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerInfoChanged($playerInfo)
 	{
 		//TODO Find something to continue match at 2v3 for Elite
-		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::ABORTING)) && $playerInfo['HasJoinedGame'])
+		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::ABORTING))/* && $playerInfo['HasJoinedGame']*/)
 			$this->forcePlayerTeam($playerInfo['Login']);
 	}
 
 	function onPlayerDisconnect($login)
 	{
-		$this->players[$login] = (in_array($this->state, array(self::DECIDING, self::PLAYING, self::ABORTING)) ? -1 : false);
+		$this->players[$login] = (in_array($this->state, array(self::DECIDING, self::PLAYING)) ? -1 : false);
 		if(in_array($this->state, array(self::DECIDING, self::PLAYING))) $this->abort();
 	}
 
@@ -288,10 +288,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		if($this->state == self::ABORTING)
 		{
-			$logins = array_keys($this->players, -1);
 			$quitterService = new Services\QuitterService($this->lobby);
-			foreach($logins as $login)
+			foreach($this->players as $login => $value)
 			{
+				if($value == -1)
 				$quitterService->register($login);
 			}
 		}

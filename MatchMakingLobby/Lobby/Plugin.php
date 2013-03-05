@@ -59,7 +59,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
 		$script = $this->storage->gameInfos->scriptName;
-		$scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
+		$scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script);
 
 		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$scriptName;
 		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$scriptName;
@@ -142,7 +142,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
 
 		$this->gui->createLabel($login, $message);
-		$this->onSetShortKey($login, false);
+		$this->setShortKey($login, array($this, 'onPlayerReady'));
 
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
 		$this->gui->createPlayerList($login, $this->blockedPlayers);
@@ -174,7 +174,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerInfoChanged($playerInfo)
 	{
 		$playerInfo = Structures\Player::fromArray($playerInfo);
-		if($playerInfo->hasJoinedGame)
+		/*if($playerInfo->hasJoinedGame)
 		{
 			if($this->matchService->isInMatch($playerInfo->login))
 			{
@@ -190,7 +190,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			//TODO Something for new players to set them ready ?
 			//TODO Splashscreen ??
-		}
+		}*/
 	}
 
 	function onBeginMap($map, $warmUp, $matchContinuation)
@@ -263,7 +263,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(true);
-		$this->onSetShortKey($login, true);
+		$this->setShortKey($login, array($this, 'onPlayerNotReady'));
 		$this->gui->createLabel($login, $this->gui->getReadyText());
 
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
@@ -276,11 +276,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(false);
-		$this->onSetShortKey($login, false);
-		if($this->matchService->isInMatch($login))
-		{
-			$this->cancelMatch($login);
-		}
+		$this->setShortKey($login, array($this, 'onPlayerReady'));
 		$this->gui->createLabel($login, $this->gui->getNotReadyText());
 
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
@@ -301,7 +297,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 	}
 
-	private function cancelMatch($login)
+	function cancelMatch($login)
 	{
 		list($server, $match) = Services\PlayerInfo::Get($login)->getMatch();
 		$groupName = 'match-'.$server;
@@ -310,15 +306,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		unset($this->countDown[$groupName]);
 		$this->matchService->removeMatch($server);
 		$quitterService = new Services\QuitterService($this->storage->serverLogin);
-		return $quitterService->register($login);
+		$quitterService->register($login);
 
 		foreach($match->players as $playerLogin)
 		{
-			if($playerLogin != $login)
-			{
-				$this->onPlayerReady($playerLogin);
-			}
 			Services\PlayerInfo::Get($playerLogin)->setMatch();
+			if($playerLogin != $login)
+				$this->onPlayerReady($playerLogin);
+			else
+				$this->onPlayerNotReady($playerLogin);
+			
 			$this->gui->updatePlayerList($playerLogin, $this->blockedPlayers);
 		}
 	}
@@ -339,6 +336,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			Services\PlayerInfo::Get($player)->setMatch($server, $match);
 			$this->gui->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
 			$this->gui->updatePlayerList($player, $this->blockedPlayers);
+			$this->setShortKey($player, array($this, 'cancelMatch'));
 		}
 	}
 
@@ -429,10 +427,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 	}
 
-	protected function onSetShortKey($login, $ready)
+	protected function setShortKey($login, $callback)
 	{
 		$shortKey = Shortkey::Create($login);
-		$callback = array($this, $ready ? 'onPlayerNotReady' : 'onPlayerReady');
 		$shortKey->removeCallback($this->gui->actionKey);
 		$shortKey->addCallback($this->gui->actionKey, $callback);
 	}
