@@ -17,12 +17,12 @@ class MatchService
 	 * @var Connection
 	 */
 	protected $db;
-	
+
 	/**
 	 * @var string
 	 */
 	protected $modeClause;
-	
+
 	function __construct($titleIdString, $scriptName = '')
 	{
 		$config = \ManiaLive\Database\Config::getInstance();
@@ -34,12 +34,12 @@ class MatchService
 				$config->type,
 				$config->port
 		);
-		
+
 		$this->modeClause = sprintf('title=%s', $this->db->quote($titleIdString));
 		if(strpos($titleIdString, '@') === false)
 				$this->modeClause .= sprintf(' AND script=%s', $this->db->quote($scriptName));
 	}
-	
+
 	/**
 	 * Get all information for the matchServer
 	 * @param string $serverLogin
@@ -53,7 +53,7 @@ class MatchService
 				'WHERE S.login=%s', $this->db->quote($serverLogin)
 			)->fetchObject('\ManiaLivePlugins\MatchMakingLobby\Services\MatchInfo');
 	}
-	
+
 	/**
 	 * Return the number of match currently played for the lobby
 	 * @param string $lobbyLogin
@@ -66,12 +66,12 @@ class MatchService
 				'WHERE '.$this->modeClause.' AND lobby = %s', $this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
 	}
-	
+
 	/**
 	 * Get a server available to host a match
 	 * @return string the match server login
 	 */
-	function getServer()
+	function getAvailableServer()
 	{
 		return $this->db->execute(
 				'SELECT login FROM Servers '.
@@ -79,7 +79,7 @@ class MatchService
 				'ORDER BY RAND() LIMIT 1'
 			)->fetchSingleValue(null);
 	}
-	
+
 	/**
 	 * Check if the player is in Match and the match is still playing
 	 * @param string $login
@@ -94,7 +94,7 @@ class MatchService
 				'WHERE login = %s and players = %s', $this->db->quote($server), $this->db->quote(json_encode($players))
 			)->fetchSingleValue(false);
 	}
-	
+
 	/**
 	 * Remove a match from a server
 	 * @param string $serverLogin
@@ -105,7 +105,7 @@ class MatchService
 			'UPDATE Servers SET lobby=NULL, players=NULL WHERE login=%s', $this->db->quote($serverLogin)
 		);
 	}
-	
+
 	/**
 	 * Register a match in database, the match Server will use this to ready up
 	 * @param string $lobbyLogin
@@ -119,7 +119,7 @@ class MatchService
 			$this->db->quote(json_encode($match)), $this->db->quote($serverLogin)
 		);
 	}
-	
+
 	/**
 	 * Register a server as match server
 	 * @param string $serverLogin
@@ -131,7 +131,7 @@ class MatchService
 		$this->db->execute(
 			'INSERT INTO Servers(login, title, script, lastLive) VALUES(%s, %s, %s, NOW()) '.
 			'ON DUPLICATE KEY UPDATE title=VALUES(title), script=VALUES(script), lastLive=VALUES(lastLive)',
-			$this->db->quote($serverLogin), 
+			$this->db->quote($serverLogin),
 			$this->db->quote($titleId),
 			$this->db->quote($script)
 		);

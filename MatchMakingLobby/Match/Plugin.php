@@ -42,31 +42,31 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var string */
 	protected $lobby = null;
-	
+
 	/** @var string */
 	protected $backLink = null;
-	
+
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match */
 	protected $match = null;
 
 	/** @var GUI\AbstractGUI */
 	protected $gui;
-	
+
 	/** @var int */
 	protected $waitingTime = 0;
-	
+
 	/** @var int */
 	protected $matchId = 0;
-	
+
 	/** @var Services\LobbyService */
 	protected $lobbyService;
-	
+
 	/** @var Services\MatchService */
 	protected $matchService;
-	
+
 	/** @var string */
 	protected $scriptName;
-		
+
 	function onInit()
 	{
 		$this->setVersion('0.3');
@@ -75,11 +75,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onLoad()
 	{
 		//Check if the plugin is not connected on the lobby server
-		if($this->isPluginLoaded('MatchMakingLobby/LobbyControl'))
+		if($this->isPluginLoaded('MatchMakingLobby/Lobby'))
 		{
 			throw new Exception('Lobby and match cannot be one the same server.');
 		}
-		
+
 		//Set the maxPlayer number to 0 to avoid unwanted connection
 		$this->connection->cleanGuestList();
 		$this->connection->addGuest('-_-');
@@ -96,7 +96,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::PLAYING => null,
 			self::OVER => '10 seconds'
 		);
-		
+
 		$this->enableDatabase();
 		$this->enableTickerEvent();
 		$this->createTables();
@@ -104,7 +104,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Get the Script name
 		$script = $this->connection->getScriptName();
 		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
-		
+
 		//Load services
 		$titleIdString = $this->connection->getSystemInfo()->titleId;
 		$this->matchService = new Services\MatchService($titleIdString, $this->scriptName);
@@ -171,7 +171,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->forcePlayerTeam($login);
 		if($this->isEverybodyHere())
 		{
-			if($this->state == self::WAITING) $this->decide(); 
+			if($this->state == self::WAITING) $this->decide();
 			elseif($this->state == self::ABORTING) $this->play();
 		}
 	}
@@ -311,7 +311,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->db->execute(
 				'INSERT INTO PlayedMatchs (`server`, `title`, `script`, `match`, `playedDate`) VALUES (%s, %s, %s, %s, NOW())',
-				$this->db->quote($this->storage->serverLogin), 
+				$this->db->quote($this->storage->serverLogin),
 				$this->db->quote($this->connection->getSystemInfo()->titleId),
 				$this->db->quote($this->scriptName),
 				$this->db->quote(json_encode($this->match))
@@ -327,7 +327,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
 		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
 		$giveUp->show();
-		
+
 		if($this->state == self::DECIDING) $this->connection->chatSendServerMessage('Time to change map is over!');
 		else $this->connection->chatSendServerMessage('Player is back, match continues.');
 		$this->changeState(self::PLAYING);
@@ -356,7 +356,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		catch(\Exception $e)
 		{
-			
+
 		}
 	}
 
@@ -376,12 +376,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		return count(array_filter($this->players, function ($p) { return $p > 0; })) == count($this->players);
 	}
-	
+
 	protected function setGui(GUI\AbstractGUI $GUI)
 	{
 		$this->gui = $GUI;
 	}
-	
+
 	protected function createTables()
 	{
 		$this->db->execute(
@@ -399,7 +399,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 EOLobbies
 		);
-		
+
 		$this->db->execute(
 			<<<EOServers
 CREATE TABLE IF NOT EXISTS `Servers` (
@@ -416,7 +416,7 @@ CREATE TABLE IF NOT EXISTS `Servers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 EOServers
 		);
-		
+
 		$this->db->execute(
 			<<<EOMatchs
 CREATE TABLE IF NOT EXISTS `PlayedMatchs` (
@@ -432,7 +432,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 EOMatchs
 		);
-		
+
 		$this->db->execute(
 			<<<EOQuitters
 CREATE TABLE IF NOT EXISTS `Quitters` (

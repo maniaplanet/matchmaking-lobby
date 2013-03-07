@@ -104,7 +104,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
-		
+
 		$this->gui->updateLobbyWindow($this->storage->server->name, $playersCount, $totalPlayerCount, $this->getPlayingPlayersCount());
 
 		$feedback = Windows\Feedback::Create();
@@ -138,19 +138,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updateLobbyWindow();
 		$leaves = $this->getLeavesCount($login);
 		$this->checkKarma($login, $leaves);
-		
+
 		//TODO Rework text
-		$this->gui->showSplash($login, $this->storage->server->name,
-			array(
-			'Your are on a Lobby server',
-			'We will search an opponent of your level to play with',
-			'Queue until we find a match and a server for you',
-			'You will be automatically switch between the lobby and the match server',
-			'To abort a match, click on Ready',
-			'Click on Ready when you are',
-			'Use your "Alt" key to free your mouse'
-			), array($this, 'doNotShow')
-		);
+//		$this->gui->showSplash($login, $this->storage->server->name,
+//			array(
+//			'Your are on a Lobby server',
+//			'We will search an opponent of your level to play with',
+//			'Queue until we find a match and a server for you',
+//			'You will be automatically switch between the lobby and the match server',
+//			'To abort a match, click on Ready',
+//			'Click on Ready when you are',
+//			'Use your "Alt" key to free your mouse'
+//			), array($this, 'doNotShow')
+//		);
 	}
 
 	function onPlayerDisconnect($login)
@@ -211,7 +211,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		foreach($this->blockedPlayers as $login => $countDown)
 		{
 			$this->blockedPlayers[$login] = --$countDown;
-			if($this->blockedPlayers[$login] == 0)
+			if($this->blockedPlayers[$login] <= 0)
 			{
 				unset($this->blockedPlayers[$login]);
 				$this->onPlayerNotReady($login);
@@ -221,8 +221,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$matches = $this->matchMaker->run(array_keys($this->blockedPlayers));
 		foreach($matches as $match)
 		{
-			if(!($server = $this->matchService->getServer())) break;
-			$this->prepareMatch($server, $match);
+			$server = $this->matchService->getAvailableServer();
+			if(!$server)
+			{
+				//No server available, stop here
+				//FIXME: show a message to say no server available ?
+			}
+			else
+			{
+				//Match ready, let's preare it !
+				$this->prepareMatch($server, $match);
+			}
 		}
 
 		foreach($this->countDown as $groupName => $countDown)
@@ -265,8 +274,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(true);
 		$this->setShortKey($login, array($this, 'onPlayerNotReady'));
-		$this->gui->createLabel($login, $this->gui->getReadyText());
 
+		$this->gui->createLabel($login, $this->gui->getReadyText());
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
 
 		$this->setLobbyInfo();
@@ -297,15 +306,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->gui->updatePlayerList($ally, $this->blockedPlayers);
 		}
 	}
-	
+
 	function doNotShow($login)
 	{
 		//TODO store data
 		$this->gui->hideSplash($login);
 	}
 
-	function cancelMatch($login)
+	function cancelMatchStart($login)
 	{
+		\ManiaLive\Utilities\Console::printDebug('Player cancel match: '.$login);
+
 		list($server, $match) = Services\PlayerInfo::Get($login)->getMatch();
 		$groupName = 'match-'.$server;
 		Windows\ForceManialink::Erase(Group::Get($groupName));
@@ -317,18 +328,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		foreach($match->players as $playerLogin)
 		{
-			Services\PlayerInfo::Get($playerLogin)->setMatch();
+			Services\PlayerInfo::Get($playerLogin)->setNoMatch();
 			if($playerLogin != $login)
 				$this->onPlayerReady($playerLogin);
 			else
 				$this->onPlayerNotReady($playerLogin);
-			
+
 			$this->gui->updatePlayerList($playerLogin, $this->blockedPlayers);
 		}
 	}
 
 	private function prepareMatch($server, $match)
 	{
+		\ManiaLib\Utils\Logger::info('Preparing match on server: '.$server);
+		\ManiaLib\Utils\Logger::info($match);
+
 		$groupName = 'match-'.$server;
 		$this->matchService->registerMatch($this->storage->serverLogin, $server, $match);
 
@@ -343,7 +357,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			Services\PlayerInfo::Get($player)->setMatch($server, $match);
 			$this->gui->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
 			$this->gui->updatePlayerList($player, $this->blockedPlayers);
-			$this->setShortKey($player, array($this, 'cancelMatch'));
+			$this->setShortKey($player, array($this, 'cancelMatchStart'));
 		}
 	}
 

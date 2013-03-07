@@ -13,7 +13,7 @@ class Config extends \ManiaLib\Utils\Singleton
 {
 
 	public $script;
-	public $penaltyTime = 4;
+	public $penaltyTime = 1;
 	public $matchMakerClassName;
 	public $guiClassName;
 	public $penaltiesCalculatorClassName;

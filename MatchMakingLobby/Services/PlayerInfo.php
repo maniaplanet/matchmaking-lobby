@@ -23,7 +23,7 @@ class PlayerInfo
 
 	/** @var array */
 	public $allies = array();
-	
+
 	/** @var int */
 	public  $karma = 0;
 
@@ -38,7 +38,7 @@ class PlayerInfo
 
 	/** @var string */
 	private $server = null;
-	
+
 	/**
 	 * @param string $login
 	 * @return PlayerInfo
@@ -128,8 +128,18 @@ class PlayerInfo
 	 */
 	function setMatch($server = null, $players = null)
 	{
+		if ($this->server && $this->match && $server && $players)
+		{
+			\ManiaLive\Utilities\Console::printDebug('Warning: there was already a match for this player'.$this->login);
+		}
 		$this->server = $server;
 		$this->match = $players;
+	}
+
+	function setNoMatch()
+	{
+		$this->server = null;
+		$this->match = null;
 	}
 
 	/**
@@ -140,7 +150,7 @@ class PlayerInfo
 	{
 		return array($this->server, $this->match);
 	}
-	
+
 }
 
 ?>
