@@ -129,7 +129,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
 
-		$this->gui->createLabel($login, $message);
+		$this->createMagnifyLabel($login, $message);
+		
+//		$this->gui->createLabel($login, $message);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
@@ -287,7 +289,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(false);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
-		$this->gui->createLabel($login, $this->gui->getNotReadyText());
+		$this->createMagnifyLabel($login, $this->gui->getNotReadyText());
 
 		$this->gui->updatePlayerList($login, $this->blockedPlayers);
 
@@ -491,6 +493,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function setPenaltiesCalculator(Helpers\PenaltiesCalculator $penaltiesCalculator)
 	{
 		$this->penaltiesCalculator = $penaltiesCalculator;
+	}
+	
+	private function createMagnifyLabel($login, $message)
+	{
+		Windows\Label::Erase($login);
+		$confirm = Windows\Label::Create($login);
+		$confirm->setPosition(0, 40);
+		$confirm->setMessage($message);
+		$confirm->setId('animated-label');
+		$confirm->show();
 	}
 
 	private function createTables()

@@ -15,13 +15,13 @@ use ManiaLive\Event\Dispatcher;
 class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 {
 
-	protected $label;
+	public $label;
 	protected $countdown = 0;
 	protected $message = '';
 	protected $sound;
 
 	protected function onConstruct()
-	{
+	{		
 		$this->label = new \ManiaLib\Gui\Elements\Label(400);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setTextSize(5);
@@ -56,6 +56,22 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 			Dispatcher::unregister(Tick\Event::getClass(), $this);
 			$this->removeComponent($this->sound);
 		}
+	}
+	
+	function onDraw()
+	{
+		\ManiaLive\Gui\Manialinks::appendXML('<script>main() &#13;
+{&#13;
+	declare CMlLabel label &lt;=&gt; (Page.MainFrame.GetFirstChild("animated-label") as CMlLabel);&#13;
+	declare Boolean direction = True;&#13;
+	while(True)&#13;
+	{&#13;
+		if((direction &amp;&amp; label.Scale &gt; 3) || (!direction &amp;&amp; label.Scale &lt;= 1)) direction = !direction;&#13;
+		if(direction) label.Scale = label.Scale*1.01;&#13;
+		else label.Scale = label.Scale*0.99;&#13;
+		yield;&#13;
+	}&#13;
+}</script>');
 	}
 
 }

@@ -196,6 +196,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				{
 					$this->decide();
 				}
+				else
+				{
+					\ManiaLive\Utilities\Logger::getLog('info')->write('player '.$login.' connected all not connected');
+				}
 				break;
 			case static::PLAYER_LEFT:
 				if ($this->isEverybodyHere())
@@ -333,6 +337,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function sleep()
 	{
+		\ManiaLive\Utilities\Logger::getLog('info')->write('Changing state to SLEEP');
 		$this->changeState(self::SLEEPING);
 	}
 
