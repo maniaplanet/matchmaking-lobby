@@ -499,7 +499,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	private function createMagnifyLabel($login, $message)
 	{
 		Windows\Label::Erase($login);
-		$confirm = Windows\Label::Create($login);
+		$confirm = Windows\AnimatedLabel::Create($login);
 		$confirm->setPosition(0, 40);
 		$confirm->setMessage($message);
 		$confirm->setId('animated-label');
