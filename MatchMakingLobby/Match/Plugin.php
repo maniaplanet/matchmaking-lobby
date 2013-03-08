@@ -157,10 +157,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
 				$match = $this->matchService->get($this->storage->serverLogin);
-				\ManiaLive\Utilities\Logger::getLog('info')->write('waiting for '.$this->waitingTime);
-				\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
-				if($this->waitingTime > 120 || $match === false)
+				if($this->waitingTime > 120)
 				{
+					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
+					$this->cancel();
+					break;
+				}
+				if($match === false)
+				{
+					\ManiaLive\Utilities\Logger::getLog('info')->write('No match in database');
 					$this->cancel();
 					break;
 				}
