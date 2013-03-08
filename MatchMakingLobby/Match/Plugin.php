@@ -352,7 +352,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
-		$confirm->setMessage('Match over. You will be transfered back.');
+		$confirm->setMessage('$900Match over. You will be transfered back.$z');
 		$confirm->show();
 		Windows\GiveUp::EraseAll();
 		//FIXME: big message

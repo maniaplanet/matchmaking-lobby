@@ -42,7 +42,7 @@ class Elite extends AbstractGUI
 
 	public function getNotReadyText()
 	{
-		return 'Press F6 to find a match.';
+		return '$o$F90Press F6 to find a match.$z';
 	}
 
 	public function getPlayerBackLabelPrefix()

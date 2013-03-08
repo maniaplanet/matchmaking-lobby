@@ -315,7 +315,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function cancelMatchStart($login)
 	{
-		\ManiaLive\Utilities\Console::printDebug('Player cancel match: '.$login);
+		\ManiaLive\Utilities\Logger::getLog('info')->write('Player cancel match: '.$login);
 
 		list($server, $match) = Services\PlayerInfo::Get($login)->getMatch();
 		$groupName = 'match-'.$server;
@@ -340,8 +340,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	private function prepareMatch($server, $match)
 	{
-		\ManiaLib\Utils\Logger::info('Preparing match on server: '.$server);
-		\ManiaLib\Utils\Logger::info($match);
+		\ManiaLive\Utilities\Logger::getLog('info')->write('Preparing match on server: '.$server);
+		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
 
 		$groupName = 'match-'.$server;
 		$this->matchService->registerMatch($this->storage->serverLogin, $server, $match);
