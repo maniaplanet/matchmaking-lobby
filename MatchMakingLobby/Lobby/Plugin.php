@@ -221,22 +221,25 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 
-		$matches = $this->matchMaker->run(array_keys($this->blockedPlayers));
-		foreach($matches as $match)
+		if($this->tick % 5 == 0)
 		{
-			$server = $this->matchService->getAvailableServer();
-			if(!$server)
+			$matches = $this->matchMaker->run(array_keys($this->blockedPlayers));
+			foreach($matches as $match)
 			{
-				//No server available, stop here
-				//FIXME: show a message to say no server available ?
-			}
-			else
-			{
-				//Match ready, let's preare it !
-				$this->prepareMatch($server, $match);
+				$server = $this->matchService->getAvailableServer();
+				if(!$server)
+				{
+					//No server available, stop here
+					//FIXME: show a message to say no server available ?
+				}
+				else
+				{
+					//Match ready, let's preare it !
+					$this->prepareMatch($server, $match);
+				}
 			}
 		}
-
+		
 		foreach($this->countDown as $groupName => $countDown)
 		{
 			switch(--$countDown)
@@ -263,8 +266,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 
-		if(++$this->mapTick % 1800 == 0) $this->connection->nextMap();
-		if(++$this->tick % 30 == 0) array_map(array($this, 'cleanPlayerStillMatch'), Services\PlayerInfo::GetReady());
+		if(++$this->mapTick % 1800 == 0)
+		{
+			$this->connection->nextMap();
+		}
+		if($this->tick % 30 == 0) 
+		{
+			array_map(array($this, 'cleanPlayerStillMatch'), Services\PlayerInfo::GetReady());
+		}
 
 		$this->setLobbyInfo();
 		$this->updateLobbyWindow();
