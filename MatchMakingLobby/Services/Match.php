@@ -19,7 +19,7 @@ class Match
 	public $players = array();
 	/**
 	 * Logins of players in team 1
-	 * @var string[] 
+	 * @var string[]
 	 */
 	public $team1 = array();
 	/**
@@ -61,6 +61,35 @@ class Match
 			default:
 				throw new \InvalidArgumentException();
 		}
+	}
+
+	/**
+	 * @param type $login
+	 * @return int 0|1|2
+	 */
+	function getTeam($login)
+	{
+		if ($this->isInTeam1($login))
+			return 1;
+		else if ($this->isInTeam2($login))
+			return 2;
+		else
+			return 0;
+	}
+
+	function isInTeam1($login)
+	{
+		return $this->isInTeam($login, $this->team1);
+	}
+
+	function isInTeam2($login)
+	{
+		return $this->isInTeam($login, $this->team2);
+	}
+
+	protected function isInTeam($login, $team)
+	{
+		return in_array($login, $team);
 	}
 
 }

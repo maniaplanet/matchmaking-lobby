@@ -20,13 +20,24 @@ use ManiaLivePlugins\MatchMakingLobby\GUI;
 class Plugin extends \ManiaLive\PluginHandler\Plugin
 {
 
-	const ABORTING = -2;
+	/**
+	 * Someone left
+	 */
+	const PLAYER_LEFT = -2;
+
+	/**
+	 * Waiting for all players to connect
+	 */
 	const WAITING = -1;
 	const SLEEPING = 1;
 	const DECIDING = 2;
 	const PLAYING = 3;
 	const OVER = 4;
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
+
+	const PLAYER_STATE_QUITTER = -2;
+	const PLAYER_STATE_NOT_CONNECTED = -1;
+	const PLAYER_STATE_CONNECTED = 1;
 
 	/** @var int */
 	protected $state = self::SLEEPING;
@@ -56,7 +67,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $waitingTime = 0;
 
 	/** @var int */
-	protected $matchId = 0;
+	protected $matchId;
 
 	/** @var Services\LobbyService */
 	protected $lobbyService;
@@ -89,13 +100,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->removeGuest('-_-');
 		$this->nextTick = new \DateTime();
 		$this->intervals = array(
-			self::ABORTING => '1 minute',
+			self::PLAYER_LEFT => '1 minute',
 			self::WAITING => '5 seconds',
 			self::SLEEPING => '5 seconds',
 			self::DECIDING => '30 seconds',
 			self::PLAYING => null,
 			self::OVER => '10 seconds'
 		);
+
+		$this->state = self::SLEEPING;
 
 		$this->enableDatabase();
 		$this->enableTickerEvent();
@@ -130,73 +143,129 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case self::SLEEPING:
 				$match = $this->matchService->get($this->storage->serverLogin);
-				if (!$match)
-				{
-					$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $this->scriptName);
-					$this->sleep();
-					break;
-				}
-				else
+				if ($match)
 				{
 					$this->prepare($match->backLink, $match->lobby, $match->match);
 				}
-				$this->wait();
-				break;
-			case self::DECIDING:
-				$this->play();
+				else
+				{
+					$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $this->scriptName);
+					$this->sleep();
+				}
 				break;
 			case self::WAITING:
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
-				$current = $this->matchService->get($this->storage->serverLogin);
-				if($this->waitingTime > 120 || $current === false)
+				$match = $this->matchService->get($this->storage->serverLogin);
+				if($this->waitingTime > 120 || $match === false)
 				{
 					$this->cancel();
 					break;
 				}
-				if($current->backLink != $this->backLink || $current->lobby != $this->lobby || $current->match != $this->match)
+				if($match->backLink != $this->backLink || $match->lobby != $this->lobby || $match->match != $this->match)
 				{
-					$this->prepare($current->backLink, $current->lobby ,$current->match);
-					$this->wait();
+					$this->prepare($match->backLink, $match->lobby ,$match->match);
 					break;
 				}
 				break;
-			case self::ABORTING:
+			case self::DECIDING:
+				\ManiaLib\Utils\Logger::info('tick: DECIDING');
+				$this->play();
+				break;
+			case self::PLAYER_LEFT:
+				\ManiaLib\Utils\Logger::info('tick: PLAYER_LEFT');
 				$this->cancel();
 				break;
 			case self::OVER:
+				\ManiaLib\Utils\Logger::info('tick: OVER');
 				$this->end();
 		}
 	}
 
 	function onPlayerConnect($login, $isSpectator)
 	{
-		$this->players[$login] = true;
+		$this->players[$login] = static::PLAYER_STATE_CONNECTED;
 		$this->forcePlayerTeam($login);
-		if($this->isEverybodyHere())
+		switch ($this->state)
 		{
-			if($this->state == self::WAITING) $this->decide();
-			elseif($this->state == self::ABORTING) $this->play();
+			case static::SLEEPING:
+				\ManiaLib\Utils\Logger::error('ERROR: incoherent state: player connected while match sleeping');
+				break;
+			case static::WAITING:
+				if ($this->isEverybodyHere())
+				{
+					$this->decide();
+				}
+				break;
+			case static::PLAYER_LEFT:
+				if ($this->isEverybodyHere())
+				{
+					$this->play();
+				}
+				break;
+			case static::DECIDING:
+				\ManiaLib\Utils\Logger::error('ERROR: incoherent state: player connected while match deciding');
+				break;
+			case static::PLAYING:
+				\ManiaLib\Utils\Logger::error('ERROR: incoherent state: player connected while match playing');
+				break;
+			case static::OVER:
+				\ManiaLib\Utils\Logger::error('ERROR: incoherent state: player connected while match over');
+				break;
 		}
 	}
 
 	function onPlayerInfoChanged($playerInfo)
 	{
 		//TODO Find something to continue match at 2v3 for Elite
-		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::ABORTING))/* && $playerInfo['HasJoinedGame']*/)
-			$this->forcePlayerTeam($playerInfo['Login']);
+		//FIXME: Prevent player from changing team
+//		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::PLAYER_LEFT))/* && $playerInfo['HasJoinedGame']*/)
+//			$this->forcePlayerTeam($playerInfo['Login']);
 	}
 
 	function onPlayerDisconnect($login)
 	{
-		$this->players[$login] = (in_array($this->state, array(self::DECIDING, self::PLAYING)) ? -1 : false);
-		if(in_array($this->state, array(self::DECIDING, self::PLAYING))) $this->abort();
+		$this->players[$login] = static::PLAYER_STATE_NOT_CONNECTED;
+		switch ($this->state)
+		{
+			case static::SLEEPING:
+				\ManiaLib\Utils\Logger::error('ERROR: incoherent state: player disconnected while match sleeping');
+				break;
+			case static::WAITING:
+				//nobreak
+			case static::PLAYER_LEFT:
+				//nobreak
+			case static::DECIDING:
+				//nobreak
+			case static::PLAYING:
+				$this->playerIllegalLeave($login);
+				return;
+			case static::OVER:
+				return;
+		}
 	}
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
-		if($this->state == self::PLAYING || $this->state == self::ABORTING) $this->over();
-		elseif($this->state == self::DECIDING) $this->decide();
+		switch ($this->state)
+		{
+			case static::SLEEPING:
+				\ManiaLib\Utils\Logger::info('ERROR: endMatch while sleeping');
+				break;
+			case static::WAITING:
+				\ManiaLib\Utils\Logger::info('ERROR: endMatch while waiting');
+				break;
+			case static::DECIDING:
+				$this->decide();
+				break;
+			case static::PLAYER_LEFT:
+				//nobreak;
+			case static::PLAYING:
+				$this->over();
+				break;
+			case static::OVER:
+				break;
+		}
 	}
 
 	function onGiveUp($login)
@@ -215,10 +284,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function forcePlayerTeam($login)
 	{
-		if($this->match->team1 && $this->match->team2)
+		$team = $this->match->getTeam($login);
+		if ($team)
 		{
-			$team = (array_keys($this->match->team1, $login) ? 0 : 1);
-			$this->connection->forcePlayerTeam($login, $team);
+			// -1 because :
+			// 0 for server = team 1
+			// 1 for server = team 2
+			$this->connection->forcePlayerTeam($login, $team - 1);
 		}
 	}
 
@@ -233,7 +305,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->backLink = $backLink;
 		$this->lobby = $lobby;
-		$this->players = array_fill_keys($match->players, false);
+		$this->players = array_fill_keys($match->players, static::PLAYER_STATE_NOT_CONNECTED);
 		$this->match = $match;
 		Windows\ForceManialink::EraseAll();
 
@@ -254,6 +326,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
 		Label::EraseAll();
+
+		$this->changeState(self::WAITING);
+		$this->waitingTime = 0;
 	}
 
 	protected function sleep()
@@ -261,49 +336,51 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->changeState(self::SLEEPING);
 	}
 
-	protected function wait()
-	{
-		$this->changeState(self::WAITING);
-		$this->waitingTime = 0;
-	}
-
-	protected function abort()
+	protected function playerIllegalLeave($login)
 	{
 		Windows\GiveUp::EraseAll();
 		$this->connection->chatSendServerMessage('A player quits... If he does not come back soon, match will be aborted.');
-		$this->changeState(self::ABORTING);
+		$this->changeState(self::PLAYER_LEFT);
+		$this->player[$login] = static::PLAYER_STATE_QUITTER;
 	}
 
 	protected function giveUp($login)
 	{
+		$this->players[$login] = static::PLAYER_STATE_QUITTER;
+
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
 		$confirm->setMessage('Match over. You will be transfered back.');
 		$confirm->show();
 		Windows\GiveUp::EraseAll();
+		//FIXME: big message
 		$this->connection->chatSendServerMessage(sprintf('Match aborted because $<%s$> gave up.',
 				$this->storage->getPlayerObject($login)->nickName));
 		$quitterService = new Services\QuitterService($this->lobby);
 		$quitterService->register($login);
+
 		$this->changeState(self::OVER);
 	}
 
 	protected function cancel()
 	{
-		if($this->state == self::ABORTING)
+		//FIXME: maybe
+		$quitterService = new Services\QuitterService($this->lobby);
+		foreach($this->players as $login => $state)
 		{
-			$quitterService = new Services\QuitterService($this->lobby);
-			foreach($this->players as $login => $value)
+			if($state == static::PLAYER_STATE_QUITTER)
 			{
-				if($value == -1)
 				$quitterService->register($login);
 			}
 		}
+
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
 		$confirm->setMessage('Match over. You will be transfered back.');
 		$confirm->show();
+
 		$this->connection->chatSendServerMessage('Match aborted.');
+
 		$this->changeState(self::OVER);
 	}
 
@@ -311,29 +388,39 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		if($this->state != self::DECIDING)
 				$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
-		if(!$this->matchId)
-		{
-			$this->db->execute(
-				'INSERT INTO PlayedMatchs (`server`, `title`, `script`, `match`, `playedDate`) VALUES (%s, %s, %s, %s, NOW())',
-				$this->db->quote($this->storage->serverLogin),
-				$this->db->quote($this->connection->getSystemInfo()->titleId),
-				$this->db->quote($this->scriptName),
-				$this->db->quote(json_encode($this->match))
-			);
-		}
 		$this->changeState(self::DECIDING);
 	}
 
 	protected function play()
 	{
+		//FIXME: ugly
+		$this->db->execute(
+			'INSERT INTO PlayedMatchs (`server`, `title`, `script`, `match`, `playedDate`) VALUES (%s, %s, %s, %s, NOW())',
+			$this->db->quote($this->storage->serverLogin),
+			$this->db->quote($this->connection->getSystemInfo()->titleId),
+			$this->db->quote($this->scriptName),
+			$this->db->quote(json_encode($this->match))
+		);
+
+		$this->matchId = $this->db->insertID();
+
+		\ManiaLib\Utils\Logger::info('Starting match:'.$this->matchId);;
+
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
 		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
 		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
 		$giveUp->show();
 
-		if($this->state == self::DECIDING) $this->connection->chatSendServerMessage('Time to change map is over!');
-		else $this->connection->chatSendServerMessage('Player is back, match continues.');
+		if($this->state == self::DECIDING)
+		{
+			$this->connection->chatSendServerMessage('Time to change map is over!');
+		}
+		else
+		{
+			$this->connection->chatSendServerMessage('Player is back, match continues.');
+		}
+
 		$this->changeState(self::PLAYING);
 	}
 
@@ -378,6 +465,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function isEverybodyHere()
 	{
+		//TODO: usage of 0 instead of self::PLAYER_STATE_*
 		return count(array_filter($this->players, function ($p) { return $p > 0; })) == count($this->players);
 	}
 
