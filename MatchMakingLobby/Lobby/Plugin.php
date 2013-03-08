@@ -85,8 +85,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_DISCONNECT |
 			ServerEvent::ON_PLAYER_ALLIES_CHANGED |
 			ServerEvent::ON_BEGIN_MAP |
-			ServerEvent::ON_PLAYER_INFO_CHANGED |
-			ServerEvent::ON_STATUS_CHANGED
+			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
 		$this->enableTickerEvent();
 
@@ -266,10 +265,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 
-		if(++$this->mapTick % 1800 == 0)
-		{
-			$this->connection->nextMap();
-		}
+//		if(++$this->mapTick % 1800 == 0)
+//		{
+//			$this->connection->nextMap();
+//		}
 		if($this->tick % 30 == 0) 
 		{
 			array_map(array($this, 'cleanPlayerStillMatch'), Services\PlayerInfo::GetReady());
@@ -319,18 +318,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 	}
 	
-	function onStatusChanged($statusCode, $statusName)
-	{
-		if($statusCode != Structures\Status::PLAY)
-		{
-			$this->disableTickerEvent();
-		}
-		elseif($statusCode == Structures\Status::PLAY)
-		{
-			$this->enableTickerEvent();
-		}
-	}
-
 	function doNotShow($login)
 	{
 		//TODO store data
