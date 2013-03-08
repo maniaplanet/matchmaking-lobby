@@ -226,6 +226,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$server = $this->matchService->getAvailableServer();
 			if(!$server)
 			{
+				\ManiaLive\Utilities\Logger::getLog('error')->write('No server available');
 				//No server available, stop here
 				//FIXME: show a message to say no server available ?
 			}
