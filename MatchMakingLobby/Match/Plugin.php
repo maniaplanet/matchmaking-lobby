@@ -22,10 +22,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	const ABORTING = -2;
 	const WAITING = -1;
-	const SLEEPING = 0;
-	const DECIDING = 1;
-	const PLAYING = 2;
-	const OVER = 3;
+	const SLEEPING = 1;
+	const DECIDING = 2;
+	const PLAYING = 3;
+	const OVER = 4;
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
 
 	/** @var int */
@@ -129,13 +129,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		switch($this->state)
 		{
 			case self::SLEEPING:
-				if(!($next = $this->matchService->get($this->storage->serverLogin)))
+				$match = $this->matchService->get($this->storage->serverLogin);
+				if (!$match)
 				{
 					$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $this->scriptName);
 					$this->sleep();
 					break;
 				}
-				$this->prepare($next->backLink, $next->lobby, $next->match);
+				else
+				{
+					$this->prepare($match->backLink, $match->lobby, $match->match);
+				}
 				$this->wait();
 				break;
 			case self::DECIDING:
