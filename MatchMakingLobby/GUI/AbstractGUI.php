@@ -125,7 +125,7 @@ abstract class AbstractGUI
 			$playerInfo = PlayerInfo::Get($login);
 			$state = 0;
 			if($playerInfo->isReady()) $state = 1;
-			if($playerInfo->isInMatch() && $this->isPlayerMatchExist($login)) $state = 2;
+ 			if($playerInfo->isInMatch()) $state = 2;
 			if(array_key_exists($login, $blockedPlayerList)) $state = 3;
 			$isAlly = ($this->displayAllies && $currentPlayerObj && in_array($login, $currentPlayerObj->allies));
 			$playerList->setPlayer($login, $state, $isAlly);
