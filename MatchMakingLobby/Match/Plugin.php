@@ -337,7 +337,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 		Label::EraseAll();
 
-		\ManiaLive\Utilities\Logger::getLog('info')->write('preparing match for '.$lobby.':'."\n".print_r($match,true));
+		\ManiaLive\Utilities\Logger::getLog('info')->write('preparing match for '.$lobby);
 		\ManiaLive\Utilities\Logger::getLog('info')->write('changing state to WAITING');
 		$this->changeState(self::WAITING);
 		$this->waitingTime = 0;
