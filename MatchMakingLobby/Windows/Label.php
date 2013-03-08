@@ -60,17 +60,10 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 	
 	function onDraw()
 	{
-		\ManiaLive\Gui\Manialinks::appendXML('<script>main() &#13;
-{&#13;
+		\ManiaLive\Gui\Manialinks::appendXML('<script>#Include "MathLib" as MathLib&#13;
+main() {&#13;
 	declare CMlLabel label &lt;=&gt; (Page.MainFrame.GetFirstChild("animated-label") as CMlLabel);&#13;
-	declare Boolean direction = True;&#13;
-	while(True)&#13;
-	{&#13;
-		if((direction &amp;&amp; label.Scale &gt; 3) || (!direction &amp;&amp; label.Scale &lt;= 1)) direction = !direction;&#13;
-		if(direction) label.Scale = label.Scale*1.01;&#13;
-		else label.Scale = label.Scale*0.99;&#13;
-		yield;&#13;
-	}&#13;
+	while(True) { label.Scale = 2+MathLib::Cos(CurrentTime*.002); yield; }&#13;
 }</script>');
 	}
 
