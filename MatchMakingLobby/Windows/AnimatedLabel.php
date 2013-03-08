@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @copyright   Copyright (c) 2009-2013 NADEO (http://www.nadeo.com)
  * @license     http://www.gnu.org/licenses/lgpl.html LGPL License 3
@@ -7,13 +6,18 @@
  * @author      $Author: $:
  * @date        $Date: $:
  */
+
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
+
 class AnimatedLabel extends Label
 {
+
 	function onConstruct()
 	{
-		$this->label->setId('animated-label');
+		parent::onConstruct();
+		$this->setId('animated-label');
 	}
+
 	function onDraw()
 	{
 		\ManiaLive\Gui\Manialinks::appendXML('<script>#RequireContext CGameManialinkScriptHandler
@@ -23,6 +27,7 @@ main() {&#13;
 	while(True) { label.Scale = 2+MathLib::Cos(CurrentTime*.002); yield; }&#13;
 }</script>');
 	}
+
 }
 
 ?>

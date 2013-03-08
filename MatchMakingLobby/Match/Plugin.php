@@ -157,6 +157,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
 				$match = $this->matchService->get($this->storage->serverLogin);
+				\ManiaLive\Utilities\Logger::getLog('info')->write('waiting for '.$this->waitingTime);
+				\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
 				if($this->waitingTime > 120 || $match === false)
 				{
 					$this->cancel();
@@ -186,6 +188,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->players[$login] = static::PLAYER_STATE_CONNECTED;
 		$this->forcePlayerTeam($login);
+		\ManiaLive\Utilities\Logger::getLog('info')->write('player '.$login.' connected');
 		switch ($this->state)
 		{
 			case static::SLEEPING:
@@ -195,10 +198,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				if ($this->isEverybodyHere())
 				{
 					$this->decide();
-				}
-				else
-				{
-					\ManiaLive\Utilities\Logger::getLog('info')->write('player '.$login.' connected all not connected');
 				}
 				break;
 			case static::PLAYER_LEFT:
@@ -265,6 +264,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::PLAYER_LEFT:
 				//nobreak;
 			case static::PLAYING:
+				\ManiaLive\Utilities\Logger::getLog('info')->write('match ended fine');
 				$this->over();
 				break;
 			case static::OVER:
@@ -331,13 +331,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 		Label::EraseAll();
 
+		\ManiaLive\Utilities\Logger::getLog('info')->write('preparing match for '.$lobby.':'."\n".print_r($match,true));
+		\ManiaLive\Utilities\Logger::getLog('info')->write('changing state to WAITING');
 		$this->changeState(self::WAITING);
 		$this->waitingTime = 0;
 	}
 
 	protected function sleep()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Changing state to SLEEP');
 		$this->changeState(self::SLEEPING);
 	}
 

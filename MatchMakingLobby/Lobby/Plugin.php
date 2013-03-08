@@ -52,7 +52,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var Services\MatchService */
 	protected $matchService;
-
+	
 	function onInit()
 	{
 		$this->setVersion('0.3');
@@ -85,7 +85,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_DISCONNECT |
 			ServerEvent::ON_PLAYER_ALLIES_CHANGED |
 			ServerEvent::ON_BEGIN_MAP |
-			ServerEvent::ON_PLAYER_INFO_CHANGED
+			ServerEvent::ON_PLAYER_INFO_CHANGED |
+			ServerEvent::ON_STATUS_CHANGED
 		);
 		$this->enableTickerEvent();
 
@@ -226,7 +227,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$server = $this->matchService->getAvailableServer();
 			if(!$server)
 			{
-				\ManiaLive\Utilities\Logger::getLog('error')->write('No server available');
 				//No server available, stop here
 				//FIXME: show a message to say no server available ?
 			}
@@ -309,6 +309,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->gui->updatePlayerList($ally, $this->blockedPlayers);
 		}
 	}
+	
+	function onStatusChanged($statusCode, $statusName)
+	{
+		if($statusCode != Structures\Status::PLAY)
+		{
+			$this->disableTickerEvent();
+		}
+		elseif($statusCode == Structures\Status::PLAY)
+		{
+			$this->enableTickerEvent();
+		}
+	}
 
 	function doNotShow($login)
 	{
@@ -318,7 +330,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function cancelMatchStart($login)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Player cancel match: '.$login);
+		\ManiaLive\Utilities\Logger::getLog('info')->write('Player cancel match start: '.$login);
 
 		list($server, $match) = Services\PlayerInfo::Get($login)->getMatch();
 		$groupName = 'match-'.$server;
