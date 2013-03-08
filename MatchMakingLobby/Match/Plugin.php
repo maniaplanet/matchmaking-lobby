@@ -169,6 +169,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->prepare($match->backLink, $match->lobby ,$match->match);
 					break;
 				}
+				$this->changeState(self::WAITING);
 				break;
 			case self::DECIDING:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: DECIDING');
