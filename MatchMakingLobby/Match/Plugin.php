@@ -274,7 +274,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::PLAYER_LEFT:
 				//nobreak;
 			case static::PLAYING:
-				\ManiaLive\Utilities\Logger::getLog('info')->write('onEndMatch while playing');
+				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch while playing');
 				$this->over();
 				break;
 			case static::OVER:
@@ -355,7 +355,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player illegal leave: '.$login);
 		Windows\GiveUp::EraseAll();
-		$this->connection->chatSendServerMessage('A player quits... If he does not come back soon, match will be aborted.');
+
+		$label = Label::Create();
+		$label->setPosition(0, 40);
+		$label->setMessage('Match over. You will be transfered back.');
+		$label->show();
+
 		$this->changeState(self::PLAYER_LEFT);
 		$this->players[$login] = static::PLAYER_STATE_QUITTER;
 	}
@@ -459,17 +464,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$jumper->set('maniaplanet://#qjoin='.$this->backLink);
 		$jumper->show();
 		$this->connection->cleanGuestList();
-		$this->sleep();
-		usleep(200);
+		usleep(2000);
 		try
 		{
-			$this->connection->restartMap();
+			$this->connection->nextMap();
 		}
 		catch(\Exception $e)
 		{
 
 		}
+		usleep(5000);
 		$this->matchService->removeMatch($this->storage->serverLogin);
+		$this->sleep();
 	}
 
 	protected function changeState($state)
@@ -481,7 +487,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else $this->disableTickerEvent();
 
-		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('State: %d', $state));
+		if ($this->state != $state)
+		{
+			\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('State: %d', $state));
+		}
 
 		$this->state = $state;
 	}
