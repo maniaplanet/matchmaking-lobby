@@ -52,7 +52,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var Services\MatchService */
 	protected $matchService;
-	
+
 	function onInit()
 	{
 		$this->setVersion('0.3');
@@ -130,7 +130,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
 
 		$this->createMagnifyLabel($login, $message);
-		
+
 //		$this->gui->createLabel($login, $message);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 
@@ -235,12 +235,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				else
 				{
-					//Match ready, let's preare it !
+					//Match ready, let's prepare it !
 					$this->prepareMatch($server, $match);
 				}
 			}
 		}
-		
+
 		foreach($this->countDown as $groupName => $countDown)
 		{
 			switch(--$countDown)
@@ -271,7 +271,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 //		{
 //			$this->connection->nextMap();
 //		}
-		if($this->tick % 30 == 0) 
+		if($this->tick % 30 == 0)
 		{
 			array_map(array($this, 'cleanPlayerStillMatch'), Services\PlayerInfo::GetReady());
 		}
@@ -319,7 +319,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->gui->updatePlayerList($ally, $this->blockedPlayers);
 		}
 	}
-	
+
 	function doNotShow($login)
 	{
 		//TODO store data
@@ -505,7 +505,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->penaltiesCalculator = $penaltiesCalculator;
 	}
-	
+
 	private function createMagnifyLabel($login, $message)
 	{
 		Windows\Label::Erase($login);
