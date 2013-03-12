@@ -228,8 +228,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		//TODO Find something to continue match at 2v3 for Elite
 		//FIXME: Prevent player from changing team
-//		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::PLAYER_LEFT))/* && $playerInfo['HasJoinedGame']*/)
-//			$this->forcePlayerTeam($playerInfo['Login']);
+		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::PLAYER_LEFT))/* && $playerInfo['HasJoinedGame']*/)
+			$this->forcePlayerTeam($playerInfo['Login']);
 	}
 
 	function onPlayerDisconnect($login)
@@ -354,7 +354,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		Windows\GiveUp::EraseAll();
 		$this->connection->chatSendServerMessage('A player quits... If he does not come back soon, match will be aborted.');
 		$this->changeState(self::PLAYER_LEFT);
-		$this->player[$login] = static::PLAYER_STATE_QUITTER;
+		$this->players[$login] = static::PLAYER_STATE_QUITTER;
 	}
 
 	protected function giveUp($login)
@@ -370,8 +370,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//FIXME: big message
 		$this->connection->chatSendServerMessage(sprintf('Match aborted because $<%s$> gave up.',
 				$this->storage->getPlayerObject($login)->nickName));
-		$quitterService = new Services\QuitterService($this->lobby);
-		$quitterService->register($login);
 
 		$this->changeState(self::OVER);
 	}
@@ -379,15 +377,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function cancel()
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Cancel match. Changing state to OVER');
-		//FIXME: maybe
-		$quitterService = new Services\QuitterService($this->lobby);
-		foreach($this->players as $login => $state)
-		{
-			if($state == static::PLAYER_STATE_QUITTER)
-			{
-				$quitterService->register($login);
-			}
-		}
 
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
@@ -451,6 +440,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function end()
 	{
+		//FIXME: maybe
+		$quitterService = new Services\QuitterService($this->lobby);
+		foreach($this->players as $login => $state)
+		{
+			if($state == static::PLAYER_STATE_QUITTER)
+			{
+				$quitterService->register($login);
+			}
+		}
+		
 		$this->matchService->removeMatch($this->storage->serverLogin);
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Match ended');
 		$jumper = Windows\ForceManialink::Create();

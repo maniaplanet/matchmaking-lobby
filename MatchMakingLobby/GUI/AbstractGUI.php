@@ -53,6 +53,12 @@ abstract class AbstractGUI
 	 * @return string
 	 */
 	abstract function getPlayerBackLabelPrefix();
+	
+	/**
+	 * Returns the text to display when all mathc servers are full
+	 * @return string
+	 */
+	abstract function getNoServerAvailableText();
 
 	/**
 	 * Returns the message displayed when a player is selected in a match

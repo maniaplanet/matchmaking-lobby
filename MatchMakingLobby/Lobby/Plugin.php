@@ -228,8 +228,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$server = $this->matchService->getAvailableServer();
 				if(!$server)
 				{
-					//No server available, stop here
-					//FIXME: show a message to say no server available ?
+					foreach($match->players as $login)
+					{
+						$this->gui->createLabel($login, $this->gui->getNoServerAvailableText());
+					}
 				}
 				else
 				{
@@ -438,7 +440,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$penalty = $this->penaltiesCalculator->getPenalty($login, $karma);
 				$this->blockedPlayers[$login] = 60 * $penalty;
 				$this->connection->chatSendServerMessage(
-					sprintf(self::PREFIX.'$<%s$> is suspended for %d minutes for leaving matchs.', $player->nickName, $penalty)
+					sprintf(self::PREFIX.'$<%s$> is suspended for leaving matchs.', $player->nickName, $penalty)
 				);
 			}
 
