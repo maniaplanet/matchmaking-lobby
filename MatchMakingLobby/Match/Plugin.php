@@ -164,6 +164,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				if($this->waitingTime > 120)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
+					array_walk($this->players, function($state) { if ($state == -1) { return -2; }});
 					$this->cancel();
 					break;
 				}
