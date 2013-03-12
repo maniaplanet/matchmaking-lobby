@@ -48,7 +48,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var string[] */
 	protected $intervals = array();
 
-	/** @var bool[string] */
+	/**
+	 * Value one of self::PLAYER_STATE_*
+	 * @var int[string]
+	 */
 	protected $players = array();
 
 	/** @var string */
@@ -142,6 +145,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		switch($this->state)
 		{
 			case self::SLEEPING:
+				//Waiting for a match in database
 				$match = $this->matchService->get($this->storage->serverLogin);
 				if ($match)
 				{
@@ -165,7 +169,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				if($match === false)
 				{
-					\ManiaLive\Utilities\Logger::getLog('info')->write('No match in database');
+					\ManiaLive\Utilities\Logger::getLog('info')->write('Match was prepared but not in database anymore (canceled on lobby ?');
 					$this->cancel();
 					break;
 				}
@@ -248,9 +252,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//nobreak
 			case static::PLAYING:
 				$this->playerIllegalLeave($login);
-				return;
+				break;
 			case static::OVER:
-				return;
+				break;
 		}
 	}
 
@@ -270,7 +274,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::PLAYER_LEFT:
 				//nobreak;
 			case static::PLAYING:
-				\ManiaLive\Utilities\Logger::getLog('info')->write('match ended fine');
+				\ManiaLive\Utilities\Logger::getLog('info')->write('onEndMatch while playing');
 				$this->over();
 				break;
 			case static::OVER:
@@ -337,8 +341,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 		Label::EraseAll();
 
-		\ManiaLive\Utilities\Logger::getLog('info')->write('preparing match for '.$lobby);
-		\ManiaLive\Utilities\Logger::getLog('info')->write('changing state to WAITING');
+		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match for %s (%s)',$lobby, implode(',', array_keys($this->players))));
 		$this->changeState(self::WAITING);
 		$this->waitingTime = 0;
 	}
@@ -350,7 +353,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function playerIllegalLeave($login)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('player illegal leave '.$login);
+		\ManiaLive\Utilities\Logger::getLog('info')->write('Player illegal leave: '.$login);
 		Windows\GiveUp::EraseAll();
 		$this->connection->chatSendServerMessage('A player quits... If he does not come back soon, match will be aborted.');
 		$this->changeState(self::PLAYER_LEFT);
@@ -359,7 +362,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function giveUp($login)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('player '.$login.' gave up. Changing state to OVER');
+		\ManiaLive\Utilities\Logger::getLog('info')->write('Player '.$login.' gave up. Changing state to OVER');
 		$this->players[$login] = static::PLAYER_STATE_QUITTER;
 
 		$confirm = Label::Create();
@@ -376,7 +379,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function cancel()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Cancel match. Changing state to OVER');
+		\ManiaLive\Utilities\Logger::getLog('info')->write('cancel()');
 
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
@@ -385,12 +388,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->connection->chatSendServerMessage('Match aborted.');
 
-		$this->changeState(self::OVER);
+		$this->over();
 	}
 
 	protected function decide()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Changing state to DECIDE');
+		\ManiaLive\Utilities\Logger::getLog('info')->write('decide()');
 		if($this->state != self::DECIDING)
 				$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
 		$this->changeState(self::DECIDING);
@@ -398,7 +401,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function play()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Changing state to PLAY');
+		\ManiaLive\Utilities\Logger::getLog('info')->write('play()');
 		//FIXME: ugly
 		$this->db->execute(
 			'INSERT INTO PlayedMatchs (`server`, `title`, `script`, `match`, `playedDate`) VALUES (%s, %s, %s, %s, NOW())',
@@ -409,8 +412,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 
 		$this->matchId = $this->db->insertID();
-
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Starting match:'.$this->matchId);;
 
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
@@ -432,14 +433,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function over()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Changing state to OVER');
+		\ManiaLive\Utilities\Logger::getLog('info')->write('over()');
 		Windows\GiveUp::EraseAll();
 //		$this->connection->chatSendServerMessage('Match over! You will be transfered back to the lobby.');
 		$this->changeState(self::OVER);
 	}
 
+	/**
+	 * Free the match for the lobby
+	 */
 	protected function end()
 	{
+		\ManiaLive\Utilities\Logger::getLog('info')->write('end()');
 		//FIXME: maybe
 		$quitterService = new Services\QuitterService($this->lobby);
 		foreach($this->players as $login => $state)
@@ -449,15 +454,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$quitterService->register($login);
 			}
 		}
-		
-		$this->matchService->removeMatch($this->storage->serverLogin);
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Match ended');
+
 		$jumper = Windows\ForceManialink::Create();
 		$jumper->set('maniaplanet://#qjoin='.$this->backLink);
 		$jumper->show();
 		$this->connection->cleanGuestList();
 		$this->sleep();
-		usleep(20);
+		usleep(200);
 		try
 		{
 			$this->connection->restartMap();
@@ -466,6 +469,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 
 		}
+		$this->matchService->removeMatch($this->storage->serverLogin);
 	}
 
 	protected function changeState($state)
@@ -476,6 +480,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->enableTickerEvent();
 		}
 		else $this->disableTickerEvent();
+
+		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('State: %d', $state));
 
 		$this->state = $state;
 	}
