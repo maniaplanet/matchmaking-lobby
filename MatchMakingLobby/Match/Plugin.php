@@ -359,7 +359,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$label = Label::Create();
 		$label->setPosition(0, 40);
-		$label->setMessage('Match over. You will be transfered back.');
+		$label->setMessage('A player left. Stay online until you are transfered back or you will be banned.');
 		$label->show();
 
 		$this->changeState(self::PLAYER_LEFT);
@@ -401,7 +401,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('decide()');
 		if($this->state != self::DECIDING)
+		{
+				$confirm = Label::Create();
+				$confirm->setPosition(0, 40);
+				$confirm->setMessage('Match will start soon.');
+				$confirm->show();
+
 				$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
+		}
+
 		$this->changeState(self::DECIDING);
 	}
 
