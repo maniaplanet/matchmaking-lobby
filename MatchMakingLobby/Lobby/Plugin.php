@@ -121,6 +121,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerConnect($login, $isSpectator)
 	{
+		\ManiaLive\Utilities\Logger::getLog('error')->write(sprintf('Player connected: %s', $login));
+
 		$message = '';
 		$player = Services\PlayerInfo::Get($login);
 		$message = ($player->ladderPoints ? $this->gui->getPlayerBackLabelPrefix() : '').$this->gui->getNotReadyText();
@@ -138,8 +140,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->createPlayerList($login, $this->blockedPlayers);
 
 		$this->updateLobbyWindow();
-		$leaves = $this->getLeavesCount($login);
-		$this->checkKarma($login, $leaves);
+		$this->updateKarma($login);
 
 		//TODO Rework text
 //		$this->gui->showSplash($login, $this->storage->server->name,
@@ -157,6 +158,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerDisconnect($login)
 	{
+		\ManiaLive\Utilities\Logger::getLog('error')->write(sprintf('Player disconnected: %s', $login));
+		
 		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
 
@@ -186,7 +189,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$jumper = Windows\ForceManialink::Create($playerInfo->login);
 				$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
 				$jumper->show();
-
 				$this->gui->createLabel($playerInfo->login, $this->gui->getMatchInProgressText());
 				return;
 			}
@@ -204,12 +206,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	//Core of the plugin
 	function onTick()
 	{
-		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
-		{
-			$leaves = $this->getLeavesCount($player->login);
-			$this->checkKarma($player->login, $leaves);
-		}
-
 		foreach($this->blockedPlayers as $login => $countDown)
 		{
 			$this->blockedPlayers[$login] = --$countDown;
@@ -218,6 +214,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				unset($this->blockedPlayers[$login]);
 				$this->onPlayerNotReady($login);
 			}
+		}
+
+		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
+		{
+			$this->updateKarma($player->login);
 		}
 
 		if($this->tick % 5 == 0)
@@ -285,14 +286,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerReady($login)
 	{
 		$player = Services\PlayerInfo::Get($login);
-		$player->setReady(true);
-		$this->setShortKey($login, array($this, 'onPlayerNotReady'));
+		if (!$player->isInMatch())
+		{
+			$player->setReady(true);
+			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
 
-		$this->gui->createLabel($login, $this->gui->getReadyText());
-		$this->gui->updatePlayerList($login, $this->blockedPlayers);
+			$this->gui->createLabel($login, $this->gui->getReadyText());
+			$this->gui->updatePlayerList($login, $this->blockedPlayers);
 
-		$this->setLobbyInfo();
-		$this->updateLobbyWindow();
+			$this->setLobbyInfo();
+			$this->updateLobbyWindow();
+		}
+		else
+		{
+			ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player try to be ready while in match: %s', $login));
+		}
 	}
 
 	function onPlayerNotReady($login)
@@ -326,7 +334,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->hideSplash($login);
 	}
 
-	function cancelMatchStart($login)
+	function onCancelMatchStart($login)
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player cancel match start: '.$login);
 
@@ -370,7 +378,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			Services\PlayerInfo::Get($player)->setMatch($server, $match);
 			$this->gui->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$groupName] - 1);
 			$this->gui->updatePlayerList($player, $this->blockedPlayers);
-			$this->setShortKey($player, array($this, 'cancelMatchStart'));
+			$this->setShortKey($player, array($this, 'onCancelMatchStart'));
 		}
 	}
 
@@ -428,40 +436,46 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/**
 	 * @param $login
 	 */
-	private function checkKarma($login, $leavesCount)
+	private function updateKarma($login)
 	{
-		if(Services\PlayerInfo::Get($login)->isAway())
+		$player = $this->storage->getPlayerObject($login);
+		$playerInfo = Services\PlayerInfo::Get($login);
+		if ($player)
 		{
-			return;
-		}
+			$leavesCount = $this->getLeavesCount($login);
 
-		$karma = $this->penaltiesCalculator->calculateKarma($login, $leavesCount);
-		if(Services\PlayerInfo::Get($login)->karma < $karma || array_key_exists($login, $this->blockedPlayers))
-		{
-			$player = $this->storage->getPlayerObject($login);
-			if(!array_key_exists($login, $this->blockedPlayers))
+			$karma = $this->penaltiesCalculator->calculateKarma($login, $leavesCount);
+			if($playerInfo->karma < $karma || array_key_exists($login, $this->blockedPlayers))
 			{
-				$penalty = $this->penaltiesCalculator->getPenalty($login, $karma);
-				$this->blockedPlayers[$login] = 60 * $penalty;
-				$this->connection->chatSendServerMessage(
-					sprintf(self::PREFIX.'$<%s$> is suspended for leaving matchs.', $player->nickName, $penalty)
-				);
-			}
+				if(!array_key_exists($login, $this->blockedPlayers))
+				{
+					$penalty = $this->penaltiesCalculator->getPenalty($login, $karma);
+					$this->blockedPlayers[$login] = 60 * $penalty;
+					$this->connection->chatSendServerMessage(
+						sprintf(self::PREFIX.'$<%s$> is suspended for leaving matchs.', $player->nickName, $penalty)
+					);
+				}
 
-			$this->onPlayerNotReady($login);
-			$this->gui->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
-			$shortKey = Shortkey::Create($login);
-			$shortKey->removeCallback($this->gui->actionKey);
-			$this->gui->updatePlayerList($login, $this->blockedPlayers);
+				$this->onPlayerNotReady($login);
+
+				$this->gui->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
+				$shortKey = Shortkey::Create($login);
+				$shortKey->removeCallback($this->gui->actionKey);
+				$this->gui->updatePlayerList($login, $this->blockedPlayers);
+			}
+			$playerInfo->karma = $karma;
 		}
-		Services\PlayerInfo::Get($login)->karma = $karma;
+		else
+		{
+			\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('UpdateKarma for not connected player %s', $login));
+		}
 	}
 
 	private function cleanPlayerStillMatch(Services\PlayerInfo $player)
 	{
 		if(!$this->matchService->isInMatch($player->login))
 		{
-			$player->setMatch();
+			$player->setNoMatch();
 		}
 	}
 

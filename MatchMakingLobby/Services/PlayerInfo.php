@@ -113,7 +113,7 @@ class PlayerInfo
 		$this->awaySince = $away ? new \DateTime() : null;
 		$this->readySince = null;
 	}
-	
+
 	/**
 	 * @return bool
 	 */
@@ -138,7 +138,7 @@ class PlayerInfo
 	{
 		if ($this->server && $this->match && $server && $players)
 		{
-			\ManiaLive\Utilities\Console::printDebug('Warning: there was already a match for this player'.$this->login);
+			\ManiaLive\Utilities\Logger::getLog('error')->write('Warning: there was already a match for this player'.$this->login);
 		}
 		$this->server = $server;
 		$this->match = $players;
