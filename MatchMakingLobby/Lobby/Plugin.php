@@ -344,8 +344,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->matchMakingService->updateMatchState($matchInfo->matchId, Services\Match::PLAYER_CANCEL);
 		
 		$this->matchMakingService->updatePlayerState($login, $matchInfo->matchId, Services\PlayerInfo::PLAYER_STATE_CANCEL);
-		$quitterService = new Services\QuitterService($this->storage->serverLogin);
-		$quitterService->register($login);
 
 		foreach($match->players as $playerLogin)
 		{

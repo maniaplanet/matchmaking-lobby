@@ -274,12 +274,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//nobreak;
 			case static::PLAYING:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch while playing');
+				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 				$this->over();
 				break;
 			case static::OVER:
 				break;
 		}
-		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 	}
 
 	function onGiveUp($login)
