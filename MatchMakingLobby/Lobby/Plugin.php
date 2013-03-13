@@ -430,6 +430,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	private function checkKarma($login, $leavesCount)
 	{
+		if(Services\PlayerInfo::Get($login)->isAway())
+		{
+			return;
+		}
 
 		$karma = $this->penaltiesCalculator->calculateKarma($login, $leavesCount);
 		if(Services\PlayerInfo::Get($login)->karma < $karma || array_key_exists($login, $this->blockedPlayers))

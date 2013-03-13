@@ -113,6 +113,14 @@ class PlayerInfo
 		$this->awaySince = $away ? new \DateTime() : null;
 		$this->readySince = null;
 	}
+	
+	/**
+	 * @return bool
+	 */
+	function isAway()
+	{
+		return (bool) $this->awaySince;
+	}
 
 	/**
 	 * @return bool
