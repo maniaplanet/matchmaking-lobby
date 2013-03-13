@@ -417,6 +417,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('play()');
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYING);
+		
+		Label::EraseAll();
 
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
