@@ -11,7 +11,13 @@ namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class Match
 {
-
+	const PLAYER_GAVE_UP = -5;
+	const PLAYER_LEFT = -4;
+	const PLAYER_CANCEL = -3;
+	const FINISHED = -2;
+	const PREPARED = -1;
+	const PLAYING = 1;
+	
 	/**
 	 * List of all logins playing the match
 	 * @var string[]

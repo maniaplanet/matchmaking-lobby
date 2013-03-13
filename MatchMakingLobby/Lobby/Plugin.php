@@ -50,8 +50,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var Helpers\PenaltiesCalculator */
 	protected $penaltiesCalculator;
 
-	/** @var Services\MatchService */
-	protected $matchService;
+	/** @var Services\MatchMakingService */
+	protected $matchMakingService;
 
 	function onInit()
 	{
@@ -78,8 +78,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			throw new Exception('Lobby and match cannot be one the same server.');
 		}
-		$this->enableDatabase();
-		$this->createTables();
 		$this->enableDedicatedEvents(
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
@@ -89,7 +87,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 		$this->enableTickerEvent();
 
-		$this->matchService = new Services\MatchService($this->connection->getSystemInfo()->titleId, $this->config->script);
+		$this->matchMakingService = new Services\MatchMakingService();
+		$this->matchMakingService->createTables();
 
 		$this->backLink = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->connection->getSystemInfo()->titleId;
 
@@ -127,7 +126,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$message = ($player->ladderPoints ? $this->gui->getPlayerBackLabelPrefix() : '').$this->gui->getNotReadyText();
 		$player->setAway(false);
-		$player->setMatch();
 		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
 
@@ -226,7 +224,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$matches = $this->matchMaker->run(array_keys($this->blockedPlayers));
 			foreach($matches as $match)
 			{
-				$server = $this->matchService->getAvailableServer();
+				$server = $this->matchMakingService->getAvailableServer($this->storage->serverLogin);
 				if(!$server)
 				{
 					foreach($match->players as $login)
@@ -286,7 +284,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerReady($login)
 	{
 		$player = Services\PlayerInfo::Get($login);
-		if (!$player->isInMatch())
+		if (!$this->matchMakingService->isInMatch($login))
 		{
 			$player->setReady(true);
 			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
@@ -299,7 +297,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else
 		{
-			ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player try to be ready while in match: %s', $login));
+			\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player try to be ready while in match: %s', $login));
 		}
 	}
 
@@ -338,12 +336,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player cancel match start: '.$login);
 
-		list($server, $match) = Services\PlayerInfo::Get($login)->getMatch();
-		$groupName = 'match-'.$server;
+		$matchInfo = $this->matchMakingService->getPlayerCurrentMatchInfo($login);
+		$groupName = 'match-'.$matchInfo->matchServerLogin;
 		Windows\ForceManialink::Erase(Group::Get($groupName));
 		Group::Erase($groupName);
 		unset($this->countDown[$groupName]);
-		$this->matchService->removeMatch($server);
+		$this->matchMakingService->updateMatchState($matchInfo->matchId, Services\Match::PLAYER_CANCEL);
+		
+		$this->matchMakingService->updatePlayerState($login, $matchInfo->matchId, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 		$quitterService = new Services\QuitterService($this->storage->serverLogin);
 		$quitterService->register($login);
 
@@ -365,7 +365,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
 
 		$groupName = 'match-'.$server;
-		$this->matchService->registerMatch($this->storage->serverLogin, $server, $match);
+		$this->matchMakingService->registerMatch($server, $match);
 
 		Group::Erase($groupName);
 		$group = Group::Create('match-'.$server, $match->players);
@@ -385,9 +385,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	private function getReadyPlayersCount()
 	{
 		$count = 0;
-		foreach($this->storage->players as $player)
-			$count += Services\PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
-		foreach($this->storage->spectators as $player)
+		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
 			$count += Services\PlayerInfo::Get($player->login)->isReady() ? 1 : 0;
 
 		return $count;
@@ -406,31 +404,26 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	private function getPlayingPlayersCount()
 	{
-		$matchCount = $this->matchService->getCount($this->storage->serverLogin);
+		$matchCount = $this->matchMakingService->getCurrentMatchCount($this->storage->serverLogin);
 
 		return ($matchCount - count($this->countDown)) * $this->matchMaker->playerPerMatch;
 	}
 
 	private function getTotalSlots()
 	{
-		$lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId,
-			$this->config->script);
-		return $lobbyService->getServersCount($this->storage->serverLogin) * $this->matchMaker->playerPerMatch + $this->storage->server->currentMaxPlayers;
+		$matchServerCount = $this->matchMakingService->getLiveMatchServersCount($this->storage->serverLogin);
+		return $matchServerCount * $this->matchMaker->playerPerMatch + $this->storage->server->currentMaxPlayers + $this->storage->server->currentMaxSpectators;
 	}
 
 	private function registerLobby()
 	{
-		$lobbyService = new Services\LobbyService($this->connection->getSystemInfo()->titleId,
-			$this->config->script);
 		$connectedPlayerCount = count($this->storage->players) + count($this->storage->spectators);
-		$lobbyService->register($this->storage->serverLogin, $this->getReadyPlayersCount(), $connectedPlayerCount,
-			$this->getPlayingPlayersCount(), $this->storage->server->name, $this->backLink);
+		$this->matchMakingService->registerLobby($this->storage->serverLogin, $this->getReadyPlayersCount(), $connectedPlayerCount, $this->storage->server->name, $this->backLink);
 	}
 
 	private function getLeavesCount($login)
 	{
-		$quitterService = new Services\QuitterService($this->storage->serverLogin);
-		return $quitterService->getCount($login);
+		return $this->matchMakingService->getLeaveCount($login);
 	}
 
 	/**
@@ -473,7 +466,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	private function cleanPlayerStillMatch(Services\PlayerInfo $player)
 	{
-		if(!$this->matchService->isInMatch($player->login))
+		if(!$this->matchMakingService->isInMatch($player->login))
 		{
 			$player->setNoMatch();
 		}
@@ -533,70 +526,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$confirm->setId('animated-label');
 		$confirm->show();
 	}
-
-	private function createTables()
-	{
-		$this->db->execute(
-			<<<EOLobbies
-CREATE TABLE IF NOT EXISTS `Lobbies` (
-	`login` VARCHAR(25) NOT NULL,
-	`readyPlayers` INT(10) NOT NULL,
-	`connectedPlayers` INT(10) NOT NULL,
-	`playingPlayers` INT(10) NOT NULL,
-	`name` VARCHAR(76) NOT NULL,
-	`backLink` VARCHAR(76) NOT NULL,
-	PRIMARY KEY (`login`)
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB;
-EOLobbies
-		);
-		$this->db->execute(
-			<<<EOServers
-CREATE TABLE IF NOT EXISTS `Servers` (
-  `login` varchar(25) NOT NULL,
-  `title` varchar(51) NOT NULL,
-  `script` varchar(50) DEFAULT NULL,
-  `lastLive` datetime NOT NULL,
-  `lobby` varchar(25) DEFAULT NULL COMMENT 'login@title',
-  `players` text,
-  PRIMARY KEY (`login`),
-  KEY `title` (`title`),
-  KEY `script` (`script`),
-  KEY `lastLive` (`lastLive`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-EOServers
-		);
-
-		$this->db->execute(
-			<<<EOMatchs
-CREATE TABLE IF NOT EXISTS `PlayedMatchs` (
-	`id` INT(10) NOT NULL AUTO_INCREMENT,
-	`server` VARCHAR(25) NOT NULL,
-	`title` varchar(51) NOT NULL,
-	`script` VARCHAR(50) NOT NULL,
-	`match` TEXT NOT NULL,
-	`playedDate` DATETIME NOT NULL,
-	PRIMARY KEY (`id`)
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB;
-EOMatchs
-		);
-
-		$this->db->execute(
-			<<<EOQuitters
-CREATE TABLE IF NOT EXISTS `Quitters` (
-	`playerLogin` VARCHAR(25) NOT NULL,
-	`creationDate` DATETIME NOT NULL,
-	`lobby` VARCHAR(25) NOT NULL
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB;
-EOQuitters
-		);
-	}
-
 }
 
 ?>

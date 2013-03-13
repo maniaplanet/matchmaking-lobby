@@ -11,6 +11,11 @@ namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class PlayerInfo
 {
+	const PLAYER_STATE_CANCEL = -4;
+	const PLAYER_STATE_GIVE_UP = -3;
+	const PLAYER_STATE_QUITTER = -2;
+	const PLAYER_STATE_NOT_CONNECTED = -1;
+	const PLAYER_STATE_CONNECTED = 1;
 
 	/** @var PlayerInfo[] */
 	static private $instances = array();
@@ -138,7 +143,7 @@ class PlayerInfo
 	{
 		if ($this->server && $this->match && $server && $players)
 		{
-			\ManiaLive\Utilities\Logger::getLog('error')->write('Warning: there was already a match for this player'.$this->login);
+			\ManiaLive\Utilities\Logger::getLog('error')->write(sprintf('Warning: there was already a match for this player',$this->login));
 		}
 		$this->server = $server;
 		$this->match = $players;

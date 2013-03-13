@@ -35,10 +35,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	const OVER = 4;
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
 
-	const PLAYER_STATE_QUITTER = -2;
-	const PLAYER_STATE_NOT_CONNECTED = -1;
-	const PLAYER_STATE_CONNECTED = 1;
-
 	/** @var int */
 	protected $state = self::SLEEPING;
 
@@ -49,16 +45,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $intervals = array();
 
 	/**
-	 * Value one of self::PLAYER_STATE_*
+	 * Value one of Services\PlayerInfo::PLAYER_STATE_*
 	 * @var int[string]
 	 */
 	protected $players = array();
 
-	/** @var string */
+	/** @var Services\Lobby */
 	protected $lobby = null;
-
-	/** @var string */
-	protected $backLink = null;
 
 	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match */
 	protected $match = null;
@@ -72,11 +65,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var int */
 	protected $matchId;
 
-	/** @var Services\LobbyService */
-	protected $lobbyService;
-
-	/** @var Services\MatchService */
-	protected $matchService;
+	/** @var Services\MatchMakingService */
+	protected $matchMakingService;
 
 	/** @var string */
 	protected $scriptName;
@@ -113,25 +103,32 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->state = self::SLEEPING;
 
-		$this->enableDatabase();
 		$this->enableTickerEvent();
-		$this->createTables();
 
 		//Get the Script name
 		$script = $this->connection->getScriptName();
 		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 
 		//Load services
-		$titleIdString = $this->connection->getSystemInfo()->titleId;
-		$this->matchService = new Services\MatchService($titleIdString, $this->scriptName);
-		$this->lobbyService = new Services\LobbyService($titleIdString, $this->scriptName);
-
+		$this->matchMakingService = new Services\MatchMakingService();
+		$this->matchMakingService->createTables();
+		
+		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
+		$this->lobby = $this->matchMakingService->getLobby($config->lobbyLogin);
+		
 		//Get the GUI abstraction class
 		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
 		$this->setGui(new $guiClassName());
 
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
+	}
+	
+	function onUnload()
+	{
+		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
+		$this->end();
+		parent::onUnload();
 	}
 
 	//Core of the plugin
@@ -146,21 +143,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case self::SLEEPING:
 				//Waiting for a match in database
-				$match = $this->matchService->get($this->storage->serverLogin);
+				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin);
 				if ($match)
 				{
-					$this->prepare($match->backLink, $match->lobby, $match->match);
+					$this->prepare($match);
 				}
 				else
 				{
-					$this->matchService->registerServer($this->storage->serverLogin, $this->connection->getSystemInfo()->titleId, $this->scriptName);
+					$this->matchMakingService->registerMatchServer($this->storage->serverLogin, $this->lobby->login, $this->state);
 					$this->sleep();
 				}
 				break;
 			case self::WAITING:
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
-				$match = $this->matchService->get($this->storage->serverLogin);
+				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin);
 				if($this->waitingTime > 120)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
@@ -174,9 +171,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->cancel();
 					break;
 				}
-				if($match->backLink != $this->backLink || $match->lobby != $this->lobby || $match->match != $this->match)
+				if($match->match != $this->match || $match->matchId != $this->matchId)
 				{
-					$this->prepare($match->backLink, $match->lobby ,$match->match);
+					$this->prepare($match);
 					break;
 				}
 				$this->changeState(self::WAITING);
@@ -197,7 +194,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerConnect($login, $isSpectator)
 	{
-		$this->players[$login] = static::PLAYER_STATE_CONNECTED;
+		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_CONNECTED;
+		$this->matchMakingService->updatePlayerState($login, $this->matchId, $this->players[$login]);
 		$this->forcePlayerTeam($login);
 		\ManiaLive\Utilities\Logger::getLog('info')->write('player '.$login.' connected');
 		switch ($this->state)
@@ -239,7 +237,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerDisconnect($login)
 	{
-		$this->players[$login] = static::PLAYER_STATE_NOT_CONNECTED;
+		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 		switch ($this->state)
 		{
 			case static::SLEEPING:
@@ -281,6 +279,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::OVER:
 				break;
 		}
+		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 	}
 
 	function onGiveUp($login)
@@ -290,11 +289,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function updateLobbyWindow()
 	{
-		$obj = $this->lobbyService->get($this->lobby);
-		if($obj)
-		{
-			$this->gui->updateLobbyWindow($obj->name, $obj->readyPlayers, $obj->connectedPlayers + $obj->playingPlayers, $obj->playingPlayers);
-		}
+		$this->lobby = $this->matchMakingService->getLobby($this->lobby->login);
+		$playingPlayers = 0;
+		$this->gui->updateLobbyWindow($this->lobby->name, $this->lobby->readyPlayers, $this->lobby->connectedPlayers + $playingPlayers, $playingPlayers);
 	}
 
 	protected function forcePlayerTeam($login)
@@ -312,16 +309,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/**
 	 * Prepare the server config to host a match
 	 * Then wait players' connection
-	 * @param string $backLink
-	 * @param string $lobby
-	 * @param Services\Match $match
+	 * @param Services\MatchInfo $matchInfo
 	 */
-	protected function prepare($backLink, $lobby, $match)
+	protected function prepare($matchInfo)
 	{
-		$this->backLink = $backLink;
-		$this->lobby = $lobby;
-		$this->players = array_fill_keys($match->players, static::PLAYER_STATE_NOT_CONNECTED);
-		$this->match = $match;
+		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($matchInfo, true));
+		$this->players = array_fill_keys($matchInfo->match->players, Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED);
+		$this->match = $matchInfo->match;
+		$this->matchId = $matchInfo->matchId;
 		Windows\ForceManialink::EraseAll();
 
 		$giveUp = Windows\GiveUp::Create();
@@ -330,7 +325,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
 		$giveUp->show();
 
-		foreach($match->players as $login)
+		foreach($matchInfo->match->players as $login)
 			$this->connection->addGuest((string)$login, true);
 		$this->connection->executeMulticall();
 
@@ -342,7 +337,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 		Label::EraseAll();
 
-		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match for %s (%s)',$lobby, implode(',', array_keys($this->players))));
+		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
 		$this->changeState(self::WAITING);
 		$this->waitingTime = 0;
 	}
@@ -363,13 +358,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$label->show();
 
 		$this->changeState(self::PLAYER_LEFT);
-		$this->players[$login] = static::PLAYER_STATE_QUITTER;
+		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_QUITTER;
+		$this->matchMakingService->updatePlayerState($login, $this->matchId, $this->players[$login]);
 	}
 
 	protected function giveUp($login)
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player '.$login.' gave up. Changing state to OVER');
-		$this->players[$login] = static::PLAYER_STATE_QUITTER;
+		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_GIVE_UP;
+		
+		$this->matchMakingService->updatePlayerState($login, $this->matchId, $this->players[$login]);
+		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_GAVE_UP);
 
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
@@ -386,6 +385,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function cancel()
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('cancel()');
+		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_LEFT);
 
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
@@ -416,16 +416,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function play()
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('play()');
-		//FIXME: ugly
-		$this->db->execute(
-			'INSERT INTO PlayedMatchs (`server`, `title`, `script`, `match`, `playedDate`) VALUES (%s, %s, %s, %s, NOW())',
-			$this->db->quote($this->storage->serverLogin),
-			$this->db->quote($this->connection->getSystemInfo()->titleId),
-			$this->db->quote($this->scriptName),
-			$this->db->quote(json_encode($this->match))
-		);
-
-		$this->matchId = $this->db->insertID();
+		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYING);
 
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
@@ -459,18 +450,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function end()
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('end()');
-		//FIXME: maybe
-		$quitterService = new Services\QuitterService($this->lobby);
-		foreach($this->players as $login => $state)
-		{
-			if($state == static::PLAYER_STATE_QUITTER)
-			{
-				$quitterService->register($login);
-			}
-		}
 
 		$jumper = Windows\ForceManialink::Create();
-		$jumper->set('maniaplanet://#qjoin='.$this->backLink);
+		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
 		$jumper->show();
 		$this->connection->cleanGuestList();
 		usleep(2000);
@@ -483,7 +465,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		}
 		usleep(5000);
-		$this->matchService->removeMatch($this->storage->serverLogin);
 		$this->sleep();
 	}
 
@@ -506,7 +487,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function isEverybodyHere()
 	{
-		//TODO: usage of 0 instead of self::PLAYER_STATE_*
+		//TODO: usage of 0 instead of Services\PlayerInfo::PLAYER_STATE_*
 		return count(array_filter($this->players, function ($p) { return $p > 0; })) == count($this->players);
 	}
 
@@ -514,71 +495,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->gui = $GUI;
 	}
-
-	protected function createTables()
-	{
-		$this->db->execute(
-			<<<EOLobbies
-CREATE TABLE IF NOT EXISTS `Lobbies` (
-	`login` VARCHAR(25) NOT NULL,
-	`readyPlayers` INT(10) NOT NULL,
-	`connectedPlayers` INT(10) NOT NULL,
-	`playingPlayers` INT(10) NOT NULL,
-	`name` VARCHAR(76) NOT NULL,
-	`backLink` VARCHAR(76) NOT NULL,
-	PRIMARY KEY (`login`)
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB;
-EOLobbies
-		);
-
-		$this->db->execute(
-			<<<EOServers
-CREATE TABLE IF NOT EXISTS `Servers` (
-  `login` varchar(25) NOT NULL,
-  `title` varchar(51) NOT NULL,
-  `script` varchar(50) DEFAULT NULL,
-  `lastLive` datetime NOT NULL,
-  `lobby` varchar(25) DEFAULT NULL COMMENT 'login@title',
-  `players` text,
-  PRIMARY KEY (`login`),
-  KEY `title` (`title`),
-  KEY `script` (`script`),
-  KEY `lastLive` (`lastLive`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-EOServers
-		);
-
-		$this->db->execute(
-			<<<EOMatchs
-CREATE TABLE IF NOT EXISTS `PlayedMatchs` (
-	`id` INT(10) NOT NULL AUTO_INCREMENT,
-	`server` VARCHAR(25) NOT NULL,
-	`title` varchar(51) NOT NULL,
-	`script` VARCHAR(50) NOT NULL,
-	`match` TEXT NOT NULL,
-	`playedDate` DATETIME NOT NULL,
-	PRIMARY KEY (`id`)
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB;
-EOMatchs
-		);
-
-		$this->db->execute(
-			<<<EOQuitters
-CREATE TABLE IF NOT EXISTS `Quitters` (
-	`playerLogin` VARCHAR(25) NOT NULL,
-	`creationDate` DATETIME NOT NULL,
-	`lobby` VARCHAR(25) NOT NULL
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB;
-EOQuitters
-		);
-	}
-
 }
 
 ?>

@@ -9,25 +9,13 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
-class MatchInfo
+class Lobby
 {
-	/**
-	 * String to use in a maniaplanet link to switch players on the lobby
-	 * @var string
-	 */
-	public $matchId;
-	
-	/**
-	 * The server login where the match is played
-	 * @var string
-	 */
-	public $matchServerLogin;
-	
-	/**
-	 * The Match itself
-	 * @var Match
-	 */
-	public $match;
+	public $login;
+	public $name;
+	public $backLink;
+	public $readyPlayers;
+	public $connectedPlayers;
 }
 
 ?>

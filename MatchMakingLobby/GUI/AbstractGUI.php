@@ -126,12 +126,13 @@ abstract class AbstractGUI
 		$playerList->setPosition(170, $this->lobbyBoxPosY + 3);
 
 		$currentPlayerObj = $storage->getPlayerObject($login);
+		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
 		foreach(array_merge($storage->players, $storage->players) as $login => $object)
 		{
 			$playerInfo = PlayerInfo::Get($login);
 			$state = 0;
 			if($playerInfo->isReady()) $state = 1;
- 			if($playerInfo->isInMatch()) $state = 2;
+ 			if($matchMakingService->isInMatch($login)) $state = 2;
 			if(array_key_exists($login, $blockedPlayerList)) $state = 3;
 			$isAlly = ($this->displayAllies && $currentPlayerObj && in_array($login, $currentPlayerObj->allies));
 			$playerList->setPlayer($login, $state, $isAlly);
@@ -149,8 +150,9 @@ abstract class AbstractGUI
 		$currentPlayerObj = Storage::getInstance()->getPlayerObject($login);
 		$playerInfo = PlayerInfo::Get($login);
 		$state = 0;
+		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
 		if($playerInfo->isReady()) $state = 1;
-		if($playerInfo->isInMatch()) $state = 2;
+		if($matchMakingService->isInMatch($login)) $state = 2;
 		if(array_key_exists($login, $blockedPlayerList)) $state = 3;
 
 		$playerLists = Windows\PlayerList::GetAll();
@@ -176,7 +178,6 @@ abstract class AbstractGUI
 		foreach($playerLists as $playerList)
 		{
 			$playerList->removePlayer($login);
-			$playerList->redraw();
 		}
 		Windows\PlayerList::RedrawAll();
 	}

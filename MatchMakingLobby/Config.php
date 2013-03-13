@@ -18,7 +18,7 @@ class Config extends \ManiaLib\Utils\Singleton
 	public $guiClassName;
 	public $penaltiesCalculatorClassName;
 	public $penaltyClass;
-
+	public $lobbyLogin;
 }
 
 ?>
