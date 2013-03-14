@@ -107,7 +107,11 @@ class MatchMakingService
 		foreach($results as $row)
 		{
 			$match->players[] = $row['login'];
-			if((int)$row['teamId'] === 0)
+			if($row['teamId'] === null)
+			{
+				continue;
+			}
+			elseif((int)$row['teamId'] === 0)
 			{
 				$match->team1[] = $row['login'];
 			}
