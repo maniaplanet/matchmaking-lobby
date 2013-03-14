@@ -121,6 +121,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerConnect($login, $isSpectator)
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player connected: %s', $login));
+		if($this->matchMakingService->isInMatch($login))
+		{
+			//TODO Change The Label
+			$matchInfo = $this->matchMakingService->getPlayerCurrentMatchInfo($login);
+			$jumper = Windows\ForceManialink::Create($login);
+			$jumper->set('maniaplanet://#qjoin='.$matchInfo->matchServerLogin.'@'.$this->connection->getSystemInfo()->titleId);
+			$jumper->show();
+			$this->gui->createLabel($login, $this->gui->getMatchInProgressText());
+			return;
+		}
 
 		$message = '';
 		$player = Services\PlayerInfo::Get($login);
