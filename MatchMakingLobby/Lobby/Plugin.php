@@ -120,7 +120,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerConnect($login, $isSpectator)
 	{
-		\ManiaLive\Utilities\Logger::getLog('error')->write(sprintf('Player connected: %s', $login));
+		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player connected: %s', $login));
 
 		$message = '';
 		$player = Services\PlayerInfo::Get($login);
@@ -156,7 +156,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerDisconnect($login)
 	{
-		\ManiaLive\Utilities\Logger::getLog('error')->write(sprintf('Player disconnected: %s', $login));
+		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player disconnected: %s', $login));
 		
 		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
@@ -345,7 +345,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		
 		$this->matchMakingService->updatePlayerState($login, $matchInfo->matchId, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
-		foreach($match->players as $playerLogin)
+		foreach($matchInfo->match->players as $playerLogin)
 		{
 			Services\PlayerInfo::Get($playerLogin)->setNoMatch();
 			if($playerLogin != $login)
