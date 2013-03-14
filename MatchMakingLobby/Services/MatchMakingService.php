@@ -103,16 +103,15 @@ class MatchMakingService
 				'INNER JOIN Players P ON M.id = P.matchId '.
 				'WHERE M.id = %d ', $matchId
 			)->fetchArrayOfAssoc();
-		
 		$match = new Match();
 		foreach($results as $row)
 		{
 			$match->players[] = $row['login'];
-			if($row['teamId'] === 0)
+			if((int)$row['teamId'] === 0)
 			{
 				$match->team1[] = $row['login'];
 			}
-			elseif($row['teamId'] === 1)
+			elseif((int)$row['teamId'] === 1)
 			{
 				$match->team2[] = $row['login'];
 			}
