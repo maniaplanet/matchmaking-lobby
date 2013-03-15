@@ -67,6 +67,14 @@ abstract class AbstractGUI
 	 * @return string
 	 */
 	abstract function getLaunchMatchText(Match $m, $player);
+	
+	/**
+	 * Returns the message displayed when a player is picked up as a backup to replace
+	 * a missing player
+	 * @param string $player
+	 * @return string
+	 */
+	abstract function getBackUpLaunchText();
 
 	/**
 	 * Returns the message when a player join the lobby and he have a match still running
@@ -180,6 +188,29 @@ abstract class AbstractGUI
 			$playerList->removePlayer($login);
 		}
 		Windows\PlayerList::RedrawAll();
+	}
+	
+	final function prepareJump(array $players, $serverLogin, $titleIdString)
+	{
+		$groupName = sprintf('match-%s',$serverLogin);
+		$this->eraseJump($serverLogin);
+		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
+		$jumper = Windows\ForceManialink::Create($group);
+		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString);
+	}
+	
+	final function eraseJump($serverLogin)
+	{
+		$groupName = sprintf('match-%s',$serverLogin);
+		Windows\ForceManialink::Erase(\ManiaLive\Gui\Group::Get($groupName));
+		\ManiaLive\Gui\Group::Erase($groupName);
+	}
+	
+	final function showJump($serverLogin)
+	{
+		$groupName = sprintf('match-%s',$serverLogin);
+		$group = \ManiaLive\Gui\Group::Get($groupName);
+		Windows\ForceManialink::Create($group)->show();
 	}
 	
 	final function showSplash($login, $serverName , array $lines, $callback)

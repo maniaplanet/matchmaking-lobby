@@ -33,7 +33,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	const DECIDING = 2;
 	const PLAYING = 3;
 	const OVER = 4;
-	const WAITING_REPLACEMENT = 5;
+	const WAITING_BACKUPS = 5;
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
 
 	/** @var int */
@@ -97,13 +97,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->removeGuest('-_-');
 		$this->nextTick = new \DateTime();
 		$this->intervals = array(
-			self::PLAYER_LEFT => '1 minute',
+			self::PLAYER_LEFT => '40 seconds',
 			self::WAITING => '5 seconds',
 			self::SLEEPING => '5 seconds',
 			self::DECIDING => '30 seconds',
 			self::PLAYING => null,
 			self::OVER => '10 seconds',
-			self::WAITING_REPLACEMENT => '1 seconds'
+			self::WAITING_BACKUPS => '1 seconds'
 		);
 
 		$this->state = self::SLEEPING;
@@ -132,8 +132,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	
 	function onUnload()
 	{
-		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
-		$this->end();
+		if($this->matchMakingService instanceof Services\MatchMakingService && $this->matchId)
+		{
+			$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
+			$this->end();
+		}
 		parent::onUnload();
 	}
 
@@ -169,13 +172,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING:
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
-				\ManiaLive\Utilities\Console::println($this->waitingTime);
 				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-				if($this->waitingTime > 120)
+				if($this->waitingTime > 105)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
-					array_walk($this->players, function($state) { if ($state == -1) { return -2; }});
-					$this->cancel();
+					foreach($this->players as $login => $state)
+					{
+						if($state == Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED)
+						{
+							$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_QUITTER;
+							$this->matchMakingService->updatePlayerState($login, $this->matchId, Services\PlayerInfo::PLAYER_STATE_QUITTER);
+						}
+					}
+					$this->waitBackups();
 					break;
 				}
 				if($match === false)
@@ -197,13 +206,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 			case self::PLAYER_LEFT:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: PLAYER_LEFT');
-				$this->waitReplacement();
+				$this->waitBackups();
 				break;
-			case self::WAITING_REPLACEMENT:
-				if(++$this->waitingTime < 5)
+			case self::WAITING_BACKUPS:
+				\ManiaLive\Utilities\Console::println('waiting backups: '.$this->waitingTime);
+				if(++$this->waitingTime < 15)
 				{
-					//TODO get Replacement
-					$this->updatePlayerList();
+					$matchInfo = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+					if($matchInfo && $matchInfo->match != $this->match)
+					{
+						$this->updatePlayerList($matchInfo);
+					}
 				}
 				else
 				{
@@ -213,7 +226,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::OVER:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: OVER');
 				$this->end();
-				break;
 		}
 	}
 
@@ -234,7 +246,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->decide();
 				}
 				break;
-			case static::WAITING_REPLACEMENT:
+			case static::WAITING_BACKUPS:
 				//nobreak
 			case static::PLAYER_LEFT:
 				if ($this->isEverybodyHere())
@@ -276,7 +288,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//nobreak
 			case static::DECIDING:
 				//nobreak
-			case static::WAITING_REPLACEMENT:
+			case static::WAITING_BACKUPS:
 				//nobreak
 			case static::PLAYING:
 				$this->playerIllegalLeave($login);
@@ -301,7 +313,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 			case static::PLAYER_LEFT:
 				//nobreak;
-			case static::WAITING_REPLACEMENT:
+			case static::WAITING_BACKUPS:
 				//nobreak
 			case static::PLAYING:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch while playing');
@@ -477,33 +489,32 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->changeState(self::OVER);
 	}
 	
-	protected function waitReplacement()
+	protected function waitBackups()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('waitReplacement()');
-		$this->changeState(self::WAITING_REPLACEMENT);
-		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_REPLACEMENT);
+		\ManiaLive\Utilities\Logger::getLog('info')->write('waitBackups()');
+		$this->changeState(self::WAITING_BACKUPS);
+		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
+		$this->waitingTime = 0;
 	}
 	
-	protected function updatePlayerList()
+	protected function updatePlayerList(Services\MatchInfo $matchInfo)
 	{
-		$matchInfo = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		if($matchInfo && $matchInfo->match != $this->match)
+		$newPlayers = array_diff($matchInfo->match->players, $this->match->players);
+		foreach($this->players as $login => $state)
 		{
-			$newPlayers = array_diff($matchInfo->match->players, $this->match->players);
-			$this->connection->cleanGuestList(true);
-			foreach($matchInfo->match->players as $player)
+			if($state == Services\PlayerInfo::PLAYER_STATE_QUITTER)
 			{
-				$this->connection->addGuest($player, true);
-				if(in_array($player, $newPlayers))
-				{
-					$this->players[$player] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
-				}
+				unset($this->players[$login]);
+				$this->connection->removeGuest($login, true);
 			}
-			//TODO Clean player list  ???
-			$this->connection->executeMulticall();
-			$this->match = $matchInfo->match;
 		}
-		$this->waitingTime = 0;
+		foreach($newPlayers as $player)
+		{
+			$this->connection->addGuest($player, true);
+			$this->players[$player] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
+		}
+		$this->connection->executeMulticall();
+		$this->match = $matchInfo->match;
 	}
 
 	/**

@@ -62,7 +62,7 @@ class MatchMakingService
 				$this->db->quote($serverLogin), 
 				$this->db->quote($scriptName), 
 				$this->db->quote($titleIdString), 
-				Match::PREPARED, Match::WAITING_REPLACEMENT
+				Match::PREPARED, Match::WAITING_BACKUPS
 			)->fetchSingleValue();
 		if(!$matchId)
 		{
@@ -110,11 +110,11 @@ class MatchMakingService
 				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
 				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
 				'AND M.state = %d '.
-				'AND DATE_ADD(M.`creationDate`, INTERVAL 5 MINUTE) > NOW()', 
+				'/*AND DATE_ADD(M.`creationDate`, INTERVAL 5 SECOND) > NOW()*/', 
 				$this->db->quote($lobbyLogin), 
 				$this->db->quote($scriptName), 
 				$this->db->quote($titleIdString), 
-				Match::WAITING_REPLACEMENT
+				Match::WAITING_BACKUPS
 			)->fetchArrayOfAssoc();
 		
 		$matchInfos = array();
@@ -126,6 +126,7 @@ class MatchMakingService
 			$matchInfo->titleIdString = $titleIdString;
 			$matchInfo->matchId = $row['id'];
 			$matchInfo->match = $this->getMatch($row['id']);
+			$matchInfos[] = $matchInfo;
 		}
 		return $matchInfos;
 	}
@@ -163,10 +164,10 @@ class MatchMakingService
 		return $match;
 	}
 	
-	function getMatchLeavers($matchId)
+	function getMatchQuitters($matchId)
 	{
 		return $this->db->execute(
-				'SELECT login FROM Matches WHERE matchId = %d AND `state` = %d', $matchId, PlayerInfo::PLAYER_STATE_QUITTER
+				'SELECT login FROM Players WHERE matchId = %d AND `state` = %d', $matchId, PlayerInfo::PLAYER_STATE_QUITTER
 			)->fetchArrayOfSingleValues();
 	}
 	
@@ -237,17 +238,18 @@ class MatchMakingService
 	function getAvailableServer($lobbyLogin, $scriptName, $titleIdString)
 	{
 		return $this->db->execute(
-				'SELECT login FROM MatchServers '.
-				'WHERE lobbyLogin = %s '.
-				'AND scriptName = %s '.
-				'AND titleIdString = %s '.
-				'AND `state` = %d '.
+				'SELECT login FROM MatchServers MS '.
+				'LEFT JOIN Matches M ON '.
+				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
+				'WHERE MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s '.
+				'AND MS.state = %d AND (M.state IS NULL OR M.state < %d) '.
 				'AND DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() '.
 				'ORDER BY RAND() LIMIT 1',
 				$this->db->quote($lobbyLogin), 
 				$this->db->quote($scriptName), 
 				$this->db->quote($titleIdString), 
-				\ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING
+				\ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING,
+				Match::PREPARED
 			)->fetchSingleValue(null);
 	}
 	
@@ -348,7 +350,13 @@ class MatchMakingService
 			default :
 				throw new \InvalidArgumentException;
 		}
-		$this->db->execute('INSERT INTO Players (login, matchId, teamId, state) VALUES (%d,%s,%d)', $matchId, $this->db->quote($login), $teamId);
+		$this->db->execute(
+			'INSERT INTO Players (login, matchId, teamId, state) VALUES (%s,%d,%s, %d)', 
+			$this->db->quote($login), 
+			$matchId, 
+			$teamId, 
+			PlayerInfo::PLAYER_STATE_NOT_CONNECTED
+		);
 	}
 	
 	/**
@@ -399,6 +407,7 @@ class MatchMakingService
 		$this->db->execute(
 			'INSERT INTO LobbyServers VALUES (%s, %s, %s, %d, %d) '.
 			'ON DUPLICATE KEY UPDATE '.
+			'backLink = VALUES(backLink), '.
 			'readyPlayers = VALUES(readyPlayers), '.
 			'connectedPlayers = VALUES(connectedPlayers) ', 
 			$this->db->quote($lobbyLogin), $this->db->quote($serverName), $this->db->quote($backLink),

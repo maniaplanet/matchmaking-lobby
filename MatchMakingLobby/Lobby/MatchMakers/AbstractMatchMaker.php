@@ -69,10 +69,11 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	final protected function buildGraph(array $bannedPlayers = array())
 	{
 		$this->graph = new Helpers\Graph();
+		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
 
 		//We remove from ready players, players that are in match and blocked
 		$readyPlayers = PlayerInfo::GetReady();
-		$followers = array_filter($readyPlayers, function ($f) { return !$f->isInMatch(); });
+		$followers = array_filter($readyPlayers, function ($f) use($matchMakingService) { return !$matchMakingService->isInMatch($f->login); });
 		$followers = array_filter($followers, function ($f) use ($bannedPlayers) { return !in_array($f->login, $bannedPlayers); });
 		
 		while($player = array_shift($followers))
@@ -124,6 +125,11 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	}
 	
 	abstract function getPlayerScore($login);
+	
+	function getBackups(array $quitters)
+	{
+		return array();
+	}
 }
 
 ?>

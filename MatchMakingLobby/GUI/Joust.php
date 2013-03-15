@@ -26,6 +26,11 @@ class Joust extends AbstractGUI
 		$opponent = ($opponentObj ? $opponentObj->nickName : $m->players[($key + 1) % 2]);
 		return sprintf('$0F0Match against $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $opponent);
 	}
+	
+	function getBackUpLaunchText()
+	{
+		return 'You are selected to replace a player. Prepare to be transfered';
+	}
 
 	public function getNotReadyText()
 	{

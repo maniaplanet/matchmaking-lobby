@@ -127,6 +127,44 @@ class Elite extends AbstractMatchMaker
 		return array($aTeam, $bTeam);
 	}
 
+	public function getBackups(array $quitters)
+	{
+		$readyPlayers = PlayerInfo::GetReady();
+		//Remove players in match from this
+		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
+		$readyPlayers = array_filter($readyPlayers,
+			function ($readyPlayer) use($matchMakingService)
+			{
+				return !$matchMakingService->isInMatch($readyPlayer->login);
+			});
+		$backups = array();
+		if(count($quitters) <= count($readyPlayers))
+		{
+			$backups = array();
+			foreach($quitters as $quitter)
+			{
+				$quitterInfo = PlayerInfo::Get($quitter);
+				// Sort ready players to have the one with the same level
+				usort($readyPlayers,
+					function (PlayerInfo $p1, PlayerInfo $p2) use ($quitterInfo)
+					{
+						$dist1 = abs($quitterInfo->ladderPoints - $p1->ladderPoints);
+						$dist2 = abs($quitterInfo->ladderPoints - $p2->ladderPoints);
+						echo "{$quitterInfo->ladderPoints}|{$p1->ladderPoints}|{$p2->ladderPoints}\n";
+						if($dist1 == $dist2)
+						{
+							return 0;
+						}
+						return ($dist1 < $dist2) ? -1 : 1;
+					}
+				);
+				$player = array_shift($readyPlayers);
+				$backups[] = $player->login;
+			}
+		}
+		return $backups;
+	}
+
 }
 
 ?>

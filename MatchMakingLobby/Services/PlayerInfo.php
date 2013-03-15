@@ -127,44 +127,6 @@ class PlayerInfo
 	{
 		return (bool) $this->awaySince;
 	}
-
-	/**
-	 * @return bool
-	 */
-	function isInMatch()
-	{
-		return $this->server && $this->match;
-	}
-
-	/**
-	 * @param string $server
-	 * @param Match $players
-	 */
-	function setMatch($server = null, $players = null)
-	{
-		if ($this->server && $this->match && $server && $players)
-		{
-			\ManiaLive\Utilities\Logger::getLog('error')->write(sprintf('Warning: there was already a match for this player',$this->login));
-		}
-		$this->server = $server;
-		$this->match = $players;
-	}
-
-	function setNoMatch()
-	{
-		$this->server = null;
-		$this->match = null;
-	}
-
-	/**
-	 * Get match information
-	 * @return array
-	 */
-	function getMatch()
-	{
-		return array($this->server, $this->match);
-	}
-
 }
 
 ?>

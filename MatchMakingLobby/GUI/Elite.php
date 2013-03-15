@@ -39,6 +39,11 @@ class Elite extends AbstractGUI
 		}
 		return sprintf('$0F0Match with $<%s$> & $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $mate1, $mate2);
 	}
+	
+	function getBackUpLaunchText()
+	{
+		return 'You are selected to replace a player. Prepare to be transfered';
+	}
 
 	public function getNotReadyText()
 	{
