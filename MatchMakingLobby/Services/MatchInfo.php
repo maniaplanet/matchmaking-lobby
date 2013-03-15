@@ -24,6 +24,18 @@ class MatchInfo
 	public $matchServerLogin;
 	
 	/**
+	 * The name of the script use to play the match
+	 * @var string 
+	 */
+	public $scriptName;
+	
+	/**
+	 * The titleIdString of the title where the match will be played
+	 * @var string
+	 */
+	public $titleIdString;
+	
+	/**
 	 * The Match itself
 	 * @var Match
 	 */

@@ -33,6 +33,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	const DECIDING = 2;
 	const PLAYING = 3;
 	const OVER = 4;
+	const WAITING_REPLACEMENT = 5;
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
 
 	/** @var int */
@@ -70,6 +71,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var string */
 	protected $scriptName;
+	
+	/** @var string */
+	protected $titleIdString;
 
 	function onInit()
 	{
@@ -98,7 +102,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::SLEEPING => '5 seconds',
 			self::DECIDING => '30 seconds',
 			self::PLAYING => null,
-			self::OVER => '10 seconds'
+			self::OVER => '10 seconds',
+			self::WAITING_REPLACEMENT => '1 seconds'
 		);
 
 		$this->state = self::SLEEPING;
@@ -108,6 +113,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Get the Script name
 		$script = $this->connection->getScriptName();
 		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
+		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		//Load services
 		$this->matchMakingService = new Services\MatchMakingService();
@@ -143,21 +149,27 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case self::SLEEPING:
 				//Waiting for a match in database
-				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin);
+				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 				if ($match)
 				{
 					$this->prepare($match);
 				}
 				else
 				{
-					$this->matchMakingService->registerMatchServer($this->storage->serverLogin, $this->lobby->login, $this->state);
+					$this->matchMakingService->registerMatchServer(
+						$this->storage->serverLogin, 
+						$this->lobby->login, 
+						$this->state,
+						$this->scriptName,
+						$this->titleIdString
+					);
 					$this->sleep();
 				}
 				break;
 			case self::WAITING:
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
-				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin);
+				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 				if($this->waitingTime > 120)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
@@ -184,11 +196,23 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 			case self::PLAYER_LEFT:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: PLAYER_LEFT');
-				$this->cancel();
+				$this->waitReplacement();
+				break;
+			case self::WAITING_REPLACEMENT:
+				if(++$this->waitingTime < 5)
+				{
+					//TODO get Replacement
+					$this->updatePlayerList();
+				}
+				else
+				{
+					$this->cancel();
+				}
 				break;
 			case self::OVER:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: OVER');
 				$this->end();
+				break;
 		}
 	}
 
@@ -209,6 +233,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->decide();
 				}
 				break;
+			case static::WAITING_REPLACEMENT:
+				//nobreak
 			case static::PLAYER_LEFT:
 				if ($this->isEverybodyHere())
 				{
@@ -249,6 +275,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//nobreak
 			case static::DECIDING:
 				//nobreak
+			case static::WAITING_REPLACEMENT:
+				//nobreak
 			case static::PLAYING:
 				$this->playerIllegalLeave($login);
 				break;
@@ -272,6 +300,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 			case static::PLAYER_LEFT:
 				//nobreak;
+			case static::WAITING_REPLACEMENT:
+				//nobreak
 			case static::PLAYING:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch while playing');
 				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
@@ -339,7 +369,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
 		$this->changeState(self::WAITING);
-		$this->waitingTime = 0;
 	}
 
 	protected function sleep()
@@ -445,6 +474,34 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 //		$this->connection->chatSendServerMessage('Match over! You will be transfered back to the lobby.');
 		$this->changeState(self::OVER);
 	}
+	
+	protected function waitReplacement()
+	{
+		\ManiaLive\Utilities\Logger::getLog('info')->write('waitReplacement()');
+		$this->changeState(self::WAITING_REPLACEMENT);
+		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_REPLACEMENT);
+	}
+	
+	protected function updatePlayerList()
+	{
+		$matchInfo = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+		if($matchInfo && $matchInfo->match != $this->match)
+		{
+			$newPlayers = array_diff($matchInfo->match->players, $this->match->players);
+			$this->connection->cleanGuestList(true);
+			foreach($matchInfo->match->players as $player)
+			{
+				$this->connection->addGuest($player, true);
+				if(in_array($player, $newPlayers))
+				{
+					$this->players[$player] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
+				}
+			}
+			//TODO Clean player list  ???
+			$this->connection->executeMulticall();
+			$this->match = $matchInfo->match;
+		}
+	}
 
 	/**
 	 * Free the match for the lobby
@@ -485,6 +542,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		$this->state = $state;
+		$this->waitingTime = 0;
 	}
 
 	protected function isEverybodyHere()

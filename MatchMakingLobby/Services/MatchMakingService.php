@@ -48,13 +48,21 @@ class MatchMakingService
 	/**
 	 * Get matchServer information
 	 * @param string $serverLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
 	 * @return MatchInfo
 	 */
-	function getMatchInfo($serverLogin)
+	function getMatchInfo($serverLogin, $scriptName, $titleIdString)
 	{
 		$matchId = $this->db->execute(
 				'SELECT id FROM Matches '.
-				'WHERE matchServerLogin = %s AND state = -1', $this->db->quote($serverLogin)
+				'WHERE matchServerLogin = %s  AND scriptName = %s AND titleIdString = %s '.
+				'AND (state = %d OR state = %d)'.
+				'AND DATE_ADD(`creationDate`, INTERVAL 5 MINUTE) > NOW()', 
+				$this->db->quote($serverLogin), 
+				$this->db->quote($scriptName), 
+				$this->db->quote($titleIdString), 
+				Match::PREPARED, Match::WAITING_REPLACEMENT
 			)->fetchSingleValue();
 		if(!$matchId)
 		{
@@ -62,6 +70,8 @@ class MatchMakingService
 		}
 		$matchInfo = new MatchInfo();
 		$matchInfo->matchServerLogin = $serverLogin;
+		$matchInfo->scriptName = $scriptName;
+		$matchInfo->titleIdString = $titleIdString;
 		$matchInfo->matchId = $matchId;
 		$matchInfo->match = $this->getMatch($matchId);
 		
@@ -76,7 +86,7 @@ class MatchMakingService
 	function getPlayerCurrentMatchInfo($playerLogin)
 	{
 		$row = $this->db->execute(
-			'SELECT M.id, M.matchServerLogin '.
+			'SELECT M.id, M.matchServerLogin, M.scriptName, M.titleIdString '.
 			'FROM Matches M '.
 			'INNER JOIN Players P ON M.id = P.matchId '.
 			'WHERE P.login = %s AND M.`state` >= %d LIMIT 1',
@@ -85,9 +95,39 @@ class MatchMakingService
 		
 		$matchInfo = new MatchInfo();
 		$matchInfo->matchServerLogin = $row['matchServerLogin'];
+		$matchInfo->scriptName = $row['scriptName'];
+		$matchInfo->titleIdString = $row['titleIdString'];
 		$matchInfo->matchId = $row['id'];
 		$matchInfo->match = $this->getMatch($matchInfo->matchId);
 		return $matchInfo;
+	}
+	
+	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
+	{
+		$rows = $this->db->execute(
+				'SELECT M.id, M.matchServerLogin FROM Matches M '.
+				'INNER JOIN MatchServers MS ON '.
+				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
+				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
+				'AND M.state = %d '.
+				'AND DATE_ADD(M.`creationDate`, INTERVAL 5 MINUTE) > NOW()', 
+				$this->db->quote($lobbyLogin), 
+				$this->db->quote($scriptName), 
+				$this->db->quote($titleIdString), 
+				Match::WAITING_REPLACEMENT
+			)->fetchArrayOfAssoc();
+		
+		$matchInfos = array();
+		foreach($rows as $row)
+		{
+			$matchInfo = new MatchInfo();
+			$matchInfo->matchServerLogin = $row['matchServerLogin'];
+			$matchInfo->scriptName = $scriptName;
+			$matchInfo->titleIdString = $titleIdString;
+			$matchInfo->matchId = $row['id'];
+			$matchInfo->match = $this->getMatch($row['id']);
+		}
+		return $matchInfos;
 	}
 	
 	/**
@@ -123,6 +163,13 @@ class MatchMakingService
 		return $match;
 	}
 	
+	function getMatchLeavers($matchId)
+	{
+		return $this->db->execute(
+				'SELECT login FROM Matches WHERE matchId = %d AND `state` = %d', $matchId, PlayerInfo::PLAYER_STATE_QUITTER
+			)->fetchArrayOfSingleValues();
+	}
+	
 	/**
 	 * Return the number of match currently played for the lobby
 	 * @param string $lobbyLogin
@@ -130,43 +177,52 @@ class MatchMakingService
 	 * @param string $scriptName
 	 * @return int
 	 */
-	function getCurrentMatchCount($lobbyLogin)
+	function getCurrentMatchCount($lobbyLogin, $scriptName, $titleIdString)
 	{
 		return $this->db->execute(
 				'SELECT COUNT(*) '.
 				'FROM Matches M '.
 				'INNER JOIN MatchServers MS ON M.matchServerLogin = MS.login '.
-				'WHERE MS.lobbyLogin = %s AND M.`state` >= %d',
-				$this->db->quote($lobbyLogin), Match::PREPARED
+				'WHERE M.`state` >= %d '.
+				'AND MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s',
+				Match::PREPARED, $this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString)
 			)->fetchSingleValue(0);
 	}
 	
 	/**
 	 * Get the number of server the lobby can use
 	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
 	 * @return int
 	 */
-	function getLiveMatchServersCount($lobbyLogin)
+	function getLiveMatchServersCount($lobbyLogin, $scriptName, $titleIdString)
 	{
 		return $this->db->execute(
 				'SELECT COUNT(*) FROM MatchServers '.
-				'WHERE DATE_ADD(lastLive, INTERVAL 15 MINUTE) > NOW() AND lobbyLogin = %s',
-				$this->db->quote($lobbyLogin)
+				'WHERE DATE_ADD(lastLive, INTERVAL 15 MINUTE) > NOW() '.
+				'AND lobbyLogin = %s AND scriptName = %s AND titleIdString = %s',
+				$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString)
 			)->fetchSingleValue(0);
 	}
 	
 	/**
-	 * Get the number of time the player quit a match
+	 * Get the number of time the player quit a match for this lobby
 	 * @param string $playerLogin
 	 * @return int
 	 */
-	function getLeaveCount($playerLogin)
+	function getLeaveCount($playerLogin, $lobbyLogin)
 	{
 		return $this->db->query(
 				'SELECT count(*) FROM Players P '.
 				'INNER JOIN Matches M ON P.matchId = M.id '.
-				'WHERE P.login = %s AND P.`state` < %d '.
-				'AND DATE_ADD(M.creationDate, INTERVAL 1 HOUR) > NOW()', $this->db->quote($playerLogin), PlayerInfo::PLAYER_STATE_NOT_CONNECTED
+				'INNER JOIN MatchServers MS ON '.
+				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
+				'WHERE P.login = %s AND P.`state` < %d AND MS.lobbyLogin = %s '.
+				'AND DATE_ADD(M.creationDate, INTERVAL 1 HOUR) > NOW()', 
+				$this->db->quote($playerLogin), 
+				PlayerInfo::PLAYER_STATE_NOT_CONNECTED,
+				$this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
 	}
 	
@@ -174,15 +230,24 @@ class MatchMakingService
 	 * Get a server available to host a match
 	 * for the lobby
 	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
 	 * @return string the match server login
 	 */
-	function getAvailableServer($lobbyLogin)
+	function getAvailableServer($lobbyLogin, $scriptName, $titleIdString)
 	{
 		return $this->db->execute(
 				'SELECT login FROM MatchServers '.
-				'WHERE lobbyLogin = %s AND DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() AND `state` = %d '.
+				'WHERE lobbyLogin = %s '.
+				'AND scriptName = %s '.
+				'AND titleIdString = %s '.
+				'AND `state` = %d '.
+				'AND DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() '.
 				'ORDER BY RAND() LIMIT 1',
-			$this->db->quote($lobbyLogin), \ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING
+				$this->db->quote($lobbyLogin), 
+				$this->db->quote($scriptName), 
+				$this->db->quote($titleIdString), 
+				\ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING
 			)->fetchSingleValue(null);
 	}
 	
@@ -217,15 +282,21 @@ class MatchMakingService
 	 * Register a match in database, the match Server will use this to ready up
 	 * @param string $serverLogin
 	 * @param \ManiaLivePlugins\MatchMakingLobby\Services\Match $match
+	 * @param string $scriptName
+	 * @param string $titleIdString
 	 * @return int $matchId
 	 */
-	function registerMatch($serverLogin, Match $match)
+	function registerMatch($serverLogin, Match $match, $scriptName, $titleIdString)
 	{
 		$this->db->execute('BEGIN');
 		try
 		{
 			$this->db->execute(
-				'INSERT INTO Matches (creationDate, state, matchServerLogin) VALUES (NOW(), -1, %s)', $this->db->quote($serverLogin)
+				'INSERT INTO Matches (creationDate, state, matchServerLogin, scriptName, titleIdString) '.
+				'VALUES (NOW(), -1, %s, %s, %s)', 
+				$this->db->quote($serverLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString)
 			);
 			$insertId = $this->db->insertID();
 			$values = array();
@@ -256,6 +327,31 @@ class MatchMakingService
 	}
 	
 	/**
+	 * 
+	 * @param int $matchId
+	 * @param string $login
+	 * @param int $teamId
+	 */
+	function addMatchPlayer($matchId, $login, $teamId)
+	{
+		switch($teamId)
+		{
+			case 1:
+				$teamId = 0;
+				break;
+			case 2:
+				$teamId = 1;
+				break;
+			case 0:
+				$teamId = 'NULL';
+				break;
+			default :
+				throw new \InvalidArgumentException;
+		}
+		$this->db->execute('INSERT INTO Players (login, matchId, teamId, state) VALUES (%d,%s,%d)', $matchId, $this->db->quote($login), $teamId);
+	}
+	
+	/**
 	 * Register a player as a quitter
 	 * @param string $playerLogin
 	 * @param int $matchId
@@ -276,14 +372,17 @@ class MatchMakingService
 	 * @param string $lobbyLogin
 	 * @param string $state
 	 */
-	function registerMatchServer($serverLogin, $lobbyLogin, $state)
+	function registerMatchServer($serverLogin, $lobbyLogin, $state, $scriptName, $titleIdString)
 	{
 		$this->db->execute(
-			'INSERT INTO MatchServers (login, lobbyLogin, state, lastLive) VALUES(%s, %s, %d, NOW()) '.
+			'INSERT INTO MatchServers (login, lobbyLogin, state, lastLive, scriptName, titleIdString) '.
+			'VALUES(%s, %s, %d, NOW(), %s, %s) '.
 			'ON DUPLICATE KEY UPDATE state=VALUES(state), lobbyLogin=VALUES(lobbyLogin), lastLive=VALUES(lastLive)',
 			$this->db->quote($serverLogin),
 			$this->db->quote($lobbyLogin),
-			$state
+			$state,
+			$this->db->quote($scriptName),
+			$this->db->quote($titleIdString)
 		);
 	}
 	
@@ -332,7 +431,9 @@ CREATE TABLE IF NOT EXISTS `MatchServers` (
 	`lobbyLogin` VARCHAR(25) NOT NULL,
 	`state` INT(11) NOT NULL COMMENT '-2: player left, -1 waiting, 1 sleeping, 2 deciding, 3 playing, 4 over',
 	`lastLive` DATETIME NOT NULL,
-	PRIMARY KEY (`login`),
+	`scriptName` VARCHAR(75) NOT NULL,
+	`titleIdString` VARCHAR(51) NOT NULL,
+	PRIMARY KEY (`login`, `scriptName`, `titleIdString`),
 	INDEX `FK_MatchServers_Lobbies_idx` (`lobbyLogin`),
 	CONSTRAINT `FK_MatchServers_LobbyServers` FOREIGN KEY (`lobbyLogin`) REFERENCES `LobbyServers` (`login`) ON UPDATE CASCADE ON DELETE NO ACTION
 )
@@ -348,9 +449,12 @@ CREATE TABLE IF NOT EXISTS `Matches` (
 	`creationDate` DATETIME NOT NULL,
 	`state` INT(11) NOT NULL COMMENT '1:playing, -1: preparing, -2: player left, -3: player gave p, -4: over fine',
 	`matchServerLogin` VARCHAR(25) NOT NULL,
+	`scriptName` VARCHAR(75) NOT NULL,
+	`titleIdString` VARCHAR(51) NOT NULL,
 	PRIMARY KEY (`id`),
 	INDEX `FK_Matches_MatchServers_idx` (`matchServerLogin`),
-	CONSTRAINT `FK_Matches_MatchServers` FOREIGN KEY (`matchServerLogin`) REFERENCES `MatchServers` (`login`) ON UPDATE CASCADE ON DELETE NO ACTION
+	INDEX `FK_Matches_MatchServers` (`matchServerLogin`, `scriptName`, `titleIdString`),
+	CONSTRAINT `FK_Matches_MatchServers` FOREIGN KEY (`matchServerLogin`, `scriptName`, `titleIdString`) REFERENCES `MatchServers` (`login`, `scriptName`, `titleIdString`) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;

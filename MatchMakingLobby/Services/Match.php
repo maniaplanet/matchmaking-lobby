@@ -17,6 +17,7 @@ class Match
 	const FINISHED = -2;
 	const PREPARED = -1;
 	const PLAYING = 1;
+	const WAITING_REPLACEMENT = 2;
 	
 	/**
 	 * List of all logins playing the match
