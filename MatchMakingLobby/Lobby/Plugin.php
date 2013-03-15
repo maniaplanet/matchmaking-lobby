@@ -175,19 +175,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerDisconnect($login)
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player disconnected: %s', $login));
-		
-		$player = Services\PlayerInfo::Get($login);
-		$player->setAway();
 
-		list($server, ) = $player->getMatch();
-		$groupName = 'match-'.$server;
+		$matchInfo = $this->matchMakingService->getPlayerCurrentMatchInfo($login);
+		$groupName = 'match-'.$matchInfo->matchServerLogin;
 		$group = Group::Get($groupName);
 
 		if($group && $group->contains($login) && $this->countDown[$groupName] > 0)
 		{
-			$this->onPlayerNotReady($login);
+			$this->onCancelMatchStart($login);
 		}
 
+		$player = Services\PlayerInfo::Get($login);
+		$player->setAway();
 		$this->gui->removePlayerFromPlayerList($login);
 
 		$this->updateLobbyWindow();
