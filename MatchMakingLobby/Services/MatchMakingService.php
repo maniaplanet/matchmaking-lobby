@@ -178,15 +178,17 @@ class MatchMakingService
 	 * @param string $scriptName
 	 * @return int
 	 */
-	function getCurrentMatchCount($lobbyLogin, $scriptName, $titleIdString)
+	function getPlayersPlayingCount($lobbyLogin, $scriptName, $titleIdString)
 	{
 		return $this->db->execute(
 				'SELECT COUNT(*) '.
-				'FROM Matches M '.
-				'INNER JOIN MatchServers MS ON M.matchServerLogin = MS.login '.
-				'WHERE M.`state` >= %d '.
+				'FROM Players P '.
+				'INNER JOIN Matches M ON P.matchId = M.id '.
+				'INNER JOIN MatchServers MS ON M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
+				'WHERE M.`state` >= %d AND P.state >= %d '.
 				'AND MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s',
-				Match::PREPARED, $this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString)
+				Match::PREPARED, PlayerInfo::PLAYER_STATE_CONNECTED,
+				$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString)
 			)->fetchSingleValue(0);
 	}
 	

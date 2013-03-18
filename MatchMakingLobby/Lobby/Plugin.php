@@ -442,9 +442,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	private function getPlayingPlayersCount()
 	{
-		$matchCount = $this->matchMakingService->getCurrentMatchCount($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-
-		return ($matchCount - count($this->countDown)) * $this->matchMaker->playerPerMatch;
+		return $this->matchMakingService->getPlayersPlayingCount($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 	}
 
 	private function getTotalSlots()
