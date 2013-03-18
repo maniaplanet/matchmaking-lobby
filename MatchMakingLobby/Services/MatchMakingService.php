@@ -264,7 +264,9 @@ class MatchMakingService
 				'SELECT IF(count(*), TRUE, FALSE) '.
 				'FROM Players P '.
 				'INNER JOIN Matches M ON P.matchId = M.id '.
-				'WHERE P.login = %s and M.`state` >= %d', $this->db->quote($login), Match::PREPARED
+				'WHERE P.login = %s and M.`state` >= %d AND P.state >= %d', 
+				$this->db->quote($login), 
+				Match::PREPARED, PlayerInfo::PLAYER_STATE_QUITTER
 			)->fetchSingleValue(false);
 	}
 	

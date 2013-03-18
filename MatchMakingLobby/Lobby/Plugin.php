@@ -309,10 +309,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 
-//		if(++$this->mapTick % 1800 == 0)
-//		{
-//			$this->connection->nextMap();
-//		}
+		if(++$this->mapTick % 1800 == 0)
+		{
+			$this->connection->nextMap();
+		}
 
 		$this->setLobbyInfo();
 		$this->updateLobbyWindow();

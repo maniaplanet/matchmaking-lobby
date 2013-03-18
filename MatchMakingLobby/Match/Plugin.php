@@ -209,9 +209,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->waitBackups();
 				break;
 			case self::WAITING_BACKUPS:
-				\ManiaLive\Utilities\Console::println('waiting backups: '.$this->waitingTime);
 				if(++$this->waitingTime < 15)
 				{
+					\ManiaLive\Utilities\Logger::getLog('info')->println('tick: WAITING_BACKUPS: '.$this->waitingTime);
 					$matchInfo = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 					if($matchInfo && $matchInfo->match != $this->match)
 					{
@@ -220,6 +220,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				else
 				{
+					\ManiaLive\Utilities\Logger::getLog('info')->println('tick: WAITING_BACKUPS over');
 					$this->cancel();
 				}
 				break;
@@ -505,7 +506,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			if($state == Services\PlayerInfo::PLAYER_STATE_QUITTER)
 			{
 				unset($this->players[$login]);
-				$this->connection->removeGuest($login, true);
+				$this->connection->removeGuest($login);
 			}
 		}
 		foreach($newPlayers as $player)
