@@ -7,7 +7,7 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl\MatchMakers;
+namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
 class Joust extends AbstractMatchMaker
 {

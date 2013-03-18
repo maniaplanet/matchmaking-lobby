@@ -15,13 +15,13 @@ use ManiaLive\Event\Dispatcher;
 class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 {
 
-	protected $label;
+	public $label;
 	protected $countdown = 0;
 	protected $message = '';
 	protected $sound;
 
 	protected function onConstruct()
-	{
+	{		
 		$this->label = new \ManiaLib\Gui\Elements\Label(400);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setTextSize(5);
@@ -57,7 +57,6 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 			$this->removeComponent($this->sound);
 		}
 	}
-
 }
 
 ?>

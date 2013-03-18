@@ -7,14 +7,18 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
+namespace ManiaLivePlugins\MatchMakingLobby;
 
 class Config extends \ManiaLib\Utils\Singleton
 {
 
 	public $script;
 	public $penaltyTime = 4;
-
+	public $matchMakerClassName;
+	public $guiClassName;
+	public $penaltiesCalculatorClassName;
+	public $penaltyClass;
+	public $lobbyLogin;
 }
 
 ?>

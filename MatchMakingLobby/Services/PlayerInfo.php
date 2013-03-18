@@ -7,10 +7,16 @@
  * @date        $Date: $:
  */
 
-namespace ManiaLivePlugins\MatchMakingLobby\LobbyControl;
+namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class PlayerInfo
 {
+	const PLAYER_STATE_REPLACED = -5;
+	const PLAYER_STATE_CANCEL = -4;
+	const PLAYER_STATE_GIVE_UP = -3;
+	const PLAYER_STATE_QUITTER = -2;
+	const PLAYER_STATE_NOT_CONNECTED = -1;
+	const PLAYER_STATE_CONNECTED = 1;
 
 	/** @var PlayerInfo[] */
 	static private $instances = array();
@@ -23,7 +29,7 @@ class PlayerInfo
 
 	/** @var array */
 	public $allies = array();
-	
+
 	/** @var int */
 	public  $karma = 0;
 
@@ -66,6 +72,9 @@ class PlayerInfo
 		return $ready;
 	}
 
+	/**
+	 * Destroy players disconnected for more than 1 hour
+	 */
 	static function CleanUp()
 	{
 		$limit = new \DateTime('-1 hour');
@@ -111,22 +120,13 @@ class PlayerInfo
 		$this->readySince = null;
 	}
 
-	function isInMatch()
+	/**
+	 * @return bool
+	 */
+	function isAway()
 	{
-		return $this->server && $this->match;
+		return (bool) $this->awaySince;
 	}
-
-	function setMatch($server = null, $players = null)
-	{
-		$this->server = $server;
-		$this->match = $players;
-	}
-
-	function getMatch()
-	{
-		return array($this->server, $this->match);
-	}
-
 }
 
 ?>
