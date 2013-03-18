@@ -293,7 +293,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					unset($this->countDown[$server]);
 					break;
 				case 0:
+					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('prepare jump for server :',$server));
 					$match = $this->matchMakingService->getMatchInfo($server, $this->scriptName, $this->titleIdString);
+					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('match jumping'));
+					\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match, true));
 					$players = array_map(array($this->storage, 'getPlayerObject'), $match->match->players);
 					$this->gui->showJump($server);
 
