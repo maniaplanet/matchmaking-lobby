@@ -293,24 +293,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					unset($this->countDown[$server]);
 					break;
 				case 0:
-					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('prepare jump for server : %s',$server));
+					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('prepare jump for server : %s', $server));
 					$match = $this->matchMakingService->getMatchInfo($server, $this->scriptName, $this->titleIdString);
-					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('match jumping'));
-					\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match, true));
-					//FIXME find the origin of empty match, fix it and remove this ugly test
-					if($match)
+					$players = array_map(array($this->storage, 'getPlayerObject'), $match->match->players);
+					$this->gui->showJump($server);
+
+					$nicknames = array();
+					foreach($players as $player)
 					{
-						$players = array_map(array($this->storage, 'getPlayerObject'), $match->match->players);
-						$this->gui->showJump($server);
-
-						$nicknames = array();
-						foreach($players as $player)
-						{
-							if($player) $nicknames[] = '$<'.$player->nickName.'$>';
-						}
-
-						$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
+						if($player) $nicknames[] = '$<'.$player->nickName.'$>';
 					}
+
+					$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
 				default:
 					$this->countDown[$server] = $countDown;
 			}
@@ -383,10 +377,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player cancel match start: '.$login);
 
 		$matchInfo = $this->matchMakingService->getPlayerCurrentMatchInfo($login);
-		$groupName = 'match-'.$matchInfo->matchServerLogin;
-		Windows\ForceManialink::Erase(Group::Get($groupName));
-		Group::Erase($groupName);
-		unset($this->countDown[$groupName]);
+		$this->gui->eraseJump($matchInfo->matchServerLogin);
+		unset($this->countDown[$matchInfo->matchServerLogin]);
 		$this->matchMakingService->updateMatchState($matchInfo->matchId, Services\Match::PLAYER_CANCEL);
 		
 		$this->matchMakingService->updatePlayerState($login, $matchInfo->matchId, Services\PlayerInfo::PLAYER_STATE_CANCEL);
@@ -404,10 +396,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	private function prepareMatch($server, $match)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Preparing match on server: '.$server);
-		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
 
-		$this->matchMakingService->registerMatch($server, $match, $this->scriptName, $this->titleIdString);
+		$id = $this->matchMakingService->registerMatch($server, $match, $this->scriptName, $this->titleIdString);
+		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match %d on server: %s',$id, $server));
+		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
 		
 		$this->gui->prepareJump($match->players, $server, $this->titleIdString);
 		$this->countDown[$server] = 11;
