@@ -241,17 +241,13 @@ class MatchMakingService
 	{
 		return $this->db->execute(
 				'SELECT login FROM MatchServers MS '.
-				'LEFT JOIN Matches M ON '.
-				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
-				'WHERE MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s '.
-				'AND MS.state = %d AND (M.state IS NULL OR M.state < %d) '.
+				'WHERE lobbyLogin = %s '.
+				'AND scriptName = %s '.
+				'AND titleIdString = %s '.
+				'AND `state` = %d '.
 				'AND DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() '.
-				'ORDER BY RAND() LIMIT 1',
-				$this->db->quote($lobbyLogin), 
-				$this->db->quote($scriptName), 
-				$this->db->quote($titleIdString), 
-				\ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING,
-				Match::PREPARED
+				'ORDER BY RAND() LIMIT 1', $this->db->quote($lobbyLogin), $this->db->quote($scriptName),
+				$this->db->quote($titleIdString), \ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING
 			)->fetchSingleValue(null);
 	}
 	
