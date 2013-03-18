@@ -143,11 +143,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	//Core of the plugin
 	function onTick()
 	{
-		if(new \DateTime() < $this->nextTick) return;
 		if($this->state != self::SLEEPING)
 		{
 			$this->updateLobbyWindow();
 		}
+		if(new \DateTime() < $this->nextTick) return;
 		switch($this->state)
 		{
 			case self::SLEEPING:
