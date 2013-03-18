@@ -211,7 +211,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING_BACKUPS:
 				if(++$this->waitingTime < 15)
 				{
-					\ManiaLive\Utilities\Logger::getLog('info')->println('tick: WAITING_BACKUPS: '.$this->waitingTime);
+					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS: '.$this->waitingTime);
 					$matchInfo = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 					if($matchInfo && $matchInfo->match != $this->match)
 					{
@@ -220,7 +220,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				else
 				{
-					\ManiaLive\Utilities\Logger::getLog('info')->println('tick: WAITING_BACKUPS over');
+					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS over');
 					$this->cancel();
 				}
 				break;
