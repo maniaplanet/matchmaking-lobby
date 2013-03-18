@@ -293,20 +293,24 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					unset($this->countDown[$server]);
 					break;
 				case 0:
-					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('prepare jump for server :',$server));
+					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('prepare jump for server : %s',$server));
 					$match = $this->matchMakingService->getMatchInfo($server, $this->scriptName, $this->titleIdString);
 					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('match jumping'));
 					\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match, true));
-					$players = array_map(array($this->storage, 'getPlayerObject'), $match->match->players);
-					$this->gui->showJump($server);
-
-					$nicknames = array();
-					foreach($players as $player)
+					//FIXME find the origin of empty match, fix it and remove this ugly test
+					if($match)
 					{
-						if($player) $nicknames[] = '$<'.$player->nickName.'$>';
+						$players = array_map(array($this->storage, 'getPlayerObject'), $match->match->players);
+						$this->gui->showJump($server);
+
+						$nicknames = array();
+						foreach($players as $player)
+						{
+							if($player) $nicknames[] = '$<'.$player->nickName.'$>';
+						}
+
+						$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
 					}
-					
-					$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
 				default:
 					$this->countDown[$server] = $countDown;
 			}
