@@ -14,6 +14,7 @@ use ManiaLive\Data\Storage;
 use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
+use ManiaLivePlugins\MatchMakingLobby\Controls\Player;
 
 abstract class AbstractGUI
 {
@@ -53,7 +54,7 @@ abstract class AbstractGUI
 	 * @return string
 	 */
 	abstract function getPlayerBackLabelPrefix();
-	
+
 	/**
 	 * Returns the text to display when all mathc servers are full
 	 * @return string
@@ -67,7 +68,7 @@ abstract class AbstractGUI
 	 * @return string
 	 */
 	abstract function getLaunchMatchText(Match $m, $player);
-	
+
 	/**
 	 * Returns the message displayed when a player is picked up as a backup to replace
 	 * a missing player
@@ -124,27 +125,13 @@ abstract class AbstractGUI
 	/**
 	 * Create the player list to display to a player
 	 * @param string $login
-	 * @param string[] $blockedPlayerList 
+	 * @param string[] $blockedPlayerList
 	 */
-	final function createPlayerList($login, array $blockedPlayerList)
+	final function createPlayerList($login)
 	{
-		$storage = Storage::getInstance();
 		$playerList = Windows\PlayerList::Create($login);
 		$playerList->setAlign('right');
 		$playerList->setPosition(170, $this->lobbyBoxPosY + 3);
-
-		$currentPlayerObj = $storage->getPlayerObject($login);
-		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
-		foreach(array_merge($storage->players, $storage->players) as $login => $object)
-		{
-			$playerInfo = PlayerInfo::Get($login);
-			$state = 0;
-			if($playerInfo->isReady()) $state = 1;
- 			if($matchMakingService->isInMatch($login)) $state = 2;
-			if(array_key_exists($login, $blockedPlayerList)) $state = 3;
-			$isAlly = ($this->displayAllies && $currentPlayerObj && in_array($login, $currentPlayerObj->allies));
-			$playerList->setPlayer($login, $state, $isAlly);
-		}
 		$playerList->show();
 	}
 
@@ -153,23 +140,27 @@ abstract class AbstractGUI
 	 * @param string $login
 	 * @param string[] $blockedPlayerList
 	 */
-	final function updatePlayerList($login, array $blockedPlayerList)
+	final function updatePlayerList(array $blockedPlayerList)
 	{
-		$currentPlayerObj = Storage::getInstance()->getPlayerObject($login);
-		$playerInfo = PlayerInfo::Get($login);
-		$state = 0;
-		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
-		if($playerInfo->isReady()) $state = 1;
-		if($matchMakingService->isInMatch($login)) $state = 2;
-		if(array_key_exists($login, $blockedPlayerList)) $state = 3;
+		$storage = Storage::getInstance();
 
-		$playerLists = Windows\PlayerList::GetAll();
-		foreach($playerLists as $playerList)
+		foreach(array_merge($storage->players, $storage->spectators) as $player)
 		{
-			/* @var $playerList Windows\PlayerList */
-			$isAlly = $this->displayAllies && $currentPlayerObj && in_array($playerList->getRecipient(),
-					$currentPlayerObj->allies);
-			$playerList->setPlayer($login, $state, $isAlly);
+			$playerInfo = PlayerInfo::Get($player->login);
+			$state = Player::STATE_NOT_READY;
+			$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
+			if($playerInfo->isReady()) $state = Player::STATE_READY;
+			if($matchMakingService->isInMatch($player->login)) $state = Player::STATE_IN_MATCH;
+			if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
+
+			$playerLists = Windows\PlayerList::GetAll();
+			foreach($playerLists as $playerList)
+			{
+				/* @var $playerList Windows\PlayerList */
+				$isAlly = $this->displayAllies && $player && in_array($playerList->getRecipient(),
+						$player->allies);
+				$playerList->setPlayer($player->login, $state, $isAlly);
+			}
 		}
 		Windows\PlayerList::RedrawAll();
 	}
@@ -181,15 +172,15 @@ abstract class AbstractGUI
 	final function removePlayerFromPlayerList($login)
 	{
 		Windows\PlayerList::Erase($login);
-		$playerLists = Windows\PlayerList::GetAll();
 
+		$playerLists = Windows\PlayerList::GetAll();
 		foreach($playerLists as $playerList)
 		{
 			$playerList->removePlayer($login);
 		}
 		Windows\PlayerList::RedrawAll();
 	}
-	
+
 	final function prepareJump(array $players, $serverLogin, $titleIdString)
 	{
 		$groupName = sprintf('match-%s',$serverLogin);
@@ -198,21 +189,21 @@ abstract class AbstractGUI
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString);
 	}
-	
+
 	final function eraseJump($serverLogin)
 	{
 		$groupName = sprintf('match-%s',$serverLogin);
 		Windows\ForceManialink::Erase(\ManiaLive\Gui\Group::Get($groupName));
 		\ManiaLive\Gui\Group::Erase($groupName);
 	}
-	
+
 	final function showJump($serverLogin)
 	{
 		$groupName = sprintf('match-%s',$serverLogin);
 		$group = \ManiaLive\Gui\Group::Get($groupName);
 		Windows\ForceManialink::Create($group)->show();
 	}
-	
+
 	final function showSplash($login, $serverName , array $lines, $callback)
 	{
 		$splash = Windows\Splash::Create($login);
@@ -222,7 +213,7 @@ abstract class AbstractGUI
 		);
 		$splash->show();
 	}
-	
+
 	final function hideSplash($login)
 	{
 		Windows\Splash::Erase($login);

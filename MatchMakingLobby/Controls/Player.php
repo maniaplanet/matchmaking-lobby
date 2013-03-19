@@ -13,6 +13,14 @@ use ManiaLib\Gui\Elements;
 
 class Player extends \ManiaLive\Gui\Control
 {
+	const STATE_BLOCKED = -2;
+	const STATE_NOT_READY = -1;
+	const STATE_IN_MATCH = 1;
+	const STATE_READY = 2;
+
+	public $state;
+	public $isAlly = false;
+	public $nickname;
 
 	/**
 	 * @var Elements\Icons64x64_1
@@ -41,7 +49,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->icon->setValign('center');
 		$this->icon->setPosition(1, -2.5);
 		$this->addComponent($this->icon);
-		
+
 		$this->allyIcon = new Elements\Icons64x64_1(2.5, 2.5);
 		$this->allyIcon->setSubStyle(Elements\Icons64x64_1::Buddy);
 		$this->allyIcon->setValign('center');
@@ -55,27 +63,36 @@ class Player extends \ManiaLive\Gui\Control
 		$this->label->setTextColor('fff');
 		$this->label->setScale(0.75);
 		$this->addComponent($this->label);
+
+		$this->nickname = $nickname;
+		$this->state = static::STATE_NOT_READY;
 	}
 
 	function setState($state = 1, $isAlly = false)
 	{
 		switch($state)
 		{
-			case 1:
+			case static::STATE_READY:
 				$subStyle = Elements\Icons64x64_1::LvlGreen;
 				break;
-			case 2:
+			case static::STATE_IN_MATCH:
 				$subStyle = Elements\Icons64x64_1::LvlYellow;
 				break;
-			case 3:
+			case static::STATE_BLOCKED:
 				$subStyle = Elements\Icons64x64_1::StatePrivate;
 				break;
-			default:
+			case static::STATE_NOT_READY:
+				$subStyle = Elements\Icons64x64_1::LvlRed;
+				break;
+			default :
 				$subStyle = Elements\Icons64x64_1::LvlRed;
 		}
+		$this->state = $state;
+		$this->isAlly = $isAlly;
+
 		$this->icon->setSubStyle($subStyle);
 		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
-		
+
 	}
 
 }

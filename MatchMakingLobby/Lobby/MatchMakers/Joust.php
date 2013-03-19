@@ -16,7 +16,7 @@ class Joust extends LadderPointsDistance
 
 	const DISTANCE_THRESHOLD = 1000;
 
-	public function getBackup($missingPlayer)
+	public function getBackup($missingPlayer, array $players = array())
 	{
 		return false;
 	}

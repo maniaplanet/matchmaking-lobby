@@ -26,11 +26,11 @@ class Elite extends LadderPointsDistance
 	 */
 	protected function distance($p1, $p2)
 	{
-		$p1 = PlayerInfo::Get($p1);
-		$p2 = PlayerInfo::Get($p2);
+		$p1Obj = PlayerInfo::Get($p1);
+		$p2Obj = PlayerInfo::Get($p2);
 
 		// If players are allies there is no distance between them
-		if(in_array($p2->login, $p1->allies))
+		if(in_array($p2Obj->login, $p1Obj->allies))
 		{
 			return -1;
 		}

@@ -9,6 +9,8 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
+use ManiaLivePlugins\MatchMakingLobby\Controls\Player;
+
 class PlayerList extends \ManiaLive\Gui\Window
 {
 
@@ -34,7 +36,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		try
 		{
 			$playerObj = $storage->getPlayerObject($login);
-			$tmp = new \ManiaLivePlugins\MatchMakingLobby\Controls\Player($playerObj ? $playerObj->nickName : $login);
+			$tmp = new Player($playerObj ? $playerObj->nickName : $login);
 		}
 		catch(\Exception $e)
 		{
@@ -42,7 +44,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		}
 		$tmp->setState($state, $isAlly);
 		$this->playerList[$login] = $tmp;
-		$this->pager->addItem($this->playerList[$login]);
+		$this->updateItemList();
 	}
 
 	function removePlayer($login)
@@ -51,6 +53,34 @@ class PlayerList extends \ManiaLive\Gui\Window
 		{
 			unset($this->playerList[$login]);
 		}
+		$this->updateItemList();
+	}
+
+	protected function updateItemList()
+	{
+		uasort($this->playerList,
+			function (Player $p1, Player $p2)
+			{
+				if($p1->state == $p2->state)
+				{
+					if($p1->isAlly && $p2->isAlly)
+					{
+						return 0;
+					}
+					elseif(!$p1->isAlly && !$p2->isAlly)
+					{
+						if($p1->nickname == $p2->nickname)
+						{
+							return 0;
+						}
+						return $p1->nickname < $p2->nickname ? -1 : 1;
+					}
+					return $p1->isAlly ? -1 : 1;
+				}
+				return $p1->state > $p2->state ? -1 : 1;
+			}
+		);
+
 		$this->pager->clearItems();
 		foreach($this->playerList as $component)
 			$this->pager->addItem($component);
@@ -61,6 +91,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		if(array_key_exists($login, $this->playerList))
 		{
 			$this->playerList[$login]->setState($state, $isAlly);
+			$this->updateItemList();
 		}
 		else
 		{

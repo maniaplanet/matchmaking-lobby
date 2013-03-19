@@ -112,9 +112,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player = Services\PlayerInfo::Get($login);
 			$player->ladderPoints = $this->storage->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
 			$player->allies = $this->storage->getPlayerObject($login)->allies;
-			$this->gui->createPlayerList($login, $this->blockedPlayers);
+			$this->gui->createPlayerList($login);
 			$this->onPlayerNotReady($login);
 		}
+		$this->gui->updatePlayerList($this->blockedPlayers);
 
 		$this->registerLobby();
 
@@ -160,8 +161,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 //		$this->gui->createLabel($login, $message);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 
-		$this->gui->updatePlayerList($login, $this->blockedPlayers);
 		$this->gui->createPlayerList($login, $this->blockedPlayers);
+		$this->gui->updatePlayerList($this->blockedPlayers);
 
 		$this->updateLobbyWindow();
 		$this->updateKarma($login);
@@ -246,7 +247,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$backups = array();
 			foreach ($quitters as $quitter)
 			{
-				$backup = $this->matchMaker->getBackup($quitter);
+				$backup = $this->matchMaker->getBackup($quitter, $this->getMatchablePlayers());
 				if ($backup)
 				{
 					$backups[] = $quitter;
@@ -275,7 +276,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if($this->tick % 5 == 0)
 		{
-			$matches = $this->matchMaker->run(array_keys($this->blockedPlayers));
+
+			$matches = $this->matchMaker->run($this->getMatchablePlayers());
 			foreach($matches as $match)
 			{
 				/** @var Match $match */
@@ -345,7 +347,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
 
 			$this->gui->createLabel($login, $this->gui->getReadyText());
-			$this->gui->updatePlayerList($login, $this->blockedPlayers);
+			$this->gui->updatePlayerList($this->blockedPlayers);
 
 			$this->setLobbyInfo();
 			$this->updateLobbyWindow();
@@ -363,7 +365,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 		$this->createMagnifyLabel($login, $this->gui->getNotReadyText());
 
-		$this->gui->updatePlayerList($login, $this->blockedPlayers);
+		$this->gui->updatePlayerList($this->blockedPlayers);
 
 		$this->setLobbyInfo();
 		$this->updateLobbyWindow();
@@ -375,9 +377,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if($player)
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
-			$this->gui->updatePlayerList($login, $this->blockedPlayers);
-			foreach($player->allies as $ally)
-				$this->gui->updatePlayerList($ally, $this->blockedPlayers);
+			$this->gui->updatePlayerList($this->blockedPlayers);
 		}
 	}
 
@@ -404,8 +404,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerReady($playerLogin);
 			else
 				$this->onPlayerNotReady($playerLogin);
-
-			$this->gui->updatePlayerList($playerLogin, $this->blockedPlayers);
 		}
 	}
 
@@ -422,9 +420,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		foreach($match->players as $player)
 		{
 			$this->gui->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$server] - 1);
-			$this->gui->updatePlayerList($player, $this->blockedPlayers);
 			$this->setShortKey($player, array($this, 'onCancelMatchStart'));
 		}
+		$this->gui->updatePlayerList($this->blockedPlayers);
 	}
 
 	private function getReadyPlayersCount()
@@ -497,7 +495,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->gui->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
 				$shortKey = Shortkey::Create($login);
 				$shortKey->removeCallback($this->gui->actionKey);
-				$this->gui->updatePlayerList($login, $this->blockedPlayers);
+				$this->gui->updatePlayerList($this->blockedPlayers);
 			}
 			$playerInfo->karma = $karma;
 		}
@@ -542,7 +540,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui = $GUI;
 	}
 
-	protected function setMatchMaker($matchMaker)
+	protected function setMatchMaker(MatchMakers\MatchMakerInterface $matchMaker)
 	{
 		$this->matchMaker = $matchMaker;
 	}
@@ -550,6 +548,25 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function setPenaltiesCalculator(Helpers\PenaltiesCalculator $penaltiesCalculator)
 	{
 		$this->penaltiesCalculator = $penaltiesCalculator;
+	}
+
+	protected function getMatchablePlayers()
+	{
+		$readyPlayers = Services\PlayerInfo::GetReady();
+		$service = $this->matchMakingService;
+		$notInMathcPlayers = array_filter($readyPlayers,
+			function (Services\PlayerInfo $p) use ($service)
+			{
+				return !$service->isInMatch($p->login);
+			});
+		$blockedPlayers = array_keys($this->blockedPlayers);
+		$notBlockedPlayers = array_filter($notInMathcPlayers,
+			function (Services\PlayerInfo $p) use ($blockedPlayers)
+			{
+				return !in_array($p->login, $blockedPlayers);
+			});
+
+		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $notBlockedPlayers);
 	}
 
 	private function createMagnifyLabel($login, $message)
