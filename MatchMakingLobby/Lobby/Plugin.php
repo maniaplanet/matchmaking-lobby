@@ -250,7 +250,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$backup = $this->matchMaker->getBackup($quitter, $this->getMatchablePlayers());
 				if ($backup)
 				{
-					$backups[] = $quitter;
+					$backups[] = $backup;
 				}
 			}
 			if(count($backups) && count($backups) == count($quitters))
