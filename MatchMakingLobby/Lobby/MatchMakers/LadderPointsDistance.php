@@ -17,8 +17,10 @@ class LadderPointsDistance extends AbstractDistance
 
 	}
 
-	protected function distance(PlayerInfo $p1, PlayerInfo $p2)
+	protected function distance($p1, $p2)
 	{
+		$p1 = PlayerInfo::Get($p1);
+		$p2 = PlayerInfo::Get($p2);
 		$distance = abs($p1->ladderPoints - $p2->ladderPoints);
 
 		// Waiting time coefficient
