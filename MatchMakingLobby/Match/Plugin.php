@@ -35,6 +35,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	const OVER = 4;
 	const WAITING_BACKUPS = 5;
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
+	
+	const TIME_WAITING_CONNECTION = 105;
+	const TIME_WAITING_BACKUP = 20;
 
 	/** @var int */
 	protected $state = self::SLEEPING;
@@ -173,7 +176,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
 				$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-				if($this->waitingTime > 105)
+				if($this->waitingTime > static::TIME_WAITING_CONNECTION)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
 					foreach($this->players as $login => $state)
@@ -213,7 +216,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->waitBackups();
 				break;
 			case self::WAITING_BACKUPS:
-				if(++$this->waitingTime < 15)
+				if(++$this->waitingTime < static::TIME_WAITING_BACKUP)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS: '.$this->waitingTime);
 					$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
