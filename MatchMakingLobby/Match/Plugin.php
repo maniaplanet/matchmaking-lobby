@@ -35,6 +35,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	const OVER = 4;
 	const WAITING_BACKUPS = 5;
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
+	
+	const TIME_WAITING_CONNECTION = 105;
+	const TIME_WAITING_BACKUP = 20;
 
 	/** @var int */
 	protected $state = self::SLEEPING;
@@ -101,7 +104,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::WAITING => '5 seconds',
 			self::SLEEPING => '5 seconds',
 			self::DECIDING => '30 seconds',
-			self::PLAYING => null,
+			self::PLAYING => '15 seconds',
 			self::OVER => '10 seconds',
 			self::WAITING_BACKUPS => '1 seconds'
 		);
@@ -114,6 +117,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$script = $this->connection->getScriptName();
 		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
+		
+		//Set needed rules to run the lobny
+		$matchSettingsClass = '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
+		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
+		$matchSettings = new $matchSettingsClass();
+		$settings = $matchSettings->getMatchScriptSettings();
+		$this->connection->setModeScriptSettings($settings);
 
 		//Load services
 		$this->matchMakingService = new Services\MatchMakingService();
@@ -173,7 +183,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
 				$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-				if($this->waitingTime > 105)
+				if($this->waitingTime > static::TIME_WAITING_CONNECTION)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
 					foreach($this->players as $login => $state)
@@ -204,12 +214,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: DECIDING');
 				$this->play();
 				break;
+			case static::PLAYING:
+				$this->updateLobbyWindow();
+				$this->changeState(static::PLAYING);
+				break;
 			case self::PLAYER_LEFT:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: PLAYER_LEFT');
 				$this->waitBackups();
 				break;
 			case self::WAITING_BACKUPS:
-				if(++$this->waitingTime < 15)
+				if(++$this->waitingTime < static::TIME_WAITING_BACKUP)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS: '.$this->waitingTime);
 					$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
