@@ -75,7 +75,7 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 		while($player = array_shift($players))
 		{
 			$this->graph->addNode(
-				$player->login,
+				$player,
 				$this->computeDistances($player, $players)
 				);
 		}
@@ -83,8 +83,8 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 
 	/**
 	 * Compute distance for a player with all his followers
-	 * @param PlayerInfo $player
-	 * @param PlayerInfo[] $followers
+	 * @param string $player
+	 * @param string[] $followers
 	 * @return float[string]
 	 */
 	private function computeDistances($player, $followers)
@@ -92,20 +92,20 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 		$distances = array();
 		foreach($followers as $follower)
 		{
-			if($follower->login == $player->login)
+			if($follower == $player)
 				continue;
-			$distances[$follower->login] = $this->distance($player, $follower);
+			$distances[$follower] = $this->distance($player, $follower);
 		}
 		return $distances;
 	}
 
 	/**
 	 * Return the distance between two players
-	 * @param PlayerInfo $p1
-	 * @param PlayerInfo $p2
+	 * @param string $p1
+	 * @param string $p2
 	 * @return int
 	 */
-	abstract protected function distance(PlayerInfo $p1, PlayerInfo $p2);
+	abstract protected function distance($p1, $p2);
 
 	/**
 	 * Get players from Match->players and add them in teams
