@@ -30,20 +30,13 @@ class LadderPointsDistance extends AbstractDistance
 		return $distance;
 	}
 
-	public function getBackup($missingPlayer)
+	public function getBackup($missingPlayer, array $players = array())
 	{
-		$readyPlayers = PlayerInfo::GetReady();
-		$matchMakingService = new MatchMakingService();
-		$readyPlayers = array_filter($readyPlayers,
-			function ($readyPlayer) use($matchMakingService)
-			{
-				return !$matchMakingService->isInMatch($readyPlayer->login);
-			});
-		if($readyPlayers)
+		if($players)
 		{
 			$quitterInfo = PlayerInfo::Get($missingPlayer);
 			// Sort ready players to have the one with the same level
-			usort($readyPlayers,
+			usort($players,
 				function (PlayerInfo $p1, PlayerInfo $p2) use ($quitterInfo)
 				{
 					$dist1 = abs($quitterInfo->ladderPoints - $p1->ladderPoints);
@@ -55,7 +48,7 @@ class LadderPointsDistance extends AbstractDistance
 					return ($dist1 < $dist2) ? -1 : 1;
 				}
 			);
-			$player = array_shift($readyPlayers);
+			$player = array_shift($players);
 			return $player->login;
 		}
 		else

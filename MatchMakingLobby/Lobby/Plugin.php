@@ -248,7 +248,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$backups = array();
 			foreach ($quitters as $quitter)
 			{
-				$backup = $this->matchMaker->getBackup($quitter);
+				$backup = $this->matchMaker->getBackup($quitter, $this->getMatchablePlayers());
 				if ($backup)
 				{
 					$backups[] = $quitter;
@@ -277,7 +277,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if($this->tick % 5 == 0)
 		{
-			$matches = $this->matchMaker->run(array_keys($this->blockedPlayers));
+
+			$matches = $this->matchMaker->run($this->getMatchablePlayers());
 			foreach($matches as $match)
 			{
 				/** @var Match $match */
@@ -548,6 +549,25 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function setPenaltiesCalculator(Helpers\PenaltiesCalculator $penaltiesCalculator)
 	{
 		$this->penaltiesCalculator = $penaltiesCalculator;
+	}
+
+	protected function getMatchablePlayers()
+	{
+		$readyPlayers = Services\PlayerInfo::GetReady();
+		$service = $this->matchMakingService;
+		$notInMathcPlayers = array_filter($readyPlayers,
+			function (Services\PlayerInfo $p) use ($service)
+			{
+				return !$service->isInMatch($p->login);
+			});
+		$blockedPlayers = array_keys($this->blockedPlayers);
+		$notBlockedPlayers = array_filter($notInMathcPlayers,
+			function (Services\PlayerInfo $p) use ($blockedPlayers)
+			{
+				return !in_array($p->login, $blockedPlayers);
+			});
+
+		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $notBlockedPlayers);
 	}
 
 	private function createMagnifyLabel($login, $message)

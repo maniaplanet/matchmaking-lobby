@@ -23,6 +23,6 @@ interface MatchMakerInterface
 	 * @param string $missingPlayer Login of player
 	 * @return string Login of player that can replace the missing player or false if no player found
 	 */
-	public function getBackup($missingPlayer);
+	public function getBackup($missingPlayer, array $players = array());
 }
 ?>
