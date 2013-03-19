@@ -18,6 +18,9 @@ class Player extends \ManiaLive\Gui\Control
 	const STATE_IN_MATCH = 1;
 	const STATE_READY = 2;
 
+	public $state;
+	public $isAlly = false;
+
 	/**
 	 * @var Elements\Icons64x64_1
 	 */
@@ -45,7 +48,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->icon->setValign('center');
 		$this->icon->setPosition(1, -2.5);
 		$this->addComponent($this->icon);
-		
+
 		$this->allyIcon = new Elements\Icons64x64_1(2.5, 2.5);
 		$this->allyIcon->setSubStyle(Elements\Icons64x64_1::Buddy);
 		$this->allyIcon->setValign('center');
@@ -59,6 +62,8 @@ class Player extends \ManiaLive\Gui\Control
 		$this->label->setTextColor('fff');
 		$this->label->setScale(0.75);
 		$this->addComponent($this->label);
+
+		$this->state = static::STATE_NOT_READY;
 	}
 
 	function setState($state = 1, $isAlly = false)
@@ -80,9 +85,12 @@ class Player extends \ManiaLive\Gui\Control
 			default :
 				$subStyle = Elements\Icons64x64_1::LvlRed;
 		}
+		$this->state = $state;
+		$this->isAlly = $isAlly;
+		
 		$this->icon->setSubStyle($subStyle);
 		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
-		
+
 	}
 
 }
