@@ -12,18 +12,13 @@ namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
-class Elite extends AbstractMatchMaker
+class Elite extends LadderPointsDistance
 {
 
 	protected $isTeamMode = true;
 	public $playerPerMatch = 6;
 
 	const DISTANCE_THRESHOLD = 2000;
-
-	public function getPlayerScore($login)
-	{
-		return \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
-	}
 
 	/**
 	 * @param PlayerInfo $p1

@@ -9,7 +9,7 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
-class Joust extends AbstractMatchMaker
+class Joust extends LadderPointsDistance
 {
 
 	public $playerPerMatch = 2;
@@ -20,12 +20,6 @@ class Joust extends AbstractMatchMaker
 	{
 		return parent::distance($p1, $p2);
 	}
-
-	public function getPlayerScore($login)
-	{
-		return \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
-	}
-
 }
 
 ?>
