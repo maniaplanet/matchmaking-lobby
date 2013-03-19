@@ -34,9 +34,10 @@ class LadderPointsDistance extends AbstractDistance
 	{
 		if($players)
 		{
+			$playersObject = array_map('PlayerInfo::Get', $players);
 			$quitterInfo = PlayerInfo::Get($missingPlayer);
 			// Sort ready players to have the one with the same level
-			usort($players,
+			usort($playersObject,
 				function (PlayerInfo $p1, PlayerInfo $p2) use ($quitterInfo)
 				{
 					$dist1 = abs($quitterInfo->ladderPoints - $p1->ladderPoints);
