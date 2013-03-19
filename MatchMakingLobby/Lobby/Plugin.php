@@ -256,6 +256,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			if(count($backups) && count($backups) == count($quitters))
 			{
+				\ManiaLive\Utilities\Logger::getLog('info')->write(
+					sprintf('match %d, %s will replace %s', $match->id, implode(' & ', $backups), implode(' & ', $quitters))
+				);
 				foreach($quitters as $quitter)
 				{
 					$this->matchMakingService->updatePlayerState($quitter, $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
