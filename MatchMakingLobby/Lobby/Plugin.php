@@ -51,10 +51,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var Services\MatchMakingService */
 	protected $matchMakingService;
-	
+
 	/** @var string */
 	protected $scriptName;
-	
+
 	/** @var string */
 	protected $titleIdString;
 
@@ -69,7 +69,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$this->scriptName;
 		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
 		$penaltiesCalculatorClassName = $this->config->penaltiesCalculatorClassName ? : __NAMESPACE__.'\Helpers\PenaltiesCalculator';
-		
+
 		$this->setGui(new $guiClassName());
 		$this->gui->lobbyBoxPosY = 45;
 		$this->setMatchMaker($matchMakerClassName::getInstance());
@@ -96,12 +96,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$matchSettings = new $matchSettingsClass();
 		$settings = $matchSettings->getLobbyScriptSettings();
 		$this->connection->setModeScriptSettings($settings);
-		
+
 		$this->enableTickerEvent();
 
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
-		
+
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		$this->backLink = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->titleIdString;
@@ -112,9 +112,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player = Services\PlayerInfo::Get($login);
 			$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
 			$player->allies = $this->storage->getPlayerObject($login)->allies;
-			$this->gui->createPlayerList($login, $this->blockedPlayers);
+			$this->gui->createPlayerList($login);
 			$this->onPlayerNotReady($login);
 		}
+		$this->gui->updatePlayerList($this->blockedPlayers);
 
 		$this->registerLobby();
 
@@ -161,8 +162,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 //		$this->gui->createLabel($login, $message);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 
-		$this->gui->updatePlayerList($login, $this->blockedPlayers);
 		$this->gui->createPlayerList($login, $this->blockedPlayers);
+		$this->gui->updatePlayerList($this->blockedPlayers);
 
 		$this->updateLobbyWindow();
 		$this->updateKarma($login);
@@ -236,7 +237,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerNotReady($login);
 			}
 		}
-		
+
 		//If there is some match needing players
 		//find backup in ready players and send them to the match server
 		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
@@ -271,8 +272,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			foreach($matches as $match)
 			{
 				$server = $this->matchMakingService->getAvailableServer(
-					$this->storage->serverLogin, 
-					$this->scriptName, 
+					$this->storage->serverLogin,
+					$this->scriptName,
 					$this->titleIdString
 				);
 				if(!$server)
@@ -336,7 +337,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
 
 			$this->gui->createLabel($login, $this->gui->getReadyText());
-			$this->gui->updatePlayerList($login, $this->blockedPlayers);
+			$this->gui->updatePlayerList($this->blockedPlayers);
 
 			$this->setLobbyInfo();
 			$this->updateLobbyWindow();
@@ -354,7 +355,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 		$this->createMagnifyLabel($login, $this->gui->getNotReadyText());
 
-		$this->gui->updatePlayerList($login, $this->blockedPlayers);
+		$this->gui->updatePlayerList($this->blockedPlayers);
 
 		$this->setLobbyInfo();
 		$this->updateLobbyWindow();
@@ -366,9 +367,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if($player)
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
-			$this->gui->updatePlayerList($login, $this->blockedPlayers);
-			foreach($player->allies as $ally)
-				$this->gui->updatePlayerList($ally, $this->blockedPlayers);
+			$this->gui->updatePlayerList($this->blockedPlayers);
 		}
 	}
 
@@ -386,7 +385,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->eraseJump($match->matchServerLogin);
 		unset($this->countDown[$match->matchServerLogin]);
 		$this->matchMakingService->updateMatchState($match->id, Services\Match::PLAYER_CANCEL);
-		
+
 		$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
 		foreach($match->players as $playerLogin)
@@ -395,8 +394,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerReady($playerLogin);
 			else
 				$this->onPlayerNotReady($playerLogin);
-
-			$this->gui->updatePlayerList($playerLogin, $this->blockedPlayers);
 		}
 	}
 
@@ -406,16 +403,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$id = $this->matchMakingService->registerMatch($server, $match, $this->scriptName, $this->titleIdString);
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match %d on server: %s',$id, $server));
 		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
-		
+
 		$this->gui->prepareJump($match->players, $server, $this->titleIdString);
 		$this->countDown[$server] = 11;
 
 		foreach($match->players as $player)
 		{
 			$this->gui->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$server] - 1);
-			$this->gui->updatePlayerList($player, $this->blockedPlayers);
 			$this->setShortKey($player, array($this, 'onCancelMatchStart'));
 		}
+		$this->gui->updatePlayerList($this->blockedPlayers);
 	}
 
 	private function getReadyPlayersCount()
@@ -488,7 +485,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->gui->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
 				$shortKey = Shortkey::Create($login);
 				$shortKey->removeCallback($this->gui->actionKey);
-				$this->gui->updatePlayerList($login, $this->blockedPlayers);
+				$this->gui->updatePlayerList($this->blockedPlayers);
 			}
 			$playerInfo->karma = $karma;
 		}

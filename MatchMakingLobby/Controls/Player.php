@@ -13,6 +13,10 @@ use ManiaLib\Gui\Elements;
 
 class Player extends \ManiaLive\Gui\Control
 {
+	const STATE_BLOCKED = -2;
+	const STATE_NOT_READY = -1;
+	const STATE_IN_MATCH = 1;
+	const STATE_READY = 2;
 
 	/**
 	 * @var Elements\Icons64x64_1
@@ -61,16 +65,19 @@ class Player extends \ManiaLive\Gui\Control
 	{
 		switch($state)
 		{
-			case 1:
+			case static::STATE_READY:
 				$subStyle = Elements\Icons64x64_1::LvlGreen;
 				break;
-			case 2:
+			case static::STATE_IN_MATCH:
 				$subStyle = Elements\Icons64x64_1::LvlYellow;
 				break;
-			case 3:
+			case static::STATE_BLOCKED:
 				$subStyle = Elements\Icons64x64_1::StatePrivate;
 				break;
-			default:
+			case static::STATE_NOT_READY:
+				$subStyle = Elements\Icons64x64_1::LvlRed;
+				break;
+			default :
 				$subStyle = Elements\Icons64x64_1::LvlRed;
 		}
 		$this->icon->setSubStyle($subStyle);
