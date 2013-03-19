@@ -31,7 +31,7 @@ class MatchMakingService
 		);
 
 	}
-	
+
 	/**
 	 * Get lobby information
 	 * @param string $lobbyLogin
@@ -44,7 +44,7 @@ class MatchMakingService
 				'WHERE login = %s', $this->db->quote($lobbyLogin)
 			)->fetchObject(__NAMESPACE__.'\Lobby');
 	}
-	
+
 	/**
 	 * Get matchServer information
 	 * @param string $serverLogin
@@ -62,14 +62,14 @@ class MatchMakingService
 			)->fetchObject(__NAMESPACE__.'\\Match');
 		if(!$match)
 			return false;
-		
+
 		$results = $this->db->execute(
 				'SELECT P.login, P.teamId '.
 				'FROM Matches M '.
 				'INNER JOIN Players P ON M.id = P.matchId '.
 				'WHERE M.id = %d ', $match->id
 			)->fetchArrayOfAssoc();
-		
+
 		foreach($results as $row)
 		{
 			$match->players[] = $row['login'];
@@ -86,25 +86,25 @@ class MatchMakingService
 				$match->team2[] = $row['login'];
 			}
 		}
-		
+
 		return $match;
 	}
-	
+
 	function getServerCurrentMatch($serverLogin, $scriptName, $titleIdString)
 	{
 		$id = $this->db->execute(
 				'SELECT id FROM Matches '.
 				'WHERE matchServerLogin = %s  AND scriptName = %s AND titleIdString = %s '.
 				'AND (state = %d OR state = %d)'.
-				'AND DATE_ADD(`creationDate`, INTERVAL 5 MINUTE) > NOW()', 
-				$this->db->quote($serverLogin), 
-				$this->db->quote($scriptName), 
-				$this->db->quote($titleIdString), 
+				'AND DATE_ADD(`creationDate`, INTERVAL 5 MINUTE) > NOW()',
+				$this->db->quote($serverLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString),
 				Match::PREPARED, Match::WAITING_BACKUPS
 			)->fetchSingleValue();
 		return $this->getMatch($id);
 	}
-	
+
 	/**
 	 * Returns the current MatchInfo of the player
 	 * @param string $playerLogin
@@ -118,10 +118,10 @@ class MatchMakingService
 			'WHERE P.login = %s AND M.`state` >= %d LIMIT 1',
 			$this->db->quote($playerLogin), Match::PREPARED
 			)->fetchSingleValue();
-		
+
 		return $this->getMatch($matchId);
 	}
-	
+
 	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
 	{
 		$ids = $this->db->execute(
@@ -130,16 +130,16 @@ class MatchMakingService
 				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
 				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
 				'AND M.state = %d '.
-				'/*AND DATE_ADD(M.`creationDate`, INTERVAL 5 SECOND) > NOW()*/', 
-				$this->db->quote($lobbyLogin), 
-				$this->db->quote($scriptName), 
-				$this->db->quote($titleIdString), 
+				'/*AND DATE_ADD(M.`creationDate`, INTERVAL 5 SECOND) > NOW()*/',
+				$this->db->quote($lobbyLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString),
 				Match::WAITING_BACKUPS
 			)->fetchArrayOfSingleValues();
-		
+
 		return array_map(array($this,'getMatch'), $ids);
 	}
-	
+
 	/**
 	 * Get login of players who have quit the match
 	 * @param int $matchId
@@ -151,7 +151,7 @@ class MatchMakingService
 				'SELECT login FROM Players WHERE matchId = %d AND `state` = %d', $matchId, PlayerInfo::PLAYER_STATE_QUITTER
 			)->fetchArrayOfSingleValues();
 	}
-	
+
 	/**
 	 * Return the number of match currently played for the lobby
 	 * @param string $lobbyLogin
@@ -172,7 +172,7 @@ class MatchMakingService
 				$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString)
 			)->fetchSingleValue(0);
 	}
-	
+
 	/**
 	 * Get the number of server the lobby can use
 	 * @param string $lobbyLogin
@@ -189,7 +189,7 @@ class MatchMakingService
 				$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString)
 			)->fetchSingleValue(0);
 	}
-	
+
 	/**
 	 * Get the number of time the player quit a match for this lobby
 	 * @param string $playerLogin
@@ -203,13 +203,13 @@ class MatchMakingService
 				'INNER JOIN MatchServers MS ON '.
 				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
 				'WHERE P.login = %s AND P.`state` < %d AND MS.lobbyLogin = %s '.
-				'AND DATE_ADD(M.creationDate, INTERVAL 1 HOUR) > NOW()', 
-				$this->db->quote($playerLogin), 
+				'AND DATE_ADD(M.creationDate, INTERVAL 1 HOUR) > NOW()',
+				$this->db->quote($playerLogin),
 				PlayerInfo::PLAYER_STATE_NOT_CONNECTED,
 				$this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
 	}
-	
+
 	/**
 	 * Get a server available to host a match
 	 * for the lobby
@@ -231,7 +231,7 @@ class MatchMakingService
 				$this->db->quote($titleIdString), \ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING
 			)->fetchSingleValue(null);
 	}
-	
+
 	/**
 	 * Check if the player is in Match and the match is still playing
 	 * @param string $login
@@ -243,12 +243,12 @@ class MatchMakingService
 				'SELECT IF(count(*), TRUE, FALSE) '.
 				'FROM Players P '.
 				'INNER JOIN Matches M ON P.matchId = M.id '.
-				'WHERE P.login = %s and M.`state` >= %d AND P.state >= %d', 
-				$this->db->quote($login), 
+				'WHERE P.login = %s and M.`state` >= %d AND P.state >= %d',
+				$this->db->quote($login),
 				Match::PREPARED, PlayerInfo::PLAYER_STATE_QUITTER
 			)->fetchSingleValue(false);
 	}
-	
+
 	/**
 	 * Updates match state
 	 * @param int $matchId
@@ -260,7 +260,7 @@ class MatchMakingService
 			'UPDATE Matches SET `state` = %d WHERE id=%d', $state, $matchId
 		);
 	}
-	
+
 	/**
 	 * Register a match in database, the match Server will use this to ready up
 	 * @param string $serverLogin
@@ -276,28 +276,16 @@ class MatchMakingService
 		{
 			$this->db->execute(
 				'INSERT INTO Matches (creationDate, state, matchServerLogin, scriptName, titleIdString) '.
-				'VALUES (NOW(), -1, %s, %s, %s)', 
+				'VALUES (NOW(), -1, %s, %s, %s)',
 				$this->db->quote($serverLogin),
 				$this->db->quote($scriptName),
 				$this->db->quote($titleIdString)
 			);
-			$insertId = $this->db->insertID();
-			$values = array();
+			$matchId = $this->db->insertID();
 			foreach($match->players as $player)
 			{
-				$tmp = array($this->db->quote($player), $insertId);
-				if($match->team1 && $match->team2)
-				{
-					$tmp[] = (in_array($player, $match->team1) ? 0 : 1);
-				}
-				else
-				{
-					$tmp[] = 'NULL';
-				}
-				$tmp[] = PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
-				$values[] = sprintf('(%s)', implode(',', $tmp));
+				$this->addMatchPlayer($matchId, $player, $match->getTeam($player));
 			}
-			$this->db->execute('INSERT INTO Players (login, matchId, teamId, state) VALUES %s', implode(',', $values));
 			$this->db->execute('COMMIT');
 		}
 		catch(\Exception $e)
@@ -305,12 +293,12 @@ class MatchMakingService
 			$this->db->execute('ROLLBACK');
 			throw $e;
 		}
-		
-		return $insertId;
+
+		return $matchId;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param int $matchId
 	 * @param string $login
 	 * @param int $teamId
@@ -332,14 +320,14 @@ class MatchMakingService
 				throw new \InvalidArgumentException;
 		}
 		$this->db->execute(
-			'INSERT INTO Players (login, matchId, teamId, state) VALUES (%s,%d,%s, %d)', 
-			$this->db->quote($login), 
-			$matchId, 
-			$teamId, 
+			'INSERT INTO Players (login, matchId, teamId, state) VALUES (%s,%d,%s, %d)',
+			$this->db->quote($login),
+			$matchId,
+			$teamId,
 			PlayerInfo::PLAYER_STATE_NOT_CONNECTED
 		);
 	}
-	
+
 	/**
 	 * Register a player as a quitter
 	 * @param string $playerLogin
@@ -350,11 +338,11 @@ class MatchMakingService
 		$this->db->execute(
 			'UPDATE Players SET state = %d WHERE login = %s AND matchId = %d',
 			$state,
-			$this->db->quote($playerLogin), 
+			$this->db->quote($playerLogin),
 			$matchId
 		);
 	}
-	
+
 	/**
 	 * Register a server as match server
 	 * @param string $serverLogin
@@ -374,7 +362,7 @@ class MatchMakingService
 			$this->db->quote($titleIdString)
 		);
 	}
-	
+
 	/**
 	 * Register a lobby server in the system
 	 * @param string $lobbyLogin
@@ -390,13 +378,13 @@ class MatchMakingService
 			'ON DUPLICATE KEY UPDATE '.
 			'backLink = VALUES(backLink), '.
 			'readyPlayers = VALUES(readyPlayers), '.
-			'connectedPlayers = VALUES(connectedPlayers) ', 
+			'connectedPlayers = VALUES(connectedPlayers) ',
 			$this->db->quote($lobbyLogin), $this->db->quote($serverName), $this->db->quote($backLink),
 			$readyPlayersCount, $connectedPlayersCount
 		);
 	}
-	
-	
+
+
 	function createTables()
 	{
 		$this->db->execute(
