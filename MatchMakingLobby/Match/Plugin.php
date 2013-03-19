@@ -117,6 +117,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$script = $this->connection->getScriptName();
 		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
+		
+		//Set needed rules to run the lobny
+		$matchSettingsClass = '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
+		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
+		$matchSettings = new $matchSettingsClass();
+		$settings = $matchSettings->getMatchScriptSettings();
+		$this->connection->setModeScriptSettings($settings);
 
 		//Load services
 		$this->matchMakingService = new Services\MatchMakingService();

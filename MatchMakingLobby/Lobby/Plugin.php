@@ -90,6 +90,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_BEGIN_MAP |
 			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
+		//Set needed rules to run the lobny
+		$matchSettingsClass = '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
+		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
+		$matchSettings = new $matchSettingsClass();
+		$settings = $matchSettings->getLobbyScriptSettings();
+		$this->connection->setModeScriptSettings($settings);
+		
 		$this->enableTickerEvent();
 
 		$this->matchMakingService = new Services\MatchMakingService();
