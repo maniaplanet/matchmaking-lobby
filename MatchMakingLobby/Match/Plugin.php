@@ -101,7 +101,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::WAITING => '5 seconds',
 			self::SLEEPING => '5 seconds',
 			self::DECIDING => '30 seconds',
-			self::PLAYING => null,
+			self::PLAYING => '15 seconds',
 			self::OVER => '10 seconds',
 			self::WAITING_BACKUPS => '1 seconds'
 		);
@@ -203,6 +203,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::DECIDING:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: DECIDING');
 				$this->play();
+				break;
+			case static::PLAYING:
+				$this->updateLobbyWindow();
+				$this->changeState(static::PLAYING);
 				break;
 			case self::PLAYER_LEFT:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: PLAYER_LEFT');
