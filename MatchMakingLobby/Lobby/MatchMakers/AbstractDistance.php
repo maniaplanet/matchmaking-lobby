@@ -13,7 +13,7 @@ use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
-abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
+abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements MatchMakerInterface
 {
 
 	const WAITING_STEP = 60;
@@ -27,17 +27,18 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 
 	/** @var Helpers\Graph */
 	protected $graph;
+
 	public $playerPerMatch = 0;
 
 	/**
 	 * Entry point for the match making
-	 * @param array $bannedPlayers
+	 * @param array $players
 	 * @return Match
 	 */
-	final function run(array $bannedPlayers = array())
+	function run(array $players = array())
 	{
 		$matches = array();
-		$this->buildGraph($bannedPlayers);
+		$this->buildGraph($players);
 
 		$nodes = $this->graph->getNodes();
 		while($nodes && $cliques = $this->graph->findCliques(reset($nodes), $this->playerPerMatch, static::DISTANCE_THRESHOLD))
@@ -66,21 +67,16 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	 * @param array $bannedPlayers
 	 * @return type
 	 */
-	final protected function buildGraph(array $bannedPlayers = array())
+	protected function buildGraph(array $players = array())
 	{
 		$this->graph = new Helpers\Graph();
 		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
 
-		//We remove from ready players, players that are in match and blocked
-		$readyPlayers = PlayerInfo::GetReady();
-		$followers = array_filter($readyPlayers, function ($f) use($matchMakingService) { return !$matchMakingService->isInMatch($f->login); });
-		$followers = array_filter($followers, function ($f) use ($bannedPlayers) { return !in_array($f->login, $bannedPlayers); });
-		
-		while($player = array_shift($followers))
+		while($player = array_shift($players))
 		{
 			$this->graph->addNode(
-				$player->login, 
-				$this->computeDistances($player, $followers)
+				$player->login,
+				$this->computeDistances($player, $players)
 				);
 		}
 	}
@@ -91,7 +87,7 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	 * @param PlayerInfo[] $followers
 	 * @return float[string]
 	 */
-	final protected function computeDistances($player, $followers)
+	private function computeDistances($player, $followers)
 	{
 		$distances = array();
 		foreach($followers as $follower)
@@ -104,32 +100,20 @@ abstract class AbstractMatchMaker extends \ManiaLib\Utils\Singleton
 	}
 
 	/**
-	 * Give the distance between to player
+	 * Return the distance between two players
 	 * @param PlayerInfo $p1
 	 * @param PlayerInfo $p2
+	 * @return int
 	 */
-	protected function distance($p1, $p2)
-	{
-		$distance = abs($p1->ladderPoints - $p2->ladderPoints);
+	abstract protected function distance(PlayerInfo $p1, PlayerInfo $p2);
 
-		// Waiting time coefficient
-		$waitingTime = $p1->getWaitingTime() + $p2->getWaitingTime();
-		$distance *= exp(-log(2) * $waitingTime / self::WAITING_STEP);
+	/**
+	 * Get players from Match->players and add them in teams
+	 * @param Match $match input match
+	 * @return Match output match
+	 */
+	abstract protected function distributePlayers(Match $match);
 
-		return $distance;
-	}
-
-	protected function distributePlayers(Match $m)
-	{
-		
-	}
-	
-	abstract function getPlayerScore($login);
-	
-	function getBackups(array $quitters)
-	{
-		return array();
-	}
 }
 
 ?>
