@@ -20,6 +20,7 @@ class Player extends \ManiaLive\Gui\Control
 
 	public $state;
 	public $isAlly = false;
+	public $nickname;
 
 	/**
 	 * @var Elements\Icons64x64_1
@@ -63,6 +64,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->label->setScale(0.75);
 		$this->addComponent($this->label);
 
+		$this->nickname = $nickname;
 		$this->state = static::STATE_NOT_READY;
 	}
 
@@ -87,7 +89,7 @@ class Player extends \ManiaLive\Gui\Control
 		}
 		$this->state = $state;
 		$this->isAlly = $isAlly;
-		
+
 		$this->icon->setSubStyle($subStyle);
 		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
 

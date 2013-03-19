@@ -67,6 +67,14 @@ class PlayerList extends \ManiaLive\Gui\Window
 					{
 						return 0;
 					}
+					elseif(!$p1->isAlly && !$p2->isAlly)
+					{
+						if($p1->nickname == $p2->nickname)
+						{
+							return 0;
+						}
+						return $p1->nickname < $p2->nickname ? -1 : 1;
+					}
 					return $p1->isAlly ? -1 : 1;
 				}
 				return $p1->state > $p2->state ? -1 : 1;
