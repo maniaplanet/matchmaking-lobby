@@ -95,12 +95,11 @@ class MatchMakingService
 		$id = $this->db->execute(
 				'SELECT id FROM Matches '.
 				'WHERE matchServerLogin = %s  AND scriptName = %s AND titleIdString = %s '.
-				'AND (state = %d OR state = %d)'.
-				'AND DATE_ADD(`creationDate`, INTERVAL 5 MINUTE) > NOW()', 
+				'AND state >= %d ',
 				$this->db->quote($serverLogin), 
 				$this->db->quote($scriptName), 
 				$this->db->quote($titleIdString), 
-				Match::PREPARED, Match::WAITING_BACKUPS
+				Match::PREPARED
 			)->fetchSingleValue();
 		return $this->getMatch($id);
 	}
@@ -129,8 +128,7 @@ class MatchMakingService
 				'INNER JOIN MatchServers MS ON '.
 				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
 				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
-				'AND M.state = %d '.
-				'/*AND DATE_ADD(M.`creationDate`, INTERVAL 5 SECOND) > NOW()*/', 
+				'AND M.state = %d ', 
 				$this->db->quote($lobbyLogin), 
 				$this->db->quote($scriptName), 
 				$this->db->quote($titleIdString), 
