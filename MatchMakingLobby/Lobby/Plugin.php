@@ -65,7 +65,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
 		$script = $this->storage->gameInfos->scriptName;
-		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script);
+		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script);
 
 		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$this->scriptName;
 		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
@@ -91,8 +91,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_BEGIN_MAP |
 			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
-		//Set needed rules to run the lobny
-		$matchSettingsClass = '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
+		$matchSettingsClass = $this->config->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
 		$matchSettings = new $matchSettingsClass();
 		$settings = $matchSettings->getLobbyScriptSettings();

@@ -15,8 +15,9 @@ use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
 use ManiaLivePlugins\MatchMakingLobby\Services;
 use ManiaLivePlugins\MatchMakingLobby\GUI;
 
-//TODO Convert chat message in big message on screen ?
-
+/**
+ * Plugin to load on the Matches servers
+ */
 class Plugin extends \ManiaLive\PluginHandler\Plugin
 {
 
@@ -35,7 +36,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	const OVER = 4;
 	const WAITING_BACKUPS = 5;
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
-	
+
 	const TIME_WAITING_CONNECTION = 105;
 	const TIME_WAITING_BACKUP = 20;
 
@@ -74,7 +75,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var string */
 	protected $scriptName;
-	
+
 	/** @var string */
 	protected $titleIdString;
 
@@ -115,9 +116,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		//Get the Script name
 		$script = $this->connection->getScriptName();
-		$this->scriptName = preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
+		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
-		
+
 		//Set needed rules to run the lobny
 		$matchSettingsClass = '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
@@ -128,10 +129,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Load services
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
-		
+
 		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 		$this->lobby = $this->matchMakingService->getLobby($config->lobbyLogin);
-		
+
 		//Get the GUI abstraction class
 		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
 		$this->setGui(new $guiClassName());
@@ -139,7 +140,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
 	}
-	
+
 	function onUnload()
 	{
 		if($this->matchMakingService instanceof Services\MatchMakingService && $this->matchId)
@@ -170,8 +171,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				else
 				{
 					$this->matchMakingService->registerMatchServer(
-						$this->storage->serverLogin, 
-						$this->lobby->login, 
+						$this->storage->serverLogin,
+						$this->lobby->login,
 						$this->state,
 						$this->scriptName,
 						$this->titleIdString
@@ -426,7 +427,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player '.$login.' gave up. Changing state to OVER');
 		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_GIVE_UP;
-		
+
 		$this->matchMakingService->updatePlayerState($login, $this->matchId, $this->players[$login]);
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_GAVE_UP);
 
@@ -477,7 +478,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('play()');
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYING);
-		
+
 		Label::EraseAll();
 
 		$giveUp = Windows\GiveUp::Create();
@@ -505,7 +506,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 //		$this->connection->chatSendServerMessage('Match over! You will be transfered back to the lobby.');
 		$this->changeState(self::OVER);
 	}
-	
+
 	protected function waitBackups()
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('waitBackups()');
@@ -513,7 +514,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
 		$this->waitingTime = 0;
 	}
-	
+
 	protected function updatePlayerList(Services\Match $match)
 	{
 		$newPlayers = array_diff($match->players, $this->match->players);
