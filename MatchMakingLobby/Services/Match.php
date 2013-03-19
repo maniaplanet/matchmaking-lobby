@@ -20,6 +20,36 @@ class Match
 	const WAITING_BACKUPS = 2;
 	
 	/**
+	 * String to use in a maniaplanet link to switch players on the lobby
+	 * @var string
+	 */
+	public $id;
+	
+	/**
+	 * The server login where the match is played
+	 * @var string
+	 */
+	public $matchServerLogin;
+	
+	/**
+	 * The name of the script use to play the match
+	 * @var string 
+	 */
+	public $scriptName;
+	
+	/**
+	 * The titleIdString of the title where the match will be played
+	 * @var string
+	 */
+	public $titleIdString;
+	
+	/**
+	 * 
+	 * @var int
+	 */
+	public $state;
+	
+	/**
 	 * List of all logins playing the match
 	 * @var string[]
 	 */

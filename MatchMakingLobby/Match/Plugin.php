@@ -152,7 +152,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case self::SLEEPING:
 				//Waiting for a match in database
-				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+				$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 				if ($match)
 				{
 					$this->prepare($match);
@@ -172,7 +172,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING:
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
-				$match = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+				$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 				if($this->waitingTime > 105)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
@@ -193,7 +193,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->cancel();
 					break;
 				}
-				if($match->match != $this->match || $match->matchId != $this->matchId)
+				if($match != $this->match || $match->id != $this->matchId)
 				{
 					$this->prepare($match);
 					break;
@@ -212,10 +212,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				if(++$this->waitingTime < 15)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS: '.$this->waitingTime);
-					$matchInfo = $this->matchMakingService->getMatchInfo($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-					if($matchInfo && $matchInfo->match != $this->match)
+					$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+					if($match && $match != $this->match)
 					{
-						$this->updatePlayerList($matchInfo);
+						$this->updatePlayerList($match);
 					}
 				}
 				else
@@ -334,7 +334,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function updateLobbyWindow()
 	{
 		$this->lobby = $this->matchMakingService->getLobby($this->lobby->login);
-		$playingPlayers = 0;
+		$playingPlayers = $this->matchMakingService->getPlayersPlayingCount($this->lobby->login, $this->scriptName, $this->titleIdString);
 		$this->gui->updateLobbyWindow($this->lobby->name, $this->lobby->readyPlayers, $this->lobby->connectedPlayers + $playingPlayers, $playingPlayers);
 	}
 
@@ -353,14 +353,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/**
 	 * Prepare the server config to host a match
 	 * Then wait players' connection
-	 * @param Services\MatchInfo $matchInfo
+	 * @param Services\Match $match
 	 */
-	protected function prepare($matchInfo)
+	protected function prepare($match)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($matchInfo, true));
-		$this->players = array_fill_keys($matchInfo->match->players, Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED);
-		$this->match = $matchInfo->match;
-		$this->matchId = $matchInfo->matchId;
+		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match, true));
+		$this->players = array_fill_keys($match->players, Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED);
+		$this->match = $match;
+		$this->matchId = $match->id;
 		Windows\ForceManialink::EraseAll();
 
 		$giveUp = Windows\GiveUp::Create();
@@ -369,8 +369,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
 		$giveUp->show();
 
-		foreach($matchInfo->match->players as $login)
+		foreach($match->players as $login)
+		{
 			$this->connection->addGuest((string)$login, true);
+		}
 		$this->connection->executeMulticall();
 
 		$this->enableDedicatedEvents(
@@ -498,9 +500,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->waitingTime = 0;
 	}
 	
-	protected function updatePlayerList(Services\MatchInfo $matchInfo)
+	protected function updatePlayerList(Services\Match $match)
 	{
-		$newPlayers = array_diff($matchInfo->match->players, $this->match->players);
+		$newPlayers = array_diff($match->players, $this->match->players);
 		foreach($this->players as $login => $state)
 		{
 			if($state == Services\PlayerInfo::PLAYER_STATE_QUITTER)
@@ -515,7 +517,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->players[$player] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 		}
 		$this->connection->executeMulticall();
-		$this->match = $matchInfo->match;
+		$this->match = $match;
 	}
 
 	/**

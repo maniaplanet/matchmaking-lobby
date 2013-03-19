@@ -50,101 +50,26 @@ class MatchMakingService
 	 * @param string $serverLogin
 	 * @param string $scriptName
 	 * @param string $titleIdString
-	 * @return MatchInfo
-	 */
-	function getMatchInfo($serverLogin, $scriptName, $titleIdString)
-	{
-		$matchId = $this->db->execute(
-				'SELECT id FROM Matches '.
-				'WHERE matchServerLogin = %s  AND scriptName = %s AND titleIdString = %s '.
-				'AND (state = %d OR state = %d)'.
-				'AND DATE_ADD(`creationDate`, INTERVAL 5 MINUTE) > NOW()', 
-				$this->db->quote($serverLogin), 
-				$this->db->quote($scriptName), 
-				$this->db->quote($titleIdString), 
-				Match::PREPARED, Match::WAITING_BACKUPS
-			)->fetchSingleValue();
-		if(!$matchId)
-		{
-			return false;
-		}
-		$matchInfo = new MatchInfo();
-		$matchInfo->matchServerLogin = $serverLogin;
-		$matchInfo->scriptName = $scriptName;
-		$matchInfo->titleIdString = $titleIdString;
-		$matchInfo->matchId = $matchId;
-		$matchInfo->match = $this->getMatch($matchId);
-		
-		return $matchInfo;
-	}
-	
-	/**
-	 * Returns the current MatchInfo of the player
-	 * @param string $playerLogin
-	 * @return \ManiaLivePlugins\MatchMakingLobby\Services\MatchInfo
-	 */
-	function getPlayerCurrentMatchInfo($playerLogin)
-	{
-		$row = $this->db->execute(
-			'SELECT M.id, M.matchServerLogin, M.scriptName, M.titleIdString '.
-			'FROM Matches M '.
-			'INNER JOIN Players P ON M.id = P.matchId '.
-			'WHERE P.login = %s AND M.`state` >= %d LIMIT 1',
-			$this->db->quote($playerLogin), Match::PREPARED
-			)->fetchAssoc();
-		
-		$matchInfo = new MatchInfo();
-		$matchInfo->matchServerLogin = $row['matchServerLogin'];
-		$matchInfo->scriptName = $row['scriptName'];
-		$matchInfo->titleIdString = $row['titleIdString'];
-		$matchInfo->matchId = $row['id'];
-		$matchInfo->match = $this->getMatch($matchInfo->matchId);
-		return $matchInfo;
-	}
-	
-	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
-	{
-		$rows = $this->db->execute(
-				'SELECT M.id, M.matchServerLogin FROM Matches M '.
-				'INNER JOIN MatchServers MS ON '.
-				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
-				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
-				'AND M.state = %d '.
-				'/*AND DATE_ADD(M.`creationDate`, INTERVAL 5 SECOND) > NOW()*/', 
-				$this->db->quote($lobbyLogin), 
-				$this->db->quote($scriptName), 
-				$this->db->quote($titleIdString), 
-				Match::WAITING_BACKUPS
-			)->fetchArrayOfAssoc();
-		
-		$matchInfos = array();
-		foreach($rows as $row)
-		{
-			$matchInfo = new MatchInfo();
-			$matchInfo->matchServerLogin = $row['matchServerLogin'];
-			$matchInfo->scriptName = $scriptName;
-			$matchInfo->titleIdString = $titleIdString;
-			$matchInfo->matchId = $row['id'];
-			$matchInfo->match = $this->getMatch($row['id']);
-			$matchInfos[] = $matchInfo;
-		}
-		return $matchInfos;
-	}
-	
-	/**
-	 * Returns the match
-	 * @param int $matchId
-	 * @return \ManiaLivePlugins\MatchMakingLobby\Services\Match
+	 * @return Match
 	 */
 	function getMatch($matchId)
 	{
+		$match = $this->db->execute(
+				'SELECT id, matchServerLogin, scriptName, titleIdString, state '.
+				'FROM Matches '.
+				'WHERE id = %d ',
+				$matchId
+			)->fetchObject(__NAMESPACE__.'\\Match');
+		if(!$match)
+			return false;
+		
 		$results = $this->db->execute(
 				'SELECT P.login, P.teamId '.
 				'FROM Matches M '.
 				'INNER JOIN Players P ON M.id = P.matchId '.
-				'WHERE M.id = %d ', $matchId
+				'WHERE M.id = %d ', $match->id
 			)->fetchArrayOfAssoc();
-		$match = new Match();
+		
 		foreach($results as $row)
 		{
 			$match->players[] = $row['login'];
@@ -161,9 +86,65 @@ class MatchMakingService
 				$match->team2[] = $row['login'];
 			}
 		}
+		
 		return $match;
 	}
 	
+	function getServerCurrentMatch($serverLogin, $scriptName, $titleIdString)
+	{
+		$id = $this->db->execute(
+				'SELECT id FROM Matches '.
+				'WHERE matchServerLogin = %s  AND scriptName = %s AND titleIdString = %s '.
+				'AND (state = %d OR state = %d)'.
+				'AND DATE_ADD(`creationDate`, INTERVAL 5 MINUTE) > NOW()', 
+				$this->db->quote($serverLogin), 
+				$this->db->quote($scriptName), 
+				$this->db->quote($titleIdString), 
+				Match::PREPARED, Match::WAITING_BACKUPS
+			)->fetchSingleValue();
+		return $this->getMatch($id);
+	}
+	
+	/**
+	 * Returns the current MatchInfo of the player
+	 * @param string $playerLogin
+	 * @return Match
+	 */
+	function getPlayerCurrentMatch($playerLogin)
+	{
+		$matchId = $this->db->execute(
+			'SELECT M.id FROM Matches M '.
+			'INNER JOIN Players P ON M.id = P.matchId '.
+			'WHERE P.login = %s AND M.`state` >= %d LIMIT 1',
+			$this->db->quote($playerLogin), Match::PREPARED
+			)->fetchSingleValue();
+		
+		return $this->getMatch($matchId);
+	}
+	
+	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
+	{
+		$ids = $this->db->execute(
+				'SELECT M.id FROM Matches M '.
+				'INNER JOIN MatchServers MS ON '.
+				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
+				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
+				'AND M.state = %d '.
+				'/*AND DATE_ADD(M.`creationDate`, INTERVAL 5 SECOND) > NOW()*/', 
+				$this->db->quote($lobbyLogin), 
+				$this->db->quote($scriptName), 
+				$this->db->quote($titleIdString), 
+				Match::WAITING_BACKUPS
+			)->fetchArrayOfSingleValues();
+		
+		return array_map(array($this,'getMatch'), $ids);
+	}
+	
+	/**
+	 * Get login of players who have quit the match
+	 * @param int $matchId
+	 * @return string[]
+	 */
 	function getMatchQuitters($matchId)
 	{
 		return $this->db->execute(
