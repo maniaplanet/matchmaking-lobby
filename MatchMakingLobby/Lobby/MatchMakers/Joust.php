@@ -16,9 +16,9 @@ class Joust extends LadderPointsDistance
 
 	const DISTANCE_THRESHOLD = 1000;
 
-	protected function distance($p1, $p2)
+	public function getBackup($missingPlayer)
 	{
-		return parent::distance($p1, $p2);
+		return false;
 	}
 }
 
