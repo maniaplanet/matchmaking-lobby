@@ -540,7 +540,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui = $GUI;
 	}
 
-	protected function setMatchMaker(MatchMakers\AbstractMatchMaker $matchMaker)
+	protected function setMatchMaker(MatchMakers\MatchMakerInterface $matchMaker)
 	{
 		$this->matchMaker = $matchMaker;
 	}
