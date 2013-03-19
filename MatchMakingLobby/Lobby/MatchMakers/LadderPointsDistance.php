@@ -34,7 +34,7 @@ class LadderPointsDistance extends AbstractDistance
 	{
 		if($players)
 		{
-			$playersObject = array_map('PlayerInfo::Get', $players);
+			$playersObject = array_map('\ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::Get', $players);
 			$quitterInfo = PlayerInfo::Get($missingPlayer);
 			// Sort ready players to have the one with the same level
 			usort($playersObject,
@@ -49,7 +49,7 @@ class LadderPointsDistance extends AbstractDistance
 					return ($dist1 < $dist2) ? -1 : 1;
 				}
 			);
-			$player = array_shift($players);
+			$player = array_shift($playersObject);
 			return $player->login;
 		}
 		else
