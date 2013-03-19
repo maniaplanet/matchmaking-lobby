@@ -97,7 +97,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$matchSettings = new $matchSettingsClass();
 		$settings = $matchSettings->getLobbyScriptSettings();
 		$this->connection->setModeScriptSettings($settings);
-		
+
 		$this->enableTickerEvent();
 
 		$this->matchMakingService = new Services\MatchMakingService();
@@ -111,7 +111,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
 			$player = Services\PlayerInfo::Get($login);
-			$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
+			$player->ladderPoints = $this->storage->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
 			$player->allies = $this->storage->getPlayerObject($login)->allies;
 			$this->gui->createPlayerList($login, $this->blockedPlayers);
 			$this->onPlayerNotReady($login);
@@ -153,7 +153,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$message = ($player->ladderPoints ? $this->gui->getPlayerBackLabelPrefix() : '').$this->gui->getNotReadyText();
 		$player->setAway(false);
-		$player->ladderPoints = $this->matchMaker->getPlayerScore($login);
+		$player->ladderPoints = $this->storage->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
 
 		$this->createMagnifyLabel($login, $message);
@@ -543,7 +543,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui = $GUI;
 	}
 
-	protected function setMatchMaker(MatchMakers\AbstractMatchMaker $matchMaker)
+	protected function setMatchMaker($matchMaker)
 	{
 		$this->matchMaker = $matchMaker;
 	}
