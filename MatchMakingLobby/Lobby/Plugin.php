@@ -375,14 +375,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player cancel match start: '.$login);
 
-		$matchInfo = $this->matchMakingService->getPlayerCurrentMatch($login);
-		$this->gui->eraseJump($matchInfo->matchServerLogin);
-		unset($this->countDown[$matchInfo->matchServerLogin]);
-		$this->matchMakingService->updateMatchState($matchInfo->matchId, Services\Match::PLAYER_CANCEL);
+		$match = $this->matchMakingService->getPlayerCurrentMatch($login);
+		$this->gui->eraseJump($match->matchServerLogin);
+		unset($this->countDown[$match->matchServerLogin]);
+		$this->matchMakingService->updateMatchState($match->id, Services\Match::PLAYER_CANCEL);
 		
-		$this->matchMakingService->updatePlayerState($login, $matchInfo->matchId, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+		$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
-		foreach($matchInfo->match->players as $playerLogin)
+		foreach($match->players as $playerLogin)
 		{
 			if($playerLogin != $login)
 				$this->onPlayerReady($playerLogin);
