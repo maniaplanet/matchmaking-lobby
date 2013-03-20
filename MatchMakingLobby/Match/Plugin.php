@@ -463,15 +463,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write('decide()');
 		if($this->state != self::DECIDING)
 		{
-				$confirm = Label::Create();
-				$confirm->setPosition(0, 40);
-				$confirm->setMessage('Match will start soon.');
-				$confirm->show();
+			$confirm = Label::Create();
+			$confirm->setPosition(0, 40);
+			$confirm->setMessage('Match will start soon.');
+			$confirm->show();
 
-				$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
-				$ratios['nextMap'] = 0.5;
-				$ratios['jumpToMapIndex'] = 0.5;
-				$this->connection->setCallVoteRatios($ratios);
+			$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
+			$ratios = array(
+				array('Command' => 'nextMap', 'Ratio' => 0.5),
+				array('Command' => 'jumpToMapIndex', 'Ratio' => 0.5),
+			);
+			$this->connection->setCallVoteRatios($ratios);
 		}
 
 		$this->changeState(self::DECIDING);
@@ -492,8 +494,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if($this->state == self::DECIDING)
 		{
-			$ratios['nextMap'] = -1;
-			$ratios['jumpToMapIndex'] = -1;
+			$ratios = array(
+				array('Command' => 'nextMap', 'Ratio' => -1.),
+				array('Command' => 'jumpToMapIndex', 'Ratio' => -1.),
+			);
 			$this->connection->setCallVoteRatios($ratios);
 			$this->connection->chatSendServerMessage('Time to change map is over!');
 		}
