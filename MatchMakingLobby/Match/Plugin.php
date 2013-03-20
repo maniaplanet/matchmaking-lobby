@@ -408,6 +408,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->connection->addGuest((string)$login, true);
 		}
+		$this->connection->restartMap(false, true);
 		$this->connection->executeMulticall();
 
 		$this->enableDedicatedEvents(
