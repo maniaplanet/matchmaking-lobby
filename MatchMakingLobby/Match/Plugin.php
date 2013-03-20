@@ -30,11 +30,32 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * Waiting for all players to connect
 	 */
 	const WAITING = -1;
+
+	/**
+	 * Waiting for a match
+	 */
 	const SLEEPING = 1;
+
+	/**
+	 * All players are connected. Waiting some more time
+	 */
 	const DECIDING = 2;
+
+	/**
+	 * Playing match
+	 */
 	const PLAYING = 3;
+
+	/**
+	 * Match ended (well or not)
+	 */
 	const OVER = 4;
+
+	/**
+	 * Waiting for backup from the lobby
+	 */
 	const WAITING_BACKUPS = 5;
+	
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
 
 	const TIME_WAITING_CONNECTION = 105;
@@ -226,7 +247,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING_BACKUPS:
 				if(++$this->waitingTime < static::TIME_WAITING_BACKUP)
 				{
-					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS: '.$this->waitingTime);
 					$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 					if($match && $match != $this->match)
 					{
