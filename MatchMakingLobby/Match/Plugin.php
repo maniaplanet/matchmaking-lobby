@@ -353,6 +353,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//nobreak
 			case static::PLAYING:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch while playing');
+				foreach($rankings as $ranking)
+				{
+					$this->matchMakingService->updatePlayerRank($ranking['Login'], $this->matchId, $ranking['Rank']);
+				}
 				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 				$this->over();
 				break;
