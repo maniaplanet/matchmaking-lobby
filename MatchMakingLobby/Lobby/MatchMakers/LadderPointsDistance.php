@@ -32,7 +32,6 @@ class LadderPointsDistance extends AbstractDistance
 
 	public function getBackup($missingPlayer, array $players = array())
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('get backup to replace %s.',$missingPlayer));
 		if($players)
 		{
 			$playersObject = array_map('\ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::Get', $players);
