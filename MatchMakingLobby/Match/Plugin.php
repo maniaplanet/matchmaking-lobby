@@ -212,8 +212,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					{
 						if($state == Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED)
 						{
-							$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_QUITTER;
-							$this->matchMakingService->updatePlayerState($login, $this->matchId, Services\PlayerInfo::PLAYER_STATE_QUITTER);
+							$this->updateMatchPlayerState($login,Services\PlayerInfo::PLAYER_STATE_QUITTER);
 						}
 					}
 					$this->waitBackups();
@@ -267,8 +266,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerConnect($login, $isSpectator)
 	{
-		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_CONNECTED;
-		$this->matchMakingService->updatePlayerState($login, $this->matchId, $this->players[$login]);
+		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_CONNECTED);
 		$this->forcePlayerTeam($login);
 		\ManiaLive\Utilities\Logger::getLog('info')->write('player '.$login.' connected');
 		switch ($this->state)
@@ -327,7 +325,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::WAITING_BACKUPS:
 				//nobreak
 			case static::PLAYING:
-				$this->playerIllegalLeave($login);
+                                // If a player gave up, no need to punish him!
+                                if ($this->players[$login] != Services\PlayerInfo::PLAYER_STATE_GIVE_UP)
+                                {
+                                    $this->playerIllegalLeave($login);
+                                }
 				break;
 			case static::OVER:
 				break;
@@ -365,7 +367,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 	}
 
-	function onGiveUp($login)
+	function onPlayerGiveUp($login)
 	{
 		$this->giveUp($login);
 	}
@@ -405,7 +407,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
 		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
-		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
+		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerGiveUp'), true));
 		$giveUp->show();
 
 		foreach($match->players as $login)
@@ -445,28 +447,31 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 
 		$this->changeState(self::PLAYER_LEFT);
-		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_QUITTER;
-		$this->matchMakingService->updatePlayerState($login, $this->matchId, $this->players[$login]);
+		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_QUITTER);
 	}
 
 	protected function giveUp($login)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Player '.$login.' gave up. Changing state to OVER');
-		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_GIVE_UP;
+		\ManiaLive\Utilities\Logger::getLog('info')->write('Player '.$login.' gave up.');
+                
+		$this->updateMatchPlayerState($login,Services\PlayerInfo::PLAYER_STATE_GIVE_UP);
 
-		$this->matchMakingService->updatePlayerState($login, $this->matchId, $this->players[$login]);
-		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_GAVE_UP);
+		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
 
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
 		$confirm->setMessage($this->gui->getGiveUpText());
 		$confirm->show();
-		Windows\GiveUp::EraseAll();
-		//FIXME: big message
-		$this->connection->chatSendServerMessage(sprintf(static::PREFIX.'Match aborted because $<%s$> gave up.',
-				$this->storage->getPlayerObject($login)->nickName));
+                
+                $jumper = Windows\ForceManialink::Create($login);
+		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
+		$jumper->show();
+                
+                $this->connection->removeGuest($login);
+                
+		Windows\GiveUp::Erase($login);
 
-		$this->changeState(self::OVER);
+		$this->changeState(self::WAITING_BACKUPS);
 	}
 
 	protected function cancel()
@@ -515,7 +520,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
 		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
-		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onGiveUp'), true));
+		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerGiveUp'), true));
 		$giveUp->show();
 
 		if($this->state == self::DECIDING)
@@ -620,6 +625,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->gui = $GUI;
 	}
+        
+        protected function updateMatchPlayerState($login, $state)
+        {
+            $this->players[$login] = $state;
+            $this->matchMakingService->updatePlayerState($login, $this->matchId, $state);
+        }
 }
 
 ?>

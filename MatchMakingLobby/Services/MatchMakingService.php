@@ -140,14 +140,16 @@ class MatchMakingService
 
 	/**
 	 * Get login of players who have quit the match
+         * (quitters or gave up)
 	 * @param int $matchId
 	 * @return string[]
 	 */
 	function getMatchQuitters($matchId)
 	{
-		return $this->db->execute(
-				'SELECT login FROM Players WHERE matchId = %d AND `state` = %d', $matchId, PlayerInfo::PLAYER_STATE_QUITTER
-			)->fetchArrayOfSingleValues();
+		return $this->db->execute('SELECT login FROM Players WHERE matchId = %d AND (`state` = %d OR `state` = %d)', 
+                        $matchId, 
+                        PlayerInfo::PLAYER_STATE_QUITTER,
+                        PlayerInfo::PLAYER_STATE_GIVE_UP)->fetchArrayOfSingleValues();
 	}
 
 	/**
