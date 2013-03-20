@@ -395,18 +395,25 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player cancel match start: '.$login);
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login);
-		$this->gui->eraseJump($match->matchServerLogin);
-		unset($this->countDown[$match->matchServerLogin]);
-		$this->matchMakingService->updateMatchState($match->id, Services\Match::PLAYER_CANCEL);
-
-		$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
-
-		foreach($match->players as $playerLogin)
+		if ($match->state == Match::PREPARED)
 		{
-			if($playerLogin != $login)
-				$this->onPlayerReady($playerLogin);
-			else
-				$this->onPlayerNotReady($playerLogin);
+			$this->gui->eraseJump($match->matchServerLogin);
+			unset($this->countDown[$match->matchServerLogin]);
+			$this->matchMakingService->updateMatchState($match->id, Services\Match::PLAYER_CANCEL);
+
+			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+
+			foreach($match->players as $playerLogin)
+			{
+				if($playerLogin != $login)
+					$this->onPlayerReady($playerLogin);
+				else
+					$this->onPlayerNotReady($playerLogin);
+			}
+		}
+		else
+		{
+			\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('error: player %s cancel match start (%d) not in prepared mode',$login, $match->id));
 		}
 	}
 
@@ -496,8 +503,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerNotReady($login);
 
 				$this->gui->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
-				$shortKey = Shortkey::Create($login);
-				$shortKey->removeCallback($this->gui->actionKey);
+				$this->resetShortKey($login);
 				$this->gui->updatePlayerList($this->blockedPlayers);
 			}
 			$playerInfo->karma = $karma;
@@ -513,6 +519,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$shortKey = Shortkey::Create($login);
 		$shortKey->removeCallback($this->gui->actionKey);
 		$shortKey->addCallback($this->gui->actionKey, $callback);
+	}
+
+	protected function resetShortKey($login)
+	{
+		$shortKey = Shortkey::Create($login);
+		$shortKey->removeCallback($this->gui->actionKey);
 	}
 
 	private function updateLobbyWindow()
