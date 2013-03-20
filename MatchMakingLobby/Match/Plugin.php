@@ -435,8 +435,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$label = Label::Create();
 		$label->setPosition(0, 40);
-		$label->setMessage();
-		$label->show($this->gui->getIllegalLeaveText());
+		$label->setMessage($this->gui->getIllegalLeaveText());
+		$label->show();
 
 
 		$this->changeState(self::PLAYER_LEFT);
