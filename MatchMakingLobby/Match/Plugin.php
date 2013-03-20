@@ -490,9 +490,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$confirm->setMessage($this->gui->getDecidingText());
 			$confirm->show();
 
-			$this->connection->chatSendServerMessage(static::PREFIX.'Match is starting ,you still have time to change the map if you want.');
-			$ratios['nextMap'] = 0.5;
-			$ratios['jumpToMapIndex'] = 0.5;
+			$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
+			$ratios = array(
+				array('Command' => 'nextMap', 'Ratio' => 0.5),
+				array('Command' => 'jumpToMapIndex', 'Ratio' => 0.5),
+			);
 			$this->connection->setCallVoteRatios($ratios);
 		}
 
@@ -514,11 +516,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if($this->state == self::DECIDING)
 		{
-
-			$this->connection->chatSendServerMessage(static::PREFIX.'Time to change map is over!');
-
-			$ratios['nextMap'] = -1;
-			$ratios['jumpToMapIndex'] = -1;
+			$ratios = array(
+				array('Command' => 'nextMap', 'Ratio' => -1.),
+				array('Command' => 'jumpToMapIndex', 'Ratio' => -1.),
+			);
 			$this->connection->setCallVoteRatios($ratios);
 		}
 		else
