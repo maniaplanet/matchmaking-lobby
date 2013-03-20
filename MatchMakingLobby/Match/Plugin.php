@@ -30,11 +30,32 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * Waiting for all players to connect
 	 */
 	const WAITING = -1;
+
+	/**
+	 * Waiting for a match
+	 */
 	const SLEEPING = 1;
+
+	/**
+	 * All players are connected. Waiting some more time
+	 */
 	const DECIDING = 2;
+
+	/**
+	 * Playing match
+	 */
 	const PLAYING = 3;
+
+	/**
+	 * Match ended (well or not)
+	 */
 	const OVER = 4;
+
+	/**
+	 * Waiting for backup from the lobby
+	 */
 	const WAITING_BACKUPS = 5;
+
 	const PREFIX = 'Match$08fBot$000»$8f0 ';
 
 	const TIME_WAITING_CONNECTION = 105;
@@ -226,7 +247,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING_BACKUPS:
 				if(++$this->waitingTime < static::TIME_WAITING_BACKUP)
 				{
-					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS: '.$this->waitingTime);
 					$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 					if($match && $match != $this->match)
 					{
@@ -415,8 +435,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$label = Label::Create();
 		$label->setPosition(0, 40);
-		$label->setMessage('A player left. Stay online until you are transfered back or you will be banned.');
-		$label->show();
+		$label->setMessage();
+		$label->show($this->gui->getIllegalLeaveText());
+
 
 		$this->changeState(self::PLAYER_LEFT);
 		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_QUITTER;
@@ -433,11 +454,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
-		$confirm->setMessage('$900Match over. You will be transfered back.$z');
+		$confirm->setMessage($this->gui->getGiveUpText());
 		$confirm->show();
 		Windows\GiveUp::EraseAll();
 		//FIXME: big message
-		$this->connection->chatSendServerMessage(sprintf('Match aborted because $<%s$> gave up.',
+		$this->connection->chatSendServerMessage(sprintf(static::PREFIX.'Match aborted because $<%s$> gave up.',
 				$this->storage->getPlayerObject($login)->nickName));
 
 		$this->changeState(self::OVER);
@@ -450,10 +471,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$confirm = Label::Create();
 		$confirm->setPosition(0, 40);
-		$confirm->setMessage('Match over. You will be transfered back.');
+		$confirm->setMessage($this->gui->getMatchoverText());
 		$confirm->show();
 
-		$this->connection->chatSendServerMessage('Match aborted.');
+		$this->connection->chatSendServerMessage(static::PREFIX.'Match aborted.');
 
 		$this->over();
 	}
@@ -465,14 +486,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$confirm = Label::Create();
 			$confirm->setPosition(0, 40);
-			$confirm->setMessage('Match will start soon.');
+			$confirm->setMessage($this->gui->getDecidingText());
 			$confirm->show();
 
-			$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
-			$ratios = array(
-				array('Command' => 'nextMap', 'Ratio' => 0.5),
-				array('Command' => 'jumpToMapIndex', 'Ratio' => 0.5),
-			);
+			$this->connection->chatSendServerMessage(static::PREFIX.'Match is starting ,you still have time to change the map if you want.');
+			$ratios['nextMap'] = 0.5;
+			$ratios['jumpToMapIndex'] = 0.5;
 			$this->connection->setCallVoteRatios($ratios);
 		}
 
@@ -494,16 +513,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if($this->state == self::DECIDING)
 		{
-			$ratios = array(
-				array('Command' => 'nextMap', 'Ratio' => -1.),
-				array('Command' => 'jumpToMapIndex', 'Ratio' => -1.),
-			);
+
+			$this->connection->chatSendServerMessage(static::PREFIX.'Time to change map is over!');
+
+			$ratios['nextMap'] = -1;
+			$ratios['jumpToMapIndex'] = -1;
 			$this->connection->setCallVoteRatios($ratios);
-			$this->connection->chatSendServerMessage('Time to change map is over!');
 		}
 		else
 		{
-			$this->connection->chatSendServerMessage('Player is back, match continues.');
+			$this->connection->chatSendServerMessage(static::PREFIX.'Player is back, match continues.');
 		}
 
 		$this->changeState(self::PLAYING);
@@ -513,7 +532,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('over()');
 		Windows\GiveUp::EraseAll();
-//		$this->connection->chatSendServerMessage('Match over! You will be transfered back to the lobby.');
 		$this->changeState(self::OVER);
 	}
 

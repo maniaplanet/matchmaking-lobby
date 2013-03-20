@@ -26,43 +26,6 @@ class Joust extends AbstractGUI
 		$opponent = ($opponentObj ? $opponentObj->nickName : $m->players[($key + 1) % 2]);
 		return sprintf('$0F0Match against $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $opponent);
 	}
-	
-	function getBackUpLaunchText()
-	{
-		return 'You are selected to replace a player. Prepare to be transfered';
-	}
-
-	public function getNotReadyText()
-	{
-		return '$o$F90Press F6 to find a match$z';
-	}
-
-	public function getPlayerBackLabelPrefix()
-	{
-		return 'Welcome back. ';
-	}
-
-	public function getReadyText()
-	{
-		return 'Searching for an opponent, F6 to cancel';
-	}
-
-	public function getMatchInProgressText()
-	{
-		return 'You have a match in progress. Prepare to be transfered';
-	}
-	
-	public function getBadKarmaText($time)
-	{
-		$time = ceil($time / 60.);
-		return sprintf('$F00You leaved your last match. You are suspended for %d minutes', $time);
-	}
-
-	public function getNoServerAvailableText()
-	{
-		return 'No server available for the moment. Please wait';
-	}
-
 }
 
 ?>

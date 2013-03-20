@@ -41,25 +41,46 @@ abstract class AbstractGUI
 	 * Returns the text to display when a player is not ready
 	 * @return string
 	 */
-	abstract function getNotReadyText();
+	function getNotReadyText()
+	{
+		return '$o$F90Press F6 to find a match$z';
+	}
 
 	/**
-	 * Returns the text to display when a player is ready
+	 * Returns the text to display when a player is readydz
 	 * @return string
 	 */
-	abstract function getReadyText();
+	function getReadyText()
+	{
+		return 'Searching for a match, press F6 to cancel';
+	}
 
 	/**
 	 * Returns the prefix message that is displayed when a player comes back on the lobby
 	 * @return string
 	 */
-	abstract function getPlayerBackLabelPrefix();
+	function getPlayerBackLabelPrefix()
+	{
+		return 'Welcome back. ';
+	}
 
 	/**
 	 * Returns the text to display when all mathc servers are full
 	 * @return string
 	 */
-	abstract function getNoServerAvailableText();
+	function getNoServerAvailableText()
+	{
+		return 'No server available for your match at the moment. Please wait';
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	function getIllegalLeaveText()
+	{
+		return "A player left\nDo not leave, a remplacement player is being searched";
+	}
 
 	/**
 	 * Returns the message displayed when a player is selected in a match
@@ -75,20 +96,56 @@ abstract class AbstractGUI
 	 * @param string $player
 	 * @return string
 	 */
-	abstract function getBackUpLaunchText();
+	function getBackUpLaunchText()
+	{
+		return 'You are selected to replace a player. Prepare to be transfered';
+	}
 
 	/**
 	 * Returns the message when a player join the lobby and he have a match still running
 	 * @return string
 	 */
-	abstract function getMatchInProgressText();
+	function getMatchInProgressText()
+	{
+		return 'You have a match in progress. Prepare to be transfered';
+	}
 
 	/**
 	 * Returns the message when a player is blocked
 	 * @param int $time in seconds
 	 * @return string
 	 */
-	abstract function getBadKarmaText($time);
+	function getBadKarmaText($time)
+	{
+		return sprintf("\$F00You leaved your last match\nYou are suspended for %d minutes", ceil($time / 60.));
+	}
+
+	/**
+	 * Returns the message when the match is over
+	 * @return string
+	 */
+	function getMatchoverText()
+	{
+		return 'Match over. You will be transfered back.';
+	}
+
+	/**
+	 * Returns when a player give up
+	 * @return string
+	 */
+	function getGiveUpText()
+	{
+		return '$900Match over. You will be transfered back.$z';
+	}
+
+	/**
+	 * Returns the message when in DECIDING phase
+	 * @return string
+	 */
+	function getDecidingText()
+	{
+		return 'Waiting for all player to connect before starting match';
+	}
 
 	/**
 	 * Display a text message in the center of the player's screen
