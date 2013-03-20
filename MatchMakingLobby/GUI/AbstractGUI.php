@@ -135,7 +135,7 @@ abstract class AbstractGUI
 	 */
 	function getGiveUpText()
 	{
-		return '$900Match over. You will be transfered back.$z';
+		return 'A player gave up\nDo not leave, a remplacement player is being searched';
 	}
 
 	/**
