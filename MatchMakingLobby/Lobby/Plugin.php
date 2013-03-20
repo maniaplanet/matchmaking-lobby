@@ -240,6 +240,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//If there is some match needing players
 		//find backup in ready players and send them to the match server
 		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+                $potentialBackups = $this->getMatchablePlayers();
 		foreach($matchesNeedingBackup as $match)
 		{
 			/** @var Match $match */
@@ -250,10 +251,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$backups = array();
 			foreach ($quitters as $quitter)
 			{
-				$backup = $this->matchMaker->getBackup($quitter, $this->getMatchablePlayers());
+				$backup = $this->matchMaker->getBackup($quitter, $potentialBackups);
 				if ($backup)
 				{
 					$backups[] = $backup;
+                                        unset($potentialBackups[$backup]);
 				}
 			}
 			if(count($backups) && count($backups) == count($quitters))
