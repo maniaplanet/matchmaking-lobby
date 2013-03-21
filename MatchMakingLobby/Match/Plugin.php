@@ -276,6 +276,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::WAITING_BACKUPS:
 				//nobreak
 			case static::PLAYER_LEFT:
+				\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('isEveryBodyHere -> %d',$this->isEverybodyHere()));
 				if ($this->isEverybodyHere())
 				{
 					$this->play();
@@ -305,9 +306,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		switch ($this->state)
 		{
-			case static::SLEEPING:
-				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: incoherent state: player disconnected while match sleeping');
-				break;
 			case static::WAITING:
 				//nobreak
 			case static::PLAYER_LEFT:
@@ -323,10 +321,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->playerIllegalLeave($login);
 				}
 				break;
+			case static::SLEEPING:
+				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: incoherent state: player disconnected while match sleeping');
+				//nobreak
 			case static::OVER:
+				$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 				break;
 		}
-		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 	}
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
@@ -547,10 +548,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function updatePlayerList(Services\Match $match)
 	{
+		\ManiaLive\Utilities\Logger::getLog('info')->write('updatePlayerList()');
 		$newPlayers = array_diff($match->players, $this->match->players);
 		foreach($this->players as $login => $state)
 		{
-			if($state == Services\PlayerInfo::PLAYER_STATE_QUITTER)
+			if(in_array($state, array(Services\PlayerInfo::PLAYER_STATE_QUITTER, Services\PlayerInfo::PLAYER_STATE_GIVE_UP)))
 			{
 				unset($this->players[$login]);
 				$this->connection->removeGuest($login);
@@ -562,7 +564,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->players[$player] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 		}
 		$this->match = $match;
-		$this->play();
 	}
 
 	/**
@@ -624,7 +625,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui = $GUI;
 	}
 
-        protected function updateMatchPlayerState($login, $state)
+	protected function updateMatchPlayerState($login, $state)
 	{
 		$this->players[$login] = $state;
 		$this->matchMakingService->updatePlayerState($login, $this->matchId, $state);
