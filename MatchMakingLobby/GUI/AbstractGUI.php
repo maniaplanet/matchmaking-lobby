@@ -135,7 +135,7 @@ abstract class AbstractGUI
 	 */
 	function getGiveUpText()
 	{
-		return 'A player gave up\nDo not leave, a remplacement player is being searched';
+		return "A player gave up\nDo not leave, a remplacement player is being searched";
 	}
 
 	/**
