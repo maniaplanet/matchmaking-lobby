@@ -303,7 +303,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerDisconnect($login)
 	{
-		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 		switch ($this->state)
 		{
 			case static::SLEEPING:
@@ -318,15 +317,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::WAITING_BACKUPS:
 				//nobreak
 			case static::PLAYING:
-                                // If a player gave up, no need to punish him!
-                                if ($this->players[$login] != Services\PlayerInfo::PLAYER_STATE_GIVE_UP)
-                                {
-                                    $this->playerIllegalLeave($login);
-                                }
+				// If a player gave up, no need to punish him!
+				if($this->players[$login] != Services\PlayerInfo::PLAYER_STATE_GIVE_UP)
+				{
+					$this->playerIllegalLeave($login);
+				}
 				break;
 			case static::OVER:
 				break;
 		}
+		$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 	}
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
@@ -447,7 +447,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player '.$login.' gave up.');
 
-		$this->updateMatchPlayerState($login,Services\PlayerInfo::PLAYER_STATE_GIVE_UP);
+		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_GIVE_UP);
 
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
 
@@ -456,15 +456,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$confirm->setMessage($this->gui->getGiveUpText());
 		$confirm->show();
 
-                $jumper = Windows\ForceManialink::Create($login);
+		$jumper = Windows\ForceManialink::Create($login);
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
 		$jumper->show();
 
-                $this->connection->removeGuest($login);
-
 		Windows\GiveUp::Erase($login);
 
-		$this->changeState(self::WAITING_BACKUPS);
+		$this->waitBackups();
 	}
 
 	protected function cancel()
@@ -560,11 +558,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		foreach($newPlayers as $player)
 		{
-			$this->connection->addGuest($player, true);
+			$this->connection->addGuest($player);
 			$this->players[$player] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 		}
-		$this->connection->executeMulticall();
 		$this->match = $match;
+		$this->play();
 	}
 
 	/**
@@ -627,10 +625,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	}
 
         protected function updateMatchPlayerState($login, $state)
-        {
-            $this->players[$login] = $state;
-            $this->matchMakingService->updatePlayerState($login, $this->matchId, $state);
-        }
+	{
+		$this->players[$login] = $state;
+		$this->matchMakingService->updatePlayerState($login, $this->matchId, $state);
+	}
 }
 
 ?>
