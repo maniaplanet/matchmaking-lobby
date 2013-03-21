@@ -21,11 +21,12 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 	protected $sound;
 
 	protected function onConstruct()
-	{		
+	{
 		$this->label = new \ManiaLib\Gui\Elements\Label(400);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setTextSize(5);
 		$this->label->setHalign('center');
+		$this->label->enableAutonewline();
 		$this->addComponent($this->label);
 
 		$this->sound = new \ManiaLib\Gui\Elements\Audio();
