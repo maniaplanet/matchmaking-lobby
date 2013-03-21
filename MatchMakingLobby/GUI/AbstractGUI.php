@@ -200,22 +200,26 @@ abstract class AbstractGUI
 	final function updatePlayerList(array $blockedPlayerList)
 	{
 		$storage = Storage::getInstance();
-
-		foreach(array_merge($storage->players, $storage->spectators) as $player)
+		$playerLists = Windows\PlayerList::GetAll();
+		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
+		foreach($playerLists as $playerList)
 		{
-			$playerInfo = PlayerInfo::Get($player->login);
-			$state = Player::STATE_NOT_READY;
-			$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
-			if($playerInfo->isReady()) $state = Player::STATE_READY;
-			if($matchMakingService->isInMatch($player->login)) $state = Player::STATE_IN_MATCH;
-			if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
-
-			$playerLists = Windows\PlayerList::GetAll();
-			foreach($playerLists as $playerList)
+			$currentPlayerObj = $storage->getPlayerObject($playerList->getRecipient());
+			foreach(array_merge($storage->players, $storage->spectators) as $player)
 			{
+				if(PlayerInfo::Get($player->login)->isAway())
+				{
+					continue;
+				}
+
+				$playerInfo = PlayerInfo::Get($player->login);
+				$state = Player::STATE_NOT_READY;
+				if($playerInfo->isReady()) $state = Player::STATE_READY;
+				if($matchMakingService->isInMatch($player->login)) $state = Player::STATE_IN_MATCH;
+				if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
+
 				/* @var $playerList Windows\PlayerList */
-				$isAlly = $this->displayAllies && $player && in_array($playerList->getRecipient(),
-						$player->allies);
+				$isAlly = $this->displayAllies && $player && in_array($player->login, $currentPlayerObj->allies);
 				$playerList->setPlayer($player->login, $state, $isAlly);
 			}
 		}

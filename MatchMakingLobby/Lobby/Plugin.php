@@ -385,8 +385,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if($player)
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
-			$this->gui->updatePlayerList($this->blockedPlayers);
+			foreach($player->allies as $ally)
+			{
+				Services\PlayerInfo::Get($ally)->allies = $this->connection->getDetailedPlayerInfo($ally)->allies;
+			}
 		}
+		$this->gui->updatePlayerList($this->blockedPlayers);
 	}
 
 	function doNotShow($login)
