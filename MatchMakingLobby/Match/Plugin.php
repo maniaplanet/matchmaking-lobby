@@ -191,13 +191,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				else
 				{
-					$this->matchMakingService->registerMatchServer(
-						$this->storage->serverLogin,
-						$this->lobby->login,
-						$this->state,
-						$this->scriptName,
-						$this->titleIdString
-					);
 					$this->sleep();
 				}
 				break;
@@ -453,7 +446,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function giveUp($login)
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player '.$login.' gave up.');
-                
+
 		$this->updateMatchPlayerState($login,Services\PlayerInfo::PLAYER_STATE_GIVE_UP);
 
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
@@ -462,13 +455,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$confirm->setPosition(0, 40);
 		$confirm->setMessage($this->gui->getGiveUpText());
 		$confirm->show();
-                
+
                 $jumper = Windows\ForceManialink::Create($login);
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
 		$jumper->show();
-                
+
                 $this->connection->removeGuest($login);
-                
+
 		Windows\GiveUp::Erase($login);
 
 		$this->changeState(self::WAITING_BACKUPS);
@@ -607,6 +600,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else $this->disableTickerEvent();
 
+		$this->matchMakingService->registerMatchServer(
+			$this->storage->serverLogin,
+			$this->lobby->login,
+			$this->state,
+			$this->scriptName,
+			$this->titleIdString
+		);
 		if ($this->state != $state)
 		{
 			\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('State: %d', $state));
@@ -625,7 +625,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->gui = $GUI;
 	}
-        
+
         protected function updateMatchPlayerState($login, $state)
         {
             $this->players[$login] = $state;
