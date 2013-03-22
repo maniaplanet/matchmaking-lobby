@@ -244,6 +244,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$potentialBackups = $this->getMatchablePlayers();
 		foreach($matchesNeedingBackup as $match)
 		{
+			$potentialBackupsForMatch = array_filter($potentialBackups,
+				function ($backup) use ($match)
+				{
+					return !in_array($backup, $match->players);
+				}
+			);
 			/** @var Match $match */
 			$quitters = $this->matchMakingService->getMatchQuitters($match->id);
 			\ManiaLive\Utilities\Logger::getLog('info')->write(
@@ -252,10 +258,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$backups = array();
 			foreach ($quitters as $quitter)
 			{
-				$backup = $this->matchMaker->getBackup($quitter, $potentialBackups);
+				$backup = $this->matchMaker->getBackup($quitter, $potentialBackupsForMatch);
 				if ($backup)
 				{
 					$backups[] = $backup;
+					unset($potentialBackupsForMatch[array_search($backup, $potentialBackupsForMatch)]);
 					unset($potentialBackups[array_search($backup, $potentialBackups)]);
 				}
 			}
