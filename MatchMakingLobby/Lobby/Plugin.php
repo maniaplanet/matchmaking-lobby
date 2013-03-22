@@ -256,7 +256,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				if ($backup)
 				{
 					$backups[] = $backup;
-					unset($potentialBackups[$backup]);
+					unset($potentialBackups[array_search($backup, $potentialBackups)]);
 				}
 			}
 			if(count($backups) && count($backups) == count($quitters))
