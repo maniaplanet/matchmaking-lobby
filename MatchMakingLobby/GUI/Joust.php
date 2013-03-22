@@ -26,6 +26,15 @@ class Joust extends AbstractGUI
 		$opponent = ($opponentObj ? $opponentObj->nickName : $m->players[($key + 1) % 2]);
 		return sprintf('$0F0Match against $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $opponent);
 	}
+
+	/**
+	 * Returns when a player give up
+	 * @return string
+	 */
+	function getGiveUpText()
+	{
+		return "A player gave up\nDo not leave, you will be transfered back";
+	}
 }
 
 ?>
