@@ -153,14 +153,26 @@ abstract class AbstractGUI
 	 * @param string $login
 	 * @param string $message
 	 * @param int $countdown
+	 * @param bool $isAnimated If true the text will be animated
 	 */
-	final function createLabel($login, $message, $countdown = null)
+	final function createLabel($message, $login = null, $countdown = null, $isAnimated = false)
 	{
-		Windows\Label::Erase($login);
-		$confirm = Windows\Label::Create($login);
-		$confirm->setPosition(0, 40);
-		$confirm->setMessage($message, $countdown);
-		$confirm->show();
+		if($login)
+		{
+			Windows\Label::Erase($login);
+		}
+		else
+		{
+			Windows\Label::EraseAll();
+		}
+		$ui = Windows\Label::Create($login);
+		$ui->setPosition(0, 40);
+		$ui->setMessage($message, $countdown);
+		if($isAnimated == true)
+		{
+			$ui->setId('animated-label');
+		}
+		$ui->show();
 	}
 
 	/**

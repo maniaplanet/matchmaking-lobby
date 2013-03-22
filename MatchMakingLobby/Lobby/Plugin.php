@@ -145,7 +145,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$jumper = Windows\ForceManialink::Create($login);
 			$jumper->set('maniaplanet://#qjoin='.$matchInfo->matchServerLogin.'@'.$matchInfo->titleIdString);
 			$jumper->show();
-			$this->gui->createLabel($login, $this->gui->getMatchInProgressText());
+			$this->gui->createLabel($this->gui->getMatchInProgressText(), $login);
 			return;
 		}
 
@@ -156,7 +156,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player->ladderPoints = $this->storage->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
 		$player->allies = $this->storage->getPlayerObject($login)->allies;
 
-		$this->createMagnifyLabel($login, $message);
+		$this->gui->createLabel($message, $login, null, true);
 
 //		$this->gui->createLabel($login, $message);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
@@ -298,7 +298,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				{
 					foreach($match->players as $login)
 					{
-						$this->gui->createLabel($login, $this->gui->getNoServerAvailableText());
+						$this->gui->createLabel($this->gui->getNoServerAvailableText(), $login);
 					}
 				}
 				else
@@ -354,7 +354,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player->setReady(true);
 			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
 
-			$this->gui->createLabel($login, $this->gui->getReadyText());
+			$this->gui->createLabel($this->gui->getReadyText(), $login);
 			$this->gui->updatePlayerList($this->blockedPlayers);
 
 			$this->setLobbyInfo();
@@ -371,7 +371,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(false);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
-		$this->createMagnifyLabel($login, $this->gui->getNotReadyText());
+		$this->gui->createLabel($this->gui->getNotReadyText(), $login, null, true);
 
 		$this->gui->updatePlayerList($this->blockedPlayers);
 
@@ -434,7 +434,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		foreach($match->players as $player)
 		{
-			$this->gui->createLabel($player, $this->gui->getLaunchMatchText($match, $player), $this->countDown[$server] - 1);
+			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$server] - 1);
 			$this->setShortKey($player, array($this, 'onCancelMatchStart'));
 		}
 		$this->gui->updatePlayerList($this->blockedPlayers);
@@ -507,7 +507,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 				$this->onPlayerNotReady($login);
 
-				$this->gui->createLabel($login, $this->gui->getBadKarmaText($this->blockedPlayers[$login]));
+				$this->gui->createLabel($this->gui->getBadKarmaText($this->blockedPlayers[$login]), $login);
 				$this->resetShortKey($login);
 				$this->gui->updatePlayerList($this->blockedPlayers);
 			}
@@ -591,12 +591,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	private function createMagnifyLabel($login, $message)
 	{
-		Windows\Label::Erase($login);
-		$confirm = Windows\AnimatedLabel::Create($login);
-		$confirm->setPosition(0, 40);
-		$confirm->setMessage($message);
-		$confirm->setId('animated-label');
-		$confirm->show();
+		$this->gui->createLabel($message, $login, null, true);
 	}
 }
 

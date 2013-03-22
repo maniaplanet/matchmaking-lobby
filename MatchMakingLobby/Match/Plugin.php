@@ -417,7 +417,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_END_MATCH |
 			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
-		Label::EraseAll();
 
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
 		$this->changeState(self::WAITING);
@@ -434,10 +433,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write('Player illegal leave: '.$login);
 		Windows\GiveUp::EraseAll();
 
-		$label = Label::Create();
-		$label->setPosition(0, 40);
-		$label->setMessage($this->gui->getIllegalLeaveText());
-		$label->show();
+		$this->gui->createLabel($this->gui->getIllegalLeaveText());
 
 
 		$this->changeState(self::PLAYER_LEFT);
@@ -452,10 +448,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
 
-		$confirm = Label::Create();
-		$confirm->setPosition(0, 40);
-		$confirm->setMessage($this->gui->getGiveUpText());
-		$confirm->show();
+		$this->gui->createLabel($this->gui->getGiveUpText());
 
 		$jumper = Windows\ForceManialink::Create($login);
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
@@ -471,10 +464,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write('cancel()');
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_LEFT);
 
-		$confirm = Label::Create();
-		$confirm->setPosition(0, 40);
-		$confirm->setMessage($this->gui->getMatchoverText());
-		$confirm->show();
+		$this->gui->createLabel($this->gui->getMatchoverText());
 
 		$this->connection->chatSendServerMessage(static::PREFIX.'Match aborted.');
 
@@ -486,10 +476,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write('decide()');
 		if($this->state != self::DECIDING)
 		{
-			$confirm = Label::Create();
-			$confirm->setPosition(0, 40);
-			$confirm->setMessage($this->gui->getDecidingText());
-			$confirm->show();
+			$this->gui->createLabel($this->gui->getDecidingText());
 
 			$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
 			$ratios = array(
