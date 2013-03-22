@@ -141,9 +141,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player connected: %s', $login));
 		if($this->matchMakingService->isInMatch($login))
 		{
-			$matchInfo = $this->matchMakingService->getPlayerCurrentMatch($login);
+			$match = $this->matchMakingService->getPlayerCurrentMatch($login);
+			\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('send %s to is match %d', $login, $match->id));
 			$jumper = Windows\ForceManialink::Create($login);
-			$jumper->set('maniaplanet://#qjoin='.$matchInfo->matchServerLogin.'@'.$matchInfo->titleIdString);
+			$jumper->set('maniaplanet://#qjoin='.$match->matchServerLogin.'@'.$match->titleIdString);
 			$jumper->show();
 			$this->gui->createLabel($this->gui->getMatchInProgressText(), $login);
 			return;
@@ -185,8 +186,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Player disconnected: %s', $login));
 
-		$matchInfo = $this->matchMakingService->getPlayerCurrentMatch($login);
-		if($this->matchMakingService->isInMatch($login) && array_key_exists($matchInfo->matchServerLogin, $this->countDown) && $this->countDown[$matchInfo->matchServerLogin] > 0)
+		$match = $this->matchMakingService->getPlayerCurrentMatch($login);
+		if($this->matchMakingService->isInMatch($login) && array_key_exists($match->matchServerLogin, $this->countDown) && $this->countDown[$match->id] > 0)
 		{
 			$this->onCancelMatchStart($login);
 		}
@@ -240,7 +241,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//If there is some match needing players
 		//find backup in ready players and send them to the match server
 		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-                $potentialBackups = $this->getMatchablePlayers();
+		$potentialBackups = $this->getMatchablePlayers();
 		foreach($matchesNeedingBackup as $match)
 		{
 			/** @var Match $match */
@@ -255,7 +256,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				if ($backup)
 				{
 					$backups[] = $backup;
-                                        unset($potentialBackups[$backup]);
+					unset($potentialBackups[$backup]);
 				}
 			}
 			if(count($backups) && count($backups) == count($quitters))
@@ -271,9 +272,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				{
 					$teamId = $match->getTeam(array_shift($quitters));
 					$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
+					$this->gui->createLabel($this->gui->getBackUpLaunchText(), $backup);
 				}
-				$this->gui->prepareJump($backups, $match->matchServerLogin, $match->titleIdString);
-				$this->countDown[$match->matchServerLogin] = 2;
+				$this->gui->prepareJump($backups, $match->matchServerLogin, $match->titleIdString, $match->id);
+				$this->countDown[$match->id] = 3;
 			}
 		}
 
@@ -289,12 +291,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			foreach($matches as $match)
 			{
 				/** @var Match $match */
-				$server = $this->matchMakingService->getAvailableServer(
+				$matchId = $this->matchMakingService->getAvailableServer(
 					$this->storage->serverLogin,
 					$this->scriptName,
 					$this->titleIdString
 				);
-				if(!$server)
+				if(!$matchId)
 				{
 					foreach($match->players as $login)
 					{
@@ -304,34 +306,49 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				else
 				{
 					//Match ready, let's prepare it !
-					$this->prepareMatch($server, $match);
+					$this->prepareMatch($matchId, $match);
 				}
 			}
 		}
 
-		foreach($this->countDown as $server => $countDown)
+		foreach($this->countDown as $matchId => $countDown)
 		{
 			switch(--$countDown)
 			{
 				case -1:
-					$this->gui->eraseJump($server);
-					unset($this->countDown[$server]);
+					$this->gui->eraseJump($matchId);
+					unset($this->countDown[$matchId]);
 					break;
 				case 0:
-					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('prepare jump for server : %s', $server));
-					$match = $this->matchMakingService->getServerCurrentMatch($server, $this->scriptName, $this->titleIdString);
-					$players = array_map(array($this->storage, 'getPlayerObject'), $match->players);
-					$this->gui->showJump($server);
-
-					$nicknames = array();
-					foreach($players as $player)
+					\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('prepare jump for match : %d', $matchId));
+					$match = $this->matchMakingService->getMatch($matchId);
+					if($match->state >= Match::PREPARED)
 					{
-						if($player) $nicknames[] = '$<'.$player->nickName.'$>';
-					}
+						\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('jumping to server : %s', $match->matchServerLogin));
+						$players = array_map(array($this->storage, 'getPlayerObject'), $match->players);
+						$this->gui->showJump($matchId);
 
-					$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
+						$nicknames = array();
+						foreach($players as $player)
+						{
+							if($player && !array_key_exists($player->login, $this->blockedPlayers))
+							{
+								$nicknames[] = '$<'.$player->nickName.'$>';
+							}
+						}
+
+						$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
+					}
+					else
+					{
+						\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('jump cancel match state is : %d', $match->state));
+						foreach($match->players as $player)
+						{
+							$this->gui->createLabel($this->gui->getReadyText(), $player);
+						}
+					}
 				default:
-					$this->countDown[$server] = $countDown;
+					$this->countDown[$matchId] = $countDown;
 			}
 		}
 
@@ -402,8 +419,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login);
 		if ($match->state == Match::PREPARED)
 		{
-			$this->gui->eraseJump($match->matchServerLogin);
-			unset($this->countDown[$match->matchServerLogin]);
+			$this->gui->eraseJump($match->id);
+			unset($this->countDown[$match->id]);
 			$this->matchMakingService->updateMatchState($match->id, Services\Match::PLAYER_CANCEL);
 
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
@@ -429,12 +446,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match %d on server: %s',$id, $server));
 		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
 
-		$this->gui->prepareJump($match->players, $server, $this->titleIdString);
-		$this->countDown[$server] = 11;
+		$this->gui->prepareJump($match->players, $server, $this->titleIdString, $id);
+		$this->countDown[$id] = 11;
 
 		foreach($match->players as $player)
 		{
-			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$server] - 1);
+			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$id] - 1);
 			$this->setShortKey($player, array($this, 'onCancelMatchStart'));
 		}
 		$this->gui->updatePlayerList($this->blockedPlayers);
