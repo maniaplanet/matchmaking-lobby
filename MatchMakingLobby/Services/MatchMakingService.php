@@ -146,8 +146,8 @@ class MatchMakingService
 	 */
 	function getMatchQuitters($matchId)
 	{
-		return $this->db->execute('SELECT login FROM Players WHERE matchId = %d AND (`state` = %d OR `state` = %d)', 
-                        $matchId, 
+		return $this->db->execute('SELECT login FROM Players WHERE matchId = %d AND (`state` = %d OR `state` = %d)',
+                        $matchId,
                         PlayerInfo::PLAYER_STATE_QUITTER,
                         PlayerInfo::PLAYER_STATE_GIVE_UP)->fetchArrayOfSingleValues();
 	}
@@ -221,14 +221,14 @@ class MatchMakingService
 	function getAvailableServer($lobbyLogin, $scriptName, $titleIdString)
 	{
 		return $this->db->execute(
-				'SELECT login FROM MatchServers MS '.
-				'WHERE lobbyLogin = %s '.
-				'AND scriptName = %s '.
-				'AND titleIdString = %s '.
-				'AND `state` = %d '.
-				'AND DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() '.
-				'ORDER BY RAND() LIMIT 1', $this->db->quote($lobbyLogin), $this->db->quote($scriptName),
-				$this->db->quote($titleIdString), \ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING
+				'SELECT MS.login FROM MatchServers MS '.
+				'LEFT JOIN Matches M ON MS.login = M.matchServerLogin '.
+				'WHERE MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s '.
+				'AND MS.`state` = %d AND (M.state IS NULL OR M.state < -1) '.
+				'AND DATE_ADD(MS.lastLive, INTERVAL 20 SECOND) > NOW() '.
+				'ORDER BY RAND() LIMIT 1',
+				$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString),
+				\ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING, Match::PREPARED
 			)->fetchSingleValue(null);
 	}
 

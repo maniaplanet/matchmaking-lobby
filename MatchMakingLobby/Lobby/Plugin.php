@@ -291,12 +291,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			foreach($matches as $match)
 			{
 				/** @var Match $match */
-				$matchId = $this->matchMakingService->getAvailableServer(
+				$server = $this->matchMakingService->getAvailableServer(
 					$this->storage->serverLogin,
 					$this->scriptName,
 					$this->titleIdString
 				);
-				if(!$matchId)
+				if(!$server)
 				{
 					foreach($match->players as $login)
 					{
@@ -306,7 +306,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				else
 				{
 					//Match ready, let's prepare it !
-					$this->prepareMatch($matchId, $match);
+					$this->prepareMatch($server, $match);
 				}
 			}
 		}
