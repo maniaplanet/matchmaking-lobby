@@ -428,7 +428,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$jumper = Windows\ForceManialink::Create();
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
 		$jumper->show();
-		$this->gui->prepareJump($players, $serverLogin, $titleIdString);
 		$this->changeState(self::SLEEPING);
 	}
 
