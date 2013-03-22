@@ -28,6 +28,15 @@ class Joust extends AbstractGUI
 	}
 
 	/**
+	 *
+	 * @return string
+	 */
+	function getIllegalLeaveText()
+	{
+		return "A player left\nDo not leave, you will be transfered back";
+	}
+
+	/**
 	 * Returns when a player give up
 	 * @return string
 	 */
