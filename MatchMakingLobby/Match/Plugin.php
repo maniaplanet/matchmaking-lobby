@@ -602,7 +602,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		if($this->intervals[$state])
 		{
-			$this->nextTick = new \DateTime($this->intervals[$state]);
+			if($this->state != static::PLAYER_LEFT && $this->state != $state)
+			{
+				$this->nextTick = new \DateTime($this->intervals[$state]);
+			}
 			$this->enableTickerEvent();
 		}
 		else $this->disableTickerEvent();
