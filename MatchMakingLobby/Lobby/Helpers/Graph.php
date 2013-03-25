@@ -15,13 +15,16 @@ class Graph
 	/** @var float[string][string] */
 	private $distances = array();
 
+	public $data = array();
+
 	/**
-	 * @param string $name
+	 * @param DistanciableObject $object
 	 * @param float[string] $distances
 	 */
-	function addNode($name, $distances)
+	function addNode($object, $distances)
 	{
-		$this->distances[$name] = $distances;
+		$this->distances[$object->id] = $distances;
+		$this->data[$object->id] = $object->data;
 	}
 
 	/**

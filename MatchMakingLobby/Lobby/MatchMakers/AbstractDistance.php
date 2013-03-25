@@ -11,24 +11,22 @@ namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers;
-use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
+use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers\DistanciableObject;
 
 abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements MatchMakerInterface
 {
 
 	const WAITING_STEP = 60;
-	const DISTANCE_THRESHOLD = 300;
 
-	/**
-	 * if override to true. Override method distributePlayers to put players in different teams
-	 * @var bool
-	 */
-	protected $isTeamMode = false;
+	const DISTANCE_PLAYERS_THRESHOLD = 300;
+
+	const DISTANCE_TEAMS_THRESHOLD = 30000;
 
 	/** @var Helpers\Graph */
-	protected $graph;
+	protected $playerGraph;
 
-	public $playerPerMatch = 0;
+	/** @var Helpers\Graph */
+	protected $teamsGraph;
 
 	/**
 	 * Entry point for the match making
@@ -37,11 +35,22 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 	 */
 	function run(array $players = array())
 	{
-		$matches = array();
-		$this->buildGraph($players);
+		$teams = $this->getTeams();
 
-		$nodes = $this->graph->getNodes();
-		while($nodes && $cliques = $this->graph->findCliques(reset($nodes), $this->playerPerMatch, static::DISTANCE_THRESHOLD))
+		return $this->getMatches($teams);
+	}
+
+	function getTeams(array $players = array())
+	{
+		$this->buildPlayersGraph($players);
+
+		$nodes = $this->playerGraph->getNodes();
+
+		$numberOfPlayer = ($this->getNumberOfTeam() == 0) ? $this->getPlayersPerMatch() : $this->getPlayersPerMatch()/$this->getNumberOfTeam();
+
+		$teams = array();
+
+		while($nodes && $cliques = $this->playerGraph->findCliques(reset($nodes), $numberOfPlayer, static::DISTANCE_TEAMS_THRESHOLD))
 		{
 			usort($cliques,
 				function($a, $b)
@@ -49,34 +58,96 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 					$radiusDiff = $a->getRadius() - $b->getRadius();
 					return $radiusDiff < 0 ? -1 : ($radiusDiff > 0 ? 1 : 0);
 				});
-			$match = new Match();
-			$match->players = reset($cliques)->getNodes();
-			if($this->isTeamMode)
+
+			$teams[] = reset($cliques)->getNodes();
+
+			$this->playerGraph->deleteNodes(reset($cliques)->getNodes());
+			$nodes = $this->playerGraph->getNodes();
+		}
+		return $teams;
+	}
+
+	public function getMatches(array $teams = array())
+	{
+		$matches = array();
+
+		if ($this->getNumberOfTeam() == 0)
+		{
+			foreach ($teams as $team)
 			{
-				$match = $this->distributePlayers($match);
+				$match = new Match();
+				$match->players = $team;
+
+				$matches[] = $match;
 			}
-			$matches[] = $match;
-			$this->graph->deleteNodes(reset($cliques)->getNodes());
-			$nodes = $this->graph->getNodes();
+		}
+		else
+		{
+			$this->buildTeamsGraph($teams);
+
+			$nodes = $this->teamsGraph->getNodes();
+
+			$teams = array();
+
+			while($nodes && $cliques = $this->teamsGraph->findCliques(reset($nodes), $this->getNumberOfTeam(), static::DISTANCE_TEAMS_THRESHOLD))
+			{
+				usort($cliques,
+					function($a, $b)
+					{
+						$radiusDiff = $a->getRadius() - $b->getRadius();
+						return $radiusDiff < 0 ? -1 : ($radiusDiff > 0 ? 1 : 0);
+					});
+
+				$temp = reset($cliques)->getNodes();
+
+				$match = new Match();
+
+				$match->team1 = $this->teamsGraph->data[$temp[0]];
+				$match->team2 = $this->teamsGraph->data[$temp[1]];
+
+				$matches[] = $match;
+
+				$this->teamsGraph->deleteNodes(reset($cliques)->getNodes());
+				$nodes = $this->teamsGraph->getNodes();
+			}
 		}
 		return $matches;
 	}
 
+	protected function buildPlayersGraph(array $players = array())
+	{
+		$distanciablePlayers = array_map(function ($player) { return new DistanciableObject($player, $player); }, $players);
+
+		$this->buildGraph($this->playerGraph, array($this, 'playersDistance'), $distanciablePlayers);
+
+		return $this->playerGraph;
+	}
+
+	protected function buildTeamsGraph(array $teams = array())
+	{
+		$distanciableTeam = array_map(function ($team) { return new DistanciableObject(serialize($team), $team); }, $teams);
+
+		$this->buildGraph($this->teamsGraph, array($this, 'teamsDistance'), $distanciableTeam);
+
+		return $this->teamsGraph;
+	}
+
 	/**
 	 * Create a graph where each ready player is a node
-	 * @param array $bannedPlayers
+	 * @param DistanciableObject[] $bannedPlayers
 	 * @return type
 	 */
-	protected function buildGraph(array $players = array())
+	protected function buildGraph(&$graph, $distanceComputeCallback, array $objects)
 	{
-		$this->graph = new Helpers\Graph();
-		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
+		//TODO: check if $objects if array of DistanciableObject
 
-		while($player = array_shift($players))
+		$graph = new Helpers\Graph();
+
+		while($object = array_shift($objects))
 		{
-			$this->graph->addNode(
-				$player,
-				$this->computeDistances($player, $players)
+			$graph->addNode(
+				$object,
+				$this->computeDistances($object, $objects, $distanceComputeCallback)
 				);
 		}
 	}
@@ -87,14 +158,14 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 	 * @param string[] $followers
 	 * @return float[string]
 	 */
-	private function computeDistances($player, $followers)
+	private function computeDistances($object, $followers, $distanceComputeCallback)
 	{
 		$distances = array();
 		foreach($followers as $follower)
 		{
-			if($follower == $player)
+			if($follower == $object)
 				continue;
-			$distances[$follower] = $this->distance($player, $follower);
+			$distances[$follower->id] = call_user_func($distanceComputeCallback, $object->data, $follower->data);
 		}
 		return $distances;
 	}
@@ -105,15 +176,15 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 	 * @param string $p2
 	 * @return int
 	 */
-	abstract protected function distance($p1, $p2);
+	abstract protected function playersDistance($p1, $p2);
 
 	/**
-	 * Get players from Match->players and add them in teams
-	 * @param Match $match input match
-	 * @return Match output match
+	 * Return the distance between two teams
+	 * @param string $p1
+	 * @param string $p2
+	 * @return int
 	 */
-	abstract protected function distributePlayers(Match $match);
-
+	abstract protected function teamsDistance($t1, $t2);
 }
 
 ?>
