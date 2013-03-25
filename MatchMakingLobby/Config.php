@@ -42,6 +42,8 @@ class Config extends \ManiaLib\Utils\Singleton
 	 */
 	public $waitingForBackups = 1;
 
+	public $minPlayersByTeam = 1;
+
 	public $matchMakerClassName;
 	public $guiClassName;
 	public $penaltiesCalculatorClassName;

@@ -79,7 +79,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var Services\Lobby */
 	protected $lobby = null;
 
-	/** @var \ManiaLivePlugins\MatchMakingLobby\LobbyControl\Match */
+	/** @var Services\Match */
 	protected $match = null;
 
 	/** @var GUI\AbstractGUI */
@@ -180,6 +180,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->updateLobbyWindow();
 		}
 		if(new \DateTime() < $this->nextTick) return;
+
+		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 		switch($this->state)
 		{
 			case self::SLEEPING:
@@ -234,10 +236,28 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 			case self::PLAYER_LEFT:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: PLAYER_LEFT');
-				$this->waitBackups();
+				if($this->match->team1 && $this->match->team2)
+				{
+					if(
+						$this->countConnectedPlayers($this->match->team1) <= $config->minPlayersByTeam ||
+						$this->countConnectedPlayers($this->match->team2) <= $config->minPlayersByTeam
+					)
+					{
+						\ManiaLive\Utilities\Logger::getLog('info')->write('Not enough players. Match cancel');
+						$this->cancel();
+						break;
+					}
+				}
+				if($config->waitingForBackups == 0)
+				{
+					$this->cancel();
+				}
+				else
+				{
+					$this->waitBackups();
+				}
 				break;
 			case self::WAITING_BACKUPS:
-				$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 				switch($config->waitingForBackups)
 				{
 					case 0:
@@ -344,6 +364,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 				break;
 		}
+
 	}
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
@@ -648,6 +669,22 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->matchMakingService->updatePlayerRank($ranking['Login'], $this->matchId, $ranking['Rank']);
 		}
+	}
+
+	/**
+	 * @param string[] $team
+	 */
+	protected function countConnectedPlayers(array $logins)
+	{
+		$count = 0;
+		foreach($logins as $login)
+		{
+			if(array_key_exists($login, $this->players) && $this->players[$login] == Services\PlayerInfo::PLAYER_STATE_CONNECTED)
+			{
+				$count += 1;
+			}
+		}
+		return $count;
 	}
 }
 
