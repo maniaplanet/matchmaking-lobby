@@ -252,9 +252,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			);
 			/** @var Match $match */
 			$quitters = $this->matchMakingService->getMatchQuitters($match->id);
-			\ManiaLive\Utilities\Logger::getLog('info')->write(
-					sprintf('match %d: searching backup for quitter %s', $match->id, implode(' & ', $quitters))
-				);
 			$backups = array();
 			foreach ($quitters as $quitter)
 			{
