@@ -152,6 +152,18 @@ class MatchMakingService
                         PlayerInfo::PLAYER_STATE_GIVE_UP)->fetchArrayOfSingleValues();
 	}
 
+	function getPlayersJustFinishedAllMatches()
+	{
+		return $this->db->execute(
+				'SELECT P.login '.
+				'FROM Players P '.
+				'INNER JOIN Matches M ON P.matchId = M.id '.
+				'WHERE DATE_ADD(M.lastUpdateDate, INTERVAL 2 MINUTE) < NOW() AND M.state <= %d '.
+				'AND P.login NOT IN (SELECT login FROM Players WHERE matchId > M.id)',
+				Match::FINISHED
+		)->fetchArrayOfSingleValues();
+	}
+
 	/**
 	 * Return the number of match currently played for the lobby
 	 * @param string $lobbyLogin
@@ -446,6 +458,7 @@ CREATE TABLE IF NOT EXISTS `Matches` (
 	`matchServerLogin` VARCHAR(25) NOT NULL,
 	`scriptName` VARCHAR(75) NOT NULL,
 	`titleIdString` VARCHAR(51) NOT NULL,
+	`lastUpdateDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	PRIMARY KEY (`id`),
 	INDEX `FK_Matches_MatchServers_idx` (`matchServerLogin`),
 	INDEX `FK_Matches_MatchServers` (`matchServerLogin`, `scriptName`, `titleIdString`),

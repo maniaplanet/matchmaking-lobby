@@ -341,8 +341,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 							if($player && !array_key_exists($player->login, $this->blockedPlayers))
 							{
 								$nicknames[] = '$<'.$player->nickName.'$>';
+								$this->connection->addGuest($player, true);
 							}
 						}
+						$this->connection->executeMulticall();
 
 						$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
 					}
@@ -362,6 +364,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if(++$this->mapTick % 1800 == 0)
 		{
 			$this->connection->nextMap();
+		}
+
+		if($this->tick % 30 == 0)
+		{
+			$logins = $this->matchMakingService->getPlayersJustFinishedAllMatches();
+			foreach($logins as $login)
+			{
+				$this->connection->removeGuest($login, true);
+			}
+			$this->connection->executeMulticall();
 		}
 
 		$this->setLobbyInfo();
