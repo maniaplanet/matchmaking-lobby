@@ -544,17 +544,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerGiveUp'), true));
 		$giveUp->show();
 
-		if($this->state == self::DECIDING)
+		switch($this->state)
 		{
-			$ratios = array(
-				array('Command' => 'nextMap', 'Ratio' => -1.),
-				array('Command' => 'jumpToMapIndex', 'Ratio' => -1.),
-			);
-			$this->connection->setCallVoteRatios($ratios);
-		}
-		else
-		{
-			$this->connection->chatSendServerMessage(static::PREFIX.'Player is back, match continues.');
+			case self::DECIDING:
+				$ratios = array(
+					array('Command' => 'nextMap', 'Ratio' => -1.),
+					array('Command' => 'jumpToMapIndex', 'Ratio' => -1.),
+				);
+				$this->connection->setCallVoteRatios($ratios);
+				break;
+			case static::PLAYER_LEFT:
+				$this->connection->chatSendServerMessage(static::PREFIX.'Player is back, match continues.');
+				break;
+			case static::WAITING_BACKUPS:
+				$this->connection->chatSendServerMessage(static::PREFIX.'Backup players are connected, match continues.');
+				break;
 		}
 
 		$this->changeState(self::PLAYING);
