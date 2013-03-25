@@ -383,7 +383,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::WAITING_BACKUPS:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch with missing players');
 				$this->registerRankings($rankings);
-				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHEd_WAITING_BACKUPS);
+				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED_WAITING_BACKUPS);
 				$this->over();
 				break;
 			case static::PLAYER_LEFT:

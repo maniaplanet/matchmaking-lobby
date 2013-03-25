@@ -11,7 +11,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class Match
 {
-	const FINISHEd_WAITING_BACKUPS = -5;
+	const FINISHED_WAITING_BACKUPS = -5;
 	const PLAYER_LEFT = -4;
 	const PLAYER_CANCEL = -3;
 	const FINISHED = -2;
