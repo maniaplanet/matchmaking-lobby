@@ -237,18 +237,34 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->waitBackups();
 				break;
 			case self::WAITING_BACKUPS:
-				if(++$this->waitingTime < static::TIME_WAITING_BACKUP)
+				$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
+				switch($config->waitingForBackups)
+				{
+					case 0:
+						$isWaitingTimeOver = true;
+						break;
+					case 2:
+						$isWaitingTimeOver = false;
+						break;
+					case 1:
+						//nobreak
+					default:
+						$isWaitingTimeOver = ++$this->waitingTime < static::TIME_WAITING_BACKUP;
+						break;
+				}
+
+				if($isWaitingTimeOver)
+				{
+					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS over');
+					$this->cancel();
+				}
+				else
 				{
 					$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 					if($match && $match != $this->match)
 					{
 						$this->updatePlayerList($match);
 					}
-				}
-				else
-				{
-					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS over');
-					$this->cancel();
 				}
 				break;
 			case self::OVER:
@@ -343,16 +359,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::DECIDING:
 				$this->decide();
 				break;
+			case static::WAITING_BACKUPS:
+				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch with missing players');
+				$this->registerRankings($rankings);
+				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHEd_WAITING_BACKUPS);
+				$this->over();
+				break;
 			case static::PLAYER_LEFT:
 				//nobreak;
-			case static::WAITING_BACKUPS:
 				//nobreak
 			case static::PLAYING:
 				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch while playing');
-				foreach($rankings as $ranking)
-				{
-					$this->matchMakingService->updatePlayerRank($ranking['Login'], $this->matchId, $ranking['Rank']);
-				}
+				$this->registerRankings($rankings);
 				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 				$this->over();
 				break;
@@ -619,6 +637,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->players[$login] = $state;
 		$this->matchMakingService->updatePlayerState($login, $this->matchId, $state);
+	}
+
+	protected function registerRankings($rankings)
+	{
+		foreach($rankings as $ranking)
+		{
+			$this->matchMakingService->updatePlayerRank($ranking['Login'], $this->matchId, $ranking['Rank']);
+		}
 	}
 }
 

@@ -32,6 +32,16 @@ class Config extends \ManiaLib\Utils\Singleton
 	 */
 	public $penaltyTime = 4;
 
+	/**
+	 * Depending of the value, the match plugin will wait for backups during some time before aborting the match,
+	 * or, will wait backups until the end of the match, or don't wait at all
+	 * 0 to not wait backups
+	 * 1 to wait before aborting the match
+	 * 2 to wait until the end of the match
+	 * @var int
+	 */
+	public $waitingForBackups = 1;
+
 	public $matchMakerClassName;
 	public $guiClassName;
 	public $penaltiesCalculatorClassName;
