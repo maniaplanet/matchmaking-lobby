@@ -18,7 +18,7 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 
 		// Waiting time coefficient
 		$waitingTime = $p1->getWaitingTime() + $p2->getWaitingTime();
-		$distance *= exp(-log(2) * $waitingTime / self::WAITING_STEP);
+		$distance *= exp(-log(2) * $waitingTime / static::WAITING_STEP);
 
 		return $distance;
 	}

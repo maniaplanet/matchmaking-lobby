@@ -106,7 +106,8 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 	}
 
 	/**
-	 * @returns MatchMakerInterface
+	 * This matchmaker is used for all players who does not have the right number of allies
+	 * @return MatchMakerInterface
 	 */
 	protected abstract function getFallbackMatchMaker();
 }

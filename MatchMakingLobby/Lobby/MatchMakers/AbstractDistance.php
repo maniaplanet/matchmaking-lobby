@@ -13,6 +13,10 @@ use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers;
 use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers\DistanciableObject;
 
+/**
+ * Extend this and implement the two abstracts methods to have a distance based match maker
+ *
+ */
 abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements MatchMakerInterface
 {
 
@@ -29,13 +33,29 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 	protected $teamsGraph;
 
 	/**
+	 * Return the distance between two players
+	 * @param string $p1
+	 * @param string $p2
+	 * @return int
+	 */
+	abstract protected function playersDistance($p1, $p2);
+
+	/**
+	 * Return the distance between two teams
+	 * @param string $p1
+	 * @param string $p2
+	 * @return int
+	 */
+	abstract protected function teamsDistance($t1, $t2);
+
+	/**
 	 * Entry point for the match making
 	 * @param array $players
 	 * @return Match
 	 */
 	function run(array $players = array())
 	{
-		$teams = $this->getTeams();
+		$teams = $this->getTeams($players);
 
 		return $this->getMatches($teams);
 	}
@@ -140,7 +160,6 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 	protected function buildGraph(&$graph, $distanceComputeCallback, array $objects)
 	{
 		//TODO: check if $objects if array of DistanciableObject
-
 		$graph = new Helpers\Graph();
 
 		while($object = array_shift($objects))
@@ -169,22 +188,6 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 		}
 		return $distances;
 	}
-
-	/**
-	 * Return the distance between two players
-	 * @param string $p1
-	 * @param string $p2
-	 * @return int
-	 */
-	abstract protected function playersDistance($p1, $p2);
-
-	/**
-	 * Return the distance between two teams
-	 * @param string $p1
-	 * @param string $p2
-	 * @return int
-	 */
-	abstract protected function teamsDistance($t1, $t2);
 }
 
 ?>
