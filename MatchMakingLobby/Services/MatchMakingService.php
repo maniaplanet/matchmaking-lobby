@@ -96,9 +96,9 @@ class MatchMakingService
 				'SELECT id FROM Matches '.
 				'WHERE matchServerLogin = %s  AND scriptName = %s AND titleIdString = %s '.
 				'AND state >= %d ',
-				$this->db->quote($serverLogin), 
-				$this->db->quote($scriptName), 
-				$this->db->quote($titleIdString), 
+				$this->db->quote($serverLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString),
 				Match::PREPARED
 			)->fetchSingleValue();
 		return $this->getMatch($id);
@@ -128,10 +128,10 @@ class MatchMakingService
 				'INNER JOIN MatchServers MS ON '.
 				'M.matchServerLogin = MS.login AND M.scriptName = MS.scriptName AND M.titleIdString = MS.titleIdString '.
 				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
-				'AND M.state = %d ', 
-				$this->db->quote($lobbyLogin), 
-				$this->db->quote($scriptName), 
-				$this->db->quote($titleIdString), 
+				'AND M.state = %d ',
+				$this->db->quote($lobbyLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString),
 				Match::WAITING_BACKUPS
 			)->fetchArrayOfSingleValues();
 
@@ -146,10 +146,22 @@ class MatchMakingService
 	 */
 	function getMatchQuitters($matchId)
 	{
-		return $this->db->execute('SELECT login FROM Players WHERE matchId = %d AND (`state` = %d OR `state` = %d)', 
-                        $matchId, 
+		return $this->db->execute('SELECT login FROM Players WHERE matchId = %d AND (`state` = %d OR `state` = %d)',
+                        $matchId,
                         PlayerInfo::PLAYER_STATE_QUITTER,
                         PlayerInfo::PLAYER_STATE_GIVE_UP)->fetchArrayOfSingleValues();
+	}
+
+	function getPlayersJustFinishedAllMatches()
+	{
+		return $this->db->execute(
+				'SELECT P.login '.
+				'FROM Players P '.
+				'INNER JOIN Matches M ON P.matchId = M.id '.
+				'WHERE DATE_ADD(M.lastUpdateDate, INTERVAL 2 MINUTE) < NOW() AND M.state <= %d '.
+				'AND P.login NOT IN (SELECT login FROM Players WHERE matchId > M.id)',
+				Match::FINISHED
+		)->fetchArrayOfSingleValues();
 	}
 
 	/**
@@ -221,14 +233,14 @@ class MatchMakingService
 	function getAvailableServer($lobbyLogin, $scriptName, $titleIdString)
 	{
 		return $this->db->execute(
-				'SELECT login FROM MatchServers MS '.
-				'WHERE lobbyLogin = %s '.
-				'AND scriptName = %s '.
-				'AND titleIdString = %s '.
-				'AND `state` = %d '.
-				'AND DATE_ADD(lastLive, INTERVAL 20 SECOND) > NOW() '.
-				'ORDER BY RAND() LIMIT 1', $this->db->quote($lobbyLogin), $this->db->quote($scriptName),
-				$this->db->quote($titleIdString), \ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING
+				'SELECT MS.login FROM MatchServers MS '.
+				'LEFT JOIN Matches M ON MS.login = M.matchServerLogin '.
+				'WHERE MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s '.
+				'AND MS.`state` = %d AND (M.state IS NULL OR M.state < -1) '.
+				'AND DATE_ADD(MS.lastLive, INTERVAL 20 SECOND) > NOW() '.
+				'ORDER BY RAND() LIMIT 1',
+				$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString),
+				\ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING, Match::PREPARED
 			)->fetchSingleValue(null);
 	}
 
@@ -329,15 +341,32 @@ class MatchMakingService
 	}
 
 	/**
-	 * Register a player as a quitter
+	 * Set the new player state
 	 * @param string $playerLogin
 	 * @param int $matchId
+	 * @param int $state
 	 */
 	function updatePlayerState($playerLogin, $matchId, $state)
 	{
 		$this->db->execute(
 			'UPDATE Players SET state = %d WHERE login = %s AND matchId = %d',
 			$state,
+			$this->db->quote($playerLogin),
+			$matchId
+		);
+	}
+
+	/**
+	 * Register the player rank on his match
+	 * @param string $playerLogin
+	 * @param int $matchId
+	 * @param int $rank
+	 */
+	function updatePlayerRank($playerLogin, $matchId, $rank)
+	{
+		$this->db->execute(
+			'UPDATE Players SET rank = %d WHERE login = %s AND matchId = %d',
+			$rank,
 			$this->db->quote($playerLogin),
 			$matchId
 		);
@@ -393,8 +422,8 @@ CREATE TABLE IF NOT EXISTS `LobbyServers` (
 	`login` VARCHAR(25) NOT NULL,
 	`name` VARCHAR(76) NOT NULL,
 	`backLink` VARCHAR(76) NOT NULL,
-	`readyPlayers` INT(11) NOT NULL,
-	`connectedPlayers` INT(11) NOT NULL,
+	`readyPlayers` INT NOT NULL,
+	`connectedPlayers` INT NOT NULL,
 	PRIMARY KEY (`login`)
 )
 COLLATE='utf8_general_ci'
@@ -407,7 +436,7 @@ EOLobbyServers
 CREATE TABLE IF NOT EXISTS `MatchServers` (
 	`login` VARCHAR(25) NOT NULL,
 	`lobbyLogin` VARCHAR(25) NOT NULL,
-	`state` INT(11) NOT NULL COMMENT '-2: player left, -1 waiting, 1 sleeping, 2 deciding, 3 playing, 4 over',
+	`state` INT NOT NULL COMMENT '-2: player left, -1 waiting, 1 sleeping, 2 deciding, 3 playing, 4 over',
 	`lastLive` DATETIME NOT NULL,
 	`scriptName` VARCHAR(75) NOT NULL,
 	`titleIdString` VARCHAR(51) NOT NULL,
@@ -423,12 +452,13 @@ EOMatchServers
 		$this->db->execute(
 			<<<EOMatches
 CREATE TABLE IF NOT EXISTS `Matches` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`id` INT NOT NULL AUTO_INCREMENT,
 	`creationDate` DATETIME NOT NULL,
-	`state` INT(11) NOT NULL COMMENT '1:playing, -1: preparing, -2: player left, -3: player gave p, -4: over fine',
+	`state` INT NOT NULL COMMENT '1:playing, -1: preparing, -2: player left, -3: player gave p, -4: over fine',
 	`matchServerLogin` VARCHAR(25) NOT NULL,
 	`scriptName` VARCHAR(75) NOT NULL,
 	`titleIdString` VARCHAR(51) NOT NULL,
+	`lastUpdateDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	PRIMARY KEY (`id`),
 	INDEX `FK_Matches_MatchServers_idx` (`matchServerLogin`),
 	INDEX `FK_Matches_MatchServers` (`matchServerLogin`, `scriptName`, `titleIdString`),
@@ -443,9 +473,10 @@ EOMatches
 			<<<EOPlayers
 CREATE TABLE IF NOT EXISTS `Players` (
 	`login` VARCHAR(25) NOT NULL,
-	`matchId` INT(11) NOT NULL,
-	`teamId` INT(11) NULL DEFAULT NULL,
-	`state` INT(11) NOT NULL DEFAULT '0',
+	`matchId` INT NOT NULL,
+	`teamId` INT NULL DEFAULT NULL,
+	`state` INT NOT NULL DEFAULT '0',
+	`rank` INT NOT NULL DEFAULT '0',
 	PRIMARY KEY (`login`, `matchId`),
 	INDEX `FK_Players_Matches_idx` (`matchId`),
 	CONSTRAINT `FK_Players_Matches` FOREIGN KEY (`matchId`) REFERENCES `Matches` (`id`) ON UPDATE CASCADE ON DELETE CASCADE

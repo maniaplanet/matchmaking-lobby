@@ -135,7 +135,7 @@ abstract class AbstractGUI
 	 */
 	function getGiveUpText()
 	{
-		return 'A player gave up\nDo not leave, a remplacement player is being searched';
+		return "A player gave up\nDo not leave, a remplacement player is being searched";
 	}
 
 	/**
@@ -153,14 +153,26 @@ abstract class AbstractGUI
 	 * @param string $login
 	 * @param string $message
 	 * @param int $countdown
+	 * @param bool $isAnimated If true the text will be animated
 	 */
-	final function createLabel($login, $message, $countdown = null)
+	final function createLabel($message, $login = null, $countdown = null, $isAnimated = false)
 	{
-		Windows\Label::Erase($login);
-		$confirm = Windows\Label::Create($login);
-		$confirm->setPosition(0, 40);
-		$confirm->setMessage($message, $countdown);
-		$confirm->show();
+		if($login)
+		{
+			Windows\Label::Erase($login);
+		}
+		else
+		{
+			Windows\Label::EraseAll();
+		}
+		$ui = Windows\Label::Create($login);
+		$ui->setPosition(0, 40);
+		$ui->setMessage($message, $countdown);
+		if($isAnimated == true)
+		{
+			$ui->setId('animated-label');
+		}
+		$ui->show();
 	}
 
 	/**
@@ -200,22 +212,26 @@ abstract class AbstractGUI
 	final function updatePlayerList(array $blockedPlayerList)
 	{
 		$storage = Storage::getInstance();
-
-		foreach(array_merge($storage->players, $storage->spectators) as $player)
+		$playerLists = Windows\PlayerList::GetAll();
+		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
+		foreach($playerLists as $playerList)
 		{
-			$playerInfo = PlayerInfo::Get($player->login);
-			$state = Player::STATE_NOT_READY;
-			$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
-			if($playerInfo->isReady()) $state = Player::STATE_READY;
-			if($matchMakingService->isInMatch($player->login)) $state = Player::STATE_IN_MATCH;
-			if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
-
-			$playerLists = Windows\PlayerList::GetAll();
-			foreach($playerLists as $playerList)
+			$currentPlayerObj = $storage->getPlayerObject($playerList->getRecipient());
+			foreach(array_merge($storage->players, $storage->spectators) as $player)
 			{
+				if(PlayerInfo::Get($player->login)->isAway())
+				{
+					continue;
+				}
+
+				$playerInfo = PlayerInfo::Get($player->login);
+				$state = Player::STATE_NOT_READY;
+				if($playerInfo->isReady()) $state = Player::STATE_READY;
+				if($matchMakingService->isInMatch($player->login)) $state = Player::STATE_IN_MATCH;
+				if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
+
 				/* @var $playerList Windows\PlayerList */
-				$isAlly = $this->displayAllies && $player && in_array($playerList->getRecipient(),
-						$player->allies);
+				$isAlly = $this->displayAllies && $player && in_array($player->login, $currentPlayerObj->allies);
 				$playerList->setPlayer($player->login, $state, $isAlly);
 			}
 		}
@@ -238,25 +254,25 @@ abstract class AbstractGUI
 		Windows\PlayerList::RedrawAll();
 	}
 
-	final function prepareJump(array $players, $serverLogin, $titleIdString)
+	final function prepareJump(array $players, $serverLogin, $titleIdString, $matchId)
 	{
-		$groupName = sprintf('match-%s',$serverLogin);
+		$groupName = sprintf('match-%d',$matchId);
 		$this->eraseJump($serverLogin);
 		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString);
 	}
 
-	final function eraseJump($serverLogin)
+	final function eraseJump($matchId)
 	{
-		$groupName = sprintf('match-%s',$serverLogin);
+		$groupName = sprintf('match-%d',$matchId);
 		Windows\ForceManialink::Erase(\ManiaLive\Gui\Group::Get($groupName));
 		\ManiaLive\Gui\Group::Erase($groupName);
 	}
 
-	final function showJump($serverLogin)
+	final function showJump($matchId)
 	{
-		$groupName = sprintf('match-%s',$serverLogin);
+		$groupName = sprintf('match-%d',$matchId);
 		$group = \ManiaLive\Gui\Group::Get($groupName);
 		Windows\ForceManialink::Create($group)->show();
 	}

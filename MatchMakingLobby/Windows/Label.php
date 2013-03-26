@@ -21,17 +21,31 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 	protected $sound;
 
 	protected function onConstruct()
-	{		
+	{
 		$this->label = new \ManiaLib\Gui\Elements\Label(400);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setTextSize(5);
 		$this->label->setHalign('center');
+		$this->label->enableAutonewline();
 		$this->addComponent($this->label);
 
 		$this->sound = new \ManiaLib\Gui\Elements\Audio();
 		$this->sound->setData('http://static.maniaplanet.com/manialinks/lobbyTimer.wav', true);
 		$this->sound->setPosition(200);
 		$this->sound->autoPlay();
+	}
+
+	function onDraw()
+	{
+		if($this->getId() == 'animated-label')
+		{
+			\ManiaLive\Gui\Manialinks::appendXML('<script>#RequireContext CGameManialinkScriptHandler
+#Include "MathLib" as MathLib&#13;
+main() {&#13;
+	declare CMlLabel label &lt;=&gt; (Page.MainFrame.GetFirstChild("animated-label") as CMlLabel);&#13;
+	while(True) { label.Scale = 2+MathLib::Cos(CurrentTime*.002); yield; }&#13;
+}</script>');
+		}
 	}
 
 	function onTick()

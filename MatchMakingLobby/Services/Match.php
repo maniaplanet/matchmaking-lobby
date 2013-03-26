@@ -11,6 +11,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class Match
 {
+	const FINISHED_WAITING_BACKUPS = -5;
 	const PLAYER_LEFT = -4;
 	const PLAYER_CANCEL = -3;
 	const FINISHED = -2;
@@ -59,7 +60,7 @@ class Match
 	 * @var string[]
 	 */
 	public $team1 = array();
-	
+
 	/**
 	 * Same as team1
 	 * @var string[]
