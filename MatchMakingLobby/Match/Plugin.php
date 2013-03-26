@@ -501,7 +501,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		Windows\GiveUp::Erase($login);
 
-		$this->waitBackups();
+		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
+		if($config->waitingForBackups == 0)
+		{
+			$this->cancel();
+		}
+		else
+		{
+			$this->waitBackups();
+		}
 	}
 
 	protected function cancel()
