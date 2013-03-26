@@ -6,18 +6,11 @@
  */
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
-use \ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
-use ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService;
 
-class LadderPointsDistance extends AbstractDistance
+abstract class AbstractLadderPointsDistance extends AbstractDistance
 {
-	protected function distributePlayers(Match $match)
-	{
-
-	}
-
-	protected function distance($p1, $p2)
+	protected function playersDistance($p1, $p2)
 	{
 		$p1 = PlayerInfo::Get($p1);
 		$p2 = PlayerInfo::Get($p2);
@@ -25,9 +18,19 @@ class LadderPointsDistance extends AbstractDistance
 
 		// Waiting time coefficient
 		$waitingTime = $p1->getWaitingTime() + $p2->getWaitingTime();
-		$distance *= exp(-log(2) * $waitingTime / self::WAITING_STEP);
+		$distance *= exp(-log(2) * $waitingTime / static::WAITING_STEP);
 
 		return $distance;
+	}
+
+	protected function teamsDistance($t1, $t2)
+	{
+		$points = array();
+		foreach(array($t1, $t2) as $index => $team)
+		{
+			$points[$index] = array_reduce($team, function ($result, $player) { return $result + PlayerInfo::Get($player)->ladderPoints/3; }, 0);
+		}
+		return abs($points[1] - $points[0]);
 	}
 
 	public function getBackup($missingPlayer, array $players = array())

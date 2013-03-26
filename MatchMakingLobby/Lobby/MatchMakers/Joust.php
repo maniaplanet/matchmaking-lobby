@@ -9,16 +9,23 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
-class Joust extends LadderPointsDistance
+class Joust extends AbstractLadderPointsDistance
 {
-
-	public $playerPerMatch = 2;
-
 	const DISTANCE_THRESHOLD = 1000;
 
 	public function getBackup($missingPlayer, array $players = array())
 	{
 		return false;
+	}
+
+	public function getNumberOfTeam()
+	{
+		return 0;
+	}
+
+	public function getPlayersPerMatch()
+	{
+		return 2;
 	}
 }
 

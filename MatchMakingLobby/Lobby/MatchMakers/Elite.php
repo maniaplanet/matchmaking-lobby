@@ -12,13 +12,19 @@ namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
-class Elite extends LadderPointsDistance
+class Elite extends AbstractLadderPointsDistance
 {
-
-	protected $isTeamMode = true;
-	public $playerPerMatch = 6;
-
 	const DISTANCE_THRESHOLD = 2000;
+
+	function getNumberOfTeam()
+	{
+		return 2;
+	}
+
+	function getPlayersPerMatch()
+	{
+		return 6;
+	}
 
 	/**
 	 * @param PlayerInfo $p1
@@ -35,94 +41,6 @@ class Elite extends LadderPointsDistance
 			return -1;
 		}
 		return parent::distance($p1, $p2);
-	}
-
-	protected function distributePlayers(Match $m)
-	{
-		$players = $m->players;
-
-		usort($players,
-			function ($a, $b)
-			{
-				$pa = PlayerInfo::Get($a);
-				$pb = PlayerInfo::Get($b);
-				if($pa->ladderPoints == $pb->ladderPoints)
-				{
-					return 0;
-				}
-				return ($pa->ladderPoints > $pb->ladderPoints) ? -1 : 1;
-			}
-		);
-		$playersInfo = array();
-
-		foreach($players as $player)
-		{
-			$playersInfo[$player] = PlayerInfo::Get($player);
-		}
-
-		$alliesCountPlayers = array();
-		foreach($playersInfo as $player)
-		{
-			if(count($player->allies) == 2)
-			{
-				$alliesCountPlayers[2][] = $player->login;
-			}
-			elseif(count($player->allies) == 1)
-			{
-				$alliesCountPlayers[1][] = $player->login;
-			}
-		}
-		$teamNumber = false;
-		foreach($players as $key => $player)
-		{
-			/* @var $player \DedicatedApi\Structures\Player */
-			$m->addPlayerInTeam($player, $teamNumber);
-			if($key % 2 == 0) $teamNumber = !$teamNumber;
-		}
-
-
-		if(isset($alliesCountPlayers[2]) && count($alliesCountPlayers[2])) $ally = array_shift($alliesCountPlayers[2]);
-		elseif(isset($alliesCountPlayers[1]) && count($alliesCountPlayers[1])) $ally = array_shift($alliesCountPlayers[1]);
-		else $ally = null;
-
-		if($ally)
-		{
-			$allies = $playersInfo[$ally]->allies;
-			$allies[] = $ally;
-
-			if(array_search($ally, $m->team1)!== false)
-			{
-				list($m->team2, $m->team1) = $this->teamSwitch($m->team2, $m->team1, $allies);
-			}
-			elseif(array_search($ally, $m->team2)!== false)
-			{
-				list($m->team1, $m->team2) = $this->teamSwitch($m->team1, $m->team2, $allies);
-			}
-		}
-
-		return $m;
-	}
-
-	protected function teamSwitch(array $aTeam, array $bTeam, array $fixPlayers)
-	{
-		$movingAllies = array_diff($fixPlayers, $bTeam);
-		foreach($bTeam as $key => $player)
-		{
-			if(in_array($player, $fixPlayers))
-			{
-				continue;
-			}
-			$allyKey = array_search(current($movingAllies), $aTeam);
-			$tmp = $aTeam[$allyKey];
-			$aTeam[$allyKey] = $player;
-			$bTeam[$key] = $tmp;
-			if(!next($movingAllies))
-			{
-				break;
-			}
-		}
-
-		return array($aTeam, $bTeam);
 	}
 }
 
