@@ -352,7 +352,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//nobreak
 			case static::PLAYING:
 				// If a player gave up, no need to punish him!
-				if($this->players[$login] != Services\PlayerInfo::PLAYER_STATE_GIVE_UP)
+				if(array_key_exists($login, $this->players) && $this->players[$login] != Services\PlayerInfo::PLAYER_STATE_GIVE_UP)
 				{
 					$this->playerIllegalLeave($login);
 				}

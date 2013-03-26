@@ -223,6 +223,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onBeginMap($map, $warmUp, $matchContinuation)
 	{
 		$this->mapTick = 0;
+		$this->connection->restartMap();
 	}
 
 	//Core of the plugin
