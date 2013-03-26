@@ -102,7 +102,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('0.3');
+		$this->setVersion('0.1');
 	}
 
 	function onLoad()
@@ -269,10 +269,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					case 1:
 						//nobreak
 					default:
-						$isWaitingTimeOver = ++$this->waitingTime < static::TIME_WAITING_BACKUP;
+						$isWaitingTimeOver = (++$this->waitingTime > static::TIME_WAITING_BACKUP);
 						break;
 				}
-
 				if($isWaitingTimeOver)
 				{
 					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS over');
@@ -285,6 +284,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					{
 						$this->updatePlayerList($match);
 					}
+					$this->changeState(self::WAITING_BACKUPS);;
 				}
 				break;
 			case self::OVER:
@@ -361,7 +361,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: incoherent state: player disconnected while match sleeping');
 				//nobreak
 			case static::OVER:
-				$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
+				if(array_key_exists($login, $this->players))
+				{
+					$this->players[$login] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
+				}
 				break;
 		}
 
