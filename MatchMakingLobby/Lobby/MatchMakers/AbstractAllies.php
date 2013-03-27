@@ -47,7 +47,7 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 			}
 
 			//Save only valid teams
-			if (count($team) > 0 && count($team) <= $teamSize)
+			if (count($team) > 1 && count($team) <= $teamSize)
 			{
 				sort($team);
 				$teams[] = $team;
@@ -64,6 +64,10 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 		{
 			$team = unserialize($team);
 			if (count($team) != $size)
+			{
+				continue;
+			}
+			else if (array_intersect($team, $matchedPlayers) != array())
 			{
 				continue;
 			}
@@ -88,7 +92,6 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 		}
 
 		//There are a few players not in teams
-		//var_dump(array_diff($players, $matchedPlayers));
 		return array_merge($matchableTeams, $this->getFallbackMatchMaker()->getTeams(array_diff($players, $matchedPlayers)));
 	}
 
@@ -106,13 +109,13 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 	 */
 	protected function findClosePlayer($closeTo, $availablePlayers, $number)
 	{
-		var_dump(func_get_args());
 		if ($number == 0 || count($availablePlayers) < $number)
 		{
 			return array();
 		}
-		return array_map(function ($index) use ($availablePlayers) { return $availablePlayers[$index]; },
+		$foundPlayers =  array_map(function ($index) use ($availablePlayers) { return $availablePlayers[$index]; },
 				(array) array_rand($availablePlayers, $number));
+		return $foundPlayers;
 	}
 
 	/**
