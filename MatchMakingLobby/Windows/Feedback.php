@@ -15,7 +15,7 @@ class Feedback extends GiveUp
 	{
 		parent::onConstruct();
 		$this->message->setText('Feedback');
-		$this->message->setUrl('http://forum.maniaplanet.com/viewtopic.php?f=435&t=16768&start=10');
+		$this->message->setUrl('http://forum.maniaplanet.com/viewtopic.php?f=435&t=16768');
 	}
 }
 
