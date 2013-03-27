@@ -15,8 +15,6 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 	{
 		$teams = $this->getTeams($players);
 
-		var_dump($teams);
-
 		return $this->getMatches($teams);
 	}
 
