@@ -38,22 +38,25 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 
 		foreach ($playersObject as $player)
 		{
-			$this->matchedPlayers[] = $player->login;
-			$team = array($player->login);
-			foreach ($player->allies as $ally)
+			if (!in_array($player->login, $this->matchedPlayers))
 			{
-				if (in_array($ally, $players))
+				$this->matchedPlayers[] = $player->login;
+				$team = array($player->login);
+				foreach ($player->allies as $ally)
 				{
-					$team[] = $ally;
-					$this->matchedPlayers[] = $ally;
+					if (in_array($ally, $players) && !in_array($ally, $this->matchedPlayers))
+					{
+						$team[] = $ally;
+						$this->matchedPlayers[] = $ally;
+					}
 				}
-			}
 
-			//Save only valid teams
-			if (count($team) > 0 && count($team) <= $teamSize)
-			{
-				sort($team);
-				$teams[] = $team;
+				//Save only valid teams
+				if (count($team) > 0 && count($team) <= $teamSize)
+				{
+					sort($team);
+					$teams[] = $team;
+				}
 			}
 		}
 
