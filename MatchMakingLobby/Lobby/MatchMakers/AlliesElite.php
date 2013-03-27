@@ -13,7 +13,7 @@ class AlliesElite extends AbstractAllies
 {
 	public function getBackup($missingPlayer, array $players = array())
 	{
-		$this->getFallbackMatchMaker()->getBackup($missingPlayer, $players);
+		return $this->getFallbackMatchMaker()->getBackup($missingPlayer, $players);
 	}
 
 	function getNumberOfTeam()
