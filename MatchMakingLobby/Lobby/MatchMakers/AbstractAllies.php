@@ -23,6 +23,7 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 	function getTeams(array $players = array())
 	{
 		$teams = array();
+		$matchedPlayers = array();
 		$matchableTeams = array();
 		$matchableTeamsScore = array();
 		$matches = array();
@@ -38,16 +39,16 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 
 		foreach ($playersObject as $player)
 		{
-			if (!in_array($player->login, $this->matchedPlayers))
+			if (!in_array($player->login, $matchedPlayers))
 			{
-				$this->matchedPlayers[] = $player->login;
+				$matchedPlayers[] = $player->login;
 				$team = array($player->login);
 				foreach ($player->allies as $ally)
 				{
-					if (in_array($ally, $players) && !in_array($ally, $this->matchedPlayers))
+					if (in_array($ally, $players) && !in_array($ally, $matchedPlayers))
 					{
 						$team[] = $ally;
-						$this->matchedPlayers[] = $ally;
+						$matchedPlayers[] = $ally;
 					}
 				}
 
