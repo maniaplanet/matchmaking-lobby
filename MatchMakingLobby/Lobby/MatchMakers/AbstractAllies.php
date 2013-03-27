@@ -107,7 +107,7 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 	 */
 	protected function findClosePlayer($closeTo, $availablePlayers, $number)
 	{
-		if ($number > 0 && count($availablePlayers) < $number)
+		if ($number == 0 || count($availablePlayers) < $number)
 		{
 			return array();
 		}

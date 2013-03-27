@@ -502,7 +502,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	private function getTotalSlots()
 	{
 		$matchServerCount = $this->matchMakingService->getLiveMatchServersCount($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		return $matchServerCount * $this->matchMaker->playerPerMatch + $this->storage->server->currentMaxPlayers + $this->storage->server->currentMaxSpectators;
+		return $matchServerCount * $this->matchMaker->getPlayersPerMatch() + $this->storage->server->currentMaxPlayers + $this->storage->server->currentMaxSpectators;
 	}
 
 	private function registerLobby()
