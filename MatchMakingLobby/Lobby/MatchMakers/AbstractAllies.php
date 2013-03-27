@@ -15,6 +15,8 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 	{
 		$teams = $this->getTeams($players);
 
+		var_dump($teams);
+
 		return $this->getMatches($teams);
 	}
 
@@ -37,25 +39,20 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 
 		foreach ($playersObject as $player)
 		{
-			if (!in_array($player->login, $matchedPlayers))
+			$team = array($player->login);
+			foreach ($player->allies as $ally)
 			{
-				$matchedPlayers[] = $player->login;
-				$team = array($player->login);
-				foreach ($player->allies as $ally)
+				if (in_array($ally, $players))
 				{
-					if (in_array($ally, $players) && !in_array($ally, $matchedPlayers))
-					{
-						$team[] = $ally;
-						$matchedPlayers[] = $ally;
-					}
+					$team[] = $ally;
 				}
+			}
 
-				//Save only valid teams
-				if (count($team) > 0 && count($team) <= $teamSize)
-				{
-					sort($team);
-					$teams[] = $team;
-				}
+			//Save only valid teams
+			if (count($team) > 0 && count($team) <= $teamSize)
+			{
+				sort($team);
+				$teams[] = $team;
 			}
 		}
 
@@ -68,26 +65,32 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 		foreach ($teams as $team => $size)
 		{
 			$team = unserialize($team);
-			if ($size == $teamSize)
+			if (count($team) != $size)
+			{
+				continue;
+			}
+			else if ($size == $teamSize)
 			{
 				$matchableTeams[] = $team;
+				$matchedPlayers = array_merge($matchedPlayers, $team);
 			}
 			else if ($size < $teamSize)
 			{
 				$missingCount = $teamSize - count($team);
-				$closePlayers = $this->findClosePlayer($team, array_diff($players, $matchedPlayers), $missingCount);
+				$closePlayers = $this->findClosePlayer($team, array_diff($players, $matchedPlayers, $team), $missingCount);
 
 				if ($closePlayers)
 				{
-					$this->matchedPlayers = array_merge($matchedPlayers, $closePlayers);
 					$team = array_merge($team, $closePlayers);
 
+					$matchedPlayers = array_merge($matchedPlayers, $team);
 					$matchableTeams[] = $team;
 				}
 			}
 		}
 
 		//There are a few players not in teams
+		//var_dump(array_diff($players, $matchedPlayers));
 		return array_merge($matchableTeams, $this->getFallbackMatchMaker()->getTeams(array_diff($players, $matchedPlayers)));
 	}
 
@@ -105,6 +108,7 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 	 */
 	protected function findClosePlayer($closeTo, $availablePlayers, $number)
 	{
+		var_dump(func_get_args());
 		if ($number == 0 || count($availablePlayers) < $number)
 		{
 			return array();
