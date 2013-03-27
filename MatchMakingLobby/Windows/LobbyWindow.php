@@ -28,7 +28,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	 * @var Elements\Label
 	 */
 	protected $totalPlayers;
-	
+
 	/**
 	 * @var Elements\Label
 	 */
@@ -42,7 +42,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$ui->setStyle(Elements\Label::TextTitle3);
 		$ui->setText('$s$999Lobby info');
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(20);
+		$ui->setPosition(22.5);
 		$this->addComponent($ui);
 
 		$ui = new Elements\Bgs1InRace(50, 20);
@@ -52,16 +52,15 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 
 		$this->serverName = new Elements\Label(38);
 		$this->serverName->setAlign('center', 'center2');
-		$this->serverName->setPosition(20, -5);
+		$this->serverName->setPosition(22.5, -5);
 		$this->serverName->setTextColor('fff');
-		$this->serverName->setText('NadeoLive Test');
 		$this->addComponent($this->serverName);
 
 		$ui = new Elements\Label(30);
 		$ui->setText('Players');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(20, -9);
+		$ui->setPosition(22.5, -9);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 
@@ -81,19 +80,19 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->readyPlayers->setText(6);
 		$this->readyPlayers->setScale(0.75);
 		$this->addComponent($this->readyPlayers);
-		
+
 		$ui = new Elements\Label(30);
 		$ui->setText('Playing');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(20, -12);
+		$ui->setPosition(22.5, -12);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 
 
 		$this->playingPlayers = new Elements\Label(17);
 		$this->playingPlayers->setAlign('center', 'center2');
-		$this->playingPlayers->setPosition(20, -18);
+		$this->playingPlayers->setPosition(22.5, -18);
 		$this->playingPlayers->setStyle(Elements\Label::TextRaceChrono);
 		$this->playingPlayers->setText(6);
 		$this->playingPlayers->setScale(0.75);
@@ -103,13 +102,13 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$ui->setText('Total');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(33, -12);
+		$ui->setPosition(38, -12);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 
 		$this->totalPlayers = new Elements\Label(17);
 		$this->totalPlayers->setAlign('center', 'center2');
-		$this->totalPlayers->setPosition(33, -18);
+		$this->totalPlayers->setPosition(38, -18);
 		$this->totalPlayers->setStyle(Elements\Label::TextRaceChrono);
 		$this->totalPlayers->setText(6);
 		$this->totalPlayers->setScale(0.75);

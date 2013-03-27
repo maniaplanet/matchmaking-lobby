@@ -186,7 +186,7 @@ abstract class AbstractGUI
 	{
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->setAlign('right','bottom');
-		$lobbyWindow->setPosition(170, $this->lobbyBoxPosY);
+		$lobbyWindow->setPosition(165, $this->lobbyBoxPosY);
 		$lobbyWindow->set($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount);
 		$lobbyWindow->show();
 	}
@@ -200,7 +200,7 @@ abstract class AbstractGUI
 	{
 		$playerList = Windows\PlayerList::Create($login);
 		$playerList->setAlign('right');
-		$playerList->setPosition(170, $this->lobbyBoxPosY + 3);
+		$playerList->setPosition(165, $this->lobbyBoxPosY + 3);
 		$playerList->show();
 	}
 
@@ -225,6 +225,7 @@ abstract class AbstractGUI
 				}
 
 				$playerInfo = PlayerInfo::Get($player->login);
+				$playerObj = $storage->getPlayerObject($player->login);
 				$state = Player::STATE_NOT_READY;
 				if($playerInfo->isReady()) $state = Player::STATE_READY;
 				if($matchMakingService->isInMatch($player->login)) $state = Player::STATE_IN_MATCH;
@@ -232,7 +233,7 @@ abstract class AbstractGUI
 
 				/* @var $playerList Windows\PlayerList */
 				$isAlly = $this->displayAllies && $player && in_array($player->login, $currentPlayerObj->allies);
-				$playerList->setPlayer($player->login, $state, $isAlly);
+				$playerList->setPlayer($player->login, $state, $isAlly, $playerObj->ladderStats['PlayerRankings'][0]['Ranking']);
 			}
 		}
 		Windows\PlayerList::RedrawAll();

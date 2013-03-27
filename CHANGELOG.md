@@ -2,7 +2,8 @@
 
 ##### Lobby
 * NEW: Matchmaker now support allies. Go to maniaplanet live chat in order to set one of your buddy as ally
-
+* IMPROVEMENT: For backups player time before jumping has been increased
+* NEW: Player's rank is now displayed in the player list
 
 # 0.1
 

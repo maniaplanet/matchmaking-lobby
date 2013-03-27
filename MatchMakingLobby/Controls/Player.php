@@ -21,6 +21,7 @@ class Player extends \ManiaLive\Gui\Control
 	public $state;
 	public $isAlly = false;
 	public $nickname;
+	public $rank;
 
 	/**
 	 * @var Elements\Icons64x64_1
@@ -35,6 +36,12 @@ class Player extends \ManiaLive\Gui\Control
 	 * @var Elements\Label
 	 */
 	protected $label;
+
+	/**
+	 *
+	 * @var Elements\Label
+	 */
+	protected $rankLabel;
 
 	function __construct($nickname)
 	{
@@ -56,7 +63,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->allyIcon->setPosition(4, -2.5);
 		$this->addComponent($this->allyIcon);
 
-		$this->label = new Elements\Label(30);
+		$this->label = new Elements\Label(25);
 		$this->label->setValign('center2');
 		$this->label->setPosition(7.5, -2.5);
 		$this->label->setText($nickname);
@@ -64,11 +71,20 @@ class Player extends \ManiaLive\Gui\Control
 		$this->label->setScale(0.75);
 		$this->addComponent($this->label);
 
+		$this->rankLabel = new Elements\Label(15);
+		$this->rankLabel->setAlign('right','center2');
+		$this->rankLabel->setPosition(43, -2.5);
+		$this->rankLabel->setText(sprintf('World %d',$this->rank));
+		$this->rankLabel->setTextColor('fff');
+		$this->rankLabel->setTextSize(1);
+		$this->rankLabel->setScale(0.6);
+		$this->addComponent($this->rankLabel);
+
 		$this->nickname = $nickname;
 		$this->state = static::STATE_NOT_READY;
 	}
 
-	function setState($state = 1, $isAlly = false)
+	function setState($state = 1, $isAlly = false, $rank = 0)
 	{
 		switch($state)
 		{
@@ -89,12 +105,12 @@ class Player extends \ManiaLive\Gui\Control
 		}
 		$this->state = $state;
 		$this->isAlly = $isAlly;
+		$this->rank = $rank;
 
 		$this->icon->setSubStyle($subStyle);
 		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
-
+		$this->rankLabel->setText(sprintf('World %d',$this->rank));
 	}
-
 }
 
 ?>
