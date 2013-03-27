@@ -98,7 +98,7 @@ abstract class AbstractGUI
 	 */
 	function getBackUpLaunchText()
 	{
-		return 'You are selected to replace a player. Prepare to be transfered';
+		return '$f00You are selected to replace a player. Prepare to be transfered';
 	}
 
 	/**

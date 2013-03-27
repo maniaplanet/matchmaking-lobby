@@ -280,7 +280,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->gui->createLabel($this->gui->getBackUpLaunchText(), $backup);
 				}
 				$this->gui->prepareJump($backups, $match->matchServerLogin, $match->titleIdString, $match->id);
-				$this->countDown[$match->id] = 3;
+				$this->countDown[$match->id] = 5;
 			}
 		}
 
