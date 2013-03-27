@@ -27,11 +27,9 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 		$matchableTeamsScore = array();
 		$matches = array();
 
-		$teamSize = $this->getPlayersPerMatch() / 2;
+		$teamSize = $this->getPlayersPerMatch() / $this->getNumberOfTeam();
 
 		$playersObject = array_map('\ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::Get', $players);
-
-		$playersObject = array_filter($playersObject, function ($player) use($teamSize) { return (count($player->allies) != 0 && count($player->allies) <= $teamSize-1); });
 
 		usort($playersObject, function ($a, $b)
 		{
@@ -44,11 +42,19 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 			$team = array($player->login);
 			foreach ($player->allies as $ally)
 			{
-				$team[] = $ally;
-				$this->matchedPlayers[] = $ally;
+				if (in_array($ally, $players))
+				{
+					$team[] = $ally;
+					$this->matchedPlayers[] = $ally;
+				}
 			}
-			sort($team);
-			$teams[] = $team;
+
+			//Save only valid teams
+			if (count($team) > 0 && count($team) <= $teamSize)
+			{
+				sort($team);
+				$teams[] = $team;
+			}
 		}
 
 		$teams = array_map(function ($team){ return serialize($team); }, $teams);
@@ -97,7 +103,7 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 	 */
 	protected function findClosePlayer($closeTo, $availablePlayers, $number)
 	{
-		if (count($availablePlayers) < $number)
+		if ($number > 0 && count($availablePlayers) < $number)
 		{
 			return array();
 		}
