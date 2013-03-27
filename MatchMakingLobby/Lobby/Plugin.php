@@ -441,6 +441,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->updateMatchState($match->id, Services\Match::PLAYER_CANCEL);
 
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+			$this->matchMakingService->updateServerCurrentMatchId(null, $match->matchServerLogin, $match->scriptName,
+				$match->titleIdString);
 
 			foreach($match->players as $playerLogin)
 			{
@@ -459,7 +461,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	private function prepareMatch($server, $match)
 	{
 
-		$id = $this->matchMakingService->registerMatch($server, $match, $this->scriptName, $this->titleIdString);
+		$id = $this->matchMakingService->registerMatch($server, $match, $this->scriptName, $this->titleIdString, $this->storage->serverLogin);
 		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match %d on server: %s',$id, $server));
 		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match,true));
 
@@ -496,7 +498,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	private function getPlayingPlayersCount()
 	{
-		return $this->matchMakingService->getPlayersPlayingCount($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+		return $this->matchMakingService->getPlayersPlayingCount($this->storage->serverLogin);
 	}
 
 	private function getTotalSlots()

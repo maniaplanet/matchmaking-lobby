@@ -89,6 +89,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $waitingTime = 0;
 
 	/** @var int */
+	protected $waitingBackupTime = 0;
+
+	/** @var int */
 	protected $matchId;
 
 	/** @var Services\MatchMakingService */
@@ -269,7 +272,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					case 1:
 						//nobreak
 					default:
-						$isWaitingTimeOver = (++$this->waitingTime > static::TIME_WAITING_BACKUP);
+						$isWaitingTimeOver = (++$this->waitingBackupTime > static::TIME_WAITING_BACKUP);
 						break;
 				}
 				if($isWaitingTimeOver)
@@ -411,7 +414,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function updateLobbyWindow()
 	{
 		$this->lobby = $this->matchMakingService->getLobby($this->lobby->login);
-		$playingPlayers = $this->matchMakingService->getPlayersPlayingCount($this->lobby->login, $this->scriptName, $this->titleIdString);
+		$playingPlayers = $this->matchMakingService->getPlayersPlayingCount($this->lobby->login);
 		$this->gui->updateLobbyWindow($this->lobby->name, $this->lobby->readyPlayers, $this->lobby->connectedPlayers + $playingPlayers, $playingPlayers);
 	}
 
@@ -587,7 +590,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::getLog('info')->write('waitBackups()');
 		$this->changeState(self::WAITING_BACKUPS);
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
-		$this->waitingTime = 0;
+		$this->waitingBackupTime = 0;
 	}
 
 	protected function updatePlayerList(Services\Match $match)
@@ -621,6 +624,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
 		$jumper->show();
 		$this->connection->cleanGuestList();
+
+		$this->match = null;
+		$this->matchId = null;
+		$this->matchMakingService->updateServerCurrentMatchId(
+			null,
+			$this->storage->serverLogin,
+			$this->scriptName,
+			$this->titleIdString
+		);
 		usleep(2000);
 		try
 		{
