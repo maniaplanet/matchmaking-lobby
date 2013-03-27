@@ -11,8 +11,6 @@ namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
 abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements MatchMakerInterface
 {
-	protected $matchedPlayers = array();
-
 	function run(array $players = array())
 	{
 		$teams = $this->getTeams($players);
@@ -77,11 +75,11 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 			else if ($size < $teamSize)
 			{
 				$missingCount = $teamSize - count($team);
-				$closePlayers = $this->findClosePlayer($team, array_diff($players, $this->matchedPlayers), $missingCount);
+				$closePlayers = $this->findClosePlayer($team, array_diff($players, $matchedPlayers), $missingCount);
 
 				if ($closePlayers)
 				{
-					$this->matchedPlayers = array_merge($this->matchedPlayers, $closePlayers);
+					$this->matchedPlayers = array_merge($matchedPlayers, $closePlayers);
 					$team = array_merge($team, $closePlayers);
 
 					$matchableTeams[] = $team;
@@ -90,7 +88,7 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 		}
 
 		//There are a few players not in teams
-		return array_merge($matchableTeams, $this->getFallbackMatchMaker()->getTeams(array_diff($players, $this->matchedPlayers)));
+		return array_merge($matchableTeams, $this->getFallbackMatchMaker()->getTeams(array_diff($players, $matchedPlayers)));
 	}
 
 	public function getMatches(array $teams = array())
