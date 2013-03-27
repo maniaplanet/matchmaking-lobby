@@ -289,7 +289,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->updateKarma($player->login);
 		}
 
-		if($this->tick % 5 == 0)
+		if(++$this->tick % 5 == 0)
 		{
 
 			$matches = $this->matchMaker->run($this->getMatchablePlayers());
