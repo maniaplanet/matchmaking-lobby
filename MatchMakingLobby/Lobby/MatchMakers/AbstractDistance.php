@@ -122,6 +122,7 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 
 				$match = new Match();
 
+				$match->players = array_merge($this->teamsGraph->data[$temp[0]], $this->teamsGraph->data[$temp[1]]);
 				$match->team1 = $this->teamsGraph->data[$temp[0]];
 				$match->team2 = $this->teamsGraph->data[$temp[1]];
 
