@@ -388,7 +388,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player->setReady(true);
 			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
 
-			$this->gui->createLabel($this->gui->getReadyText(), $login);
+			$matchablePlayers = $this->getMatchablePlayers();
+			if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
+			{
+				$message = $this->gui->getNeedReadyPlayersText();
+			}
+			else
+			{
+				$message = $this->gui->getReadyText();
+			}
+
+			foreach($matchablePlayers as $login)
+			{
+				$this->gui->createLabel($message, $login);
+			}
+
 			$this->gui->updatePlayerList($this->blockedPlayers);
 
 			$this->setLobbyInfo();
@@ -406,6 +420,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player->setReady(false);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 		$this->gui->createLabel($this->gui->getNotReadyText(), $login, null, true);
+
+		$matchablePlayers = $this->getMatchablePlayers();
+		if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
+		{
+			$message = $this->gui->getNeedReadyPlayersText();
+		}
+		else
+		{
+			$message = $this->gui->getReadyText();
+		}
+
+		foreach($matchablePlayers as $login)
+		{
+			$this->gui->createLabel($message, $login);
+		}
 
 		$this->gui->updatePlayerList($this->blockedPlayers);
 
@@ -473,6 +502,22 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$id] - 1);
 			$this->setShortKey($player, array($this, 'onCancelMatchStart'));
 		}
+
+		$matchablePlayers = $this->getMatchablePlayers();
+		if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
+		{
+			$message = $this->gui->getNeedReadyPlayersText();
+		}
+		else
+		{
+			$message = $this->gui->getReadyText();
+		}
+
+		foreach($matchablePlayers as $login)
+		{
+			$this->gui->createLabel($message, $login);
+		}
+
 		$this->gui->updatePlayerList($this->blockedPlayers);
 	}
 

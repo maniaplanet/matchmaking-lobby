@@ -74,7 +74,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->rankLabel = new Elements\Label(15);
 		$this->rankLabel->setAlign('right','center2');
 		$this->rankLabel->setPosition(43, -2.5);
-		$this->rankLabel->setText(sprintf('World %d',$this->rank));
+		$this->rankLabel->setText(sprintf('World %7d',$this->rank));
 		$this->rankLabel->setTextColor('fff');
 		$this->rankLabel->setTextSize(1);
 		$this->rankLabel->setScale(0.6);
@@ -109,7 +109,7 @@ class Player extends \ManiaLive\Gui\Control
 
 		$this->icon->setSubStyle($subStyle);
 		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
-		$this->rankLabel->setText(sprintf('World %d',$this->rank));
+		$this->rankLabel->setText(sprintf('World %7d',$this->rank));
 	}
 }
 

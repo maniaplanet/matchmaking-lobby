@@ -55,6 +55,11 @@ abstract class AbstractGUI
 		return 'Searching for a match, press F6 to cancel';
 	}
 
+	function getNeedReadyPlayersText()
+	{
+		return 'Waiting for more ready players before searching a match';
+	}
+
 	/**
 	 * Returns the prefix message that is displayed when a player comes back on the lobby
 	 * @return string
@@ -98,7 +103,7 @@ abstract class AbstractGUI
 	 */
 	function getBackUpLaunchText()
 	{
-		return '$f00You are selected to replace a player. Prepare to be transfered';
+		return '$0F0You are selected to replace a player. Prepare to be transfered';
 	}
 
 	/**
