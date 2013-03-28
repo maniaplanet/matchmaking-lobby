@@ -7,6 +7,9 @@
 * NEW: Rename AlliesElite in Elite and former Elite MatchMaker is now known as DistanceElite
 * IMPROVEMENT: For backups player time before jumping has been increased
 
+##### Match
+* FIX: Waiting time timer is now updated every 5 seconds
+
 # 0.1
 
 ##### Lobby
