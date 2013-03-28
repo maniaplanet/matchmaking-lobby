@@ -202,10 +202,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING:
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
+				\ManiaLive\Utilities\Console::printDebug($this->waitingTime);
 				$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 				if($this->waitingTime > static::TIME_WAITING_CONNECTION)
 				{
-					\ManiaLive\Utilities\Logger::getLog('info')->write('Waiting time over');
+					\ManiaLive\Utilities\Logger::debug('Waiting time over');
 					foreach($this->players as $login => $state)
 					{
 						if($state == Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED)
@@ -218,7 +219,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				if($match === false)
 				{
-					\ManiaLive\Utilities\Logger::getLog('info')->write('Match was prepared but not in database anymore (canceled on lobby ?');
+					\ManiaLive\Utilities\Logger::debug('Match was prepared but not in database anymore (canceled on lobby ?');
 					$this->cancel();
 					break;
 				}
@@ -230,7 +231,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->changeState(self::WAITING);
 				break;
 			case self::DECIDING:
-				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: DECIDING');
+				\ManiaLive\Utilities\Logger::debug('tick: DECIDING');
 				$this->play();
 				break;
 			case static::PLAYING:
@@ -238,7 +239,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->changeState(static::PLAYING);
 				break;
 			case self::PLAYER_LEFT:
-				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: PLAYER_LEFT');
+				\ManiaLive\Utilities\Logger::debug('tick: PLAYER_LEFT');
 				if($this->match->team1 && $this->match->team2)
 				{
 					if(
@@ -246,7 +247,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$this->countConnectedPlayers($this->match->team2) <= $config->minPlayersByTeam
 					)
 					{
-						\ManiaLive\Utilities\Logger::getLog('info')->write('Not enough players. Match cancel');
+						\ManiaLive\Utilities\Logger::debug('Not enough players. Match cancel');
 						$this->cancel();
 						break;
 					}
@@ -277,7 +278,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				if($isWaitingTimeOver)
 				{
-					\ManiaLive\Utilities\Logger::getLog('info')->write('tick: WAITING_BACKUPS over');
+					\ManiaLive\Utilities\Logger::debug('tick: WAITING_BACKUPS over');
 					$this->cancel();
 				}
 				else
@@ -291,7 +292,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				break;
 			case self::OVER:
-				\ManiaLive\Utilities\Logger::getLog('info')->write('tick: OVER');
+				\ManiaLive\Utilities\Logger::debug('tick: OVER');
 				$this->end();
 		}
 	}
@@ -300,11 +301,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_CONNECTED);
 		$this->forcePlayerTeam($login);
-		\ManiaLive\Utilities\Logger::getLog('info')->write('player '.$login.' connected');
+		\ManiaLive\Utilities\Logger::debug('player '.$login.' connected');
 		switch ($this->state)
 		{
 			case static::SLEEPING:
-				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: incoherent state: player connected while match sleeping');
+				\ManiaLive\Utilities\Logger::debug('ERROR: incoherent state: player connected while match sleeping');
 				break;
 			case static::WAITING:
 				if ($this->isEverybodyHere())
@@ -315,20 +316,20 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::WAITING_BACKUPS:
 				//nobreak
 			case static::PLAYER_LEFT:
-				\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('isEveryBodyHere -> %d',$this->isEverybodyHere()));
+				\ManiaLive\Utilities\Logger::debug(sprintf('isEveryBodyHere -> %d',$this->isEverybodyHere()));
 				if ($this->isEverybodyHere())
 				{
 					$this->play();
 				}
 				break;
 			case static::DECIDING:
-				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: incoherent state: player connected while match deciding');
+				\ManiaLive\Utilities\Logger::debug('ERROR: incoherent state: player connected while match deciding');
 				break;
 			case static::PLAYING:
-				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: incoherent state: player connected while match playing');
+				\ManiaLive\Utilities\Logger::debug('ERROR: incoherent state: player connected while match playing');
 				break;
 			case static::OVER:
-				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: incoherent state: player connected while match over');
+				\ManiaLive\Utilities\Logger::debug('ERROR: incoherent state: player connected while match over');
 				break;
 		}
 	}
@@ -361,7 +362,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				break;
 			case static::SLEEPING:
-				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: incoherent state: player disconnected while match sleeping');
+				\ManiaLive\Utilities\Logger::debug('ERROR: incoherent state: player disconnected while match sleeping');
 				//nobreak
 			case static::OVER:
 				if(array_key_exists($login, $this->players))
@@ -378,16 +379,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		switch ($this->state)
 		{
 			case static::SLEEPING:
-				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: endMatch while sleeping');
+				\ManiaLive\Utilities\Logger::debug('ERROR: endMatch while sleeping');
 				break;
 			case static::WAITING:
-				\ManiaLive\Utilities\Logger::getLog('error')->write('ERROR: endMatch while waiting');
+				\ManiaLive\Utilities\Logger::debug('ERROR: endMatch while waiting');
 				break;
 			case static::DECIDING:
 				$this->decide();
 				break;
 			case static::WAITING_BACKUPS:
-				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch with missing players');
+				\ManiaLive\Utilities\Logger::debug('SUCCESS: onEndMatch with missing players');
 				$this->registerRankings($rankings);
 				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED_WAITING_BACKUPS);
 				$this->over();
@@ -396,7 +397,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//nobreak;
 				//nobreak
 			case static::PLAYING:
-				\ManiaLive\Utilities\Logger::getLog('info')->write('SUCCESS: onEndMatch while playing');
+				\ManiaLive\Utilities\Logger::debug('SUCCESS: onEndMatch while playing');
 				$this->registerRankings($rankings);
 				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 				$this->over();
@@ -437,7 +438,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	protected function prepare($match)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write(print_r($match, true));
+		\ManiaLive\Utilities\Logger::debug($match);
 		$this->players = array_fill_keys($match->players, Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED);
 		$this->match = $match;
 		$this->matchId = $match->id;
@@ -463,7 +464,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
 
-		\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
+		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
 		$this->changeState(self::WAITING);
 		$this->waitingTime = 0;
 	}
@@ -478,7 +479,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function playerIllegalLeave($login)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Player illegal leave: '.$login);
+		\ManiaLive\Utilities\Logger::debug('Player illegal leave: '.$login);
 		Windows\GiveUp::EraseAll();
 
 		$this->gui->createLabel($this->gui->getIllegalLeaveText());
@@ -490,7 +491,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function giveUp($login)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('Player '.$login.' gave up.');
+		\ManiaLive\Utilities\Logger::debug('Player '.$login.' gave up.');
 
 		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_GIVE_UP);
 
@@ -517,7 +518,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function cancel()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('cancel()');
+		\ManiaLive\Utilities\Logger::debug('cancel()');
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_LEFT);
 
 		$this->gui->createLabel($this->gui->getMatchoverText());
@@ -529,7 +530,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function decide()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('decide()');
+		\ManiaLive\Utilities\Logger::debug('decide()');
 		if($this->state != self::DECIDING)
 		{
 			$this->gui->createLabel($this->gui->getDecidingText());
@@ -547,7 +548,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function play()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('play()');
+		\ManiaLive\Utilities\Logger::debug('play()');
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYING);
 
 		Label::EraseAll();
@@ -580,14 +581,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function over()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('over()');
+		\ManiaLive\Utilities\Logger::debug('over()');
 		Windows\GiveUp::EraseAll();
 		$this->changeState(self::OVER);
 	}
 
 	protected function waitBackups()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('waitBackups()');
+		\ManiaLive\Utilities\Logger::debug('waitBackups()');
 		$this->changeState(self::WAITING_BACKUPS);
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
 		$this->waitingBackupTime = 0;
@@ -595,7 +596,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function updatePlayerList(Services\Match $match)
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('updatePlayerList()');
+		\ManiaLive\Utilities\Logger::debug('updatePlayerList()');
 		$newPlayers = array_diff($match->players, $this->match->players);
 		foreach($this->players as $login => $state)
 		{
@@ -618,7 +619,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	protected function end()
 	{
-		\ManiaLive\Utilities\Logger::getLog('info')->write('end()');
+		\ManiaLive\Utilities\Logger::debug('end()');
 
 		$jumper = Windows\ForceManialink::Create();
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
@@ -667,7 +668,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 		if ($this->state != $state)
 		{
-			\ManiaLive\Utilities\Logger::getLog('info')->write(sprintf('State: %d', $state));
+			\ManiaLive\Utilities\Logger::debug(sprintf('State: %d', $state));
 		}
 
 		$this->state = $state;
