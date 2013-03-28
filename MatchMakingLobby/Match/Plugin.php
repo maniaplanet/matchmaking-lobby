@@ -202,7 +202,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING:
 				//Waiting for players, if Match change or cancel, change state and wait
 				$this->waitingTime += 5;
-				\ManiaLive\Utilities\Console::printDebug($this->waitingTime);
+				\ManiaLive\Utilities\Logger::debug(sprintf('waiting time %d',$this->waitingTime));
 				$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 				if($this->waitingTime > static::TIME_WAITING_CONNECTION)
 				{
