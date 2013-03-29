@@ -27,19 +27,11 @@ class Joust extends AbstractGUI
 		return sprintf('$0F0Match against $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $opponent);
 	}
 
-	/**
-	 *
-	 * @return string
-	 */
 	function getIllegalLeaveText()
 	{
 		return "A player left\nDo not leave, you will be transfered back";
 	}
 
-	/**
-	 * Returns when a player give up
-	 * @return string
-	 */
 	function getGiveUpText()
 	{
 		return "A player gave up\nDo not leave, you will be transfered back";

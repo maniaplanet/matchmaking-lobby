@@ -6,8 +6,13 @@
  */
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
-class Elite extends AbstractAllies
+class Heroes extends AbstractAllies
 {
+	public function getBackup($missingPlayer, array $players = array())
+	{
+		return $this->getFallbackMatchMaker()->getBackup($missingPlayer, $players);
+	}
+
 	function getNumberOfTeam()
 	{
 		return 2;
@@ -15,7 +20,7 @@ class Elite extends AbstractAllies
 
 	function getPlayersPerMatch()
 	{
-		return 6;
+		return 10;
 	}
 
 	protected function getFallbackMatchMaker()

@@ -9,36 +9,8 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\GUI;
 
-use ManiaLive\Gui\Windows\Shortkey;
-use ManiaLivePlugins\MatchMakingLobby\Services\Match;
-
-class Elite extends AbstractGUI
+class Elite extends AbstractTeam
 {
-
-	public $actionKey = Shortkey::F6;
-	public $lobbyBoxPosY = 0;
-	public $displayAllies = true;
-
-	public function getLaunchMatchText(Match $m, $player)
-	{
-		$key = array_search($player, $m->team1);
-		if($key !== false)
-		{
-			$mate1Obj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 1) % 3]);
-			$mate1 = ($mate1Obj ? $mate1Obj->nickName : $m->team1[($key + 1) % 3]);
-			$mate2Obj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team1[($key + 2) % 3]);
-			$mate2 = ($mate2Obj ? $mate2Obj->nickName : $m->team1[($key + 2) % 3]);
-		}
-		else
-		{
-			$key = array_search($player, $m->team2);
-			$mate1Obj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team2[($key + 1) % 3]);
-			$mate1 = ($mate1Obj ? $mate1Obj->nickName : $m->team2[($key + 1) % 3]);
-			$mate2Obj = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($m->team2[($key + 2) % 3]);
-			$mate2 = ($mate2Obj ? $mate2Obj->nickName : $m->team2[($key + 2) % 3]);
-		}
-		return sprintf('$0F0Match with $<%s$> & $<%s$> starts in $<$FFF%%2d$>, F6 to cancel...', $mate1, $mate2);
-	}
 }
 
 ?>

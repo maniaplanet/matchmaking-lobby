@@ -9,7 +9,6 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
-use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
 class DistanceElite extends AbstractLadderPointsDistance

@@ -100,6 +100,11 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 		return $this->getFallbackMatchMaker()->getMatches($teams);
 	}
 
+	public function getBackup($missingPlayer, array $players = array())
+	{
+		return $this->getFallbackMatchMaker()->getBackup($missingPlayer, $players);
+	}
+
 	/**
 	 * Return the exact number of players
 	 * @param array $closeTo
