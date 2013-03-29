@@ -14,14 +14,16 @@ class Config extends \ManiaLib\Utils\Singleton
 	/**
 	 * Login of your lobby
 	 * You do not have to set up the login of your match servers anywhere
+	 * All match server should only set the same lobby login
 	 * @var string
 	 */
 	public $lobbyLogin;
 
 	/**
 	 * Script name use by lobby
-	 * If not set it will be guessed from the server
-	 * @var type
+	 * If not set it will be guessed from the server.
+	 * This value is used for default values of many
+	 * @var string
 	 */
 	public $script;
 
@@ -42,13 +44,41 @@ class Config extends \ManiaLib\Utils\Singleton
 	 */
 	public $waitingForBackups = 1;
 
+	/**
+	 * If the team reach the minimum number of player, the match is cancelled
+	 * @var int
+	 */
 	public $minPlayersByTeam = 0;
 
+	/**
+	 * Name of the class used by the match maker.
+	 * The class should be in \ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers
+	 * If null, it will try to use the script name as class name
+	 * @var string
+	 */
 	public $matchMakerClassName;
-	public $guiClassName;
-	public $penaltiesCalculatorClassName;
-	public $penaltyClass;
 
+	/**
+	 * Name of the class used for the GUI
+	 * The class should be in \ManiaLivePlugins\MatchMakingLobby\GUI
+	 * If null, it will try to use the script name as class name
+	 * @var string
+	 */
+	public $guiClassName;
+
+	/**
+	 * Name of the class used to calculate the penalties
+	 * Default is \ManiaLivePlugins\MatchMakingLobby\Helpers\PenaltiesCalculator
+	 * @var string
+	 */
+	public $penaltiesCalculatorClassName;
+
+	/**
+	 * Name of the class used for setting the needed match settings
+	 * The class should be in \ManiaLivePlugins\MatchMakingLobby\MatchSettings
+	 * If null, it will try to use the script name as class name
+	 * @var string
+	 */
 	public $matchSettingsClassName;
 }
 
