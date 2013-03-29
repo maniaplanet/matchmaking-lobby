@@ -3,6 +3,8 @@ MatchMaking Lobby
 
 ManiaLive plugins to manage match making across multiple servers.
 
+Download : https://github.com/ManiaPlanet/MatchMakingLobby/tags
+
 Requirements
 ------------
 * At least **two ManiaPlanet servers**
@@ -13,6 +15,12 @@ Installation
 ------------
 - Start at least two ManiaPlanet servers. Please [refer to the wiki](http://wiki.maniaplanet.com/en/Dedicated_servers) for further information.
 Let's say the two dedicated login are *myLobbyServer* running on port *5005* and *myMatchServer01* running on port *5010*
+
+- Download [latest manialive](https://code.google.com/p/manialive/downloads/list) 
+
+- Download[latest matchmaking plugin](https://github.com/ManiaPlanet/MatchMakingLobby/tags).
+
+- Extract match making plugin zip in `/ManiaLiveInstallDir/ManiaLivePlugins/` (in order to have something like `/ManiaLiveInstallDir/MatchMakingLobby/Lobby/`)
 
 - Create a config file for the lobby server. The minimal config file (*ManiaLive/config/config-lobby.ini*) is : 
 
@@ -74,3 +82,5 @@ If you do not want to use the allies system, just replace `AbstractAllies`  with
 How can I make my own matchmaker function ?
 -------------------------------------------	
 Long story short : you should make a class that implement the interface `ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers\MatchMakerInterface`
+
+We have built some classes to help you doing this. 
