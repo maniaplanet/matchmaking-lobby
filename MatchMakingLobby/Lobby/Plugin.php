@@ -68,8 +68,20 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script);
 
 		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$this->scriptName;
+		if (!class_exists($matchMakerClassName))
+		{
+			throw new Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchMakerClassName or the script name",$matchMakerClassName));
+		}
 		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
+		if (!class_exists($guiClassName))
+		{
+			throw new Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
+		}
 		$penaltiesCalculatorClassName = $this->config->penaltiesCalculatorClassName ? : __NAMESPACE__.'\Helpers\PenaltiesCalculator';
+		if (!class_exists($penaltiesCalculatorClassName))
+		{
+			throw new Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.penaltiesCalculatorClassName",$guiClassName));
+		}
 
 		$this->setGui(new $guiClassName());
 		$this->gui->lobbyBoxPosY = 45;
@@ -91,8 +103,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_BEGIN_MAP |
 			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
+
+		//FIXME: move to $this->onInit()
 		$matchSettingsClass = $this->config->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
+		if (!class_exists($matchSettingsClass))
+		{
+			throw new Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchSettingsClassName",$matchSettingsClass));
+		}
+
 		$matchSettings = new $matchSettingsClass();
 		$settings = $matchSettings->getLobbyScriptSettings();
 		$this->connection->setModeScriptSettings($settings);

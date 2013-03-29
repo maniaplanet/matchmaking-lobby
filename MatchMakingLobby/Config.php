@@ -52,17 +52,15 @@ class Config extends \ManiaLib\Utils\Singleton
 
 	/**
 	 * Name of the class used by the match maker.
-	 * The class should be in \ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers
-	 * If null, it will try to use the script name as class name
-	 * @var string
+	 * Default value is :  \ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers\<ScriptName as defined in config>
+	 * @var string Complete class name (with namespace)
 	 */
 	public $matchMakerClassName;
 
 	/**
 	 * Name of the class used for the GUI
-	 * The class should be in \ManiaLivePlugins\MatchMakingLobby\GUI
-	 * If null, it will try to use the script name as class name
-	 * @var string
+	 * Default \ManiaLivePlugins\MatchMakingLobby\GUI\<ScriptName as defined in config>
+	 * @var string Complete class name (with namespace)
 	 */
 	public $guiClassName;
 
@@ -75,9 +73,8 @@ class Config extends \ManiaLib\Utils\Singleton
 
 	/**
 	 * Name of the class used for setting the needed match settings
-	 * The class should be in \ManiaLivePlugins\MatchMakingLobby\MatchSettings
-	 * If null, it will try to use the script name as class name
-	 * @var string
+	 * Default \ManiaLivePlugins\MatchMakingLobby\MatchSettings\<ScriptName as defined in config>
+	 * @var string Complete class name (with namespace)
 	 */
 	public $matchSettingsClassName;
 }

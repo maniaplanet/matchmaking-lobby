@@ -103,6 +103,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var string */
 	protected $titleIdString;
 
+	/**
+	 * @var \ManiaLivePlugins\MatchMakingLobby\Config
+	 */
+	protected $config;
+
 	function onInit()
 	{
 		$this->setVersion('0.2');
@@ -134,6 +139,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::WAITING_BACKUPS => '1 seconds'
 		);
 
+		$this->config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
+
 		$this->state = self::SLEEPING;
 
 		$this->enableTickerEvent();
@@ -144,8 +151,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		//Set needed rules to run the lobny
-		$matchSettingsClass = '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
+		$matchSettingsClass = $this->config->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
+		if (!class_exists($matchSettingsClass))
+		{
+			throw new Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchSettingsClassName",$matchSettingsClass));
+		}
+
 		$matchSettings = new $matchSettingsClass();
 		$settings = $matchSettings->getMatchScriptSettings();
 		$this->connection->setModeScriptSettings($settings);
@@ -154,8 +166,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
 
-		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
-		$this->lobby = $this->matchMakingService->getLobby($config->lobbyLogin);
+
+		$this->lobby = $this->matchMakingService->getLobby($this->config->lobbyLogin);
 
 		//Get the GUI abstraction class
 		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
