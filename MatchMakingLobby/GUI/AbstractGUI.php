@@ -57,7 +57,7 @@ abstract class AbstractGUI
 
 	function getNeedReadyPlayersText()
 	{
-		return 'Waiting for more ready players before searching a match';
+		return 'Waiting for more ready players';
 	}
 
 	/**
@@ -84,7 +84,7 @@ abstract class AbstractGUI
 	 */
 	function getIllegalLeaveText()
 	{
-		return "A player left\nDo not leave, a remplacement player is being searched";
+		return "A player left\nDo not leave, searching for a replacement player";
 	}
 
 	/**
@@ -103,7 +103,7 @@ abstract class AbstractGUI
 	 */
 	function getBackUpLaunchText()
 	{
-		return '$0F0You are selected to replace a player. Prepare to be transfered';
+		return '$0F0You are selected to replace a player. Prepare to be transferred';
 	}
 
 	/**
@@ -112,7 +112,7 @@ abstract class AbstractGUI
 	 */
 	function getMatchInProgressText()
 	{
-		return 'You have a match in progress. Prepare to be transfered';
+		return 'You have a match in progress. Prepare to be transferred';
 	}
 
 	/**
@@ -122,7 +122,7 @@ abstract class AbstractGUI
 	 */
 	function getBadKarmaText($time)
 	{
-		return sprintf("\$F00You leaved your last match\nYou are suspended for %d minutes", ceil($time / 60.));
+		return sprintf("\$F00You left your last match\nYou are suspended for %d minutes", ceil($time / 60.));
 	}
 
 	/**
@@ -131,7 +131,7 @@ abstract class AbstractGUI
 	 */
 	function getMatchoverText()
 	{
-		return 'Match over. You will be transfered back.';
+		return 'Match over. You will be transferred back.';
 	}
 
 	/**
@@ -140,7 +140,7 @@ abstract class AbstractGUI
 	 */
 	function getGiveUpText()
 	{
-		return "A player gave up\nDo not leave, a remplacement player is being searched";
+		return "A player gave up\nDo not leave, searching for a replacement player";
 	}
 
 	/**
