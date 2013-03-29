@@ -1,11 +1,14 @@
 # 0.2
 
+Please note that *this version require database change* AND *ManiaLive > r498* (or 2.7.1)
+
 ##### Lobby
 * NEW: Matchmaker now support allies. Go to maniaplanet live chat in order to set one of your buddy as ally
 * NEW: Player's rank is now displayed in the player list
 * NEW: Text is now different for ready players if there is enough players ready or not
 * NEW: Rename AlliesElite in Elite and former Elite MatchMaker is now known as DistanceElite
-* IMPROVEMENT: For backups player time before jumping has been increased
+* FIX: Backups player time before jumping has been increased
+* FIX: Many little bugs fixed
 
 ##### Match
 * FIX: Waiting time timer is now updated every 5 seconds
