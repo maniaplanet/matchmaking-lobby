@@ -6,6 +6,8 @@
  */
 namespace ManiaLivePlugins\MatchMakingLobby\GUI;
 
+use ManiaLivePlugins\MatchMakingLobby\Services\Match;
+
 /**
  * Extend this if your are running a team mode script
  */
