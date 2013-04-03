@@ -49,12 +49,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 
 	function onDraw()
 	{
-		$animatedManiaScript = $this->animated ? 'True' : 'False';
-		$hideOnF6ManiaScript = $this->hideOnF6 ? 'True' : 'False';
-		$countdown = (int) $this->countdown;
-		$countdownManiaScript = $countdown ? 'True' : 'False';
-		$label = \ManiaLib\ManiaScript\Tools::escapeString($this->message);
-		$this->setScript($label, $countdown, $countdownManiaScript, $animatedManiaScript, $hideOnF6ManiaScript);
+		$this->setScript($this->message, $this->countdown, $this->animated, $this->hideOnF6);
 	}
 
 	function setMessage($message, $countdown = null)
@@ -72,8 +67,14 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 		}
 	}
 
-	protected function setScript($label, $countdown, $countdownManiaScript, $animatedManiaScript, $hideOnF6ManiaScript)
+	protected function setScript($message, $countdown, $animated, $hideOnF6)
 	{
+		$animatedManiaScript = $animated ? 'True' : 'False';
+		$hideOnF6ManiaScript = $hideOnF6 ? 'True' : 'False';
+		$countdown = (int) $this->countdown;
+		$countdownManiaScript = $countdown ? 'True' : 'False';
+		$label = \ManiaLib\ManiaScript\Tools::escapeString($message);
+
 		\ManiaLive\Gui\Manialinks::appendScript(<<<MANIASCRIPT
 #RequireContext CMlScript
 #Include "MathLib" as MathLib
@@ -113,11 +114,17 @@ main()
 		{
 			label.Scale = 2+MathLib::Cos(CurrentTime*.002);
 		}
-		if(countdownTimeLeft > 0 && CurrentTime - countdownTime > 1000)
+		if(countdown && countdownTimeLeft >= 0 && CurrentTime - countdownTime > 1000)
 		{
 			countdownTime = CurrentTime;
 			countdownTimeLeft = countdownTimeLeft - 1;
 			label.SetText(TextLib::Compose(labelText, TextLib::ToText(countdownTimeLeft)));
+		}
+		else if(countdown && countdownTimeLeft <= 0)
+		{
+			waiting = True;
+			label.Hide();
+			waitLabel.Show();
 		}
 		yield;
 	}

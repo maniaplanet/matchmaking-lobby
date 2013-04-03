@@ -416,6 +416,7 @@ class MatchMakingService
 		$this->db->execute(
 			'INSERT INTO LobbyServers VALUES (%s, %s, %s, %d, %d) '.
 			'ON DUPLICATE KEY UPDATE '.
+			'name = VALUES(name), '.
 			'backLink = VALUES(backLink), '.
 			'readyPlayers = VALUES(readyPlayers), '.
 			'connectedPlayers = VALUES(connectedPlayers) ',
