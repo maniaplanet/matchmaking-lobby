@@ -187,6 +187,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updateLobbyWindow();
 		$this->updateKarma($login);
 
+		try
+		{
+			$this->connection->removeGuest($login);
+		}
+		catch(\DedicatedApi\Xmlrpc\Exception $e)
+		{
+
+		}
+
 		//TODO Rework text
 //		$this->gui->showSplash($login, $this->storage->server->name,
 //			array(
@@ -248,6 +257,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	//Core of the plugin
 	function onTick()
 	{
+		$timers = array();
+		$mtime = microtime(true);
 		foreach($this->blockedPlayers as $login => $countDown)
 		{
 			$this->blockedPlayers[$login] = --$countDown;
@@ -257,9 +268,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerNotReady($login);
 			}
 		}
+		$timers['blocked'] = microtime(true) - $mtime;
 
 		//If there is some match needing players
 		//find backup in ready players and send them to the match server
+		$mtime = microtime(true);
 		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		$potentialBackups = $this->getMatchablePlayers();
 		foreach($matchesNeedingBackup as $match)
@@ -302,15 +315,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->countDown[$match->id] = 5;
 			}
 		}
-
-		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
-		{
-			$this->updateKarma($player->login);
-		}
+		$timers['backups'] = microtime(true) - $mtime;
 
 		if(++$this->tick % 5 == 0)
 		{
-
+			$mtime = microtime(true);
 			$matches = $this->matchMaker->run($this->getMatchablePlayers());
 			foreach($matches as $match)
 			{
@@ -333,8 +342,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->prepareMatch($server, $match);
 				}
 			}
+			$timers['match'] = microtime(true) - $mtime;
 		}
 
+		$mtime = microtime(true);
 		foreach($this->countDown as $matchId => $countDown)
 		{
 			switch(--$countDown)
@@ -377,6 +388,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->countDown[$matchId] = $countDown;
 			}
 		}
+		$timers['jumper'] = microtime(true) - $mtime;
 
 		if(++$this->mapTick % 1800 == 0)
 		{
@@ -385,18 +397,45 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if($this->tick % 30 == 0)
 		{
-			$logins = $this->matchMakingService->getPlayersJustFinishedAllMatches();
-			foreach($logins as $login)
+			$mtime = microtime(true);
+			$guests = $this->connection->getGuestList(-1, 0);
+			if(count($guests))
 			{
-				$this->connection->removeGuest($login, true);
+				$guests = Structures\Player::getPropertyFromArray($guests,'login');
+				$logins = $this->matchMakingService->getPlayersJustFinishedAllMatches($this->storage->serverLogin, $guests);
+				if($logins)
+				{
+					foreach($logins as $login)
+					{
+						$this->connection->removeGuest($login, true);
+					}
+					$this->connection->executeMulticall();
+				}
 			}
-			$this->connection->executeMulticall();
+			$timers['cleanGuest'] = microtime(true) - $mtime;
 		}
 
-		$this->setLobbyInfo();
+		if($this->tick % 10 == 0)
+		{
+			$mtime = microtime(true);
+			$this->setLobbyInfo();
+			$timers['lobbyInfo'] = microtime(true) - $mtime;
+		}
+		$mtime = microtime(true);
 		$this->updateLobbyWindow();
+		$timers['lobbyWindow'] = microtime(true) - $mtime;
 		$this->registerLobby();
 		Services\PlayerInfo::CleanUp();
+		$timers = array_filter($timers, function($v) { return $v > 0.010; });
+		if(count($timers))
+		{
+			$line = array();
+			foreach($timers as $key => $value)
+			{
+				$line[] = sprintf('%s:%f',$key,$value);
+			}
+			\ManiaLive\Utilities\Logger::debug(implode('|', $line));
+		}
 	}
 
 	function onPlayerReady($login)
@@ -499,6 +538,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				else
 					$this->onPlayerNotReady($playerLogin);
 			}
+			$this->updateKarma($login);
 		}
 		else
 		{
@@ -607,7 +647,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 				$this->onPlayerNotReady($login);
 
-				$this->gui->createLabel($this->gui->getBadKarmaText($this->blockedPlayers[$login]), $login);
+				$this->gui->createLabel($this->gui->getBadKarmaText($this->blockedPlayers[$login]), $login, null, false, false);
 				$this->resetShortKey($login);
 				$this->gui->updatePlayerList($this->blockedPlayers);
 			}
@@ -687,11 +727,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			});
 
 		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $notBlockedPlayers);
-	}
-
-	private function createMagnifyLabel($login, $message)
-	{
-		$this->gui->createLabel($message, $login, null, true);
 	}
 }
 

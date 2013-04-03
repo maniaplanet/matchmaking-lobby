@@ -149,15 +149,16 @@ class MatchMakingService
                         PlayerInfo::PLAYER_STATE_GIVE_UP)->fetchArrayOfSingleValues();
 	}
 
-	function getPlayersJustFinishedAllMatches()
+	function getPlayersJustFinishedAllMatches($lobbyLogin, array $guest)
 	{
 		return $this->db->execute(
 				'SELECT P.login '.
 				'FROM Players P '.
 				'INNER JOIN Matches M ON P.matchId = M.id '.
-				'WHERE DATE_ADD(M.lastUpdateDate, INTERVAL 2 MINUTE) < NOW() AND M.state <= %d '.
+				'WHERE DATE_ADD(M.lastUpdateDate, INTERVAL 30 SECOND) < NOW() AND DATE_ADD(M.lastUpdateDate, INTERVAL 90 SECOND) > NOW() AND M.state <= %d '.
+				'AND M.lobbyLogin = %s '.(count($guest) ? 'AND P.login IN (%s) ' : '').
 				'AND P.login NOT IN (SELECT login FROM Players WHERE matchId > M.id)',
-				Match::FINISHED
+				Match::FINISHED, $this->db->quote($lobbyLogin), implode(',',array_map(array($this->db, 'quote'), $guest))
 		)->fetchArrayOfSingleValues();
 	}
 

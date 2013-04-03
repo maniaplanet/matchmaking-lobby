@@ -27,7 +27,7 @@ abstract class AbstractTeam extends AbstractGUI
 			$mates = $this->getMates($m->team2, $player);
 		}
 		$mates = array_map(function ($player) { return sprintf('$<%s$>', $player); }, $mates);
-		return sprintf('$0F0Match with %s starts in $<$FFF%%2d$>, F6 to cancel...', implode(' & ', $mates));
+		return sprintf('$0F0Match with %s starts in $<$FFF%%1 $>, F6 to cancel...', implode(' & ', $mates));
 	}
 
 	protected function getMates(array $team, $player)

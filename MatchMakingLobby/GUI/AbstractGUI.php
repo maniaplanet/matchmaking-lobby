@@ -160,7 +160,7 @@ abstract class AbstractGUI
 	 * @param int $countdown
 	 * @param bool $isAnimated If true the text will be animated
 	 */
-	final function createLabel($message, $login = null, $countdown = null, $isAnimated = false)
+	final function createLabel($message, $login = null, $countdown = null, $isAnimated = false, $hideOnF6 = true)
 	{
 		if($login)
 		{
@@ -173,10 +173,8 @@ abstract class AbstractGUI
 		$ui = Windows\Label::Create($login);
 		$ui->setPosition(0, 40);
 		$ui->setMessage($message, $countdown);
-		if($isAnimated == true)
-		{
-			$ui->setId('animated-label');
-		}
+		$ui->animated = $isAnimated;
+		$ui->hideOnF6 = $hideOnF6;
 		$ui->show();
 	}
 
