@@ -168,13 +168,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->createLabel($this->gui->getMatchInProgressText(), $login);
 			return;
 		}
+		$playerObject = $this->storage->getPlayerObject($login);
+		if(!$playerObject)
+		{
+			return;
+		}
 
 		$message = '';
 		$player = Services\PlayerInfo::Get($login);
 		$message = ($player->ladderPoints ? $this->gui->getPlayerBackLabelPrefix() : '').$this->gui->getNotReadyText();
 		$player->setAway(false);
-		$player->ladderPoints = $this->storage->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
-		$player->allies = $this->storage->getPlayerObject($login)->allies;
+		$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
+		$player->allies = $playerObject->allies;
 
 		$this->gui->createLabel($message, $login, null, true);
 
@@ -195,19 +200,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 
 		}
-
-		//TODO Rework text
-//		$this->gui->showSplash($login, $this->storage->server->name,
-//			array(
-//			'Your are on a Lobby server',
-//			'We will search an opponent of your level to play with',
-//			'Queue until we find a match and a server for you',
-//			'You will be automatically switch between the lobby and the match server',
-//			'To abort a match, click on Ready',
-//			'Click on Ready when you are',
-//			'Use your "Alt" key to free your mouse'
-//			), array($this, 'doNotShow')
-//		);
 	}
 
 	function onPlayerDisconnect($login)
@@ -395,7 +387,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->nextMap();
 		}
 
-		if($this->tick % 30 == 0)
+		if($this->tick % 29 == 0)
 		{
 			$mtime = microtime(true);
 			$guests = $this->connection->getGuestList(-1, 0);
@@ -415,15 +407,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$timers['cleanGuest'] = microtime(true) - $mtime;
 		}
 
-		if($this->tick % 10 == 0)
+		if($this->tick % 31 == 0)
 		{
 			$mtime = microtime(true);
 			$this->setLobbyInfo();
 			$timers['lobbyInfo'] = microtime(true) - $mtime;
 		}
-		$mtime = microtime(true);
-		$this->updateLobbyWindow();
-		$timers['lobbyWindow'] = microtime(true) - $mtime;
+		if($this->tick % 3 == 0)
+		{
+			$mtime = microtime(true);
+			$this->updateLobbyWindow();
+			$timers['lobbyWindow'] = microtime(true) - $mtime;
+		}
 		$this->registerLobby();
 		Services\PlayerInfo::CleanUp();
 		$timers = array_filter($timers, function($v) { return $v > 0.010; });

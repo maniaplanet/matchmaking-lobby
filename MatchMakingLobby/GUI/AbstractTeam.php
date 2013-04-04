@@ -39,8 +39,8 @@ abstract class AbstractTeam extends AbstractGUI
 			{
 				continue;
 			}
-			$playerObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($player);
-			$mates[] = $playerObject ? $playerObject->nickName : $player;
+			$playerObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($aPlayer);
+			$mates[] = $playerObject ? $playerObject->nickName : $aPlayer;
 		}
 		return $mates;
 	}

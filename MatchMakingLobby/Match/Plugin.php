@@ -252,26 +252,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 			case self::PLAYER_LEFT:
 				\ManiaLive\Utilities\Logger::debug('tick: PLAYER_LEFT');
-				if($this->match->team1 && $this->match->team2)
-				{
-					if(
-						$this->countConnectedPlayers($this->match->team1) <= $config->minPlayersByTeam ||
-						$this->countConnectedPlayers($this->match->team2) <= $config->minPlayersByTeam
-					)
-					{
-						\ManiaLive\Utilities\Logger::debug('Not enough players. Match cancel');
-						$this->cancel();
-						break;
-					}
-				}
-				if($config->waitingForBackups == 0)
-				{
-					$this->cancel();
-				}
-				else
-				{
-					$this->waitBackups();
-				}
+				$this->waitBackups();
 				break;
 			case self::WAITING_BACKUPS:
 				switch($config->waitingForBackups)
@@ -494,7 +475,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug('Player illegal leave: '.$login);
 		Windows\GiveUp::EraseAll();
 
-		$this->gui->createLabel($this->gui->getIllegalLeaveText());
+		$this->gui->createLabel($this->gui->getIllegalLeaveText(), null, null, false, false);
 
 
 		$this->changeState(self::PLAYER_LEFT);
@@ -509,7 +490,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
 
-		$this->gui->createLabel($this->gui->getGiveUpText());
+		$this->gui->createLabel($this->gui->getGiveUpText(), null, null, false, false);
 
 		$jumper = Windows\ForceManialink::Create($login);
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
@@ -517,15 +498,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		Windows\GiveUp::Erase($login);
 
-		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
-		if($config->waitingForBackups == 0)
-		{
-			$this->cancel();
-		}
-		else
-		{
-			$this->waitBackups();
-		}
+		$this->waitBackups();
 	}
 
 	protected function cancel()
@@ -533,7 +506,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug('cancel()');
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_LEFT);
 
-		$this->gui->createLabel($this->gui->getMatchoverText());
+		$this->gui->createLabel($this->gui->getMatchoverText(), null, null, false, false);
 
 		$this->connection->chatSendServerMessage(static::PREFIX.'Match aborted.');
 
@@ -545,7 +518,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug('decide()');
 		if($this->state != self::DECIDING)
 		{
-			$this->gui->createLabel($this->gui->getDecidingText());
+			$this->gui->createLabel($this->gui->getDecidingText(), null, null, false, false);
 
 			$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
 			$ratios = array(
@@ -600,6 +573,26 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function waitBackups()
 	{
+		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
+		if($config->waitingForBackups == 0)
+		{
+			$this->cancel();
+			return;
+		}
+
+		if($this->match->team1 && $this->match->team2)
+		{
+			if(
+				$this->countConnectedPlayers($this->match->team1) <= $config->minPlayersByTeam ||
+				$this->countConnectedPlayers($this->match->team2) <= $config->minPlayersByTeam
+			)
+			{
+				\ManiaLive\Utilities\Logger::debug('Not enough players. Match cancel');
+				$this->cancel();
+				return;
+			}
+		}
+
 		\ManiaLive\Utilities\Logger::debug('waitBackups()');
 		$this->changeState(self::WAITING_BACKUPS);
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
