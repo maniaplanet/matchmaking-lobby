@@ -217,6 +217,26 @@ class MatchMakingService
 	}
 
 	/**
+	 * Get number of server available to host a match
+	 * for the lobby
+	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 * @return string the match server login
+	 */
+	function countAvailableServer($lobbyLogin, $scriptName, $titleIdString)
+	{
+		return $this->db->execute(
+				'SELECT count(MS.login) FROM MatchServers MS '.
+				'WHERE MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s '.
+				'AND MS.`state` = %d AND matchId IS NULL '.
+				'AND DATE_ADD(MS.lastLive, INTERVAL 20 SECOND) > NOW() ',
+				$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString),
+				\ManiaLivePlugins\MatchMakingLobby\Match\Plugin::SLEEPING
+			)->fetchSingleValue(null);
+	}
+
+	/**
 	 * Get a server available to host a match
 	 * for the lobby
 	 * @param string $lobbyLogin

@@ -110,7 +110,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('0.2');
+		$this->setVersion('0.3');
 	}
 
 	function onLoad()
@@ -639,16 +639,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->scriptName,
 			$this->titleIdString
 		);
-		usleep(2000);
-		try
-		{
-			$this->connection->nextMap();
-		}
-		catch(\Exception $e)
-		{
-
-		}
-		usleep(5000);
 		$this->sleep();
 	}
 

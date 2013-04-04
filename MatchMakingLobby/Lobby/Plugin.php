@@ -59,9 +59,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var string */
 	protected $titleIdString;
 
+	/** @var bool */
+	protected $updatePlayerList = false;
+
 	function onInit()
 	{
-		$this->setVersion('0.2');
+		$this->setVersion('0.3');
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
 		$script = $this->storage->gameInfos->scriptName;
@@ -132,9 +135,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player->ladderPoints = $this->storage->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
 			$player->allies = $this->storage->getPlayerObject($login)->allies;
 			$this->gui->createPlayerList($login);
-			$this->onPlayerNotReady($login);
+			$this->setShortKey($login, array($this,'onPlayerReady'));
+			$this->gui->createLabel($this->gui->getNotReadyText(), $login, null, true);
 		}
-		$this->gui->updatePlayerList($this->blockedPlayers);
+		$this->updatePlayerList = true;
 
 		$this->registerLobby();
 
@@ -183,13 +187,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->gui->createLabel($message, $login, null, true);
 
-//		$this->gui->createLabel($login, $message);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 
 		$this->gui->createPlayerList($login, $this->blockedPlayers);
-		$this->gui->updatePlayerList($this->blockedPlayers);
+		$this->updatePlayerList = true;
 
-		$this->updateLobbyWindow();
 		$this->updateKarma($login);
 
 		try
@@ -215,8 +217,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
 		$this->gui->removePlayerFromPlayerList($login);
-
-		$this->updateLobbyWindow();
 	}
 
 	function onPlayerInfoChanged($playerInfo)
@@ -309,7 +309,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
-		if(++$this->tick % 5 == 0)
+		if(++$this->tick % 5 == 0 && $this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
 		{
 			$mtime = microtime(true);
 			$matches = $this->matchMaker->run($this->getMatchablePlayers());
@@ -419,6 +419,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->updateLobbyWindow();
 			$timers['lobbyWindow'] = microtime(true) - $mtime;
 		}
+		if($this->updatePlayerList)
+		{
+			$this->gui->updatePlayerList($this->blockedPlayers);
+			$this->updatePlayerList = false;
+		}
 		$this->registerLobby();
 		Services\PlayerInfo::CleanUp();
 		$timers = array_filter($timers, function($v) { return $v > 0.010; });
@@ -435,64 +440,41 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerReady($login)
 	{
+		$mtime = microtime(true);
 		$player = Services\PlayerInfo::Get($login);
 		if (!$this->matchMakingService->isInMatch($login))
 		{
 			$player->setReady(true);
 			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
 
-			$matchablePlayers = $this->getMatchablePlayers();
-			if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
-			{
-				$message = $this->gui->getNeedReadyPlayersText();
-			}
-			else
-			{
-				$message = $this->gui->getReadyText();
-			}
+			$this->setReadyLabel();
 
-			foreach($matchablePlayers as $login)
-			{
-				$this->gui->createLabel($message, $login);
-			}
-
-			$this->gui->updatePlayerList($this->blockedPlayers);
-
-			$this->setLobbyInfo();
-			$this->updateLobbyWindow();
+			$this->updatePlayerList = true;
 		}
 		else
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('Player try to be ready while in match: %s', $login));
 		}
+		$time = microtime(true) - $mtime;
+		if($time > 0.05)
+		\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerReady:%f',$time));
 	}
 
 	function onPlayerNotReady($login)
 	{
+		$mtime = microtime(true);
 		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(false);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 		$this->gui->createLabel($this->gui->getNotReadyText(), $login, null, true);
 
-		$matchablePlayers = $this->getMatchablePlayers();
-		if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
-		{
-			$message = $this->gui->getNeedReadyPlayersText();
-		}
-		else
-		{
-			$message = $this->gui->getReadyText();
-		}
+		$this->setReadyLabel();
 
-		foreach($matchablePlayers as $login)
-		{
-			$this->gui->createLabel($message, $login);
-		}
+		$this->updatePlayerList = true;
 
-		$this->gui->updatePlayerList($this->blockedPlayers);
-
-		$this->setLobbyInfo();
-		$this->updateLobbyWindow();
+		$time = microtime(true) - $mtime;
+		if($time > 0.05)
+		\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerNotReady:%f',$time));
 	}
 
 	function onPlayerAlliesChanged($login)
@@ -502,7 +484,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
 		}
-		$this->gui->updatePlayerList($this->blockedPlayers);
+		$this->updatePlayerList = true;
 	}
 
 	function doNotShow($login)
@@ -572,7 +554,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->createLabel($message, $login);
 		}
 
-		$this->gui->updatePlayerList($this->blockedPlayers);
+		$this->updatePlayerList = true;
 	}
 
 	private function getReadyPlayersCount()
@@ -644,7 +626,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 				$this->gui->createLabel($this->gui->getBadKarmaText($this->blockedPlayers[$login]), $login, null, false, false);
 				$this->resetShortKey($login);
-				$this->gui->updatePlayerList($this->blockedPlayers);
+				$this->updatePlayerList = true;
 			}
 			$playerInfo->karma = $karma;
 		}
@@ -722,6 +704,24 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			});
 
 		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $notBlockedPlayers);
+	}
+
+	protected function setReadyLabel()
+	{
+		$matchablePlayers = $this->getMatchablePlayers();
+		if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
+		{
+			$message = $this->gui->getNeedReadyPlayersText();
+		}
+		else
+		{
+			$message = $this->gui->getReadyText();
+		}
+
+		foreach($matchablePlayers as $login)
+		{
+			$this->gui->createLabel($message, $login);
+		}
 	}
 }
 

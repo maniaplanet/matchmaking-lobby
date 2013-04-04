@@ -1,3 +1,16 @@
+# 0.3
+Please note that *this version require ManiaLive > r502 (or 2.7.2)
+
+### General
+* NEW: Countdown in label is now handle with ManiaScript
+* NEW: Label class has now 3 boolean switch to handle various ManiaScript effects
+
+### Lobby
+* FIX: Optimization with a lot of players connected
+
+### Match
+* FIX: When an entire team has quit or gave-up, the match is now cancel
+
 # 0.2
 
 Please note that *this version require database change* AND *ManiaLive > r498* (or 2.7.1)
