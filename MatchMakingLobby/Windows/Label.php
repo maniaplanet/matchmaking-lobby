@@ -42,7 +42,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 		$this->addComponent($this->label2);
 
 		$this->sound = new \ManiaLib\Gui\Elements\Audio();
-		$this->sound->setData('http://static.maniaplanet.com/manialinks/lobbyTimer.wav', true);
+		$this->sound->setData('http://static.maniaplanet.com/manialinks/lobbies/timer.wav', true);
 		$this->sound->setPosition(200);
 		$this->sound->autoPlay();
 	}

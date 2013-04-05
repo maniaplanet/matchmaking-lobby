@@ -131,12 +131,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setLobbyInfo();
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
+			$playerObject =  $this->storage->getPlayerObject($login);
 			$player = Services\PlayerInfo::Get($login);
-			$player->ladderPoints = $this->storage->getPlayerObject($login)->ladderStats['PlayerRankings'][0]['Score'];
-			$player->allies = $this->storage->getPlayerObject($login)->allies;
+			$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
+			$player->allies = $playerObject->allies;
 			$this->gui->createPlayerList($login);
 			$this->setShortKey($login, array($this,'onPlayerReady'));
 			$this->gui->createLabel($this->gui->getNotReadyText(), $login, null, true);
+
+			$help = Windows\Help::Create($login);
+			$help->displayHelp = ($playerObject->isSpectator ? true : false);
+			$help->show();
 		}
 		$this->updatePlayerList = true;
 
@@ -151,8 +156,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$feedback->setAlign('right', 'bottom');
 		$feedback->setPosition(160.1, 75);
 		$feedback->show();
-
-		Windows\Help::Create()->show();
 	}
 
 	function onUnload()
@@ -195,6 +198,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updatePlayerList = true;
 
 		$this->updateKarma($login);
+		Windows\Help::Create($login)->show();
 
 		try
 		{
@@ -223,7 +227,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerInfoChanged($playerInfo)
 	{
-		$playerInfo = Structures\Player::fromArray($playerInfo);
+		$playerInfo = $this->storage->getPlayerObject($playerInfo['Login']);
+		if(!$playerInfo)
+		{
+			return;
+		}
+		if($playerInfo->spectator)
+		{
+			$help = Windows\Help::Create($playerInfo->login);
+			$help->displayHelp = true;
+			$help->redraw();
+		}
+		Services\PlayerInfo::Get($playerInfo->login)->setReady(false);
 		/*if($playerInfo->hasJoinedGame)
 		{
 			if($this->matchService->isInMatch($playerInfo->login))
@@ -421,6 +436,20 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->updateLobbyWindow();
 			$timers['lobbyWindow'] = microtime(true) - $mtime;
 		}
+
+		if($this->tick % 42 == 0)
+		{
+			$notReadyPlayers = Services\PlayerInfo::GetNotReady();
+			foreach($notReadyPlayers as $notReadyPlayer)
+			{
+				if($notReadyPlayer->getNotReadyTime() > 240)
+				{
+					$this->connection->forceSpectator($notReadyPlayer->login, 3, true);
+				}
+			}
+			$this->connection->executeMulticall();
+		}
+
 		if($this->updatePlayerList)
 		{
 			$this->gui->updatePlayerList($this->blockedPlayers);

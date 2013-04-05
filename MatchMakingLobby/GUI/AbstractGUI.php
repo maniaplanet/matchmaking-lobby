@@ -43,7 +43,7 @@ abstract class AbstractGUI
 	 */
 	function getNotReadyText()
 	{
-		return '$o$F90Press F6 to find a match$z';
+		return '$o$F90Press F6 to play a match$z';
 	}
 
 	/**
