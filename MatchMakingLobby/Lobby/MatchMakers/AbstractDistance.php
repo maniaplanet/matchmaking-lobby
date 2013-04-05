@@ -100,7 +100,7 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 			foreach ($teams as $team)
 			{
 				$match = new Match();
-				$match->players = $team;
+				$match->players = $team->data;
 
 				$matches[] = $match;
 			}
