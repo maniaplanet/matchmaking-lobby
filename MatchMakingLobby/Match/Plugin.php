@@ -525,7 +525,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->createLabel($this->gui->getDecidingText(), null, null, false, false);
 
-			$this->connection->chatSendServerMessage('Match is starting ,you still have time to change the map if you want.');
+			$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting, you still have time to change the map if you want.');
 			$ratios = array(
 				array('Command' => 'nextMap', 'Ratio' => 0.5),
 				array('Command' => 'jumpToMapIndex', 'Ratio' => 0.5),
@@ -557,6 +557,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					array('Command' => 'jumpToMapIndex', 'Ratio' => -1.),
 				);
 				$this->connection->setCallVoteRatios($ratios);
+				$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting.');
 				break;
 			case static::PLAYER_LEFT:
 				$this->connection->chatSendServerMessage(static::PREFIX.'Player is back, match continues.');
