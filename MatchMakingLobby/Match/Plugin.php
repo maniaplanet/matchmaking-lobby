@@ -175,6 +175,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
+
+		$this->connection->customizeQuitDialog(null, '#qjoin='.$this->lobby->backLink, false);
 	}
 
 	function onUnload()
@@ -184,6 +186,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 			$this->end();
 		}
+		$this->connection->customizeQuitDialog();
 		parent::onUnload();
 	}
 
@@ -369,6 +372,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
+		\ManiaLive\Utilities\Logger::debug($this->connection->checkEndMatchCondition());
 		switch ($this->state)
 		{
 			case static::SLEEPING:
@@ -460,6 +464,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
 		$this->changeState(self::WAITING);
 		$this->waitingTime = 0;
+		$this->connection->setForcedTeams(true);
 	}
 
 	protected function sleep()
@@ -639,6 +644,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->scriptName,
 			$this->titleIdString
 		);
+		$this->connection->setForcedTeams(false);
 		$this->sleep();
 	}
 

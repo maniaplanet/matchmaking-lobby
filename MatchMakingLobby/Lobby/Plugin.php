@@ -151,6 +151,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$feedback->setAlign('right', 'bottom');
 		$feedback->setPosition(160.1, 75);
 		$feedback->show();
+
+		Windows\Help::Create()->show();
 	}
 
 	function onUnload()
@@ -309,7 +311,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
-		if(++$this->tick % 5 == 0 && $this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
+		if(++$this->tick % 4 == 0 && $this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
 		{
 			$mtime = microtime(true);
 			$matches = $this->matchMaker->run($this->getMatchablePlayers());
@@ -342,7 +344,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			switch(--$countDown)
 			{
-				case -1:
+				case -3:
 					$this->gui->eraseJump($matchId);
 					unset($this->countDown[$matchId]);
 					break;
