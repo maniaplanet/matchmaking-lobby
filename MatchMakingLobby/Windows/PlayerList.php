@@ -16,18 +16,17 @@ class PlayerList extends \ManiaLive\Gui\Window
 
 	protected $playerList = array();
 	/**
-	 * @var \ManiaLive\Gui\Controls\Pager
+	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
-	protected $pager;
+	protected $frame;
 
 	protected function onConstruct()
 	{
 		$this->setSize(50, 100);
 
-		$this->pager = new \ManiaLive\Gui\Controls\Pager();
-		$this->pager->setSize(40, 100);
+		$this->frame = new \ManiaLive\Gui\Controls\Frame(0,0, new \ManiaLib\Gui\Layouts\Column());
 		$this->playerList = array();
-		$this->addComponent($this->pager);
+		$this->addComponent($this->frame);
 	}
 
 	function addPlayer($login, $state = 0, $isAlly = false, $rank = 0)
@@ -58,6 +57,8 @@ class PlayerList extends \ManiaLive\Gui\Window
 
 	protected function updateItemList()
 	{
+		$this->frame->clearComponents();
+
 		uasort($this->playerList,
 			function (Player $p1, Player $p2)
 			{
@@ -81,9 +82,8 @@ class PlayerList extends \ManiaLive\Gui\Window
 			}
 		);
 
-		$this->pager->clearItems();
 		foreach($this->playerList as $component)
-			$this->pager->addItem($component);
+			$this->frame->addComponent($component);
 	}
 
 	function setPlayer($login, $state, $isAlly = false, $rank = 0)
