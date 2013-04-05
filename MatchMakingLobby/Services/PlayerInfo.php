@@ -136,6 +136,7 @@ class PlayerInfo
 	{
 		$this->awaySince = $away ? new \DateTime() : null;
 		$this->readySince = null;
+		$this->notReadySince = null;
 	}
 
 	/**

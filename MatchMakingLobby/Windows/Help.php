@@ -17,6 +17,9 @@ class Help extends \ManiaLive\Gui\Window
 {
 
 	public $displayHelp = false;
+	public $modeName = '';
+
+	protected $textLabel;
 
 	protected function onConstruct()
 	{
@@ -40,20 +43,20 @@ class Help extends \ManiaLive\Gui\Window
 
 		$bullet = ' $<$ff0$o>$> ';
 
-		$ui = new LegacyLabel(200);
-		$ui->setPosition(-140, -10);
-		$ui->setStyle(LegacyLabel::TextRaceMessageBig);
-		$ui->setTextSize(5);
-		$ui->enableAutonewline();
-		$ui->setId('help-label');
-		$ui->setText(
+		$this->textLabel = new LegacyLabel(200);
+		$this->textLabel->setPosition(-140, -10);
+		$this->textLabel->setStyle(LegacyLabel::TextRaceMessageBig);
+		$this->textLabel->setTextSize(5);
+		$this->textLabel->enableAutonewline();
+		$this->textLabel->setId('help-label');
+		$this->textLabel->setText(
 			'You are on a matchmaking lobby.'."\n"."\n".
 			$bullet.'Play a fun mode while you wait.'."\n".
-			$bullet.'Your match will start automatically.'."\n".
-			$bullet.'When match ends you will be redirected here.'."\n".
+			$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
+			$bullet.'You will be redirected here when game ends.'."\n".
 			$bullet.'Press F7 to close this help'
 		);
-		$frame->addComponent($ui);
+		$frame->addComponent($this->textLabel);
 
 		$allies = new Frame(80, 60);
 		$allies->setPosition(100, -2);
@@ -86,7 +89,16 @@ class Help extends \ManiaLive\Gui\Window
 
 	function onDraw()
 	{
+		$bullet = ' $<$ff0$o>$> ';
 		$displayHelpManiaScript = $this->displayHelp ? 'True' : 'False';
+		$this->textLabel->setText(
+			'You are on a matchmaking lobby.'."\n"."\n".
+			$bullet.'Play a fun mode while you wait.'."\n".
+			$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
+			$bullet.'You will be redirected here when game ends.'."\n".
+			$bullet.'Press F7 to close this help'
+		);
+
 		\ManiaLive\Gui\Manialinks::appendScript(
 			<<<MANIASCRIPT
 #RequireContext CMlScript
