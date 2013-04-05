@@ -6,6 +6,7 @@ Please note that *this version require ManiaLive > r502 (or 2.7.2)
 * NEW: Label class has now 3 boolean switch to handle various ManiaScript effects
 
 ### Lobby
+* Improved match making function to do faire teams
 * FIX: Optimization with a lot of players connected
 
 ### Match
