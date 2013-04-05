@@ -117,7 +117,7 @@ class PlayerInfo
 
 	function getNotReadyTime()
 	{
-		return time() - $this->notReadySince->getTimestamp();
+		return $this->notReadySince ? time() - $this->notReadySince->getTimestamp() : 0;
 	}
 
 	/**
@@ -136,6 +136,7 @@ class PlayerInfo
 	{
 		$this->awaySince = $away ? new \DateTime() : null;
 		$this->readySince = null;
+		$this->notReadySince = null;
 	}
 
 	/**

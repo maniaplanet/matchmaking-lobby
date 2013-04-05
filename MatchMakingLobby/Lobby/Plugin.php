@@ -140,6 +140,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->createLabel($this->gui->getNotReadyText(), $login, null, true);
 
 			$help = Windows\Help::Create($login);
+			$help->modeName = $this->scriptName;
 			$help->displayHelp = ($playerObject->isSpectator ? true : false);
 			$help->show();
 		}
@@ -198,7 +199,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updatePlayerList = true;
 
 		$this->updateKarma($login);
-		Windows\Help::Create($login)->show();
+		$help = Windows\Help::Create($login);
+		$help->modeName = $this->scriptName;
+		$help->show();
 
 		try
 		{
@@ -236,9 +239,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$help = Windows\Help::Create($playerInfo->login);
 			$help->displayHelp = true;
+			$help->modeName = $this->scriptName;
 			$help->redraw();
 		}
-		Services\PlayerInfo::Get($playerInfo->login)->setReady(false);
+		$player = Services\PlayerInfo::Get($playerInfo->login);
+		if(!$player->isReady())
+		{
+			$player->setReady(false);
+		}
+
 		/*if($playerInfo->hasJoinedGame)
 		{
 			if($this->matchService->isInMatch($playerInfo->login))
@@ -284,6 +293,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$mtime = microtime(true);
 		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		$potentialBackups = $this->getMatchablePlayers();
+		$storage = $this->storage;
+		$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
+		{
+			return !count($storage->getPlayerObject($login)->allies);
+		});
 		foreach($matchesNeedingBackup as $match)
 		{
 			$potentialBackupsForMatch = array_filter($potentialBackups,
