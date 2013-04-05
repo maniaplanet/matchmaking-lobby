@@ -7,6 +7,7 @@
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
+use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers\Team;
 
 /**
  * Implement this to create your own match maker.
@@ -25,7 +26,7 @@ interface MatchMakerInterface
 	/**
 	 * This function is usually not used from the outside world
 	 * We are using it in order to share functionalities between match makers
-	 * @param array $players
+	 * @param Team[]
 	 */
 	public function getTeams(array $players = array());
 

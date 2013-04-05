@@ -9,6 +9,8 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
+use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers\Team;
+
 abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements MatchMakerInterface
 {
 	function run(array $players = array())
@@ -90,6 +92,8 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 				}
 			}
 		}
+
+		$matchableTeams = array_map(function ($players) { return new Team($players, true); }, $matchableTeams);
 
 		//There are a few players not in teams
 		return array_merge($matchableTeams, $this->getFallbackMatchMaker()->getTeams(array_diff($players, $matchedPlayers)));

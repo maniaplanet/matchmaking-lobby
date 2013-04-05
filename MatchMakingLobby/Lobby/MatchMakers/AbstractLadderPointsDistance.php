@@ -10,6 +10,26 @@ use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
 abstract class AbstractLadderPointsDistance extends AbstractDistance
 {
+	protected function dispatch($players)
+	{
+		$teams = array();
+
+		$playersObject = array_map('\ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::Get', $players);
+
+		usort($playersObject, function ($a, $b)
+		{
+			return $a->ladderPoints - $b->ladderPoints;
+		});
+
+		foreach($playersObject as $index => $player)
+		{
+			$teams[$index % 2][] = $player->login;
+		}
+
+		var_dump($teams);
+		return $teams;
+	}
+
 	protected function playersDistance($p1, $p2)
 	{
 		$p1 = PlayerInfo::Get($p1);
