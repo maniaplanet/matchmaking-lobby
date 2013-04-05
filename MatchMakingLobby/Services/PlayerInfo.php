@@ -39,6 +39,8 @@ class PlayerInfo
 	/** @var \DateTime */
 	private $awaySince = null;
 
+	private $notReadySince = null;
+
 	/** @var Match */
 	private $match = null;
 
@@ -72,6 +74,15 @@ class PlayerInfo
 		return $ready;
 	}
 
+	static function GetNotReady()
+	{
+		$ready = array_filter(self::$instances, function($p)
+			{
+				return !$p->isReady();
+			});
+		return $ready;
+	}
+
 	/**
 	 * Destroy players disconnected for more than 1 hour
 	 */
@@ -85,6 +96,7 @@ class PlayerInfo
 	private function __construct($login)
 	{
 		$this->login = $login;
+		$this->notReadySince = new \DateTime();
 	}
 
 	/**
@@ -103,12 +115,18 @@ class PlayerInfo
 		return time() - $this->readySince->getTimestamp();
 	}
 
+	function getNotReadyTime()
+	{
+		return time() - $this->notReadySince->getTimestamp();
+	}
+
 	/**
 	 * @param bool $ready
 	 */
 	function setReady($ready = true)
 	{
 		$this->readySince = $ready ? new \DateTime() : null;
+		$this->notReadySince = $ready ? null : new \DateTime();
 	}
 
 	/**

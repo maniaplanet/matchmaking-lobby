@@ -563,7 +563,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->connection->chatSendServerMessage(static::PREFIX.'Player is back, match continues.');
 				break;
 			case static::WAITING_BACKUPS:
-				$this->connection->chatSendServerMessage(static::PREFIX.'Backups are connected, match continues.');
+				$this->connection->chatSendServerMessage(static::PREFIX.'Substitute are connected, match continues.');
 				break;
 		}
 

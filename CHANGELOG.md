@@ -6,10 +6,14 @@ Please note that *this version require ManiaLive > r502 (or 2.7.2)
 * NEW: Label class has now 3 boolean switch to handle various ManiaScript effects
 
 ### Lobby
-* FIX: Optimization with a lot of players connected
+* FIX: Optimization
+* NEW: When Hitting F7 players can have help
+* NEW: Players not ready during a certain time are switch to spec and help is displayed
 
 ### Match
 * FIX: When an entire team has quit or gave-up, the match is now cancel
+* NEW: Custom Leave server dialog
+* NEW: Players can no more change team
 
 # 0.2
 
