@@ -117,7 +117,7 @@ class PlayerInfo
 
 	function getNotReadyTime()
 	{
-		return time() - $this->notReadySince->getTimestamp();
+		return $this->notReadySince ? time() - $this->notReadySince->getTimestamp() : 0;
 	}
 
 	/**
