@@ -26,7 +26,6 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 			$teams[$index % 2][] = $player->login;
 		}
 
-		var_dump($teams);
 		return $teams;
 	}
 
