@@ -9,8 +9,6 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
-use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
-
 class DistanceElite extends AbstractLadderPointsDistance
 {
 	const DISTANCE_THRESHOLD = 2000;
@@ -23,23 +21,6 @@ class DistanceElite extends AbstractLadderPointsDistance
 	function getPlayersPerMatch()
 	{
 		return 6;
-	}
-
-	/**
-	 * @param PlayerInfo $p1
-	 * @param PlayerInfo $p2
-	 */
-	protected function distance($p1, $p2)
-	{
-		$p1Obj = PlayerInfo::Get($p1);
-		$p2Obj = PlayerInfo::Get($p2);
-
-		// If players are allies there is no distance between them
-		if(in_array($p2Obj->login, $p1Obj->allies))
-		{
-			return -1;
-		}
-		return parent::distance($p1, $p2);
 	}
 }
 

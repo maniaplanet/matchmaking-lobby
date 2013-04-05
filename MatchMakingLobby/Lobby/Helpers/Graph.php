@@ -53,7 +53,7 @@ class Graph
 	 */
 	function getNeighbours($name, $threshold)
 	{
-		return array_filter($this->distances[$name], function($d) use($threshold)
+		return array_filter($this->distances[$name], function($d) use ($threshold)
 				{
 					return $d <= $threshold;
 				});
@@ -78,6 +78,13 @@ class Graph
 				else if($extendedClique->getPossibleSize() >= $size) $temp[] = $extendedClique;
 			}
 		}
+
+//		usort($cliques,
+//				function($a, $b)
+//				{
+//					$radiusDiff = $a->getRadius() - $b->getRadius();
+//					return $radiusDiff < 0 ? -1 : ($radiusDiff > 0 ? 1 : 0);
+//				});
 
 		return $cliques;
 	}

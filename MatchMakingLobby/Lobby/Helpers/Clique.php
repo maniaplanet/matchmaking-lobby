@@ -42,7 +42,9 @@ class Clique
 		$this->radius = max($this->radius, $this->neighbours[$name]);
 		$this->neighbours = array_intersect_key($this->neighbours, $neighbours);
 		foreach($this->neighbours as $name => $distance)
+		{
 			$this->neighbours[$name] = max($distance, $neighbours[$name]);
+		}
 	}
 
 	/**

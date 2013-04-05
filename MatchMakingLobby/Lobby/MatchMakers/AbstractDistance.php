@@ -9,6 +9,7 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers;
 
+use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers\Team;
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers;
 use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers\DistanciableObject;
@@ -22,7 +23,7 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 
 	const WAITING_STEP = 60;
 
-	const DISTANCE_PLAYERS_THRESHOLD = 300;
+	const DISTANCE_PLAYERS_THRESHOLD = 200000;
 
 	const DISTANCE_TEAMS_THRESHOLD = 30000;
 
@@ -49,6 +50,12 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 	abstract protected function teamsDistance($t1, $t2);
 
 	/**
+	 * @param string[]
+	 * @return array
+	 */
+	abstract protected function dispatch($players);
+
+	/**
 	 * Entry point for the match making
 	 * @param array $players
 	 * @return Match
@@ -70,20 +77,17 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 
 		$teams = array();
 
-		while($nodes && $cliques = $this->playerGraph->findCliques(reset($nodes), $numberOfPlayer, static::DISTANCE_TEAMS_THRESHOLD))
+		while($nodes && $cliques = $this->playerGraph->findCliques(reset($nodes), $numberOfPlayer, static::DISTANCE_PLAYERS_THRESHOLD))
 		{
-			usort($cliques,
-				function($a, $b)
-				{
-					$radiusDiff = $a->getRadius() - $b->getRadius();
-					return $radiusDiff < 0 ? -1 : ($radiusDiff > 0 ? 1 : 0);
-				});
-
 			$teams[] = reset($cliques)->getNodes();
 
 			$this->playerGraph->deleteNodes(reset($cliques)->getNodes());
 			$nodes = $this->playerGraph->getNodes();
 		}
+		$teams = array_map(function ($team) { return new Team($team); }, $teams);
+
+		unset($this->playerGraph); //Memory Usage
+
 		return $teams;
 	}
 
@@ -107,8 +111,6 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 
 			$nodes = $this->teamsGraph->getNodes();
 
-			$teams = array();
-
 			while($nodes && $cliques = $this->teamsGraph->findCliques(reset($nodes), $this->getNumberOfTeam(), static::DISTANCE_TEAMS_THRESHOLD))
 			{
 				usort($cliques,
@@ -120,17 +122,35 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 
 				$temp = reset($cliques)->getNodes();
 
-				$match = new Match();
+				$t = array();
+				foreach($teams as $team)
+				{
+					$t[$team->id] = $team;
+				}
 
+				$match = new Match();
 				$match->players = array_merge($this->teamsGraph->data[$temp[0]], $this->teamsGraph->data[$temp[1]]);
-				$match->team1 = $this->teamsGraph->data[$temp[0]];
-				$match->team2 = $this->teamsGraph->data[$temp[1]];
+
+				//If teams are not immuable, we can modify them !
+				if (!$t[$temp[0]]->immuable && !$t[$temp[0]]->immuable)
+				{
+					list($team1,$team2) = $this->dispatch($match->players);
+				}
+				else
+				{
+					$team1 = $this->teamsGraph->data[$temp[0]];
+					$team2 = $this->teamsGraph->data[$temp[1]];
+				}
+				$match->team1 = $team1;
+				$match->team2 = $team2;
 
 				$matches[] = $match;
 
 				$this->teamsGraph->deleteNodes(reset($cliques)->getNodes());
 				$nodes = $this->teamsGraph->getNodes();
+
 			}
+			unset($this->teamsGraph); //Memory Usage
 		}
 		return $matches;
 	}
@@ -146,9 +166,7 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 
 	protected function buildTeamsGraph(array $teams = array())
 	{
-		$distanciableTeam = array_map(function ($team) { return new DistanciableObject(serialize($team), $team); }, $teams);
-
-		$this->buildGraph($this->teamsGraph, array($this, 'teamsDistance'), $distanciableTeam);
+		$this->buildGraph($this->teamsGraph, array($this, 'teamsDistance'), $teams);
 
 		return $this->teamsGraph;
 	}
@@ -160,7 +178,6 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 	 */
 	protected function buildGraph(&$graph, $distanceComputeCallback, array $objects)
 	{
-		//TODO: check if $objects if array of DistanciableObject
 		$graph = new Helpers\Graph();
 
 		while($object = array_shift($objects))
