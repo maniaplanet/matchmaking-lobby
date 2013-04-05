@@ -75,7 +75,7 @@ abstract class AbstractGUI
 	 */
 	function getNoServerAvailableText()
 	{
-		return 'No server available for your match at the moment. Please wait';
+		return 'No match server available at the moment, please wait';
 	}
 
 	/**
@@ -84,7 +84,7 @@ abstract class AbstractGUI
 	 */
 	function getIllegalLeaveText()
 	{
-		return "A player left\nDo not leave, searching for a replacement player";
+		return "A player left\nDo not leave, searching for a substitute";
 	}
 
 	/**
@@ -103,7 +103,7 @@ abstract class AbstractGUI
 	 */
 	function getBackUpLaunchText()
 	{
-		return '$0F0You are selected to replace a player. Prepare to be transferred';
+		return '$0F0You are selected to be a substitute. Prepare to be transferred';
 	}
 
 	/**
@@ -140,7 +140,7 @@ abstract class AbstractGUI
 	 */
 	function getGiveUpText()
 	{
-		return "A player gave up\nDo not leave, searching for a replacement player";
+		return "A player gave up\nDo not leave, searching for a substitute";
 	}
 
 	/**
