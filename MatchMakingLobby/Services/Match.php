@@ -126,6 +126,18 @@ class Match
 		return $this->isInTeam($login, $this->team2);
 	}
 
+	function isDifferent(Match $m)
+	{
+		if($m->id != $this->id)
+		{
+			return false;
+		}
+		else
+		{
+			return $this->players != $m->players;
+		}
+	}
+
 	protected function isInTeam($login, $team)
 	{
 		return in_array($login, $team);
