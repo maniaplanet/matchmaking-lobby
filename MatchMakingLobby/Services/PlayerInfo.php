@@ -88,7 +88,7 @@ class PlayerInfo
 	 */
 	static function CleanUp()
 	{
-		$limit = new \DateTime('-1 hour');
+		$limit = new \DateTime('-30 minutes');
 		foreach(self::$instances as $login => $player)
 			if($player->awaySince && $player->awaySince < $limit) unset(self::$instances[$login]);
 	}
@@ -145,6 +145,17 @@ class PlayerInfo
 	function isAway()
 	{
 		return (bool) $this->awaySince;
+	}
+
+	/**
+	 * Clean memory
+	 */
+	function __destruct()
+	{
+		unset($this->match);
+		unset($this->notReadySince);
+		unset($this->awaySince);
+		unset($this->allies);
 	}
 }
 
