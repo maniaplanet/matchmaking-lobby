@@ -27,6 +27,7 @@ Let's say the two dedicated login are *myLobbyServer* (running on port *5005*) a
 ```
 server.host = 'localhost'
 server.port = 5005
+config.enableToggleGUI = Off
 manialive.plugins[] = 'MatchMakingLobby\Lobby'
 ManiaLivePlugins\MatchMakingLobby\Config.lobbyLogin = myLobbyServer
 ```
@@ -38,6 +39,7 @@ ManiaLivePlugins\MatchMakingLobby\Config.lobbyLogin = myLobbyServer
 ```
 server.host = 'localhost'
 server.port = 5010
+config.enableToggleGUI = Off
 manialive.plugins[] = 'MatchMakingLobby\Match'
 ManiaLivePlugins\MatchMakingLobby\Config.lobbyLogin = myLobbyServer
 ```
