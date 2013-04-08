@@ -475,8 +475,7 @@ CREATE TABLE IF NOT EXISTS `MatchServers` (
 	`matchId` INT(10) NULL DEFAULT NULL,
 	PRIMARY KEY (`login`, `scriptName`, `titleIdString`),
 	INDEX `FK_MatchServers_Lobbies_idx` (`lobbyLogin`),
-	CONSTRAINT `FK_MatchServers_LobbyServers` FOREIGN KEY (`lobbyLogin`) REFERENCES `LobbyServers` (`login`) ON UPDATE CASCADE ON DELETE NO ACTION,
-	CONSTRAINT `FK_MatchServers_Matches` FOREIGN KEY (`matchId`) REFERENCES `Matches` (`id`) ON UPDATE CASCADE ON DELETE SET NULL
+	CONSTRAINT `FK_MatchServers_LobbyServers` FOREIGN KEY (`lobbyLogin`) REFERENCES `LobbyServers` (`login`) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;

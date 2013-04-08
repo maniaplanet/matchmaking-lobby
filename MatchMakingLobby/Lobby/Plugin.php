@@ -296,7 +296,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$storage = $this->storage;
 		$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
 		{
-			return !count($storage->getPlayerObject($login)->allies);
+			$obj = $storage->getPlayerObject($login);
+			if($obj)
+			{
+				return !count($obj->allies);
+			}
 		});
 		foreach($matchesNeedingBackup as $match)
 		{
