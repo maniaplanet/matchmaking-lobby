@@ -26,7 +26,8 @@ interface MatchMakerInterface
 	/**
 	 * This function is usually not used from the outside world
 	 * We are using it in order to share functionalities between match makers
-	 * @param Team[]
+	 * @param array $players Login of all players to match
+	 * @return Team
 	 */
 	public function getTeams(array $players = array());
 
@@ -34,6 +35,7 @@ interface MatchMakerInterface
 	 * This function is usually not used from the outside world
 	 * We are using it in order to share functionalities between match makers
 	 * @param array $teams
+	 * @return Match[]
 	 */
 	public function getMatches(array $teams = array());
 
