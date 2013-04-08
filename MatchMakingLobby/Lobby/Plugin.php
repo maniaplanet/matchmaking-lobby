@@ -296,7 +296,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$storage = $this->storage;
 		$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
 		{
-			return !count($storage->getPlayerObject($login)->allies);
+			$obj = $storage->getPlayerObject($login);
+			if($obj)
+			{
+				return !count($obj->allies);
+			}
 		});
 		foreach($matchesNeedingBackup as $match)
 		{
@@ -340,7 +344,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
-		if(++$this->tick % 4 == 0 && $this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
+		if(++$this->tick % 8 == 0 && $this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
 		{
 			$mtime = microtime(true);
 			$matches = $this->matchMaker->run($this->getMatchablePlayers());

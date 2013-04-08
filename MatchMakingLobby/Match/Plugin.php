@@ -280,7 +280,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				else
 				{
 					$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-					if($match && $match != $this->match)
+					if($match && $this->match->isDifferent($match))
 					{
 						$this->updatePlayerList($match);
 					}
@@ -563,7 +563,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->connection->chatSendServerMessage(static::PREFIX.'Player is back, match continues.');
 				break;
 			case static::WAITING_BACKUPS:
-				$this->connection->chatSendServerMessage(static::PREFIX.'Substitute are connected, match continues.');
+				$this->connection->chatSendServerMessage(static::PREFIX.'Substitutes are connected, match continues.');
 				break;
 		}
 
