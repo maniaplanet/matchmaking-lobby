@@ -1,5 +1,5 @@
 # 0.3
-Please note that *this version requires database change* AND *ManiaLive > r505* (or 1.7.1)
+Please note that *this version requires database change* AND *ManiaLive > r505* (or 2.7.1)
 
 This version improves performance and stability
 
@@ -18,7 +18,7 @@ This version improves performance and stability
 
 # 0.2
 
-Please note that *this version requires database change* AND *ManiaLive > r498* (or 1.7.1)
+Please note that *this version requires database change* AND *ManiaLive > r498* (or 2.7.1)
 
 ##### Lobby
 * NEW: Matchmaker now support allies. Go to maniaplanet live chat in order to set one of your buddy as ally
