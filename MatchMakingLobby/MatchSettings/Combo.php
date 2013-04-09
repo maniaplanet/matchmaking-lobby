@@ -8,7 +8,7 @@
  */
 namespace ManiaLivePlugins\MatchMakingLobby\MatchSettings;
 
-class Elite implements MatchSettings
+class Combo implements MatchSettings
 {
 	public function getLobbyScriptSettings()
 	{
