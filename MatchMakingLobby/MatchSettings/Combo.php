@@ -23,7 +23,7 @@ class Combo implements MatchSettings
 	{
 		$rules = array(
 			'S_UseLobby' => false,
-			'S_NbPlayerPerTeam' => 2
+			'S_NbPlayersPerTeam' => 2
 		);
 		return $rules;
 	}	
