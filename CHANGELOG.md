@@ -1,24 +1,24 @@
 # 0.3
-Please note that *this version require ManiaLive > r502 (or 2.7.2)
+Please note that *this version requires database change* AND *ManiaLive > r505* (or 2.7.1)
+
+This version improves performance and stability
 
 ### General
-* NEW: Countdown in label is now handle with ManiaScript
-* NEW: Label class has now 3 boolean switch to handle various ManiaScript effects
+* NEW: Countdown in label is now handled with ManiaScript
+* NEW: Label class has now 3 boolean switches to handle various ManiaScript effects
 
 ### Lobby
-* Improved match making function to do fair teams
+* Improved match making function to do fairer teams
 * FIX: Optimization
 * NEW: When Hitting F7 players can have help
-* NEW: Players not ready during a certain time are switch to spec and help is displayed
+* NEW: Players not ready during a certain time are switched to spec and help is displayed
 
 ### Match
-* FIX: When an entire team has quit or gave-up, the match is now cancel
-* NEW: Custom Leave server dialog
-* NEW: Players can no more change team
+* FIX: When an entire team is empty, the match is now cancelled
 
 # 0.2
 
-Please note that *this version require database change* AND *ManiaLive > r498* (or 2.7.1)
+Please note that *this version requires database change* AND *ManiaLive > r498* (or 2.7.1)
 
 ##### Lobby
 * NEW: Matchmaker now support allies. Go to maniaplanet live chat in order to set one of your buddy as ally

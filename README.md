@@ -5,6 +5,8 @@ ManiaLive plugins to manage match making across multiple servers.
 
 Download : https://github.com/ManiaPlanet/MatchMakingLobby/tags
 
+Feedbacks or questions : http://forum.maniaplanet.com/viewtopic.php?f=435&t=16768
+
 Requirements
 ------------
 * At least **two ManiaPlanet servers**
@@ -20,7 +22,7 @@ Let's say the two dedicated login are *myLobbyServer* (running on port *5005*) a
 
 - Download [latest matchmaking plugin](https://github.com/ManiaPlanet/MatchMakingLobby/tags).
 
-- Extract plugin zip in `/ManiaLiveInstallDir/ManiaLivePlugins/` (in order to have something like `/ManiaLiveInstallDir/MatchMakingLobby/Lobby/`)
+- Extract plugin zip in `/ManiaLiveInstallDir/ManiaLivePlugins/` (in order to have something like `/ManiaLiveInstallDir/MatchMakingLobby/Lobby/`).
 
 - Create a config file for the lobby server. The minimal config file (*ManiaLive/config/config-lobby.ini*) is : 
 
@@ -45,6 +47,8 @@ ManiaLivePlugins\MatchMakingLobby\Config.lobbyLogin = myLobbyServer
 ```
 
 - Start manialive for this server : `php bootstrapper.php --manialive_cfg=config-match.ini`.
+
+- Start more match servers with the Match plugin.
 
 It does not work!
 -----------------
