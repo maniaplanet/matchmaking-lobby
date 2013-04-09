@@ -8,7 +8,7 @@
  */
 namespace ManiaLivePlugins\MatchMakingLobby\MatchSettings;
 
-class Joust implements MatchSettings
+class Elite implements MatchSettings
 {
 	public function getLobbyScriptSettings()
 	{
@@ -23,7 +23,7 @@ class Joust implements MatchSettings
 	{
 		$rules = array(
 			'S_UseLobby' => false,
-			'S_UseWarmup' => true
+			'S_NbPlayerPerTeam' => 2
 		);
 		return $rules;
 	}	
