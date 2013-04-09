@@ -15,7 +15,7 @@ class Combo extends AbstractAllies
 
 	function getPlayersPerMatch()
 	{
-		return 2;
+		return 4;
 	}
 
 	protected function getFallbackMatchMaker()
