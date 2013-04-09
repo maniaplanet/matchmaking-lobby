@@ -25,7 +25,7 @@ class Heroes extends AbstractAllies
 
 	protected function getFallbackMatchMaker()
 	{
-		return DistanceElite::getInstance();
+		return DistanceHeroes::getInstance();
 	}
 
 }
