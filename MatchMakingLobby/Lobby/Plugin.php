@@ -137,7 +137,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player->allies = $playerObject->allies;
 			$this->gui->createPlayerList($login);
 			$this->setShortKey($login, array($this,'onPlayerReady'));
-			$this->gui->createLabel($this->gui->getNotReadyText(), $login, null, true);
+			$this->gui->createLabel($this->gui->getNotReadyText(), $login);
 
 			$help = Windows\Help::Create($login);
 			$help->modeName = $this->scriptName;
