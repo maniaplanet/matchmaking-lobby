@@ -191,7 +191,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
 		$player->allies = $playerObject->allies;
 
-		$this->gui->createLabel($message, $login, null, true);
+		$this->gui->createLabel($message, $login);
 
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 
@@ -515,7 +515,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(false);
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
-		$this->gui->createLabel($this->gui->getNotReadyText(), $login, null, true);
+		$this->gui->createLabel($this->gui->getNotReadyText(), $login);
 
 		$this->setReadyLabel();
 
