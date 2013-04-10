@@ -344,32 +344,46 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
-		if(++$this->tick % 8 == 0 && $this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
+		if(++$this->tick % 16 == 0)
 		{
-			$mtime = microtime(true);
-			$matches = $this->matchMaker->run($this->getMatchablePlayers());
-			foreach($matches as $match)
+			//Check if a server is available
+			if ($this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
 			{
-				/** @var Match $match */
-				$server = $this->matchMakingService->getAvailableServer(
-					$this->storage->serverLogin,
-					$this->scriptName,
-					$this->titleIdString
-				);
-				if(!$server)
+				$mtime = microtime(true);
+				$matches = $this->matchMaker->run($this->getMatchablePlayers());
+				foreach($matches as $match)
 				{
-					foreach($match->players as $login)
+					/** @var Match $match */
+					$server = $this->matchMakingService->getAvailableServer(
+						$this->storage->serverLogin,
+						$this->scriptName,
+						$this->titleIdString
+					);
+					if($server)
 					{
-						$this->gui->createLabel($this->gui->getNoServerAvailableText(), $login);
+						//Match ready, let's prepare it !
+						$this->prepareMatch($server, $match);
+					}
+					else
+					{
+						//FIXME: we shouldn't be in this case.. remove ?
+						foreach($match->players as $login)
+						{
+							$this->gui->createLabel($this->gui->getNoServerAvailableText(), $login);
+						}
 					}
 				}
-				else
+			$timers['match'] = microtime(true) - $mtime;
+			}
+			// No server available for this match
+			else
+			{
+				$readyPlayers = Services\PlayerInfo::GetReady();
+				foreach ($readyPlayers as $readyPlayer)
 				{
-					//Match ready, let's prepare it !
-					$this->prepareMatch($server, $match);
+					$this->gui->createLabel($this->gui->getNoServerAvailableText(), $readyPlayer->login);
 				}
 			}
-			$timers['match'] = microtime(true) - $mtime;
 		}
 
 		$mtime = microtime(true);
@@ -417,11 +431,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$timers['jumper'] = microtime(true) - $mtime;
 
+		//Do periodic nextmap
 		if(++$this->mapTick % 1800 == 0)
 		{
 			$this->connection->nextMap();
 		}
 
+		//Clean guest list for not in match players
 		if($this->tick % 29 == 0)
 		{
 			$mtime = microtime(true);
@@ -524,7 +540,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
-		\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerNotReady:%f',$time));
+			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerNotReady:%f',$time));
 	}
 
 	function onPlayerAlliesChanged($login)
