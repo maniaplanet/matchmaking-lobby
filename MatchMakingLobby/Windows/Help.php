@@ -34,6 +34,7 @@ class Help extends \ManiaLive\Gui\Window
 
 		$frame = new Frame();
 		$frame->setId('help-frame');
+		$frame->setPosZ(50);
 
 		$ui = new Bgs1(340, 60);
 		$ui->setPosition(-170, 0, -0.1);
