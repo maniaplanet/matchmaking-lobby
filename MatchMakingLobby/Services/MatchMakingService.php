@@ -208,10 +208,10 @@ class MatchMakingService
 		return $this->db->query(
 				'SELECT count(*) FROM Players P '.
 				'INNER JOIN Matches M ON P.matchId = M.id '.
-				'WHERE P.login = %s AND P.`state` < %d AND M.lobbyLogin = %s '.
+				'WHERE P.login = %s AND P.`state` IN (%s) AND M.lobbyLogin = %s '.
 				'AND DATE_ADD(M.creationDate, INTERVAL 1 HOUR) > NOW()',
 				$this->db->quote($playerLogin),
-				PlayerInfo::PLAYER_STATE_NOT_CONNECTED,
+				implode(',', array(PlayerInfo::PLAYER_STATE_NOT_CONNECTED, PlayerInfo::PLAYER_STATE_QUITTER, PlayerInfo::PLAYER_STATE_GIVE_UP, PlayerInfo::PLAYER_STATE_REPLACED)),
 				$this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
 	}
