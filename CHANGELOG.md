@@ -1,3 +1,9 @@
+# 1.0
+
+* Adding combo & heroes matchmaker
+* Stability fixes
+
+
 # 0.3
 Please note that *this version requires database change* AND *ManiaLive > r505* (or 2.7.1)
 

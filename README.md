@@ -31,7 +31,6 @@ server.host = 'localhost'
 server.port = 5005
 config.enableToggleGUI = Off
 manialive.plugins[] = 'MatchMakingLobby\Lobby'
-ManiaLivePlugins\MatchMakingLobby\Config.lobbyLogin = myLobbyServer
 ```
    
 - Start manialive for this server : `php bootstrapper.php --manialive_cfg=config-lobby.ini`.
