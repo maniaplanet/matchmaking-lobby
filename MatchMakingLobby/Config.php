@@ -32,7 +32,7 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * penaltyTime^(number of leaves)
 	 * @var int
 	 */
-	public $penaltyTime = 4;
+	public $penaltyTime = 2;
 
 	/**
 	 * Depending of the value, the match plugin will wait for backups during some time before aborting the match,
