@@ -1,3 +1,11 @@
+# 1.1
+
+### Lobby
+
+* Showing message "No server available" for all ready players (if no server are available)
+* Not moving players to spectator after being not ready for a while
+* Canceling match before it starts does not give any penalties
+
 # 1.0
 
 * Adding combo & heroes matchmaker
