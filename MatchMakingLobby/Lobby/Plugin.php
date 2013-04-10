@@ -455,17 +455,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$timers['lobbyWindow'] = microtime(true) - $mtime;
 		}
 
+		//Moving players that are not ready for a long time
 		if($this->tick % 42 == 0)
 		{
-			$notReadyPlayers = Services\PlayerInfo::GetNotReady();
-			foreach($notReadyPlayers as $notReadyPlayer)
-			{
-				if($notReadyPlayer->getNotReadyTime() > 240)
-				{
-					$this->connection->forceSpectator($notReadyPlayer->login, 3, true);
-				}
-			}
-			$this->connection->executeMulticall();
+//			$notReadyPlayers = Services\PlayerInfo::GetNotReady();
+//			foreach($notReadyPlayers as $notReadyPlayer)
+//			{
+//				if($notReadyPlayer->getNotReadyTime() > 240)
+//				{
+//					$this->connection->forceSpectator($notReadyPlayer->login, 3, true);
+//				}
+//			}
+//			$this->connection->executeMulticall();
 		}
 
 		if($this->updatePlayerList)
