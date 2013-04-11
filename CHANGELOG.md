@@ -6,6 +6,10 @@
 * Not moving players to spectator after being not ready for a while
 * Canceling match before it starts does not give any penalties
 
+### Match
+
+* Disabling all votes on match server (kick, ban, balance, setScriptSettings)
+
 # 1.0
 
 * Adding combo & heroes matchmaker

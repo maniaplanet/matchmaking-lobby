@@ -128,6 +128,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->setMaxPlayers(0);
 		$this->connection->setMaxSpectators(0);
 		$this->connection->removeGuest('-_-');
+		$this->connection->setCallVoteRatios(array(
+			'SetModeScriptSettings' => -1,
+			'Kick' => -1,
+			'Ban' => -1,
+			'AutoTeamBalance' => -1
+			));
 		$this->nextTick = new \DateTime();
 		$this->intervals = array(
 			self::PLAYER_LEFT => '40 seconds',
@@ -526,11 +532,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->createLabel($this->gui->getDecidingText(), null, null, false, false);
 
 			$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting, you still have time to change the map if you want.');
-			$ratios = array(
+			$this->connection->setCallVoteRatios(array(
 				array('Command' => 'nextMap', 'Ratio' => 0.5),
 				array('Command' => 'jumpToMapIndex', 'Ratio' => 0.5),
-			);
-			$this->connection->setCallVoteRatios($ratios);
+			));
 		}
 
 		$this->changeState(self::DECIDING);
@@ -552,11 +557,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		switch($this->state)
 		{
 			case self::DECIDING:
-				$ratios = array(
+				$this->connection->setCallVoteRatios(array(
 					array('Command' => 'nextMap', 'Ratio' => -1.),
 					array('Command' => 'jumpToMapIndex', 'Ratio' => -1.),
-				);
-				$this->connection->setCallVoteRatios($ratios);
+				));
 				$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting.');
 				break;
 			case static::PLAYER_LEFT:
