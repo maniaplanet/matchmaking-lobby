@@ -16,7 +16,7 @@ Requirements
 Installation
 ------------
 - Start at least two ManiaPlanet servers. Please [refer to the wiki](http://wiki.maniaplanet.com/en/Dedicated_servers) for further information.
-Let's say the two dedicated login are *myLobbyServer* (which **XML-RPC port is 5005**) and *myMatchServer01* (which **XML-RPC port 5010**).
+Let's say the two dedicated login are *myLobbyServer* (which **XML-RPC port is 5005**) and *myMatchServer01* (which **XML-RPC port is 5010**).
 
 - Download [latest manialive](https://code.google.com/p/manialive/downloads/list).
 
@@ -118,4 +118,4 @@ How can I make my own matchmaker function ?
 -------------------------------------------	
 Long story short : you should make a class that implement the interface `ManiaLivePlugins\MatchMakingLobby\Lobby\MatchMakers\MatchMakerInterface`
 
-We have built some classes to help you doing this. 
+We have built some classes to help you do this. 
