@@ -22,7 +22,7 @@ Let's say the two dedicated login are *myLobbyServer* (running on port *5005*) a
 
 - Download [latest matchmaking plugin](https://github.com/ManiaPlanet/MatchMakingLobby/tags).
 
-- Extract plugin zip in `/ManiaLiveInstallDir/ManiaLivePlugins/` (in order to have something like `/ManiaLiveInstallDir/MatchMakingLobby/Lobby/`).
+- Extract plugin zip in `/ManiaLiveInstallDir/libraries/ManiaLivePlugins/` (in order to have something like `/ManiaLiveInstallDir/libraries/ManiaLivePlugins/MatchMakingLobby/Lobby/...`).
 
 - Create a config file for the lobby server. The minimal config file (*ManiaLive/config/config-lobby.ini*) is : 
 
