@@ -31,6 +31,11 @@ server.host = 'localhost'
 server.port = 5005
 config.enableToggleGUI = Off
 manialive.plugins[] = 'MatchMakingLobby\Lobby'
+database.host = '127.0.0.1'
+database.port = 3306
+database.username = 'YourDatabaseUsername'
+database.password = 'YourDatabasePassword'
+
 ```
    
 - Start manialive for this server : `php bootstrapper.php --manialive_cfg=config-lobby.ini`.
@@ -43,6 +48,10 @@ server.port = 5010
 config.enableToggleGUI = Off
 manialive.plugins[] = 'MatchMakingLobby\Match'
 ManiaLivePlugins\MatchMakingLobby\Config.lobbyLogin = myLobbyServer
+database.host = '127.0.0.1'
+database.port = 3306
+database.username = 'YourDatabaseUsername'
+database.password = 'YourDatabasePassword'
 ```
 
 - Start manialive for this server : `php bootstrapper.php --manialive_cfg=config-match.ini`.
