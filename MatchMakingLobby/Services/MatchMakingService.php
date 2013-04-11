@@ -89,34 +89,82 @@ class MatchMakingService
 		return $match;
 	}
 
-	function getServerCurrentMatch($serverLogin, $scriptName, $titleIdString)
+	/**
+	 * @param int[] $matchIds
+	 * @return Match[]
+	 */
+	function getMatches(array $matchIds)
 	{
-		$id = $this->db->execute(
+		$result = array();
+		foreach($matchIds as $matchId)
+		{
+			$result[] = $this->getMatch($matchId);
+		}
+		return $result;
+	}
+
+	/**
+	 *
+	 * @param string $serverLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 * @return string
+	 */
+	function getServerCurrentMatchId($serverLogin, $scriptName, $titleIdString)
+	{
+		return $this->db->execute(
 				'SELECT matchId FROM MatchServers '.
 				'WHERE login = %s  AND scriptName = %s AND titleIdString = %s ',
 				$this->db->quote($serverLogin),
 				$this->db->quote($scriptName),
-				$this->db->quote($titleIdString),
-				Match::PREPARED
+				$this->db->quote($titleIdString)
 			)->fetchSingleValue();
-		return $this->getMatch($id);
 	}
 
 	/**
-	 * Returns the current MatchInfo of the player
-	 * @param string $playerLogin
+	 * @param string $serverLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
 	 * @return Match
 	 */
-	function getPlayerCurrentMatch($playerLogin)
+	function getServerCurrentMatch($serverLogin, $scriptName, $titleIdString)
 	{
-		$matchId = $this->db->execute(
-			'SELECT M.id FROM Matches M '.
-			'INNER JOIN Players P ON M.id = P.matchId '.
-			'WHERE P.login = %s AND M.`state` >= %d LIMIT 1',
-			$this->db->quote($playerLogin), Match::PREPARED
-			)->fetchSingleValue();
+		return $this->getMatch($this->getServerCurrentMatch($serverLogin, $scriptName, $titleIdString));
+	}
 
-		return $this->getMatch($matchId);
+	/**
+	 * @param string $serverLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 * @return Match
+	 */
+	function getCurrentLobbyMatches($lobbyLogin, $scriptName, $titleIdString)
+	{
+		return $this->getMatches($this->getCurrentLobbyMatchIds($lobbyLogin, $scriptName, $titleIdString));
+	}
+
+	/**
+	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 * @return string
+	 */
+	function getCurrentLobbyMatchIds($lobbyLogin, $scriptName, $titleIdString)
+	{
+		return $this->db->execute(
+				'SELECT matchId FROM MatchServers '.
+				'WHERE lobbyLogin = %s  AND scriptName = %s AND titleIdString = %s '.
+				'AND matchId IS NOT NULL',
+				$lobbyLogin,
+				$scriptName,
+				$titleIdString)->fetchArrayOfSingleValues();
+	}
+
+	function cancelMatch(Match $match)
+	{
+		$this->updateMatchState($match->id, Match::PLAYER_CANCEL);
+
+		$this->updateServerCurrentMatchId(null, $match->matchServerLogin, $match->scriptName, $match->titleIdString);
 	}
 
 	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
@@ -258,20 +306,59 @@ class MatchMakingService
 	}
 
 	/**
-	 * Check if the player is in Match and the match is still playing
-	 * @param string $login
+	 *
+	 * @param string $playerLogin
+	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 */
+	function isInMatch($playerLogin, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		return ($this->getPlayerCurrentMatchId($playerLogin, $lobbyLogin, $scriptName, $titleIdString) === false ? false : true);
+	}
+
+
+	/**
+	 *
+	 * @param string $playerLogin
+	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
 	 * @return boolean
 	 */
-	function isInMatch($login)
+	function getPlayerCurrentMatchId($playerLogin, $lobbyLogin, $scriptName, $titleIdString)
 	{
-		return $this->db->execute(
-				'SELECT IF(count(*), TRUE, FALSE) '.
-				'FROM Players P '.
-				'INNER JOIN Matches M ON P.matchId = M.id '.
-				'WHERE P.login = %s and M.`state` >= %d AND P.state >= %d',
-				$this->db->quote($login),
-				Match::PREPARED, PlayerInfo::PLAYER_STATE_QUITTER
-			)->fetchSingleValue(false);
+		$matchIds = $this->getCurrentLobbyMatchIds($lobbyLogin, $scriptName, $titleIdString);
+		if ($matchIds)
+		{
+			return $this->db->execute(
+					'SELECT p.matchId '.
+					'FROM Players p '.
+					'WHERE p.matchId IN (%s) '.
+					'AND p.login = %s '.
+					'AND p.state NOT IN (%s)',
+					implode(', ', $matchIds),
+					$this->db->quote($playerLogin),
+					implode(',', array(PlayerInfo::PLAYER_STATE_REPLACED, PlayerInfo::PLAYER_STATE_GIVE_UP, PlayerInfo::PLAYER_STATE_CANCEL))
+				)->fetchSingleValue(false);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	function getPlayerCurrentMatch($playerLogin, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		$matchId = $this->getPlayerCurrentMatchId($playerLogin, $lobbyLogin, $scriptName, $titleIdString);
+		if ($matchId !== false)
+		{
+			return $this->getMatch($matchId);
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	/**

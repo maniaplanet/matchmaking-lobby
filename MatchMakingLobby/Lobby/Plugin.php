@@ -168,9 +168,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerConnect($login, $isSpectator)
 	{
 		\ManiaLive\Utilities\Logger::debug(sprintf('Player connected: %s', $login));
-		if($this->matchMakingService->isInMatch($login))
+		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+		if($match)
 		{
-			$match = $this->matchMakingService->getPlayerCurrentMatch($login);
 			\ManiaLive\Utilities\Logger::debug(sprintf('send %s to is match %d', $login, $match->id));
 			$jumper = Windows\ForceManialink::Create($login);
 			$jumper->set('maniaplanet://#qjoin='.$match->matchServerLogin.'@'.$match->titleIdString);
@@ -217,8 +217,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::debug(sprintf('Player disconnected: %s', $login));
 
-		$match = $this->matchMakingService->getPlayerCurrentMatch($login);
-		if($this->matchMakingService->isInMatch($login) && array_key_exists($match->matchServerLogin, $this->countDown) && $this->countDown[$match->id] > 0)
+		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+		if($match && array_key_exists($match->matchServerLogin, $this->countDown) && $this->countDown[$match->id] > 0)
 		{
 			$this->onPlayerCancelMatchStart($login);
 		}
@@ -509,7 +509,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$mtime = microtime(true);
 		$player = Services\PlayerInfo::Get($login);
-		if (!$this->matchMakingService->isInMatch($login))
+		if (!$this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString))
 		{
 			$player->setReady(true);
 			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
@@ -564,16 +564,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::debug('Player cancel match start: '.$login);
 
-		$match = $this->matchMakingService->getPlayerCurrentMatch($login);
+		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if ($match->state == Match::PREPARED)
 		{
 			$this->gui->eraseJump($match->id);
 			unset($this->countDown[$match->id]);
-			$this->matchMakingService->updateMatchState($match->id, Services\Match::PLAYER_CANCEL);
+
+			$this->matchMakingService->cancelMatch($match);
 
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
-			$this->matchMakingService->updateServerCurrentMatchId(null, $match->matchServerLogin, $match->scriptName,
-				$match->titleIdString);
 
 			foreach($match->players as $playerLogin)
 			{
@@ -603,7 +602,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		foreach($match->players as $player)
 		{
 			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$id] - 1);
-			$this->setShortKey($player, array($this, 'onCancelMatchStart'));
+			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 		}
 
 		$matchablePlayers = $this->getMatchablePlayers();
@@ -758,13 +757,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$readyPlayers = Services\PlayerInfo::GetReady();
 		$service = $this->matchMakingService;
-		$notInMathcPlayers = array_filter($readyPlayers,
-			function (Services\PlayerInfo $p) use ($service)
+
+		$serverLogin = $this->storage->serverLogin;
+		$scriptName = $this->scriptName;
+		$titleIdString = $this->titleIdString;
+
+		$notInMatchPlayers = array_filter($readyPlayers,
+			function (Services\PlayerInfo $p) use ($service, $serverLogin, $scriptName, $titleIdString)
 			{
-				return !$service->isInMatch($p->login);
+				return !$service->isInMatch($p->login, $serverLogin, $scriptName, $titleIdString);
 			});
 		$blockedPlayers = array_keys($this->blockedPlayers);
-		$notBlockedPlayers = array_filter($notInMathcPlayers,
+		$notBlockedPlayers = array_filter($notInMatchPlayers,
 			function (Services\PlayerInfo $p) use ($blockedPlayers)
 			{
 				return !in_array($p->login, $blockedPlayers);

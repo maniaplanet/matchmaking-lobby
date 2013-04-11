@@ -42,10 +42,7 @@ class PlayerInfo
 	private $notReadySince = null;
 
 	/** @var Match */
-	private $match = null;
-
-	/** @var string */
-	private $server = null;
+	public $match = null;
 
 	/**
 	 * @param string $login

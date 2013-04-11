@@ -172,7 +172,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
 
-
 		$this->lobby = $this->matchMakingService->getLobby($this->config->lobbyLogin);
 
 		//Get the GUI abstraction class

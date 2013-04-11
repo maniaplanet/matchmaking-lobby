@@ -231,7 +231,8 @@ abstract class AbstractGUI
 				$playerObj = $storage->getPlayerObject($player->login);
 				$state = Player::STATE_NOT_READY;
 				if($playerInfo->isReady()) $state = Player::STATE_READY;
-				if($matchMakingService->isInMatch($player->login)) $state = Player::STATE_IN_MATCH;
+				//FIXME: how to be sure that he is in match?
+				//if($matchMakingService->isInMatch($player->login)) $state = Player::STATE_IN_MATCH;
 				if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
 
 				/* @var $playerList Windows\PlayerList */
