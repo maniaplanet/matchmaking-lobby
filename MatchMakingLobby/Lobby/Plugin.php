@@ -220,7 +220,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login);
 		if($this->matchMakingService->isInMatch($login) && array_key_exists($match->matchServerLogin, $this->countDown) && $this->countDown[$match->id] > 0)
 		{
-			$this->onCancelMatchStart($login);
+			$this->onPlayerCancelMatchStart($login);
 		}
 
 		$player = Services\PlayerInfo::Get($login);
@@ -560,7 +560,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->hideSplash($login);
 	}
 
-	function onCancelMatchStart($login)
+	function onPlayerCancelMatchStart($login)
 	{
 		\ManiaLive\Utilities\Logger::debug('Player cancel match start: '.$login);
 
