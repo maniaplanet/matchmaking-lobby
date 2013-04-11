@@ -16,7 +16,7 @@ Requirements
 Installation
 ------------
 - Start at least two ManiaPlanet servers. Please [refer to the wiki](http://wiki.maniaplanet.com/en/Dedicated_servers) for further information.
-Let's say the two dedicated login are *myLobbyServer* (running on port *5005*) and *myMatchServer01* (running on port *5010*).
+Let's say the two dedicated login are *myLobbyServer* (which **XML-RPC port is 5005**) and *myMatchServer01* (which **XML-RPC port 5010**).
 
 - Download [latest manialive](https://code.google.com/p/manialive/downloads/list).
 
