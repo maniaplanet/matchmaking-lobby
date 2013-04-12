@@ -155,9 +155,10 @@ class MatchMakingService
 				'SELECT matchId FROM MatchServers '.
 				'WHERE lobbyLogin = %s  AND scriptName = %s AND titleIdString = %s '.
 				'AND matchId IS NOT NULL',
-				$lobbyLogin,
-				$scriptName,
-				$titleIdString)->fetchArrayOfSingleValues();
+				$this->db->quote($lobbyLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString)
+				)->fetchArrayOfSingleValues();
 	}
 
 	function cancelMatch(Match $match)
