@@ -262,8 +262,8 @@ class MatchMakingService
 				'AND DATE_ADD(M.creationDate, INTERVAL 1 HOUR) > NOW()',
 				$this->db->quote($playerLogin),
 				implode(',', array(PlayerInfo::PLAYER_STATE_NOT_CONNECTED, PlayerInfo::PLAYER_STATE_QUITTER, PlayerInfo::PLAYER_STATE_GIVE_UP, PlayerInfo::PLAYER_STATE_REPLACED)),
-				implode(',', array(Match::PLAYER_CANCEL)),
-				$this->db->quote($lobbyLogin)
+				$this->db->quote($lobbyLogin),
+				implode(',', array(Match::PLAYER_CANCEL))
 			)->fetchSingleValue(0);
 	}
 
