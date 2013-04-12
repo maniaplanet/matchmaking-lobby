@@ -128,12 +128,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->setMaxPlayers(0);
 		$this->connection->setMaxSpectators(0);
 		$this->connection->removeGuest('-_-');
-		$this->connection->setCallVoteRatios(array(
-			'SetModeScriptSettings' => -1,
-			'Kick' => -1,
-			'Ban' => -1,
-			'AutoTeamBalance' => -1
-			));
+		$this->connection->setCallVoteRatios(
+			array('Command' => 'SetModeScriptSettings', 'Ratio' => 0.5),
+			array('Command' => 'Kick', 'Ratio' => 0.5),
+			array('Command' => 'Ban', 'Ratio' => 0.5),
+			array('Command' => 'AutoTeamBalance', 'Ratio' => 0.5)
+		);
 		$this->nextTick = new \DateTime();
 		$this->intervals = array(
 			self::PLAYER_LEFT => '40 seconds',
