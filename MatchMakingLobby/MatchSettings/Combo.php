@@ -13,7 +13,7 @@ class Combo implements MatchSettings
 	public function getLobbyScriptSettings()
 	{
 		$rules = array(
-			'S_UseLobby' => true, 
+			'S_UseLobby' => true,
 			'S_LobbyTimePerMap' => 1800
 		);
 		return $rules;
@@ -26,7 +26,7 @@ class Combo implements MatchSettings
 			'S_NbPlayersPerTeam' => 2
 		);
 		return $rules;
-	}	
+	}
 }
 
 ?>

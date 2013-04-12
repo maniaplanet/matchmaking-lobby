@@ -374,7 +374,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						}
 					}
 				}
-			$timers['match'] = microtime(true) - $mtime;
+				$timers['match'] = microtime(true) - $mtime;
 			}
 			// No server available for this match
 			else

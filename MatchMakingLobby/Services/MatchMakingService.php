@@ -129,7 +129,7 @@ class MatchMakingService
 	 */
 	function getServerCurrentMatch($serverLogin, $scriptName, $titleIdString)
 	{
-		return $this->getMatch($this->getServerCurrentMatch($serverLogin, $scriptName, $titleIdString));
+		return $this->getMatch($this->getServerCurrentMatchId($serverLogin, $scriptName, $titleIdString));
 	}
 
 	/**

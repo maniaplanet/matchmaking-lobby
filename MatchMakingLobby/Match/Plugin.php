@@ -128,12 +128,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->setMaxPlayers(0);
 		$this->connection->setMaxSpectators(0);
 		$this->connection->removeGuest('-_-');
-		$this->connection->setCallVoteRatios(
-			array('Command' => 'SetModeScriptSettings', 'Ratio' => 0.5),
-			array('Command' => 'Kick', 'Ratio' => 0.5),
-			array('Command' => 'Ban', 'Ratio' => 0.5),
-			array('Command' => 'AutoTeamBalance', 'Ratio' => 0.5)
-		);
 		$this->nextTick = new \DateTime();
 		$this->intervals = array(
 			self::PLAYER_LEFT => '40 seconds',
@@ -144,6 +138,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::OVER => '10 seconds',
 			self::WAITING_BACKUPS => '1 seconds'
 		);
+		$this->connection->setCallVoteRatios(array(
+			array('Command' => 'SetModeScriptSettings', 'Ratio' => -1. ),
+			array('Command' => 'Kick', 'Ratio' => -1. ),
+			array('Command' => 'Ban', 'Ratio' => -1. ),
+			array('Command' => 'AutoTeamBalance', 'Ratio' => -1. )
+		));
 
 		$this->config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 
