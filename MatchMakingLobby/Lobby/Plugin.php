@@ -337,7 +337,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$teamId = $match->getTeam(array_shift($quitters));
 					$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
 					$this->gui->createLabel($this->gui->getBackUpLaunchText(), $backup, 0, false, false);
-					$this->setShortKey($backup, null);
+					$this->setShortKey($backup, array($this, 'onNothing'));
 				}
 				$this->gui->prepareJump($backups, $match->matchServerLogin, $match->titleIdString, $match->id);
 				$this->countDown[$match->id] = 5;
@@ -552,6 +552,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
 		}
 		$this->updatePlayerList = true;
+	}
+
+	function onNothing()
+	{
+		//Do nothing
 	}
 
 	function doNotShow($login)
