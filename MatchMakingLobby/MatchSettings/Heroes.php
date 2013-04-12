@@ -13,7 +13,7 @@ class Heroes implements MatchSettings
 	public function getLobbyScriptSettings()
 	{
 		$rules = array(
-			'S_UseLobby' => 1,
+			'S_UseLobby' => true,
 			'S_LobbyTimePerMap' => 1800
 		);
 		return $rules;
