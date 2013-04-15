@@ -240,7 +240,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				if($match === false)
 				{
 					\ManiaLive\Utilities\Logger::debug('Match was prepared but not in database anymore (canceled on lobby ?');
-					$this->cancel();
+					$this->cancel(false);
 					break;
 				}
 				if($match != $this->match || $match->id != $this->matchId)
@@ -511,10 +511,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->waitBackups();
 	}
 
-	protected function cancel()
+	protected function cancel($updateState = false)
 	{
 		\ManiaLive\Utilities\Logger::debug('cancel()');
-		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_LEFT);
+
+		if ($updateState)
+		{
+			$this->matchMakingService->updateMatchState($this->matchId, Services\Match::PLAYER_LEFT);
+		}
 
 		$this->gui->createLabel($this->gui->getMatchoverText(), null, null, false, false);
 
