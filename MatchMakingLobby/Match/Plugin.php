@@ -110,7 +110,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('1.0');
+		$this->setVersion('1.1');
 	}
 
 	function onLoad()
