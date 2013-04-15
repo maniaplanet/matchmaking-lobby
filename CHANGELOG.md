@@ -1,5 +1,7 @@
 # 1.1
 
+Fixes many loop redirection issues
+
 ### Lobby
 
 * Showing message "No server available" for all ready players (if no server are available)
