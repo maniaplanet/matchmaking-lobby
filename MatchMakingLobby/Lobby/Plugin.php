@@ -64,7 +64,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('1.1');
+		$this->setVersion('1.2');
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
 		$script = $this->storage->gameInfos->scriptName;
