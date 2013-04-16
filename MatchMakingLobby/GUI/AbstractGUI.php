@@ -153,13 +153,13 @@ abstract class AbstractGUI
 	}
 
 	/**
-	 * 
+	 *
 	 * @param int $n
 	 * @return string
 	 */
 	function getTooManyAlliesText($n)
 	{
-		return sprintf('You have too many allies, maximum is %d', $n);
+		return sprintf("\$F00You have too many allies, maximum is %d", $n);
 	}
 
 	/**
