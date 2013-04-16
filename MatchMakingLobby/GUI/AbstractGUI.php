@@ -153,6 +153,16 @@ abstract class AbstractGUI
 	}
 
 	/**
+	 * 
+	 * @param int $n
+	 * @return string
+	 */
+	function getTooManyAlliesText($n)
+	{
+		return sprintf('You have too many allies, maximum is %d', $n);
+	}
+
+	/**
 	 * Display a text message in the center of the player's screen
 	 * If countdown is set, the message will be refresh every second the end of the countdown
 	 * @param string $login

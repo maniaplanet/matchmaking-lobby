@@ -119,7 +119,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$settings = $matchSettings->getLobbyScriptSettings();
 		$this->connection->setModeScriptSettings($settings);
 		$this->connection->restartMap();
-		
+
 		$this->enableTickerEvent();
 
 		$this->matchMakingService = new Services\MatchMakingService();
@@ -153,11 +153,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$totalPlayerCount = $this->getTotalPlayerCount();
 
 		$this->gui->updateLobbyWindow($this->storage->server->name, $playersCount, $totalPlayerCount, $this->getPlayingPlayersCount());
-
-		$feedback = Windows\Feedback::Create();
-		$feedback->setAlign('right', 'bottom');
-		$feedback->setPosition(160.1, 75);
-		$feedback->show();
 	}
 
 	function onUnload()
@@ -200,9 +195,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updatePlayerList = true;
 
 		$this->updateKarma($login);
+
 		$help = Windows\Help::Create($login);
 		$help->modeName = $this->scriptName;
 		$help->show();
+
+		$this->checkAllies($login);
 
 		try
 		{
@@ -551,8 +549,28 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if($player)
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
+			$this->checkAllies($login);
 		}
 		$this->updatePlayerList = true;
+	}
+
+	protected function checkAllies($login)
+	{
+		if ($this->matchMaker->getNumberOfTeam() > 0)
+			{
+				$alliesMax = ($this->matchMaker->getPlayersPerMatch()/$this->matchMaker->getNumberOfTeam())-1;
+				//Too many allies
+				if (count($player->allies) > $alliesMax)
+				{
+					$tooManyAlly = Windows\TooManyAllies::Create($login);
+					$tooManyAlly->setText($this->gui->getTooManyAlliesText($alliesMax));
+					$tooManyAlly->show();
+				}
+			}
+			else
+			{
+				Windows\TooManyAllies::Erase($login);
+			}
 	}
 
 	function onNothing()
@@ -570,6 +588,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::debug('Player cancel match start: '.$login);
 
+		$player = $this->storage->getPlayerObject($login);
+
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if ($match->state == Match::PREPARED)
 		{
@@ -579,6 +599,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->cancelMatch($match);
 
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+
+			$this->connection->chatSendServerMessage(static::PREFIX.'$<%s$> cancelled match start.', $player->nickName);
 
 			foreach($match->players as $playerLogin)
 			{

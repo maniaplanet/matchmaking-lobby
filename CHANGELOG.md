@@ -1,3 +1,17 @@
+# 1.2
+
+* Adding a manialive version check to avoid issues
+* Removed feedback button
+
+### Lobby
+
+* FIX: cancelling a match may result in a ban of the whole team
+* NEW: message when a player cancel a match start in the lobby
+
+### Match
+
+* Teams are now forced on dedicated side
+
 # 1.1
 
 Fixes many loop redirection issues
@@ -16,7 +30,6 @@ Fixes many loop redirection issues
 
 * Adding combo & heroes matchmaker
 * Stability fixes
-
 
 # 0.3
 Please note that *this version requires database change* AND *ManiaLive > r505* (or 2.7.1)

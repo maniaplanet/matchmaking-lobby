@@ -10,53 +10,12 @@ Feedbacks or questions : http://forum.maniaplanet.com/viewtopic.php?f=435&t=1676
 Requirements
 ------------
 * At least **two ManiaPlanet servers**
-* Two instances of **ManiaLive 2.7.1** or higher
+* Two instances of **ManiaLive 2.8.0** or higher
 * **MySQL** database
 
 Installation
 ------------
-- Start at least two ManiaPlanet servers. Please [refer to the wiki](http://wiki.maniaplanet.com/en/Dedicated_servers) for further information.
-Let's say the two dedicated login are *myLobbyServer* (which **XML-RPC port is 5005**) and *myMatchServer01* (which **XML-RPC port is 5010**).
-
-- Download [latest manialive](https://code.google.com/p/manialive/downloads/list).
-
-- Download [latest matchmaking plugin](https://github.com/ManiaPlanet/MatchMakingLobby/tags).
-
-- Extract plugin zip in `/ManiaLiveInstallDir/libraries/ManiaLivePlugins/` (in order to have something like `/ManiaLiveInstallDir/libraries/ManiaLivePlugins/MatchMakingLobby/Lobby/...`).
-
-- Create a config file for the lobby server. The minimal config file (*ManiaLive/config/config-lobby.ini*) is : 
-
-```
-server.host = 'localhost'
-server.port = 5005
-config.enableToggleGUI = Off
-manialive.plugins[] = 'MatchMakingLobby\Lobby'
-database.host = '127.0.0.1'
-database.port = 3306
-database.username = 'YourDatabaseUsername'
-database.password = 'YourDatabasePassword'
-
-```
-   
-- Start manialive for this server : `php bootstrapper.php --manialive_cfg=config-lobby.ini`.
-   
-- Create a config file for match server with the Match plugin loaded. The minimal config file (*ManiaLive/config/config-match.ini*) is : 
-
-```
-server.host = 'localhost'
-server.port = 5010
-config.enableToggleGUI = Off
-manialive.plugins[] = 'MatchMakingLobby\Match'
-ManiaLivePlugins\MatchMakingLobby\Config.lobbyLogin = myLobbyServer
-database.host = '127.0.0.1'
-database.port = 3306
-database.username = 'YourDatabaseUsername'
-database.password = 'YourDatabasePassword'
-```
-
-- Start manialive for this server : `php bootstrapper.php --manialive_cfg=config-match.ini`.
-
-- Start more match servers with the Match plugin.
+Online guide : https://github.com/maniaplanet/guides/blob/master/server/start-a-combo-lobby.md
 
 It does not work!
 -----------------
