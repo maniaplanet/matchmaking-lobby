@@ -6,8 +6,6 @@
  */
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
-use ManiaLib\Gui\Elements\Label;
-
 class TooManyAllies extends \ManiaLive\Gui\Window
 {
 	/**
@@ -17,7 +15,7 @@ class TooManyAllies extends \ManiaLive\Gui\Window
 
 	protected function onConstruct()
 	{
-		$this->message = new Label(400);
+		$this->message = new \ManiaLib\Gui\Elements\Label(400);
 		$this->message->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->message->setTextSize(5);
 		$this->message->setHalign('center');
