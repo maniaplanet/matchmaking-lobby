@@ -118,7 +118,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$matchSettings = new $matchSettingsClass();
 		$settings = $matchSettings->getLobbyScriptSettings();
 		$this->connection->setModeScriptSettings($settings);
-
+		$this->connection->restartMap();
+		
 		$this->enableTickerEvent();
 
 		$this->matchMakingService = new Services\MatchMakingService();

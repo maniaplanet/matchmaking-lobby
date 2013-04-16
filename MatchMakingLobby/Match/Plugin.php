@@ -181,7 +181,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
 
-		$this->connection->customizeQuitDialog(null, '#qjoin='.$this->lobby->backLink, false);
+//		$this->connection->customizeQuitDialog('', '#qjoin='.$this->lobby->backLink, false);
 	}
 
 	function onUnload()
@@ -191,7 +191,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 			$this->end();
 		}
-		$this->connection->customizeQuitDialog();
+//		$this->connection->customizeQuitDialog('','',true);
 		parent::onUnload();
 	}
 
