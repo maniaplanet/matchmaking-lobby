@@ -557,21 +557,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function checkAllies($player)
 	{
 		if ($this->matchMaker->getNumberOfTeam() > 0)
+		{
+			$alliesMax = ($this->matchMaker->getPlayersPerMatch()/$this->matchMaker->getNumberOfTeam())-1;
+			//Too many allies
+			if (count($player->allies) > $alliesMax)
 			{
-				$alliesMax = ($this->matchMaker->getPlayersPerMatch()/$this->matchMaker->getNumberOfTeam())-1;
-				//Too many allies
-				if (count($player->allies) > $alliesMax)
-				{
-					$tooManyAlly = Windows\TooManyAllies::Create($player->login);
-					$tooManyAlly->setPosition(0,60);
-					$tooManyAlly->setText($this->gui->getTooManyAlliesText($alliesMax));
-					$tooManyAlly->show();
-				}
+				$tooManyAlly = Windows\TooManyAllies::Create($player->login);
+				$tooManyAlly->setPosition(0,60);
+				$tooManyAlly->setText($this->gui->getTooManyAlliesText($alliesMax));
+				$tooManyAlly->show();
 			}
 			else
 			{
-				Windows\TooManyAllies::Erase($login);
+				Windows\TooManyAllies::Erase($player->login);
 			}
+		}
 	}
 
 	function onNothing()
