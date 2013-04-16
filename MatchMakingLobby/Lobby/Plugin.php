@@ -563,6 +563,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				if (count($player->allies) > $alliesMax)
 				{
 					$tooManyAlly = Windows\TooManyAllies::Create($player->login);
+					$tooManyAlly->setPosition(0,60);
 					$tooManyAlly->setText($this->gui->getTooManyAlliesText($alliesMax));
 					$tooManyAlly->show();
 				}
