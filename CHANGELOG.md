@@ -1,6 +1,9 @@
+# 1.2.1
+
+* Adding a manialive version check to avoid compatibility issues
+
 # 1.2
 
-* Adding a manialive version check to avoid issues
 * Removed feedback button
 
 ### Lobby

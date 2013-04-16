@@ -11,6 +11,8 @@ namespace ManiaLivePlugins\MatchMakingLobby;
 
 class Config extends \ManiaLib\Utils\Singleton
 {
+	const REQUIRED_MANIALIVE = '2.8.0';
+
 	/**
 	 * Login of your lobby
 	 * You do not have to set up the login of your match servers anywhere
