@@ -7,6 +7,7 @@
 
 * FIX: cancelling a match may result in a ban of the whole team
 * NEW: message when a player cancel a match start in the lobby
+* NEW: message when a player have more ally than he should
 
 ### Match
 

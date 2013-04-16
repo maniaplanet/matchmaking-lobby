@@ -200,7 +200,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$help->modeName = $this->scriptName;
 		$help->show();
 
-		$this->checkAllies($login);
+		$this->checkAllies($player);
 
 		try
 		{
@@ -549,12 +549,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if($player)
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
-			$this->checkAllies($login);
+			$this->checkAllies($player);
 		}
 		$this->updatePlayerList = true;
 	}
 
-	protected function checkAllies($login)
+	protected function checkAllies($player)
 	{
 		if ($this->matchMaker->getNumberOfTeam() > 0)
 			{
@@ -562,7 +562,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//Too many allies
 				if (count($player->allies) > $alliesMax)
 				{
-					$tooManyAlly = Windows\TooManyAllies::Create($login);
+					$tooManyAlly = Windows\TooManyAllies::Create($player->login);
 					$tooManyAlly->setText($this->gui->getTooManyAlliesText($alliesMax));
 					$tooManyAlly->show();
 				}
