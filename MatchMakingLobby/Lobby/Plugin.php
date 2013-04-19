@@ -599,7 +599,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = $this->storage->getPlayerObject($login);
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		if ($match->state == Match::PREPARED)
+		if ($match !== false && $match->state == Match::PREPARED)
 		{
 			$this->gui->eraseJump($match->id);
 			unset($this->countDown[$match->id]);
@@ -608,7 +608,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
-			$this->connection->chatSendServerMessage(static::PREFIX.'$<%s$> cancelled match start.', $player->nickName);
+			$this->connection->chatSendServerMessage(sprintf(static::PREFIX.'$<%s$> cancelled match start.', $player->nickName));
 
 			foreach($match->players as $playerLogin)
 			{
@@ -621,7 +621,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else
 		{
-			\ManiaLive\Utilities\Logger::debug(sprintf('error: player %s cancel match start (%d) not in prepared mode',$login, $match->id));
+			if($match === false)
+			{
+				\ManiaLive\Utilities\Logger::debug(sprintf('error: player %s cancel unknown match start',$login, $match->id));
+			}
+			else
+			{
+				\ManiaLive\Utilities\Logger::debug(sprintf('error: player %s cancel match start (%d) not in prepared mode',$login, $match->id));
+			}
 		}
 	}
 
