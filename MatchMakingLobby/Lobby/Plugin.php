@@ -64,7 +64,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('1.2.1');
+		$this->setVersion('1.3.0');
 
 		if (version_compare(\ManiaLiveApplication\Version, \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE) < 0)
 		{
@@ -219,7 +219,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 	}
 
-	function onPlayerDisconnect($login)
+	function onPlayerDisconnect($login, $disconnectionReason)
 	{
 		\ManiaLive\Utilities\Logger::debug(sprintf('Player disconnected: %s', $login));
 
@@ -398,7 +398,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			switch(--$countDown)
 			{
-				case -3:
+				case -15:
 					$this->gui->eraseJump($matchId);
 					unset($this->countDown[$matchId]);
 					break;
