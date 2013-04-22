@@ -1,3 +1,7 @@
+# 1.2.2
+
+* Fix bug which can prevent games from being cancelled
+
 # 1.2.1
 
 * Adding a manialive version check to avoid compatibility issues
