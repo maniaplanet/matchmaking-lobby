@@ -1,3 +1,7 @@
+# 1.3
+
+* MatchMaking function improvment 
+
 # 1.2.2
 
 * Fix bug which can prevent games from being cancelled

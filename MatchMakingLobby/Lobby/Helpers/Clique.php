@@ -84,6 +84,7 @@ class Clique
 	 */
 	function getNeighbours()
 	{
+		asort($this->neighbours);
 		return $this->neighbours;
 	}
 
