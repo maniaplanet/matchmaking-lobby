@@ -110,7 +110,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('1.2.2');
+		$this->setVersion('1.3.0');
 
 		if (version_compare(\ManiaLiveApplication\Version, \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE) < 0)
 		{
@@ -143,12 +143,25 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::OVER => '10 seconds',
 			self::WAITING_BACKUPS => '1 seconds'
 		);
-		$this->connection->setCallVoteRatios(array(
-			array('Command' => 'SetModeScriptSettings', 'Ratio' => -1. ),
-			array('Command' => 'Kick', 'Ratio' => -1. ),
-			array('Command' => 'Ban', 'Ratio' => -1. ),
-			array('Command' => 'AutoTeamBalance', 'Ratio' => -1. )
-		));
+		$ratios = array();
+		$ratio = new \DedicatedApi\Structures\VoteRatio();
+		$ratio->command = 'SetModeScriptSettings';
+		$ratio->ratio = -1.;
+		$ratios[] = $ratio;
+		$ratio = new \DedicatedApi\Structures\VoteRatio();
+		$ratio->command = 'Kick';
+		$ratio->ratio = -1.;
+		$ratios[] = $ratio;
+		$ratio = new \DedicatedApi\Structures\VoteRatio();
+		$ratio->command = 'Ban';
+		$ratio->ratio = -1.;
+		$ratios[] = $ratio;
+		$ratio = new \DedicatedApi\Structures\VoteRatio();
+		$ratio->command = 'AutoTeamBalance';
+		$ratio->ratio = -1.;
+		$ratios[] = $ratio;
+		
+		$this->connection->setCallVoteRatiosEx(false, $ratios);
 
 		$this->config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 
@@ -186,7 +199,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
 
-//		$this->connection->customizeQuitDialog('', '#qjoin='.$this->lobby->backLink, false);
+		$this->connection->customizeQuitDialog('', '#qjoin='.$this->lobby->backLink, false);
 	}
 
 	function onUnload()
@@ -196,7 +209,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 			$this->end();
 		}
-//		$this->connection->customizeQuitDialog('','',true);
+		$this->connection->customizeQuitDialog('','',true);
 		parent::onUnload();
 	}
 
@@ -348,7 +361,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->forcePlayerTeam($playerInfo['Login']);
 	}
 
-	function onPlayerDisconnect($login)
+	function onPlayerDisconnect($login, $disconnectionReason)
 	{
 		switch ($this->state)
 		{
@@ -362,6 +375,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//nobreak
 			case static::PLAYING:
 				// If a player gave up, no need to punish him!
+				if($disconnectionReason != '')
+				{
+					$this->onPlayerGiveUp($login);
+					return;
+				}
 				if(array_key_exists($login, $this->players) && $this->players[$login] != Services\PlayerInfo::PLAYER_STATE_GIVE_UP)
 				{
 					$this->playerIllegalLeave($login);
@@ -450,6 +468,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->match = $match;
 		$this->matchId = $match->id;
 		Windows\ForceManialink::EraseAll();
+		Label::EraseAll();
 
 		$giveUp = Windows\GiveUp::Create();
 		$giveUp->setAlign('right');
@@ -540,10 +559,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->createLabel($this->gui->getDecidingText(), null, null, false, false);
 
 			$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting, you still have time to change the map if you want.');
-			$this->connection->setCallVoteRatios(array(
-				array('Command' => 'nextMap', 'Ratio' => 0.5),
-				array('Command' => 'jumpToMapIndex', 'Ratio' => 0.5),
-			));
+			$ratios = array();
+			$ratio = new \DedicatedApi\Structures\VoteRatio;
+			$ratio->command = 'NextMap';
+			$ratio->ratio = .5;
+			$ratios[] = $ratio;
+			$ratio = new \DedicatedApi\Structures\VoteRatio;
+			$ratio->command = 'JumpToMapIndex';
+			$ratio->ratio = .5;
+			$ratios[] = $ratio;
+			$this->connection->setCallVoteRatiosEx(false, $ratios);
 		}
 
 		$this->changeState(self::DECIDING);
@@ -565,10 +590,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		switch($this->state)
 		{
 			case self::DECIDING:
-				$this->connection->setCallVoteRatios(array(
-					array('Command' => 'nextMap', 'Ratio' => -1.),
-					array('Command' => 'jumpToMapIndex', 'Ratio' => -1.),
-				));
+				$ratios = array();
+				$ratio = new \DedicatedApi\Structures\VoteRatio;
+				$ratio->command = 'NextMap';
+				$ratio->ratio = -1.;
+				$ratios[] = $ratio;
+				$ratio = new \DedicatedApi\Structures\VoteRatio;
+				$ratio->command = 'NextMap';
+				$ratio->ratio = -1.;
+				$ratios[] = $ratio;
+				$this->connection->setCallVoteRatiosEx(false,$ratios);
 				$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting.');
 				break;
 			case static::PLAYER_LEFT:
