@@ -304,7 +304,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//find backup in ready players and send them to the match server
 		$mtime = microtime(true);
 		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		foreach($matchesNeedingBackup as $match)
+		if ($matchesNeedingBackup)
 		{
 			$potentialBackups = $this->getMatchablePlayers();
 			$storage = $this->storage;
@@ -323,37 +323,42 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					return !in_array($backup, $match->players);
 				}
 			);
-			/** @var Match $match */
-			$quitters = $this->matchMakingService->getMatchQuitters($match->id);
-			$backups = array();
-			foreach ($quitters as $quitter)
+			foreach($matchesNeedingBackup as $match)
 			{
-				$backup = $this->matchMaker->getBackup($quitter, $potentialBackupsForMatch);
-				if ($backup)
+				//FIXME: should be in an IF above
+
+				/** @var Match $match */
+				$quitters = $this->matchMakingService->getMatchQuitters($match->id);
+				$backups = array();
+				foreach ($quitters as $quitter)
 				{
-					$backups[] = $backup;
-					unset($potentialBackupsForMatch[array_search($backup, $potentialBackupsForMatch)]);
-					unset($potentialBackups[array_search($backup, $potentialBackups)]);
+					$backup = $this->matchMaker->getBackup($quitter, $potentialBackupsForMatch);
+					if ($backup)
+					{
+						$backups[] = $backup;
+						unset($potentialBackupsForMatch[array_search($backup, $potentialBackupsForMatch)]);
+						unset($potentialBackups[array_search($backup, $potentialBackups)]);
+					}
 				}
-			}
-			if(count($backups) && count($backups) == count($quitters))
-			{
-				\ManiaLive\Utilities\Logger::debug(
-					sprintf('match %d, %s will replace %s', $match->id, implode(' & ', $backups), implode(' & ', $quitters))
-				);
-				foreach($quitters as $quitter)
+				if(count($backups) && count($backups) == count($quitters))
 				{
-					$this->matchMakingService->updatePlayerState($quitter, $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
+					\ManiaLive\Utilities\Logger::debug(
+						sprintf('match %d, %s will replace %s', $match->id, implode(' & ', $backups), implode(' & ', $quitters))
+					);
+					foreach($quitters as $quitter)
+					{
+						$this->matchMakingService->updatePlayerState($quitter, $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
+					}
+					foreach($backups as $backup)
+					{
+						$teamId = $match->getTeam(array_shift($quitters));
+						$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
+						$this->gui->createLabel($this->gui->getBackUpLaunchText(), $backup, 0, false, false);
+						$this->setShortKey($backup, array($this, 'onNothing'));
+					}
+					$this->gui->prepareJump($backups, $match->matchServerLogin, $match->titleIdString, $match->id);
+					$this->countDown[$match->id] = 5;
 				}
-				foreach($backups as $backup)
-				{
-					$teamId = $match->getTeam(array_shift($quitters));
-					$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
-					$this->gui->createLabel($this->gui->getBackUpLaunchText(), $backup, 0, false, false);
-					$this->setShortKey($backup, array($this, 'onNothing'));
-				}
-				$this->gui->prepareJump($backups, $match->matchServerLogin, $match->titleIdString, $match->id);
-				$this->countDown[$match->id] = 5;
 			}
 		}
 		$timers['backups'] = microtime(true) - $mtime;
