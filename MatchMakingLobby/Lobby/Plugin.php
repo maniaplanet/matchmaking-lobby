@@ -225,7 +225,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug(sprintf('Player disconnected: %s', $login));
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		if($match && array_key_exists($match->matchServerLogin, $this->countDown) && $this->countDown[$match->id] > 0)
+		if($match && array_key_exists($match->id, $this->countDown) && $this->countDown[$match->id] > 0)
 		{
 			$this->onPlayerCancelMatchStart($login);
 		}
