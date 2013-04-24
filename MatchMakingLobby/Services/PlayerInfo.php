@@ -41,8 +41,8 @@ class PlayerInfo
 
 	private $notReadySince = null;
 
-	/** @var Match */
-	public $match = null;
+	/** @var bool */
+	public $isInMatch = false;
 
 	/**
 	 * @param string $login
@@ -149,7 +149,7 @@ class PlayerInfo
 	 */
 	function __destruct()
 	{
-		unset($this->match);
+		unset($this->isInMatch);
 		unset($this->notReadySince);
 		unset($this->awaySince);
 		unset($this->allies);

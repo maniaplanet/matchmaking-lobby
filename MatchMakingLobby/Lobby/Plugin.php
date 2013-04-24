@@ -189,6 +189,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$message = '';
 		$player = Services\PlayerInfo::Get($login);
+		$player->isInMatch = $this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		$message = ($player->ladderPoints ? $this->gui->getPlayerBackLabelPrefix() : '').$this->gui->getNotReadyText();
 		$player->setAway(false);
 		$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
@@ -612,6 +613,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			foreach($match->players as $playerLogin)
 			{
+				Services\PlayerInfo::Get($playerLogin)->isInMatch = false;
 				if($playerLogin != $login)
 					$this->onPlayerReady($playerLogin);
 				else
@@ -646,6 +648,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$id] - 1);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
+			Services\PlayerInfo::Get($player)->isInMatch = true;
 		}
 
 		$matchablePlayers = $this->getMatchablePlayers();
