@@ -29,7 +29,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->addComponent($this->frame);
 	}
 
-	function addPlayer($login, $state = 0, $isAlly = false, $rank = 0)
+	function addPlayer($login, $state = 0, $isAlly = false, $rank = 0, $zone = 'World')
 	{
 		$storage = \ManiaLive\Data\Storage::getInstance();
 		try
@@ -41,7 +41,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		{
 			return;
 		}
-		$tmp->setState($state, $isAlly, $rank);
+		$tmp->setState($state, $isAlly, $rank, $zone);
 		$this->playerList[$login] = $tmp;
 		$this->updateItemList();
 	}
@@ -86,16 +86,16 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$this->frame->addComponent($component);
 	}
 
-	function setPlayer($login, $state, $isAlly = false, $rank = 0)
+	function setPlayer($login, $state, $isAlly = false, $rank = 0, $zone = 'World')
 	{
 		if(array_key_exists($login, $this->playerList))
 		{
-			$this->playerList[$login]->setState($state, $isAlly, $rank);
+			$this->playerList[$login]->setState($state, $isAlly, $rank, $zone);
 			$this->updateItemList();
 		}
 		else
 		{
-			$this->addPlayer($login, $state, $isAlly, $rank);
+			$this->addPlayer($login, $state, $isAlly, $rank, $zone);
 		}
 	}
 

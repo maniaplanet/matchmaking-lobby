@@ -247,7 +247,9 @@ abstract class AbstractGUI
 
 				/* @var $playerList Windows\PlayerList */
 				$isAlly = $this->displayAllies && $player && in_array($player->login, $currentPlayerObj->allies);
-				$playerList->setPlayer($player->login, $state, $isAlly, $playerObj->ladderStats['PlayerRankings'][0]['Ranking']);
+				$path = explode('|',$playerObj->ladderStats['PlayerRankings'][0]['Path']);
+				$zone = array_pop($path);
+				$playerList->setPlayer($player->login, $state, $isAlly, $playerObj->ladderStats['PlayerRankings'][0]['Ranking'], $zone);
 			}
 		}
 		Windows\PlayerList::RedrawAll();
