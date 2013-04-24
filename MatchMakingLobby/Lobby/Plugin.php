@@ -299,18 +299,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//find backup in ready players and send them to the match server
 		$mtime = microtime(true);
 		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		$potentialBackups = $this->getMatchablePlayers();
-		$storage = $this->storage;
-		$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
-		{
-			$obj = $storage->getPlayerObject($login);
-			if($obj)
-			{
-				return !count($obj->allies);
-			}
-		});
 		foreach($matchesNeedingBackup as $match)
 		{
+			$potentialBackups = $this->getMatchablePlayers();
+			$storage = $this->storage;
+			$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
+			{
+				$obj = $storage->getPlayerObject($login);
+				if($obj)
+				{
+					return !count($obj->allies);
+				}
+			});
+
 			$potentialBackupsForMatch = array_filter($potentialBackups,
 				function ($backup) use ($match)
 				{
