@@ -156,6 +156,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->registerLobby();
 
+		$voteRatio = new Structures\VoteRatio();
+		$voteRatio->command = 'SetModeScriptSettings';
+		$voteRatio->ratio = -1.;
+		$this->connection->setCallVoteRatiosEx(false, array($voteRatio));
+		
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
 
