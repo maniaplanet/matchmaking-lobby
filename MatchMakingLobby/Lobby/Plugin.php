@@ -424,14 +424,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					{
 						$this->matchMakingService->updatePlayerState($this->replacerCountDown[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
 						$this->gui->showJump($login);
-						$this->connection->addGuest($login);
+						$this->connection->addGuest($login, true);
 						$this->connection->chatSendServerMessage(self::PREFIX.$player->nickName.' joined a match as a substitute.', null);
 					}
 					unset($match, $player);
 					//nobreak
 
 				default:
-					$this->countDown[$matchId] = $countDown;
+					$this->replacerCountDown[$login] = $countDown;
 					break;
 			}
 		}
@@ -464,8 +464,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 								$this->connection->addGuest($player, true);
 							}
 						}
-						$this->connection->executeMulticall();
-
 						$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join a match.', null);
 					}
 					else
@@ -506,7 +504,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					{
 						$this->connection->removeGuest($login, true);
 					}
-					$this->connection->executeMulticall();
 				}
 			}
 			$timers['cleanGuest'] = microtime(true) - $mtime;
@@ -536,7 +533,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 //					$this->connection->forceSpectator($notReadyPlayer->login, 3, true);
 //				}
 //			}
-//			$this->connection->executeMulticall();
 		}
 
 		if($this->updatePlayerList)
@@ -546,6 +542,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$this->registerLobby();
 		Services\PlayerInfo::CleanUp();
+
+		$this->connection->executeMulticall();
+
+		//Debug
 		$timers = array_filter($timers, function($v) { return $v > 0.010; });
 		if(count($timers))
 		{
