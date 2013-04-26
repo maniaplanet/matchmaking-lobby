@@ -160,7 +160,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$ratio->command = 'AutoTeamBalance';
 		$ratio->ratio = -1.;
 		$ratios[] = $ratio;
-		
+
 		$this->connection->setCallVoteRatiosEx(false, $ratios);
 
 		$this->config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
@@ -470,12 +470,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		Windows\ForceManialink::EraseAll();
 		Label::EraseAll();
 
-		$giveUp = Windows\GiveUp::Create();
-		$giveUp->setAlign('right');
-		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
-		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerGiveUp'), true));
-		$giveUp->show();
-
 		foreach($match->players as $login)
 		{
 			$this->connection->addGuest((string)$login, true);
@@ -507,7 +501,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function playerIllegalLeave($login)
 	{
 		\ManiaLive\Utilities\Logger::debug('Player illegal leave: '.$login);
-		Windows\GiveUp::EraseAll();
 
 		$this->gui->createLabel($this->gui->getIllegalLeaveText(), null, null, false, false);
 
@@ -581,12 +574,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		Label::EraseAll();
 
-		$giveUp = Windows\GiveUp::Create();
-		$giveUp->setAlign('right');
-		$giveUp->setPosition(160.1, $this->gui->lobbyBoxPosY + 4.7);
-		$giveUp->set(\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerGiveUp'), true));
-		$giveUp->show();
-
 		switch($this->state)
 		{
 			case self::DECIDING:
@@ -616,7 +603,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function over()
 	{
 		\ManiaLive\Utilities\Logger::debug('over()');
-		Windows\GiveUp::EraseAll();
 		$this->changeState(self::OVER);
 	}
 
