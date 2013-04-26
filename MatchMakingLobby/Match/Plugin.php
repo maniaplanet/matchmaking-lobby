@@ -199,7 +199,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
 
-		$this->connection->customizeQuitDialog('', '#qjoin='.$this->lobby->backLink, false);
+		$this->connection->customizeQuitDialog($this->gui->getCustomizedQuitDialogManiaLink(), '#qjoin='.$this->lobby->backLink, false);
 	}
 
 	function onUnload()

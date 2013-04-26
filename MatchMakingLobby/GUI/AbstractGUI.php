@@ -94,6 +94,8 @@ abstract class AbstractGUI
 	 * @return string
 	 */
 	abstract function getLaunchMatchText(Match $m, $player);
+	
+	abstract function getCustomizedQuitDialogManiaLink();
 
 	/**
 	 * Returns the message displayed when a player is picked up as a backup to replace

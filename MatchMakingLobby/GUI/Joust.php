@@ -36,6 +36,12 @@ class Joust extends AbstractGUI
 	{
 		return "A player gave up\nDo not leave, you will be transfered back";
 	}
+	
+	function getCustomizedQuitDialogManiaLink()
+	{
+		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog('Do you really want to give up ?');
+		return $manialink->display();
+	}
 }
 
 ?>

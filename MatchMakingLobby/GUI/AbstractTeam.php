@@ -44,5 +44,11 @@ abstract class AbstractTeam extends AbstractGUI
 		}
 		return $mates;
 	}
+	
+	function getCustomizedQuitDialogManiaLink()
+	{
+		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog('Do you really want to abandon your teammates ?');
+		return $manialink->display();
+	}
 }
 ?>
