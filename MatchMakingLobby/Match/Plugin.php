@@ -143,23 +143,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::OVER => '10 seconds',
 			self::WAITING_BACKUPS => '1 seconds'
 		);
-		$ratios = array();
-		$ratio = new \DedicatedApi\Structures\VoteRatio();
-		$ratio->command = 'SetModeScriptSettings';
-		$ratio->ratio = -1.;
-		$ratios[] = $ratio;
-		$ratio = new \DedicatedApi\Structures\VoteRatio();
-		$ratio->command = 'Kick';
-		$ratio->ratio = -1.;
-		$ratios[] = $ratio;
-		$ratio = new \DedicatedApi\Structures\VoteRatio();
-		$ratio->command = 'Ban';
-		$ratio->ratio = -1.;
-		$ratios[] = $ratio;
-		$ratio = new \DedicatedApi\Structures\VoteRatio();
-		$ratio->command = 'AutoTeamBalance';
-		$ratio->ratio = -1.;
-		$ratios[] = $ratio;
+		$ratios = array(
+			new \DedicatedApi\Structures\VoteRatio('SetModeScriptSettings', -1.),
+			new \DedicatedApi\Structures\VoteRatio('Kick', -1.),
+			new \DedicatedApi\Structures\VoteRatio('Ban', -1.),
+			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.));
 
 		$this->connection->setCallVoteRatiosEx(false, $ratios);
 
