@@ -328,15 +328,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					return !count($obj->allies);
 				}
 			});
-
-			$potentialBackupsForMatch = array_filter($potentialBackups,
-				function ($backup) use ($match)
-				{
-					return !in_array($backup, $match->players);
-				}
-			);
 			foreach($matchesNeedingBackup as $match)
 			{
+				$potentialBackupsForMatch = array_filter($potentialBackups,
+					function ($backup) use ($match)
+					{
+						return !in_array($backup, $match->players);
+					}
+				);
+
 				/** @var Match $match */
 				$quitters = $this->matchMakingService->getMatchQuitters($match->id);
 				foreach ($quitters as $quitter)
