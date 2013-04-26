@@ -11,7 +11,8 @@ namespace ManiaLivePlugins\MatchMakingLobby\Services;
 
 class PlayerInfo
 {
-	const PLAYER_STATE_REPLACED = -5;
+	const PLAYER_STATE_REPLACED = -6;
+	const PLAYER_STATE_REPLACER_PROPOSED = -5;
 	const PLAYER_STATE_CANCEL = -4;
 	const PLAYER_STATE_GIVE_UP = -3;
 	const PLAYER_STATE_QUITTER = -2;

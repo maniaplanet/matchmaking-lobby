@@ -45,6 +45,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $countDown = array();
 
 	/** @var int[string] */
+	protected $replacerCountDown = array();
+
+	/** @var string[string]  */
+	protected $replacers = array();
+
+	/** @var int[string] */
 	protected $blockedPlayers = array();
 
 	/** @var Helpers\PenaltiesCalculator */
@@ -70,7 +76,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			throw new \ManiaLive\Application\FatalException(sprintf('You ManiaLive version is too old, please update to %s', \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE));
 		}
-
 
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
@@ -329,35 +334,29 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 				/** @var Match $match */
 				$quitters = $this->matchMakingService->getMatchQuitters($match->id);
-				$backups = array();
 				foreach ($quitters as $quitter)
 				{
 					$backup = $this->matchMaker->getBackup($quitter, $potentialBackupsForMatch);
 					if ($backup)
 					{
-						$backups[] = $backup;
+						\ManiaLive\Utilities\Logger::debug(
+						sprintf('match %d, %s will replace %s', $match->id, $backup, $quitter)
+						);
+
+						$this->matchMakingService->updatePlayerState($quitter, $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACER_PROPOSED);
+						$this->replacers[$backup] = $quitter;
+
+						$teamId = $match->getTeam($quitter);
+						$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
+						$this->gui->createLabel($this->gui->getBackUpLaunchText(), $backup, 0, false, false);
+						$this->setShortKey($backup, array($this, 'onPlayerCancelReplacement'));
+						$this->gui->prepareJump(array($backup), $match->matchServerLogin, $match->titleIdString, $backup);
+						$this->replacerCountDown[$backup] = 7;
+
+						//Unset this replacer for next iteration
 						unset($potentialBackupsForMatch[array_search($backup, $potentialBackupsForMatch)]);
 						unset($potentialBackups[array_search($backup, $potentialBackups)]);
 					}
-				}
-				if(count($backups) && count($backups) == count($quitters))
-				{
-					\ManiaLive\Utilities\Logger::debug(
-						sprintf('match %d, %s will replace %s', $match->id, implode(' & ', $backups), implode(' & ', $quitters))
-					);
-					foreach($quitters as $quitter)
-					{
-						$this->matchMakingService->updatePlayerState($quitter, $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
-					}
-					foreach($backups as $backup)
-					{
-						$teamId = $match->getTeam(array_shift($quitters));
-						$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
-						$this->gui->createLabel($this->gui->getBackUpLaunchText(), $backup, 0, false, false);
-						$this->setShortKey($backup, array($this, 'onNothing'));
-					}
-					$this->gui->prepareJump($backups, $match->matchServerLogin, $match->titleIdString, $match->id);
-					$this->countDown[$match->id] = 5;
 				}
 			}
 		}
@@ -405,6 +404,34 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 
+		foreach($this->replacerCountDown as $login => $countDown)
+		{
+			switch(--$countDown)
+			{
+				case -15:
+					$this->gui->eraseJump($login);
+					unset($this->replacerCountDown[$login]);
+					break;
+				case 0:
+					$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+					$player = $this->storage->getPlayerObject($login);
+					if($match->state >= Match::PREPARED)
+					{
+						$this->matchMakingService->updatePlayerState($this->replacerCountDown[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
+						$this->gui->showJump($login);
+						$this->connection->addGuest($login);
+						$this->connection->chatSendServerMessage(self::PREFIX.$player->nickName.' joined a match as a substitute.', null);
+					}
+					unset($match, $player);
+					//nobreak
+
+				default:
+					$this->countDown[$matchId] = $countDown;
+					break;
+			}
+		}
+		unset($login, $countDown);
+
 		$mtime = microtime(true);
 		foreach($this->countDown as $matchId => $countDown)
 		{
@@ -434,7 +461,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						}
 						$this->connection->executeMulticall();
 
-						$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join their match server.', null);
+						$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join a match.', null);
 					}
 					else
 					{
@@ -444,8 +471,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 							$this->gui->createLabel($this->gui->getReadyText(), $player);
 						}
 					}
+					unset($match);
+					//nobreak
 				default:
 					$this->countDown[$matchId] = $countDown;
+					break;
 			}
 		}
 		$timers['jumper'] = microtime(true) - $mtime;
@@ -542,7 +572,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
-		\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerReady:%f',$time));
+			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerReady:%f',$time));
 	}
 
 	function onPlayerNotReady($login)
@@ -602,6 +632,27 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		//TODO store data
 		$this->gui->hideSplash($login);
+	}
+
+	function onPlayerCancelReplacement($login)
+	{
+		\ManiaLive\Utilities\Logger::debug('Player cancel replacement: '.$login);
+
+		$player = $this->storage->getPlayerObject($login);
+
+		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+
+		if ($match)
+		{
+			$this->gui->eraseJump($login);
+			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+			$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_QUITTER);
+
+			$this->onPlayerReady($login);
+
+			unset($this->replacerCountDown[$login]);
+			unset($this->replacers[$login]);
+		}
 	}
 
 	function onPlayerCancelMatchStart($login)

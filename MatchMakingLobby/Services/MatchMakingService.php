@@ -342,7 +342,7 @@ class MatchMakingService
 					'AND p.state NOT IN (%s)',
 					implode(', ', $matchIds),
 					$this->db->quote($playerLogin),
-					implode(',', array(PlayerInfo::PLAYER_STATE_REPLACED, PlayerInfo::PLAYER_STATE_GIVE_UP, PlayerInfo::PLAYER_STATE_CANCEL))
+					implode(',', array(PlayerInfo::PLAYER_STATE_REPLACED, PlayerInfo::PLAYER_STATE_REPLACER_PROPOSED, PlayerInfo::PLAYER_STATE_GIVE_UP, PlayerInfo::PLAYER_STATE_CANCEL))
 				)->fetchSingleValue(false);
 		}
 		else

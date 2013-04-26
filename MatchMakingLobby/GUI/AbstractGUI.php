@@ -105,7 +105,7 @@ abstract class AbstractGUI
 	 */
 	function getBackUpLaunchText()
 	{
-		return '$0F0You are selected to be a substitute. Prepare to be transferred';
+		return "\$0F0You are selected to be a substitute. Prepare to be transferred\nPress F6 to cancel";
 	}
 
 	/**
