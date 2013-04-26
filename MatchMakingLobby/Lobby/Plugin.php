@@ -165,7 +165,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$voteRatio->command = 'SetModeScriptSettings';
 		$voteRatio->ratio = -1.;
 		$this->connection->setCallVoteRatiosEx(false, array($voteRatio));
-		
+
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
 
@@ -235,9 +235,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug(sprintf('Player disconnected: %s', $login));
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		if($match && array_key_exists($match->id, $this->countDown) && $this->countDown[$match->id] > 0)
+		if($match)
 		{
-			$this->onPlayerCancelMatchStart($login);
+			if (array_key_exists($match->id, $this->countDown) && $this->countDown[$match->id] > 0)
+			{
+				$this->onPlayerCancelMatchStart($login);
+			}
+			if (array_key_exists($login, $this->replacerCountDown) && $this->replacerCountDown[$login] > 0)
+			{
+				$this->onPlayerCancelReplacement($login);
+			}
 		}
 
 		$player = Services\PlayerInfo::Get($login);
@@ -330,8 +337,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			);
 			foreach($matchesNeedingBackup as $match)
 			{
-				//FIXME: should be in an IF above
-
 				/** @var Match $match */
 				$quitters = $this->matchMakingService->getMatchQuitters($match->id);
 				foreach ($quitters as $quitter)
