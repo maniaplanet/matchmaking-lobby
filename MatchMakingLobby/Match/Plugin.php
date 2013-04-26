@@ -523,8 +523,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
 		$jumper->show();
 
-		Windows\GiveUp::Erase($login);
-
 		$this->waitBackups();
 	}
 
