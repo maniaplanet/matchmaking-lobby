@@ -1,7 +1,8 @@
 # 2.0.0
 
 * MatchMaking function improvment 
-* Performance improvments
+* Better performances
+* New penalties system (banned player have to stay online during their ban period)
 
 ### Lobby
 

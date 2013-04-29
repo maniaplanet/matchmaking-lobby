@@ -110,7 +110,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('1.3.0');
+		$this->setVersion('2.0.0');
 
 		if (version_compare(\ManiaLiveApplication\Version, \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE) < 0)
 		{
@@ -295,7 +295,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					{
 						$this->updatePlayerList($match);
 					}
-					$this->changeState(self::WAITING_BACKUPS);;
+					$this->changeState(self::WAITING_BACKUPS);
 				}
 				break;
 			case self::OVER:
@@ -537,7 +537,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->createLabel($this->gui->getDecidingText(), null, null, false, false);
 
-			$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting, you still have time to change the map if you want.');
+			$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting, you can start a vote to change the map.');
 			$ratios = array();
 			$ratio = new \DedicatedApi\Structures\VoteRatio;
 			$ratio->command = 'NextMap';
@@ -704,6 +704,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function updateMatchPlayerState($login, $state)
 	{
+		if ($state == Services\PlayerInfo::PLAYER_STATE_QUITTER || $state == Services\PlayerInfo::PLAYER_STATE_GIVE_UP)
+		{
+			$this->matchMakingService->increasePlayerPenalty(
+					$login,
+					\ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->penaltyForQuitter,
+					$this->lobby->login,
+					$this->scriptName,
+					$this->titleIdString
+			);
+		}
 		$this->players[$login] = $state;
 		$this->matchMakingService->updatePlayerState($login, $this->matchId, $state);
 	}

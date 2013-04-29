@@ -67,18 +67,18 @@ class Config extends \ManiaLib\Utils\Singleton
 	public $guiClassName;
 
 	/**
-	 * Name of the class used to calculate the penalties
-	 * Default is \ManiaLivePlugins\MatchMakingLobby\Helpers\PenaltiesCalculator
-	 * @var string
-	 */
-	public $penaltiesCalculatorClassName;
-
-	/**
 	 * Name of the class used for setting the needed match settings
 	 * Default \ManiaLivePlugins\MatchMakingLobby\MatchSettings\<ScriptName as defined in config>
 	 * @var string Complete class name (with namespace)
 	 */
 	public $matchSettingsClassName;
+
+
+	/**
+	 * Duration in second of the penalty for leaving a match
+	 * @var int
+	 */
+	public $penaltyForQuitter = 240;
 }
 
 ?>

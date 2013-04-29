@@ -535,6 +535,73 @@ class MatchMakingService
 		);
 	}
 
+	function getPlayerTotalPenalty($playerLogin, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		$result = $this->db->execute(
+				'SELECT total FROM PlayersPenalties '.
+				'WHERE playerLogin = %s '.
+				'AND lobbyLogin = %s '.
+				'AND scriptName = %s '.
+				'AND titleIdString = %s',
+				$this->db->quote($playerLogin),
+				$this->db->quote($lobbyLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString)
+				);
+
+		return max(array(0,$result->fetchSingleValue(0)));
+	}
+
+	function getPlayerPenalty($playerLogin, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		$result = $this->db->execute(
+				'SELECT secondsLeft FROM PlayersPenalties '.
+				'WHERE playerLogin = %s '.
+				'AND lobbyLogin = %s '.
+				'AND scriptName = %s '.
+				'AND titleIdString = %s',
+				$this->db->quote($playerLogin),
+				$this->db->quote($lobbyLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString)
+				);
+
+		return max(array(0,$result->fetchSingleValue(0)));
+	}
+
+	function increasePlayerPenalty($playerLogin, $by, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		\ManiaLive\Utilities\Validation::int($by);
+		$result = $this->db->execute(
+			'INSERT INTO PlayersPenalties '.
+			'(playerLogin, lobbyLogin, scriptName, titleIdString, secondsLeft, total) VALUES (%s, %s, %s, %s, %d, %5$d) ' .
+			'ON DUPLICATE KEY UPDATE secondsLeft = secondsLeft + %5$d, total = total + %5$d',
+			$this->db->quote($playerLogin),
+			$this->db->quote($lobbyLogin),
+			$this->db->quote($scriptName),
+			$this->db->quote($titleIdString),
+			$by
+		);
+	}
+
+	function decreasePlayerPenalty($playerLogin, $by, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		\ManiaLive\Utilities\Validation::int($by);
+		$result = $this->db->execute(
+			'UPDATE PlayersPenalties '.
+			'SET secondsLeft = GREATEST(0,secondsLeft - %d) ' .
+			'WHERE playerLogin = %s '.
+			'AND lobbyLogin = %s '.
+			'AND scriptName = %s '.
+			'AND titleIdString = %s',
+			$by,
+			$this->db->quote($playerLogin),
+			$this->db->quote($lobbyLogin),
+			$this->db->quote($scriptName),
+			$this->db->quote($titleIdString)
+		);
+	}
+
 
 	function createTables()
 	{
@@ -609,6 +676,22 @@ CREATE TABLE IF NOT EXISTS `Players` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 EOPlayers
+		);
+
+		$this->db->execute(
+			<<<EOPenalties
+CREATE TABLE IF NOT EXISTS  `PlayersPenalties` (
+	`playerLogin` VARCHAR(25) NOT NULL,
+	`lobbyLogin` VARCHAR(25) NOT NULL,
+	`scriptName` VARCHAR(75) NOT NULL,
+	`titleIdString` VARCHAR(51) NOT NULL,
+	`secondsLeft` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`total` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (`playerLogin`, `lobbyLogin`, `scriptName`, `titleIdString`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+EOPenalties
 		);
 	}
 }

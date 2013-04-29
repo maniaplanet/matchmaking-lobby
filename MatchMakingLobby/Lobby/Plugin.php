@@ -53,9 +53,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var int[string] */
 	protected $blockedPlayers = array();
 
-	/** @var Helpers\PenaltiesCalculator */
-	protected $penaltiesCalculator;
-
 	/** @var Services\MatchMakingService */
 	protected $matchMakingService;
 
@@ -74,7 +71,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('1.3.0');
+		$this->setVersion('2.0.0');
 
 		if (version_compare(\ManiaLiveApplication\Version, \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE) < 0)
 		{
@@ -96,16 +93,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
 		}
-		$penaltiesCalculatorClassName = $this->config->penaltiesCalculatorClassName ? : __NAMESPACE__.'\Helpers\PenaltiesCalculator';
-		if (!class_exists($penaltiesCalculatorClassName))
-		{
-			throw new \Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.penaltiesCalculatorClassName",$guiClassName));
-		}
 
 		$this->setGui(new $guiClassName());
 		$this->gui->lobbyBoxPosY = 45;
 		$this->setMatchMaker($matchMakerClassName::getInstance());
-		$this->setPenaltiesCalculator(new $penaltiesCalculatorClassName);
 	}
 
 	function onLoad()
@@ -213,7 +204,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->setShortKey($login, array($this, 'onPlayerReady'));
 
-		$this->gui->createPlayerList($login, $this->blockedPlayers);
+		$this->gui->createPlayerList($login);
 		$this->updatePlayerList = true;
 
 		$this->updateKarma($login);
@@ -240,6 +231,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
+
+		if(array_key_exists($login, $this->blockedPlayers))
+		{
+			unset($this->blockedPlayers[$login]);
+		}
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if($match)
@@ -305,14 +301,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$timers = array();
 		$mtime = microtime(true);
-		foreach($this->blockedPlayers as $login => $countDown)
+		foreach($this->blockedPlayers as $login => $time)
 		{
-			$this->blockedPlayers[$login] = --$countDown;
-			if($this->blockedPlayers[$login] <= 0)
-			{
-				unset($this->blockedPlayers[$login]);
-				$this->onPlayerNotReady($login);
-			}
+			$this->updateKarma($login);
 		}
 		$timers['blocked'] = microtime(true) - $mtime;
 
@@ -791,32 +782,42 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$player = $this->storage->getPlayerObject($login);
 		$playerInfo = Services\PlayerInfo::Get($login);
-		if ($player)
+		if ($player && $playerInfo)
 		{
-			$leavesCount = $this->getLeavesCount($login);
-
-			$karma = $this->penaltiesCalculator->calculateKarma($login, $leavesCount);
-			if($playerInfo->karma < $karma || array_key_exists($login, $this->blockedPlayers))
+			$penalty = $this->matchMakingService->getPlayerPenalty($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+			if($penalty > 0)
 			{
-				if(!array_key_exists($login, $this->blockedPlayers))
+				if(array_key_exists($login, $this->blockedPlayers))
 				{
-					$penalty = $this->penaltiesCalculator->getPenalty($login, $karma);
-					$this->blockedPlayers[$login] = 60 * $penalty;
+					$this->matchMakingService->decreasePlayerPenalty($login, time() - $this->blockedPlayers[$login], $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+				}
+				else
+				{
 					$this->connection->chatSendServerMessage(
-						sprintf(self::PREFIX.'$<%s$> is suspended for leaving matchs.', $player->nickName, $penalty)
+						sprintf(self::PREFIX.'$<%s$> is suspended.', $player->nickName, $penalty)
 					);
 				}
 
+				$this->blockedPlayers[$login] = time();
+
 				$this->onPlayerNotReady($login);
 
-				$this->gui->createLabel($this->gui->getBadKarmaText($this->blockedPlayers[$login]), $login, null, false, false);
+				$this->gui->createLabel($this->gui->getBadKarmaText($penalty), $login, null, false, false);
 				$this->resetShortKey($login);
 				$this->updatePlayerList = true;
 			}
-			$playerInfo->karma = $karma;
+			else
+			{
+				unset($this->blockedPlayers[$login]);
+				$this->onPlayerNotReady($login);
+			}
 		}
 		else
 		{
+			if(array_key_exists($login, $this->blockedPlayers))
+			{
+				unset($this->blockedPlayers[$login]);
+			}
 			\ManiaLive\Utilities\Logger::debug(sprintf('UpdateKarma for not connected player %s', $login));
 		}
 	}
@@ -865,11 +866,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function setMatchMaker(MatchMakers\MatchMakerInterface $matchMaker)
 	{
 		$this->matchMaker = $matchMaker;
-	}
-
-	protected function setPenaltiesCalculator(Helpers\PenaltiesCalculator $penaltiesCalculator)
-	{
-		$this->penaltiesCalculator = $penaltiesCalculator;
 	}
 
 	protected function getMatchablePlayers()
