@@ -109,7 +109,7 @@ class Player extends \ManiaLive\Gui\Control
 
 		$this->icon->setSubStyle($subStyle);
 		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
-		$this->rankLabel->setText(sprintf('%-13s %7s',$zone, ($this->rank > 0 ? $this->rank : '-')));
+		$this->rankLabel->setText(sprintf('%s %-7s',$zone, ($this->rank > 0 ? $this->rank : '-')));
 	}
 }
 
