@@ -1,6 +1,16 @@
-# 1.3
+# 2.0.0
 
 * MatchMaking function improvment 
+* Performance improvments
+
+### Lobby
+
+* Players can cancel when choosen to replace someone else
+
+### Match
+
+* Quit dialog is cutomized to show a warning
+* Removing "Give up" button
 
 # 1.2.2
 
