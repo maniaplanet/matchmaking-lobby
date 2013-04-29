@@ -234,6 +234,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::debug(sprintf('Player disconnected: %s', $login));
 
+		$player = Services\PlayerInfo::Get($login);
+		$player->setAway();
+
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if($match)
 		{
@@ -246,9 +249,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerCancelReplacement($login);
 			}
 		}
-
-		$player = Services\PlayerInfo::Get($login);
-		$player->setAway();
 		$this->gui->removePlayerFromPlayerList($login);
 	}
 
@@ -874,20 +874,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$serverLogin = $this->storage->serverLogin;
 		$scriptName = $this->scriptName;
 		$titleIdString = $this->titleIdString;
-
-		$notInMatchPlayers = array_filter($readyPlayers,
-			function (Services\PlayerInfo $p) use ($service, $serverLogin, $scriptName, $titleIdString)
-			{
-				return !$service->isInMatch($p->login, $serverLogin, $scriptName, $titleIdString);
-			});
 		$blockedPlayers = array_keys($this->blockedPlayers);
-		$notBlockedPlayers = array_filter($notInMatchPlayers,
-			function (Services\PlayerInfo $p) use ($blockedPlayers)
+
+		$matchablePlayers = array_filter($readyPlayers,
+			function (Services\PlayerInfo $p) use ($service, $serverLogin, $scriptName, $titleIdString, $blockedPlayers)
 			{
-				return !in_array($p->login, $blockedPlayers);
+				return !$service->isInMatch($p->login, $serverLogin, $scriptName, $titleIdString) && !in_array($p->login, $blockedPlayers) && !$p->isAway();
 			});
 
-		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $notBlockedPlayers);
+		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $matchablePlayers);
 	}
 
 	protected function setReadyLabel()

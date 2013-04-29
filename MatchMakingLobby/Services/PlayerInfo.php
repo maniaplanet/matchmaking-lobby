@@ -123,8 +123,15 @@ class PlayerInfo
 	 */
 	function setReady($ready = true)
 	{
-		$this->readySince = $ready ? new \DateTime() : null;
-		$this->notReadySince = $ready ? null : new \DateTime();
+		if (!$this->isAway())
+		{
+			$this->readySince = ($ready) ? new \DateTime() : null;
+			$this->notReadySince = ($ready) ? null : new \DateTime();
+		}
+		else
+		{
+			\ManiaLive\Utilities\Logger::debug(sprintf('Setting %s ready but is away', $this->login));
+		}
 	}
 
 	/**
