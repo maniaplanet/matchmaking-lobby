@@ -168,6 +168,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 
 		$this->registerChatCommand('setAllReady', 'onSetAllReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
+		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 	}
 
 	function onUnload()
@@ -704,6 +705,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
 		{
 			$this->onPlayerReady($player->login);
+		}
+	}
+
+	public function onKickNotReady()
+	{
+		foreach(Services\PlayerInfo::GetNotReady() as $player)
+		{
+			$this->connection->kick($player->login);
 		}
 	}
 

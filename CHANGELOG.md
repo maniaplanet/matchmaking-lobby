@@ -8,6 +8,7 @@
 
 * Players can cancel when choosen to replace someone else
 * Adding command /setAllReady to set all players ready on lobby (admin only)
+* Adding command /kickNotReady to kick all not ready players
 
 ### Match
 
