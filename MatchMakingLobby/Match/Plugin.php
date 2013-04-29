@@ -138,7 +138,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			self::PLAYER_LEFT => '40 seconds',
 			self::WAITING => '5 seconds',
 			self::SLEEPING => '5 seconds',
-			self::DECIDING => '30 seconds',
+			self::DECIDING => '50 seconds',
 			self::PLAYING => '15 seconds',
 			self::OVER => '10 seconds',
 			self::WAITING_BACKUPS => '1 seconds'
