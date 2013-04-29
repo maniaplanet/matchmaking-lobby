@@ -39,7 +39,7 @@ class Joust extends AbstractGUI
 	
 	function getCustomizedQuitDialogManiaLink()
 	{
-		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog('Do you really want to give up ?');
+		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog('Do you really want to give up?');
 		return $manialink->display();
 	}
 }
