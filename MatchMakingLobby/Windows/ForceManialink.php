@@ -9,15 +9,39 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
+use ManiaLib\Gui\Elements;
+
 class ForceManialink extends \ManiaLive\Gui\Window
 {
 
-	private $xml;
-
+	/** @var Elements\Xml*/
+	protected $xml;
+	
+	/** @var Elements\Bgs1*/
+	protected $bg;
+	
+	/** @var Elements\Label */
+	protected $label;
+	
 	protected function onConstruct()
 	{
 		$this->xml = new \ManiaLive\Gui\Elements\Xml();
 		$this->addComponent($this->xml);
+		
+		$this->bg = new Elements\Bgs1(360, 20);
+		$this->bg->setSubStyle(Elements\Bgs1::BgCardList);
+		$this->bg->setAlign('center','center');
+		$this->bg->setPosition(0, 10);
+		$this->addComponent($this->bg);
+		
+		$this->label = new Elements\Label(120, 30);
+		$this->label->setAlign('center','center');
+		$this->label->setPosition(0, 10);
+		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
+		$this->label->setTextSize(4);
+		$this->label->setText('$0F0You\'re being transfered. Please wait.');
+		$this->addComponent($this->label);
+		
 	}
 
 	function set($to)
