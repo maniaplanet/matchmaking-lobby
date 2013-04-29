@@ -67,6 +67,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var bool */
 	protected $updatePlayerList = false;
+	
+	protected $averageWaitingTime = 0;
+	
+	protected $waintingTimes = array();
 
 	function onInit()
 	{
@@ -715,7 +719,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$id] - 1);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
-			Services\PlayerInfo::Get($player)->isInMatch = true;
+			$playerInfo = Services\PlayerInfo::Get($player);
+			$playerInfo->isInMatch = true;
+			$this->waintingTimes[time()][] = $playerInfo->getWaitingTime();
 		}
 
 		$matchablePlayers = $this->getMatchablePlayers();
@@ -901,6 +907,25 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->createLabel($message, $login);
 		}
+	}
+	
+	protected function getAverageWaitingTime()
+	{
+		$sum = 0;
+		$valuesCount = 0;
+		foreach($this->waintingTimes as $timestamp => $waitingTime)
+		{
+			if($timestamp + 3600 < time())
+			{
+				unset($this->waintingTimes[$timestamp]);
+				continue;
+			}
+			$valuesCount += count($waitingTime);
+			$sum += array_sum($waitingTime);
+		}
+		$average = $valuesCount == 0 ? -1 : $sum / $valuesCount;
+		$this->averageWaitingTime = $average;
+		return $average;
 	}
 }
 
