@@ -545,14 +545,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting, you can start a vote to change the map.');
 			$ratios = array();
-			$ratio = new \DedicatedApi\Structures\VoteRatio;
-			$ratio->command = 'NextMap';
-			$ratio->ratio = .5;
-			$ratios[] = $ratio;
-			$ratio = new \DedicatedApi\Structures\VoteRatio;
-			$ratio->command = 'JumpToMapIndex';
-			$ratio->ratio = .5;
-			$ratios[] = $ratio;
+			$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', 0.5);
+			$ratios[] = new \DedicatedApi\Structures\VoteRatio('JumpToMapIndex', 0.5);
 			$this->connection->setCallVoteRatiosEx(false, $ratios);
 		}
 
@@ -570,14 +564,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case self::DECIDING:
 				$ratios = array();
-				$ratio = new \DedicatedApi\Structures\VoteRatio;
-				$ratio->command = 'NextMap';
-				$ratio->ratio = -1.;
-				$ratios[] = $ratio;
-				$ratio = new \DedicatedApi\Structures\VoteRatio;
-				$ratio->command = 'NextMap';
-				$ratio->ratio = -1.;
-				$ratios[] = $ratio;
+				$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', -1.);
+				$ratios[] = new \DedicatedApi\Structures\VoteRatio('JumpToMapIndex', -1.);
 				$this->connection->setCallVoteRatiosEx(false,$ratios);
 				$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting.');
 				break;
