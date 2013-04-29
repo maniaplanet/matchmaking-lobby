@@ -7,6 +7,7 @@
 ### Lobby
 
 * Players can cancel when choosen to replace someone else
+* Adding command /setAllReady to set all players ready on lobby (admin only)
 
 ### Match
 

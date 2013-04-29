@@ -64,7 +64,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var bool */
 	protected $updatePlayerList = false;
-	
 	function onInit()
 	{
 		$this->setVersion('2.0.0');
@@ -167,6 +166,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->getPlayingPlayersCount(), 
 			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
 		);
+
+		$this->registerChatCommand('setAllReady', 'onSetAllReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 	}
 
 	function onUnload()
@@ -695,6 +696,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			{
 				\ManiaLive\Utilities\Logger::debug(sprintf('error: player %s cancel match start (%d) not in prepared mode',$login, $match->id));
 			}
+		}
+	}
+
+	public function onSetAllReady()
+	{
+		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
+		{
+			$this->onPlayerReady($player->login);
 		}
 	}
 
