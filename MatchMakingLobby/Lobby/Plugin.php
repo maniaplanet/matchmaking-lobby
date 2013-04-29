@@ -89,17 +89,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$this->scriptName;
 		if (!class_exists($matchMakerClassName))
 		{
-			throw new Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchMakerClassName or the script name",$matchMakerClassName));
+			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchMakerClassName or the script name",$matchMakerClassName));
 		}
 		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
 		if (!class_exists($guiClassName))
 		{
-			throw new Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
+			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
 		}
 		$penaltiesCalculatorClassName = $this->config->penaltiesCalculatorClassName ? : __NAMESPACE__.'\Helpers\PenaltiesCalculator';
 		if (!class_exists($penaltiesCalculatorClassName))
 		{
-			throw new Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.penaltiesCalculatorClassName",$guiClassName));
+			throw new \Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.penaltiesCalculatorClassName",$guiClassName));
 		}
 
 		$this->setGui(new $guiClassName());
@@ -113,7 +113,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Check if Lobby is not running with the match plugin
 		if($this->isPluginLoaded('MatchMakingLobby/Match'))
 		{
-			throw new Exception('Lobby and match cannot be one the same server.');
+			throw new \Exception('Lobby and match cannot be one the same server.');
 		}
 		$this->enableDedicatedEvents(
 			ServerEvent::ON_PLAYER_CONNECT |
@@ -128,7 +128,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
 		if (!class_exists($matchSettingsClass))
 		{
-			throw new Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchSettingsClassName",$matchSettingsClass));
+			throw new \Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchSettingsClassName",$matchSettingsClass));
 		}
 
 		$matchSettings = new $matchSettingsClass();
