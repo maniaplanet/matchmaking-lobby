@@ -567,7 +567,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', -1.);
 				$ratios[] = new \DedicatedApi\Structures\VoteRatio('JumpToMapIndex', -1.);
 				$this->connection->setCallVoteRatiosEx(false,$ratios);
-				$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting.');
+				$this->connection->chatSendServerMessage(static::PREFIX.' Match is starting. Good luck and have fun!');
 				break;
 			case static::PLAYER_LEFT:
 				$this->connection->chatSendServerMessage(static::PREFIX.'Player is back, match continues.');

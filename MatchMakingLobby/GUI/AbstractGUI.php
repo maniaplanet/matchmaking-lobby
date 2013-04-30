@@ -94,7 +94,7 @@ abstract class AbstractGUI
 	 * @return string
 	 */
 	abstract function getLaunchMatchText(Match $m, $player);
-	
+
 	abstract function getCustomizedQuitDialogManiaLink();
 
 	/**
@@ -155,13 +155,22 @@ abstract class AbstractGUI
 	}
 
 	/**
-	 *
+	 * Message displayed when a player has too many allies for the current mode
 	 * @param int $n
 	 * @return string
 	 */
 	function getTooManyAlliesText($n)
 	{
 		return sprintf("\$F00You have too many allies, maximum is %d", $n);
+	}
+
+	/**
+	 * Message displayed to all non ready players to tell them that they can join a match as substitute
+	 * @return type
+	 */
+	function getNoReadyPlayers()
+	{
+		return sprintf("A player is required as substitute in a in-going game");
 	}
 
 	/**
