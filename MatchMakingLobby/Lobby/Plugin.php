@@ -751,21 +751,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			Services\PlayerInfo::Get($player)->isInMatch = true;
 		}
 
-		$matchablePlayers = $this->getMatchablePlayers();
-		if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
-		{
-			$message = $this->gui->getNeedReadyPlayersText();
-		}
-		else
-		{
-			$message = $this->gui->getReadyText();
-		}
-
-		foreach($matchablePlayers as $login)
-		{
-			$this->gui->createLabel($message, $login);
-		}
-
 		$this->updatePlayerList = true;
 	}
 
