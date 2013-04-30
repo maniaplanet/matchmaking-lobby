@@ -40,6 +40,7 @@ class PlayerInfo
 	/** @var \DateTime */
 	private $awaySince = null;
 
+	/** @var \DateTime */
 	private $notReadySince = null;
 
 	/** @var bool */

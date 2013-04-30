@@ -64,6 +64,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var bool */
 	protected $updatePlayerList = false;
+
+	/**
+	 * @var bool
+	 */
+	protected $backupNeeded = false;
+
 	function onInit()
 	{
 		$this->setVersion('2.0.0');
@@ -83,11 +89,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchMakerClassName or the script name",$matchMakerClassName));
 		}
+
 		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
 		if (!class_exists($guiClassName))
 		{
 			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
 		}
+
+		$this->matchMakingService = new Services\MatchMakingService();
+		$this->matchMakingService->createTables();
 
 		$this->setGui(new $guiClassName());
 		$this->gui->lobbyBoxPosY = 45;
@@ -109,7 +119,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
 
-		//FIXME: move to $this->onInit()
 		$matchSettingsClass = $this->config->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
 		if (!class_exists($matchSettingsClass))
@@ -124,9 +133,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->enableTickerEvent();
 
-		$this->matchMakingService = new Services\MatchMakingService();
-		$this->matchMakingService->createTables();
-
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		$this->backLink = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->titleIdString;
@@ -139,8 +145,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
 			$player->allies = $playerObject->allies;
 			$this->gui->createPlayerList($login);
-			$this->setShortKey($login, array($this,'onPlayerReady'));
-			$this->gui->createLabel($this->gui->getNotReadyText(), $login);
 
 			$help = Windows\Help::Create($login);
 			$help->modeName = $this->scriptName;
@@ -148,6 +152,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$help->show();
 		}
 		$this->updatePlayerList = true;
+
+		$this->setNotReadyLabel();
 
 		$this->registerLobby();
 
@@ -196,17 +202,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			return;
 		}
 
-		$message = '';
 		$player = Services\PlayerInfo::Get($login);
 		$player->isInMatch = $this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		$message = ($player->ladderPoints ? $this->gui->getPlayerBackLabelPrefix() : '').$this->gui->getNotReadyText();
 		$player->setAway(false);
 		$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
 		$player->allies = $playerObject->allies;
 
-		$this->gui->createLabel($message, $login);
-
-		$this->setShortKey($login, array($this, 'onPlayerReady'));
+		$this->setNotReadyLabel($login);
 
 		$this->gui->createPlayerList($login);
 		$this->updatePlayerList = true;
@@ -317,6 +319,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if ($matchesNeedingBackup)
 		{
+			$this->backupNeeded = true;
 			$potentialBackups = $this->getMatchablePlayers();
 			$storage = $this->storage;
 
@@ -370,16 +373,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			else
 			{
-				//No potential backup for this match
-				foreach (Services\PlayerInfo::GetNotReady() as $player)
-				{
-					if (!array_key_exists($player->login, $this->blockedPlayers))
-					{
-						$this->gui->createLabel($this->gui->getNotReadyText()."\n".$this->gui->getNoReadyPlayers(), $player->login);
-					}
-				}
+				$this->setReadyLabel();
 			}
 			unset($potentialBackups);
+		}
+		else
+		{
+			$matchesNeedingBackup = false;
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
@@ -418,11 +418,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			// No server available for this match
 			else
 			{
-				$readyPlayers = Services\PlayerInfo::GetReady();
-				foreach ($readyPlayers as $readyPlayer)
-				{
-					$this->gui->createLabel($this->gui->getNoServerAvailableText(), $readyPlayer->login);
-				}
+				$this->setReadyLabel();
 			}
 		}
 
@@ -488,7 +484,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						\ManiaLive\Utilities\Logger::debug(sprintf('jump cancel match state is : %d', $match->state));
 						foreach($match->players as $player)
 						{
-							$this->gui->createLabel($this->gui->getReadyText(), $player);
+							$this->setReadyLabel($player);
 						}
 					}
 					unset($match);
@@ -582,9 +578,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if (!$this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString))
 		{
 			$player->setReady(true);
-			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
 
-			$this->setReadyLabel();
+			$this->setReadyLabel($login);
 
 			$this->updatePlayerList = true;
 		}
@@ -602,10 +597,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$mtime = microtime(true);
 		$player = Services\PlayerInfo::Get($login);
 		$player->setReady(false);
-		$this->setShortKey($login, array($this, 'onPlayerReady'));
-		$this->gui->createLabel($this->gui->getNotReadyText(), $login);
 
-		$this->setReadyLabel();
+		$this->setNotReadyLabel($login);
 
 		$this->updatePlayerList = true;
 
@@ -722,7 +715,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
 		{
-			$this->onPlayerReady($player->login);
+			if (!array_key_exists($player->login, $this->blockedPlayers))
+			{
+				$this->onPlayerReady($player->login);
+			}
 		}
 	}
 
@@ -736,17 +732,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	private function prepareMatch($server, $match)
 	{
-
 		$id = $this->matchMakingService->registerMatch($server, $match, $this->scriptName, $this->titleIdString, $this->storage->serverLogin);
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match %d on server: %s',$id, $server));
 		\ManiaLive\Utilities\Logger::debug($match);
 
 		$this->gui->prepareJump($match->players, $server, $this->titleIdString, $id);
-		$this->countDown[$id] = 11;
+		$this->countDown[$id] = 12;
 
 		foreach($match->players as $player)
 		{
-			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$id] - 1);
+			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, 10);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			Services\PlayerInfo::Get($player)->isInMatch = true;
 		}
@@ -915,21 +910,51 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $matchablePlayers);
 	}
 
-	protected function setReadyLabel()
+	/**
+	 * @param string $login If null, set message for all ready players
+	 */
+	protected function setReadyLabel($login = null)
 	{
 		$matchablePlayers = $this->getMatchablePlayers();
+		$players = ($login == null) ? $matchablePlayers : array($login);
 		if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
 		{
 			$message = $this->gui->getNeedReadyPlayersText();
+		}
+		else if ($this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) < 0)
+		{
+			$message = $this->gui->getNoServerAvailableText();
 		}
 		else
 		{
 			$message = $this->gui->getReadyText();
 		}
 
-		foreach($matchablePlayers as $login)
+		foreach($players as $login)
 		{
 			$this->gui->createLabel($message, $login);
+			$this->setShortKey($login, array($this, 'onPlayerNotReady'));
+		}
+	}
+
+	/**
+	 * @param string $login If null, set message for all non ready players
+	 */
+	protected function setNotReadyLabel($login = null)
+	{
+		$players = ($login == null) ? Services\PlayerInfo::GetNotReady() : array(Services\PlayerInfo::Get($login));
+		foreach ($players as $player)
+		{
+			if (!array_key_exists($player->login, $this->blockedPlayers))
+			{
+				$message = $this->gui->getNotReadyText();
+				if (count(Services\PlayerInfo::GetReady() == 0) && $this->backupNeeded)
+				{
+					$message .= "\n".$this->gui->getNoReadyPlayers();
+				}
+				$this->gui->createLabel($message, $player->login);
+				$this->setShortKey($player->login, array($this,'onPlayerReady'));
+			}
 		}
 	}
 }
