@@ -160,10 +160,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$totalPlayerCount = $this->getTotalPlayerCount();
 
 		$this->gui->updateLobbyWindow(
-			$this->storage->server->name, 
-			$playersCount, 
-			$totalPlayerCount, 
-			$this->getPlayingPlayersCount(), 
+			$this->storage->server->name,
+			$playersCount,
+			$totalPlayerCount,
+			$this->getPlayingPlayersCount(),
 			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
 		);
 
@@ -412,6 +412,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						}
 					}
 				}
+				unset($matches, $match);
 				$timers['match'] = microtime(true) - $mtime;
 			}
 			// No server available for this match
@@ -430,7 +431,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			switch(--$countDown)
 			{
 				case -15:
-					$this->gui->eraseJump($login);
+					//$this->gui->eraseJump($login);
 					unset($this->replacerCountDown[$login]);
 					break;
 				case 0:
@@ -876,13 +877,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$totalPlayerCount = $this->getTotalPlayerCount();
 		$playingPlayersCount = $this->getPlayingPlayersCount();
 		$this->gui->updateLobbyWindow(
-			$this->storage->server->name, 
-			$playersCount, 
-			$totalPlayerCount, 
+			$this->storage->server->name,
+			$playersCount,
+			$totalPlayerCount,
 			$playingPlayersCount,
 			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
 		);
-		
+
 	}
 
 	private function setLobbyInfo($enable = true)
