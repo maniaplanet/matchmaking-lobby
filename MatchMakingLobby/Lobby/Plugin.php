@@ -65,10 +65,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var bool */
 	protected $updatePlayerList = false;
 	
-	protected $averageWaitingTime = 0;
-	
-	protected $waintingTimes = array();
-
 	function onInit()
 	{
 		$this->setVersion('2.0.0');
@@ -164,7 +160,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
 
-		$this->gui->updateLobbyWindow($this->storage->server->name, $playersCount, $totalPlayerCount, $this->getPlayingPlayersCount());
+		$this->gui->updateLobbyWindow(
+			$this->storage->server->name, 
+			$playersCount, 
+			$totalPlayerCount, 
+			$this->getPlayingPlayersCount(), 
+			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
+		);
 	}
 
 	function onUnload()
@@ -710,9 +712,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->createLabel($this->gui->getLaunchMatchText($match, $player), $player, $this->countDown[$id] - 1);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
-			$playerInfo = Services\PlayerInfo::Get($player);
-			$playerInfo->isInMatch = true;
-			$this->waintingTimes[time()][] = $playerInfo->getWaitingTime();
+			Services\PlayerInfo::Get($player)->isInMatch = true;
 		}
 
 		$matchablePlayers = $this->getMatchablePlayers();
@@ -840,7 +840,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$playersCount = $this->getReadyPlayersCount();
 		$totalPlayerCount = $this->getTotalPlayerCount();
 		$playingPlayersCount = $this->getPlayingPlayersCount();
-		$this->gui->updateLobbyWindow($this->storage->server->name, $playersCount, $totalPlayerCount, $playingPlayersCount);
+		$this->gui->updateLobbyWindow(
+			$this->storage->server->name, 
+			$playersCount, 
+			$totalPlayerCount, 
+			$playingPlayersCount,
+			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
+		);
+		
 	}
 
 	private function setLobbyInfo($enable = true)
@@ -903,25 +910,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->createLabel($message, $login);
 		}
-	}
-	
-	protected function getAverageWaitingTime()
-	{
-		$sum = 0;
-		$valuesCount = 0;
-		foreach($this->waintingTimes as $timestamp => $waitingTime)
-		{
-			if($timestamp + 3600 < time())
-			{
-				unset($this->waintingTimes[$timestamp]);
-				continue;
-			}
-			$valuesCount += count($waitingTime);
-			$sum += array_sum($waitingTime);
-		}
-		$average = $valuesCount == 0 ? -1 : $sum / $valuesCount;
-		$this->averageWaitingTime = $average;
-		return $average;
 	}
 }
 

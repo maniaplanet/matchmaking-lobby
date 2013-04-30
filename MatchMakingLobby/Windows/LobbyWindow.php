@@ -33,6 +33,11 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	 * @var Elements\Label
 	 */
 	protected $playingPlayers;
+	
+	/**
+	 * @var Elements\Label
+	 */
+	protected $averageTime;
 
 	protected function onConstruct()
 	{
@@ -56,13 +61,13 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->serverName->setTextColor('fff');
 		$this->addComponent($this->serverName);
 
-		$ui = new Elements\Label(30);
-		$ui->setText('Players');
-		$ui->setStyle(null);
-		$ui->setAlign('center', 'center2');
-		$ui->setPosition(22.5, -9);
-		$ui->setScale(0.6);
-		$this->addComponent($ui);
+		$this->averageTime = new Elements\Label(60);
+		$this->averageTime->setText('Average time between matches: ');
+		$this->averageTime->setStyle(null);
+		$this->averageTime->setAlign('left', 'center2');
+		$this->averageTime->setPosition(3, -9);
+		$this->averageTime->setScale(0.6);
+		$this->addComponent($this->averageTime);
 
 		$ui = new Elements\Label(30);
 		$ui->setText('Ready');
@@ -115,12 +120,20 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->addComponent($this->totalPlayers);
 	}
 
-	function set($serverName, $readyPlayersCount, $totalPlayers, $playingPlayersCount)
+	function set($serverName, $readyPlayersCount, $totalPlayers, $playingPlayersCount, $averageTime)
 	{
 		$this->serverName->setText($serverName);
 		$this->readyPlayers->setText($readyPlayersCount);
 		$this->playingPlayers->setText($playingPlayersCount);
 		$this->totalPlayers->setText($totalPlayers);
+		if($averageTime == -1)
+		{
+			$this->averageTime->setText('Average time between matches: -');
+		}
+		else
+		{
+			$this->averageTime->setText(sprintf('Average time between matches: %.2f', $averageTime));
+		}
 	}
 
 }

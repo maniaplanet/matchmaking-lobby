@@ -363,6 +363,40 @@ class MatchMakingService
 			return false;
 		}
 	}
+	
+	/**
+	 * Get average time between two match. This time is compute with matches over the last hour
+	 * If there is not anough matches in database, it returns -1
+	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 * @return float
+	 */
+	function getAverageTimeBetweenMatches($lobbyLogin, $scriptName, $titleIdString)
+	{
+		$creationTimestamps = $this->db->execute(
+			'SELECT UNIX_TIMESTAMP(creationDate) '.
+			'FROM Matches m '.
+			'WHERE m.lobbyLogin = %s '.
+			'AND m.scriptName = %s '.
+			'AND m.titleIdString = %s '.
+			'AND m.state NOT IN (-3) AND m.creationDate > DATE_SUB(NOW(), INTERVAL 1 HOUR) '.
+			'ORDER BY creationDate ASC', $this->db->quote($lobbyLogin),
+			$this->db->quote($scriptName), $this->db->quote($titleIdString)
+		)->fetchArrayOfSingleValues();
+		
+		if(count($creationTimestamps) < 2)
+		{
+			return -1;
+		}
+		
+		$sum = 0;
+		for($i = 1; $i < count($creationTimestamps); $i++)
+		{
+			$sum += $creationTimestamps[$i] - $creationTimestamps[$i - 1];
+		}
+		return $sum / count($creationTimestamps);
+	}
 
 	/**
 	 * Updates match state

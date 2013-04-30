@@ -197,12 +197,12 @@ abstract class AbstractGUI
 	 * @param int $totalPlayerCount Total number of player on the matchmaking system
 	 * @param int $playingPlayersCount Number of player in match
 	 */
-	final function updateLobbyWindow($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount)
+	final function updateLobbyWindow($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount, $averageTime)
 	{
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		$lobbyWindow->setAlign('right','bottom');
 		$lobbyWindow->setPosition(165, $this->lobbyBoxPosY);
-		$lobbyWindow->set($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount);
+		$lobbyWindow->set($serverName, $playersCount, $totalPlayerCount, $playingPlayersCount, $averageTime);
 		$lobbyWindow->show();
 	}
 

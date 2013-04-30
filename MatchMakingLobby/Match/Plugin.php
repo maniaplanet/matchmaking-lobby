@@ -429,7 +429,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->lobby = $this->matchMakingService->getLobby($this->lobby->login);
 		$playingPlayers = $this->matchMakingService->getPlayersPlayingCount($this->lobby->login);
-		$this->gui->updateLobbyWindow($this->lobby->name, $this->lobby->readyPlayers, $this->lobby->connectedPlayers + $playingPlayers, $playingPlayers);
+		$this->gui->updateLobbyWindow(
+			$this->lobby->name, 
+			$this->lobby->readyPlayers, 
+			$this->lobby->connectedPlayers + $playingPlayers, 
+			$playingPlayers,
+			$this->matchMakingService->getAverageTimeBetweenMatches($this->lobby->login, $this->scriptName, $this->titleIdString)
+		);
 	}
 
 	protected function forcePlayerTeam($login)
