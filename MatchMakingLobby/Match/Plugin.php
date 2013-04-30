@@ -68,7 +68,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $nextTick = null;
 
 	/** @var string[] */
-	protected $intervals = array();
+	protected $intervals = array(
+		self::PLAYER_LEFT => '40 seconds',
+		self::WAITING => '5 seconds',
+		self::SLEEPING => '5 seconds',
+		self::DECIDING => '50 seconds',
+		self::PLAYING => '15 seconds',
+		self::OVER => '10 seconds',
+		self::WAITING_BACKUPS => '1 seconds'
+	);
 
 	/**
 	 * Value one of Services\PlayerInfo::PLAYER_STATE_*
@@ -116,6 +124,20 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			throw new \ManiaLive\Application\FatalException(sprintf('You ManiaLive version is too old, please update to %s', \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE));
 		}
+
+		//Get the GUI abstraction class
+		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
+		if (!class_exists($guiClassName))
+		{
+			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
+		}
+		$this->setGui(new $guiClassName());
+
+		//Load services
+		$this->matchMakingService = new Services\MatchMakingService();
+		$this->matchMakingService->createTables();
+
+		$this->config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 	}
 
 	function onLoad()
@@ -134,15 +156,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->setMaxSpectators(0);
 		$this->connection->removeGuest('-_-');
 		$this->nextTick = new \DateTime();
-		$this->intervals = array(
-			self::PLAYER_LEFT => '40 seconds',
-			self::WAITING => '5 seconds',
-			self::SLEEPING => '5 seconds',
-			self::DECIDING => '50 seconds',
-			self::PLAYING => '15 seconds',
-			self::OVER => '10 seconds',
-			self::WAITING_BACKUPS => '1 seconds'
-		);
+
 		$ratios = array(
 			new \DedicatedApi\Structures\VoteRatio('SetModeScriptSettings', -1.),
 			new \DedicatedApi\Structures\VoteRatio('Kick', -1.),
@@ -150,8 +164,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.));
 
 		$this->connection->setCallVoteRatiosEx(false, $ratios);
-
-		$this->config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 
 		$this->state = self::SLEEPING;
 
@@ -174,20 +186,20 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$settings = $matchSettings->getMatchScriptSettings();
 		$this->connection->setModeScriptSettings($settings);
 
-		//Load services
-		$this->matchMakingService = new Services\MatchMakingService();
-		$this->matchMakingService->createTables();
-
 		$this->lobby = $this->matchMakingService->getLobby($this->config->lobbyLogin);
-
-		//Get the GUI abstraction class
-		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
-		$this->setGui(new $guiClassName());
 
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
 
 		$this->connection->customizeQuitDialog($this->gui->getCustomizedQuitDialogManiaLink(), '#qjoin='.$this->lobby->backLink, false);
+
+		//Check if a match existed before to cancel it
+		$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+		if ($match)
+		{
+			$this->matchMakingService->updateMatchState($match->id, Services\Match::FINISHED);
+			$this->matchMakingService->updateServerCurrentMatchId($match->id, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+		}
 	}
 
 	function onUnload()
