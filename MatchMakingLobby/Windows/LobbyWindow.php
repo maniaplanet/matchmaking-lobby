@@ -61,7 +61,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->serverName->setTextColor('fff');
 		$this->addComponent($this->serverName);
 
-		$this->averageTime = new Elements\Label(60);
+		$this->averageTime = new Elements\Label(65);
 		$this->averageTime->setText('Average time between matches: ');
 		$this->averageTime->setStyle(null);
 		$this->averageTime->setAlign('left', 'center2');
@@ -132,7 +132,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		}
 		else
 		{
-			$this->averageTime->setText(sprintf('Average time between matches: %.2f', $averageTime));
+			$this->averageTime->setText(sprintf('Average time between matches: %.2f min', $averageTime / 60));
 		}
 	}
 
