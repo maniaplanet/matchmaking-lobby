@@ -430,9 +430,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->lobby = $this->matchMakingService->getLobby($this->lobby->login);
 		$playingPlayers = $this->matchMakingService->getPlayersPlayingCount($this->lobby->login);
 		$this->gui->updateLobbyWindow(
-			$this->lobby->name, 
-			$this->lobby->readyPlayers, 
-			$this->lobby->connectedPlayers + $playingPlayers, 
+			$this->lobby->name,
+			$this->lobby->readyPlayers,
+			$this->lobby->connectedPlayers + $playingPlayers,
 			$playingPlayers,
 			$this->matchMakingService->getAverageTimeBetweenMatches($this->lobby->login, $this->scriptName, $this->titleIdString)
 		);
@@ -520,7 +520,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->waitBackups();
 	}
 
-	protected function cancel($updateState = false)
+	protected function cancel($updateState = true)
 	{
 		\ManiaLive\Utilities\Logger::debug('cancel()');
 
@@ -595,12 +595,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			return;
 		}
 
+		if (count($this->players) <= 1)
+		{
+			$this->cancel();
+			return;
+		}
+
 		if($this->match->team1 && $this->match->team2)
 		{
-			if(
-				$this->countConnectedPlayers($this->match->team1) <= $config->minPlayersByTeam ||
-				$this->countConnectedPlayers($this->match->team2) <= $config->minPlayersByTeam
-			)
+			if($this->countConnectedPlayers($this->match->team1) <= $config->minPlayersByTeam ||
+				$this->countConnectedPlayers($this->match->team2) <= $config->minPlayersByTeam)
 			{
 				\ManiaLive\Utilities\Logger::debug('Not enough players. Match cancel');
 				$this->cancel();
