@@ -66,6 +66,12 @@ class Match
 	 * @var string[]
 	 */
 	public $team2 = array();
+	
+	/**
+	 * Id of the player or the team who won the match
+	 * @var int
+	 */
+	public $ranking;
 
 	/**
 	 * add a login in a team, throw an exception if the login is already teamed or if the team does not exist

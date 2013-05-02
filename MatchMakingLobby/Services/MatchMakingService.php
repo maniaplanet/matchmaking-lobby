@@ -64,7 +64,7 @@ class MatchMakingService
 			return false;
 
 		$results = $this->db->execute(
-				'SELECT P.login, P.teamId '.
+				'SELECT P.login, P.teamId, P.rank '.
 				'FROM Players P '.
 				'WHERE P.matchId = %d ', $match->id
 			)->fetchArrayOfAssoc();
@@ -72,6 +72,11 @@ class MatchMakingService
 		foreach($results as $row)
 		{
 			$match->players[] = $row['login'];
+			if($row['rank'] !== null)
+			{
+					$match->ranking[$row['rank']][] = $row['login'];
+			}
+			
 			if($row['teamId'] === null)
 			{
 				continue;
@@ -85,7 +90,21 @@ class MatchMakingService
 				$match->team2[] = $row['login'];
 			}
 		}
-
+		uksort($match->ranking, function ($k1, $k2)
+		{
+			if($k1 == 0)
+			{
+				return 1;
+			}
+			if($k1 > $k2)
+			{
+				return 1;
+			}
+			else
+			{
+				return $k1 == $k2 ? 0: -1;
+			}
+		});
 		return $match;
 	}
 
@@ -365,6 +384,51 @@ class MatchMakingService
 	}
 	
 	/**
+	 * Returns the rank of the last match of a player
+	 * @param string $playerLogin
+	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 * @return int
+	 */
+	function getPlayerLatestMatch($playerLogin, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		$matchId = $this->db->execute(
+			'SELECT P.matchId FROM Players P '.
+			'INNER JOIN Matches M ON P.matchId = M.id '.
+			'WHERE P.login = %s AND M.state IN (%s) '.
+			'AND M.lobbyLogin = %s AND M.scriptName = %s AND M.titleIdString = %s'.
+			'AND M.lastUpdateDate > DATE_SUB(NOW(), INTERVAL 1 MINUTE)',
+			$this->db->quote($playerLogin), implode(',', Match::FINISHED, Match::FINISHED_WAITING_BACKUPS, Match::PLAYER_LEFT),
+			$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString)
+		)->fetchSingleValue();
+		
+		return $this->getMatch($matchId);
+	}
+	
+	/**
+	 * return the requested number of match ended
+	 * @param int $length
+	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 * @return string
+	 */
+	function getLobbyLatestMatches($length, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		$matchIds = $this->db->execute(
+			'SELECT M.matchId FROM Matches M '.
+			'WHERE M.state IN (%s) '.
+			'AND M.lobbyLogin = %s AND M.scriptName = %s AND M.titleIdString = %s'.
+			'LIMIT %d',
+			implode(',', Match::FINISHED, Match::FINISHED_WAITING_BACKUPS, Match::PLAYER_LEFT),
+			$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString), $length
+		)->fetchArrayOfSingleValues();
+		
+		return $this->getMatches($matchIds);
+	}
+	
+	/**
 	 * Get average time between two match. This time is compute with matches over the last hour
 	 * If there is not anough matches in database, it returns -1
 	 * @param string $lobbyLogin
@@ -395,7 +459,7 @@ class MatchMakingService
 		{
 			$sum += $creationTimestamps[$i] - $creationTimestamps[$i - 1];
 		}
-		return $sum / count($creationTimestamps);
+		return $sum / (count($creationTimestamps) - 1);
 	}
 
 	/**
