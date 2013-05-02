@@ -968,7 +968,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$message = $this->gui->getNotReadyText();
 				if (count(Services\PlayerInfo::GetReady() == 0) && $this->backupNeeded)
 				{
-					$message .= "\n".$this->gui->getNoReadyPlayers();
+					$notReadyPlayersTexts = $this->gui->getNoReadyPlayers();
+					foreach($message as $language => $messages)
+					{
+						foreach($messages as $key => $text)
+						{
+							$message[$language][$key] .= $notReadyPlayersTexts[$language][$key];
+						}
+					}
 				}
 				$this->setShortKey($player->login, array($this,'onPlayerReady'));
 				$this->gui->createLabel($message, $player->login, null, false, true, true);

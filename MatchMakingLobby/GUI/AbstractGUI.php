@@ -39,11 +39,18 @@ abstract class AbstractGUI
 
 	/**
 	 * Returns the text to display when a player is not ready
-	 * @return string
+	 * @return string[string][string]
 	 */
 	function getNotReadyText()
 	{
-		return '$o$F90Press F6 to play a match$z';
+		return array(
+			'fr' => array(
+				'text' => '$o$F90Appuyez sur F6 pour jouer un match'
+			),
+			'en' => array(
+				'text' => '$o$F90Press F6 to play a match$z'
+			),
+		);
 	}
 
 	/**
@@ -52,12 +59,26 @@ abstract class AbstractGUI
 	 */
 	function getReadyText()
 	{
-		return 'Searching for a match, press F6 to cancel';
+		return array(
+			'fr' => array(
+				'text' => 'Recherche de match en cours, appuyez sur F6 pour annuler'
+			),
+			'en' => array(
+				'text' => 'Searching for a match, press F6 to cancel'
+			),
+		);
 	}
 
 	function getNeedReadyPlayersText()
 	{
-		return 'Waiting for more ready players';
+		return array(
+			'fr' => array(
+				'text' => 'En attente de plus de joueurs prêt'
+			),
+			'en' => array(
+				'text' => 'Waiting for more ready players'
+			),
+		);
 	}
 
 	/**
@@ -66,7 +87,14 @@ abstract class AbstractGUI
 	 */
 	function getPlayerBackLabelPrefix()
 	{
-		return 'Welcome back. ';
+		return array(
+			'fr' => array(
+				'text' => ''
+			),
+			'en' => array(
+				'text' => 'Welcome back. '
+			),
+		);
 	}
 
 	/**
@@ -75,7 +103,14 @@ abstract class AbstractGUI
 	 */
 	function getNoServerAvailableText()
 	{
-		return 'No match server available at the moment, please wait';
+		return array(
+			'fr' => array(
+				'text' => 'Aucun serveur de match disponible en ce moment, veuillez patienter'
+			),
+			'en' => array(
+				'text' => 'No match server available at the moment, please wait'
+			),
+		);
 	}
 
 	/**
@@ -84,7 +119,14 @@ abstract class AbstractGUI
 	 */
 	function getIllegalLeaveText()
 	{
-		return "A player left\nDo not leave, searching for a substitute";
+		return array(
+			'fr' => array(
+				'text' => "Un joueur a quitté\nNe partez pas, un remplaçant est recherché"
+			),
+			'en' => array(
+				'text' => "A player left\nDo not leave, searching for a substitute"
+			),
+		);
 	}
 
 	/**
@@ -105,7 +147,14 @@ abstract class AbstractGUI
 	 */
 	function getBackUpLaunchText()
 	{
-		return "\$0F0You are selected to be a substitute. Prepare to be transferred\nPress F6 to cancel";
+		return array(
+			'fr' => array(
+				'text' =>  "\$0F0Vous êtes sélectionné comme remplaçant. Préparez vous au transfert\nAppuyez sur F6 pour annuler"
+			),
+			'en' => array(
+				'text' =>  "\$0F0You are selected to be a substitute. Prepare to be transferred\nPress F6 to cancel"
+			),
+		);
 	}
 
 	/**
@@ -114,7 +163,14 @@ abstract class AbstractGUI
 	 */
 	function getMatchInProgressText()
 	{
-		return 'You have a match in progress. Prepare to be transferred';
+		return array(
+			'fr' => array(
+				'text' =>  "Vous avez un match en cours. Préparez vous au transfert"
+			),
+			'en' => array(
+				'text' =>  "You have a match in progress. Prepare to be transferred"
+			),
+		);
 	}
 
 	/**
@@ -124,7 +180,14 @@ abstract class AbstractGUI
 	 */
 	function getBadKarmaText($time)
 	{
-		return sprintf("\$F00You left your last match\nYou are suspended for %d minutes", ceil($time / 60.));
+		return array(
+			'fr' => array(
+				'text' =>  sprintf("\$F00Vous avez quitter votre dernier match\nVous êtes suspendu pour %d minutes", ceil($time / 60.))
+			),
+			'en' => array(
+				'text' =>  sprintf("\$F00You left your last match\nYou are suspended for %d minutes", ceil($time / 60.))
+			),
+		);
 	}
 
 	/**
@@ -133,7 +196,14 @@ abstract class AbstractGUI
 	 */
 	function getMatchoverText()
 	{
-		return 'Match over. You will be transferred back.';
+		return array(
+			'fr' => array(
+				'text' =>  "Match terminé. Vous allez êtres retransféré"
+			),
+			'en' => array(
+				'text' =>  'Match over. You will be transferred back.'
+			),
+		);
 	}
 
 	/**
@@ -142,7 +212,14 @@ abstract class AbstractGUI
 	 */
 	function getGiveUpText()
 	{
-		return "A player gave up\nDo not leave, searching for a substitute";
+		return array(
+			'fr' => array(
+				'text' =>  "Un joueur a abandonné\nNe quittez pas, un remplaçant est recherché"
+			),
+			'en' => array(
+				'text' =>  "A player gave up\nDo not leave, searching for a substitute"
+			),
+		);
 	}
 
 	/**
@@ -151,7 +228,14 @@ abstract class AbstractGUI
 	 */
 	function getDecidingText()
 	{
-		return 'Waiting for all player to connect before starting match';
+		return array(
+			'fr' => array(
+				'text' =>  "En attente de tout les joueurs avant de commencer le match"
+			),
+			'en' => array(
+				'text' =>  'Waiting for all player to connect before starting match'
+			),
+		);
 	}
 
 	/**
@@ -161,7 +245,14 @@ abstract class AbstractGUI
 	 */
 	function getTooManyAlliesText($n)
 	{
-		return sprintf("\$F00You have too many allies, maximum is %d", $n);
+		return array(
+			'fr' => array(
+				'text' =>  sprintf("\$F00Vous avez trop d'alliés, le maximum est %d", $n)
+			),
+			'en' => array(
+				'text' =>  sprintf("\$F00You have too many allies, maximum is %d", $n)
+			),
+		);
 	}
 
 	/**
@@ -170,7 +261,14 @@ abstract class AbstractGUI
 	 */
 	function getNoReadyPlayers()
 	{
-		return sprintf("A player is required as substitute in a in-going game");
+		return array(
+			'fr' => array(
+				'text' =>  sprintf("Un joueur est requis comme remplaçant dans un match en cours")
+			),
+			'en' => array(
+				'text' => sprintf("A player is required as substitute in a in-going game")
+			),
+		);
 	}
 
 	/**

@@ -54,6 +54,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 		$this->label->setAlign('center', 'center2');
 		$this->label->enableAutonewline();
 		$this->label->setId('info-label');
+		$this->label->setTextid('text');
 		$this->addComponent($this->label);
 
 		$this->label2 = new \ManiaLib\Gui\Elements\Label(400);
@@ -73,8 +74,9 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 
 	function onDraw()
 	{
+		\ManiaLib\Gui\Manialink::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->message));
 		$this->bg->setVisibility($this->showBackground);
-		$this->setScript($this->message, $this->countdown, $this->animated, $this->hideOnF6);
+		$this->setScript($this->countdown, $this->animated, $this->hideOnF6);
 	}
 
 	function setMessage($message, $countdown = null)
@@ -82,23 +84,15 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 		$this->message = $message;
 		$this->countdown = $countdown;
 
-		if($this->countdown)
-		{
-			$this->addComponent($this->sound);
-		}
-		else
-		{
-			$this->removeComponent($this->sound);
-		}
+		$this->sound->setVisibility($this->countdown !== null);
 	}
 
-	protected function setScript($message, $countdown, $animated, $hideOnF6)
+	protected function setScript($countdown, $animated, $hideOnF6)
 	{
 		$animatedManiaScript = $animated ? 'True' : 'False';
 		$hideOnF6ManiaScript = $hideOnF6 ? 'True' : 'False';
 		$countdown = (int) $this->countdown;
 		$countdownManiaScript = $countdown ? 'True' : 'False';
-		$label = \ManiaLib\ManiaScript\Tools::escapeString($message);
 
 		\ManiaLive\Gui\Manialinks::appendScript(<<<MANIASCRIPT
 #RequireContext CMlScript
@@ -106,7 +100,6 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 #Include "TextLib" as TextLib
 main()
 {
-	declare Text labelText = "$label";
 	declare Boolean animated = $animatedManiaScript;
 	declare Boolean hideOnF6 = $hideOnF6ManiaScript;
 	declare Boolean countdown = $countdownManiaScript;
@@ -115,6 +108,7 @@ main()
 	declare Boolean waiting = False;
 	declare CMlLabel label <=> (Page.MainFrame.GetFirstChild("info-label") as CMlLabel);
 	declare CMlLabel waitLabel  <=> (Page.MainFrame.GetFirstChild("wait-label") as CMlLabel);
+	declare Text labelText = label.Value;
 	label.SetText(TextLib::Compose(labelText, TextLib::ToText(countdownTimeLeft)));
 	waitLabel.Hide();
 

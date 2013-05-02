@@ -25,6 +25,7 @@ class CustomizedQuitDialog
 	public function display()
 	{
 		Manialink::load();
+		Manialink::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->displayedText));
 		
 		/*Manialink::appendScript(<<<MANIASCRIPT
 #RequireContext CMlScript
@@ -66,7 +67,7 @@ MANIASCRIPT
 			$label->setStyle(Label::TextRaceMessageBig);
 			$label->setTextSize(5);
 			$label->setTextColor('f00');
-			$label->setText($this->displayedText);
+			$label->setTextId('text');
 			$frame->add($label);
 			
 			$iconBlink = new Icons128x128_Blink(15);
