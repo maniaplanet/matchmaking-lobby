@@ -443,7 +443,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$this->matchMakingService->updatePlayerState($this->replacerCountDown[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
 						$this->gui->showJump($login);
 						$this->connection->addGuest($login, true);
-						$this->connection->chatSendServerMessage(self::PREFIX.$player->nickName.' joined a match as a substitute.', null);
+						$this->connection->chatSendServerMessageToLanguage(array(
+							array('Lang' => 'fr', 'Text' => self::PREFIX.$player->nickName.' a rejoins le match comme remplaçant'),
+							array('Lang' => 'en', 'Text' => self::PREFIX.$player->nickName.' joined a match as a substitute.'),
+						));
 					}
 					unset($match, $player);
 					//nobreak
@@ -482,7 +485,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 								$this->connection->addGuest($player, true);
 							}
 						}
-						$this->connection->chatSendServerMessage(self::PREFIX.implode(' & ', $nicknames).' join a match.', null);
+						$this->connection->chatSendServerMessageToLanguage(array(
+							array('Lang' => 'fr', 'Text' => self::PREFIX.implode(' & ', $nicknames).' ont rejoint un match.'),
+							array('Lang' => 'en', 'Text' => self::PREFIX.implode(' & ', $nicknames).' join a match.'),
+						));
 					}
 					else
 					{
@@ -691,7 +697,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
-			$this->connection->chatSendServerMessage(sprintf(static::PREFIX.'$<%s$> cancelled match start.', $player->nickName));
+			$this->connection->chatSendServerMessageToLanguage(array(
+				array('Lang' => 'fr', 'Text' => sprintf(static::PREFIX.'$<%s$> a annulé le départ du match.', $player->nickName)),
+				array('Lang' => 'en', 'Text' => sprintf(static::PREFIX.'$<%s$> cancelled match start.', $player->nickName))
+			));
 
 			foreach($match->players as $playerLogin)
 			{
@@ -827,9 +836,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				else
 				{
-					$this->connection->chatSendServerMessage(
-						sprintf(self::PREFIX.'$<%s$> is suspended.', $player->nickName, $penalty)
-					);
+					$this->connection->chatSendServerMessageToLanguage(
+						array(
+							array('Lang' => 'fr','Text' => sprintf(self::PREFIX.'$<%s$> est suspendu.', $player->nickName)),
+							array('Lang' => 'en','Text' => sprintf(self::PREFIX.'$<%s$> is suspended.', $player->nickName)),
+					));
 				}
 
 				$this->blockedPlayers[$login] = time();
