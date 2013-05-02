@@ -181,7 +181,7 @@ abstract class AbstractGUI
 	 * @param int $countdown
 	 * @param bool $isAnimated If true the text will be animated
 	 */
-	final function createLabel($message, $login = null, $countdown = null, $isAnimated = false, $hideOnF6 = true)
+	final function createLabel($message, $login = null, $countdown = null, $isAnimated = false, $hideOnF6 = true, $showBackgroud = false)
 	{
 		if($login)
 		{
@@ -196,6 +196,7 @@ abstract class AbstractGUI
 		$ui->setMessage($message, $countdown);
 		$ui->animated = $isAnimated;
 		$ui->hideOnF6 = $hideOnF6;
+		$ui->showBackground = $showBackgroud;
 		$ui->show();
 	}
 

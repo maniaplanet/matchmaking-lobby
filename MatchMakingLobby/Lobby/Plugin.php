@@ -220,7 +220,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$help->show();
 
 		$this->checkAllies($player);
-
+		
 		try
 		{
 			$this->connection->removeGuest($login);
@@ -952,8 +952,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				{
 					$message .= "\n".$this->gui->getNoReadyPlayers();
 				}
-				$this->gui->createLabel($message, $player->login);
-				$this->setShortKey($player->login, array($this,'onPlayerReady'));
+				$this->setShortKey($login, array($this,'onPlayerReady'));
+				$this->gui->createLabel($message, $login, null, false, true, true);
 			}
 		}
 	}

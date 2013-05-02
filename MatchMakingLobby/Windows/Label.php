@@ -14,20 +14,44 @@ use ManiaLive\Features\Tick;
 class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 {
 
+	/** @var \ManiaLib\Gui\Elements\Label */
 	public $label;
+
+	/** @var \ManiaLib\Gui\Elements\Label */
 	public $label2;
+
+	/** @var \ManiaLib\Gui\Elements\Bgs1 */
+	public $bg;
+
+	/** @var bool */
 	public $animated = false;
+
+	/** @var bool */
 	public $hideOnF6 = true;
+	
+	/** @var bool */
+	public $showBackground = false;
+
+	/** @var int */
 	protected $countdown = 0;
+
+	/** @var string */
 	protected $message = '';
+
+	/** @var \ManiaLib\Gui\Elements\Audio */
 	protected $sound;
 
 	protected function onConstruct()
 	{
+		$this->bg = new \ManiaLib\Gui\Elements\Bgs1(320, 16);
+		$this->bg->setSubStyle(\ManiaLib\Gui\Elements\Bgs1::BgDialogBlur);
+		$this->bg->setAlign('center', 'center2');
+		$this->addComponent($this->bg);
+		
 		$this->label = new \ManiaLib\Gui\Elements\Label(400);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setTextSize(5);
-		$this->label->setHalign('center');
+		$this->label->setAlign('center', 'center2');
 		$this->label->enableAutonewline();
 		$this->label->setId('info-label');
 		$this->addComponent($this->label);
@@ -35,12 +59,12 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 		$this->label2 = new \ManiaLib\Gui\Elements\Label(400);
 		$this->label2->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label2->setTextSize(5);
-		$this->label2->setHalign('center');
+		$this->label2->setAlign('center', 'center2');
 		$this->label2->enableAutonewline();
 		$this->label2->setText('Please wait...');
 		$this->label2->setId('wait-label');
 		$this->addComponent($this->label2);
-
+		
 		$this->sound = new \ManiaLib\Gui\Elements\Audio();
 		$this->sound->setData('http://static.maniaplanet.com/manialinks/lobbies/timer.wav', true);
 		$this->sound->setPosition(200);
@@ -49,6 +73,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 
 	function onDraw()
 	{
+		$this->bg->setVisibility($this->showBackground);
 		$this->setScript($this->message, $this->countdown, $this->animated, $this->hideOnF6);
 	}
 
