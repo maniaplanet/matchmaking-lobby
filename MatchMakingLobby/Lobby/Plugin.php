@@ -220,7 +220,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$help->show();
 
 		$this->checkAllies($player);
-		
+
 		try
 		{
 			$this->connection->removeGuest($login);
@@ -916,14 +916,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function setReadyLabel($login = null)
 	{
 		$matchablePlayers = $this->getMatchablePlayers();
-		$players = ($login == null) ? $matchablePlayers : array($login);
-		if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
-		{
-			$message = $this->gui->getNeedReadyPlayersText();
-		}
-		else if ($this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) < 0)
+		$players = ($login === null) ? $matchablePlayers : array($login);
+		if ($this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) <= 0)
 		{
 			$message = $this->gui->getNoServerAvailableText();
+		}
+		else if(count($matchablePlayers) < $this->matchMaker->getPlayersPerMatch())
+		{
+			$message = $this->gui->getNeedReadyPlayersText();
 		}
 		else
 		{
@@ -942,7 +942,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	protected function setNotReadyLabel($login = null)
 	{
-		$players = ($login == null) ? Services\PlayerInfo::GetNotReady() : array(Services\PlayerInfo::Get($login));
+		$players = ($login === null) ? Services\PlayerInfo::GetNotReady() : array(Services\PlayerInfo::Get($login));
 		foreach ($players as $player)
 		{
 			if (!array_key_exists($player->login, $this->blockedPlayers))
@@ -952,8 +952,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				{
 					$message .= "\n".$this->gui->getNoReadyPlayers();
 				}
-				$this->setShortKey($login, array($this,'onPlayerReady'));
-				$this->gui->createLabel($message, $login, null, false, true, true);
+				$this->setShortKey($player->login, array($this,'onPlayerReady'));
+				$this->gui->createLabel($message, $player->login, null, false, true, true);
 			}
 		}
 	}
