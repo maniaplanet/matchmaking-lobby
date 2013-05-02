@@ -124,7 +124,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			throw new \ManiaLive\Application\FatalException(sprintf('You ManiaLive version is too old, please update to %s', \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE));
 		}
-		
+
 		//Get the Script name
 		$script = $this->connection->getScriptName();
 		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
@@ -198,7 +198,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if ($match)
 		{
 			$this->matchMakingService->updateMatchState($match->id, Services\Match::FINISHED);
-			$this->matchMakingService->updateServerCurrentMatchId($match->id, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+			$this->matchMakingService->updateServerCurrentMatchId(null, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		}
 	}
 
