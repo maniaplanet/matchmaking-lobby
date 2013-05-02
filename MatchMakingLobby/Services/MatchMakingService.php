@@ -76,7 +76,7 @@ class MatchMakingService
 			{
 					$match->ranking[$row['rank']][] = $row['login'];
 			}
-			
+
 			if($row['teamId'] === null)
 			{
 				continue;
@@ -189,15 +189,22 @@ class MatchMakingService
 
 	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
 	{
+		$currentMatchIds = $this->getCurrentLobbyMatchIds($lobbyLogin, $scriptName, $titleIdString);
+		if (count($currentMatchIds) <= 0)
+		{
+			return array();
+		}
 		$ids = $this->db->execute(
 				'SELECT M.id FROM Matches M '.
 				'INNER JOIN MatchServers MS ON M.id = MS.matchId '.
 				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
-				'AND M.state = %d ',
+				'AND M.state = %d '.
+				'AND M.id IN (%s)',
 				$this->db->quote($lobbyLogin),
 				$this->db->quote($scriptName),
 				$this->db->quote($titleIdString),
-				Match::WAITING_BACKUPS
+				Match::WAITING_BACKUPS,
+				implode(', ', $currentMatchIds)
 			)->fetchArrayOfSingleValues();
 
 		return array_map(array($this,'getMatch'), $ids);
@@ -382,7 +389,7 @@ class MatchMakingService
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Returns the rank of the last match of a player
 	 * @param string $playerLogin
@@ -402,10 +409,10 @@ class MatchMakingService
 			$this->db->quote($playerLogin), implode(',', Match::FINISHED, Match::FINISHED_WAITING_BACKUPS, Match::PLAYER_LEFT),
 			$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString)
 		)->fetchSingleValue();
-		
+
 		return $this->getMatch($matchId);
 	}
-	
+
 	/**
 	 * return the requested number of match ended
 	 * @param int $length
@@ -424,10 +431,10 @@ class MatchMakingService
 			implode(',', Match::FINISHED, Match::FINISHED_WAITING_BACKUPS, Match::PLAYER_LEFT),
 			$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString), $length
 		)->fetchArrayOfSingleValues();
-		
+
 		return $this->getMatches($matchIds);
 	}
-	
+
 	/**
 	 * Get average time between two match. This time is compute with matches over the last hour
 	 * If there is not anough matches in database, it returns -1
@@ -448,12 +455,12 @@ class MatchMakingService
 			'ORDER BY creationDate ASC', $this->db->quote($lobbyLogin),
 			$this->db->quote($scriptName), $this->db->quote($titleIdString)
 		)->fetchArrayOfSingleValues();
-		
+
 		if(count($creationTimestamps) < 2)
 		{
 			return -1;
 		}
-		
+
 		$sum = 0;
 		for($i = 1; $i < count($creationTimestamps); $i++)
 		{
