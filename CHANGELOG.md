@@ -6,9 +6,12 @@
 
 ### Lobby
 
+* Added average waiting time before match
 * Players can cancel when choosen to replace someone else
 * Adding command /setAllReady to set all players ready on lobby (admin only)
 * Adding command /kickNotReady to kick all not ready players
+* Adding command /setPenalty <login> to reset the penalty of an user
+* Adding command /resetAllPenalties to reset the penalties of all players
 
 ### Match
 

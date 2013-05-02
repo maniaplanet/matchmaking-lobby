@@ -694,11 +694,11 @@ class MatchMakingService
 		\ManiaLive\Utilities\Validation::int($by);
 		$result = $this->db->execute(
 			'UPDATE PlayersPenalties '.
-			'SET secondsLeft = GREATEST(0,secondsLeft - %d) ' .
-			'WHERE playerLogin = %s '.
-			'AND lobbyLogin = %s '.
-			'AND scriptName = %s '.
-			'AND titleIdString = %s',
+			'SET secondsLeft = (CASE WHEN secondsLeft > %1$d THEN secondsLeft - %1$d ELSE 0 END) '.
+			'WHERE playerLogin = %2$s '.
+			'AND lobbyLogin = %3$s '.
+			'AND scriptName = %4$s '.
+			'AND titleIdString = %5$s',
 			$by,
 			$this->db->quote($playerLogin),
 			$this->db->quote($lobbyLogin),

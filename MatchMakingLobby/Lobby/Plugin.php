@@ -144,7 +144,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player = Services\PlayerInfo::Get($login);
 			$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
 			$player->allies = $playerObject->allies;
+
 			$this->gui->createPlayerList($login);
+
+			$this->updateKarma($login);
 
 			$help = Windows\Help::Create($login);
 			$help->modeName = $this->scriptName;
@@ -175,6 +178,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->registerChatCommand('setAllReady', 'onSetAllReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
+		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
+		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 	}
 
 	function onUnload()
@@ -727,6 +732,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		foreach(Services\PlayerInfo::GetNotReady() as $player)
 		{
 			$this->connection->kick($player->login);
+		}
+	}
+
+	public function onResetPenalty($login)
+	{
+		$this->matchMakingService->decreasePlayerPenalty($login, 86000, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+	}
+
+	public function onResetAllPenalties()
+	{
+		foreach (array_merge($this->storage->players, $this->storage->spectators) as $player)
+		{
+			$this->matchMakingService->decreasePlayerPenalty($player->login, 86000, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		}
 	}
 
