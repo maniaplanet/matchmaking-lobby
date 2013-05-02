@@ -124,6 +124,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			throw new \ManiaLive\Application\FatalException(sprintf('You ManiaLive version is too old, please update to %s', \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE));
 		}
+		
+		//Get the Script name
+		$script = $this->connection->getScriptName();
+		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
+		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		//Get the GUI abstraction class
 		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
@@ -168,11 +173,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->state = self::SLEEPING;
 
 		$this->enableTickerEvent();
-
-		//Get the Script name
-		$script = $this->connection->getScriptName();
-		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
-		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		//Set needed rules to run the lobny
 		$matchSettingsClass = $this->config->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
