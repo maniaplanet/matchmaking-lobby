@@ -29,10 +29,10 @@ abstract class AbstractTeam extends AbstractGUI
 		$mates = array_map(function ($player) { return sprintf('$<%s$>', $player); }, $mates);
 		return array(
 			'fr' => array(
-				'text' =>  sprintf("\$0F0Votre match avec %s commence dans \$<\$FFF%%1 \$>\nF6 pour annuler...", implode(' & ', $mates))
+				'text' =>  sprintf("\$0F0Votre match avec %s commence dans \$<\$FFF%%1 \$>...\nF6 pour annuler", implode(' & ', $mates))
 			),
 			'en' => array(
-				'text' =>  sprintf("\$0F0Match with %s starts in \$<\$FFF%%1 \$>\nF6 to cancel...", implode(' & ', $mates))
+				'text' =>  sprintf("\$0F0Match with %s starts in \$<\$FFF%%1 \$>...\nF6 to cancel", implode(' & ', $mates))
 			),
 		);
 	}

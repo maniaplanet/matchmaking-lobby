@@ -320,6 +320,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_CONNECTED);
 		$this->forcePlayerTeam($login);
+		//Force player as player
+		$this->connection->forceSpectator($login, ($isSpectator ? 1 : 2));
 		\ManiaLive\Utilities\Logger::debug('player '.$login.' connected');
 		switch ($this->state)
 		{

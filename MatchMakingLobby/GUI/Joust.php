@@ -26,10 +26,10 @@ class Joust extends AbstractGUI
 		$opponent = ($opponentObj ? $opponentObj->nickName : $m->players[($key + 1) % 2]);
 		return array(
 			'fr' => array(
-				'text' =>  sprintf("\$0F0Votre match contre \$<%s\$> commence dans \$<\$FFF%%1 \$>\nF6 pour annuler...", $opponent)
+				'text' =>  sprintf("\$0F0Votre match contre \$<%s\$> commence dans \$<\$FFF%%1 \$>...\nF6 pour annuler", $opponent)
 			),
 			'en' => array(
-				'text' =>  sprintf('\$0F0Match against \$<%s\$> starts in \$<$FFF%%1 \$>'."\n".'F6 to cancel...', $opponent)
+				'text' =>  sprintf("\$0F0Match against \$<%s\$> starts in \$<\$FFF%%1 \$>...\nF6 to cancel", $opponent)
 			),
 		);
 	}
