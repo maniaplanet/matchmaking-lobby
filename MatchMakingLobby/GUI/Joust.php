@@ -36,19 +36,33 @@ class Joust extends AbstractGUI
 
 	function getIllegalLeaveText()
 	{
-		return "A player left\nDo not leave, you will be transfered back";
+		return array(
+			'fr' => array(
+				'text' =>  "Votre opposant a quitté le match\nNe partez pas, vous allez être retransféré"
+			),
+			'en' => array(
+				'text' =>  "Your opponent left\nDo not leave, you will be transfered back"
+			),
+		);
 	}
 
 	function getGiveUpText()
 	{
-		return "A player gave up\nDo not leave, you will be transfered back";
+		return array(
+			'fr' => array(
+				'text' =>  "Votre opposant a abandonné\nNe partez pas, vous allez être retransféré"
+			),
+			'en' => array(
+				'text' =>  "Your opponent gave up\nDo not leave, you will be transfered back"
+			),
+		);
 	}
 	
 	function getCustomizedQuitDialogManiaLink()
 	{
 		$message = array(
 			'fr' => array(
-				'text' =>  'Voulez vous vraiment abandonner ?'
+				'text' =>  'Voulez-vous vraiment abandonner ?'
 			),
 			'en' => array(
 				'text' =>  'Do you really want to give up?'

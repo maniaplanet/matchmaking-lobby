@@ -56,7 +56,7 @@ abstract class AbstractTeam extends AbstractGUI
 	{
 		$message = array(
 			'fr' => array(
-				'text' =>  'Voulez vous vraiment abandonner vos alliés ?'
+				'text' =>  'Voulez-vous vraiment abandonner vos alliés ?'
 			),
 			'en' => array(
 				'text' =>  'Do you really want to abandon your teammates?'

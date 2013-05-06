@@ -89,7 +89,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' => ''
+				'text' => 'Bienvenue. '
 			),
 			'en' => array(
 				'text' => 'Welcome back. '
@@ -149,7 +149,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' =>  "\$0F0Vous êtes sélectionné comme remplaçant. Préparez vous au transfert\nAppuyez sur F6 pour annuler"
+				'text' =>  "\$0F0Vous êtes sélectionné comme remplaçant. Préparez-vous au transfert\nAppuyez sur F6 pour annuler"
 			),
 			'en' => array(
 				'text' =>  "\$0F0You are selected to be a substitute. Prepare to be transferred\nPress F6 to cancel"
@@ -165,7 +165,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' =>  "Vous avez un match en cours. Préparez vous au transfert"
+				'text' =>  "Vous avez un match en cours. Préparez-vous au transfert"
 			),
 			'en' => array(
 				'text' =>  "You have a match in progress. Prepare to be transferred"
@@ -182,7 +182,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' =>  sprintf("\$F00Vous avez quitter votre dernier match\nVous êtes suspendu pour %d minutes", ceil($time / 60.))
+				'text' =>  sprintf("\$F00Vous avez quitté votre dernier match\nVous êtes suspendu pour %d minutes", ceil($time / 60.))
 			),
 			'en' => array(
 				'text' =>  sprintf("\$F00You left your last match\nYou are suspended for %d minutes", ceil($time / 60.))
@@ -198,7 +198,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' =>  "Match terminé. Vous allez êtres retransféré"
+				'text' =>  "Match terminé. Vous allez être retransféré"
 			),
 			'en' => array(
 				'text' =>  'Match over. You will be transferred back.'
@@ -230,7 +230,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' =>  "En attente de tout les joueurs avant de commencer le match"
+				'text' =>  "En attente de tous les joueurs avant de commencer le match"
 			),
 			'en' => array(
 				'text' =>  'Waiting for all player to connect before starting match'
