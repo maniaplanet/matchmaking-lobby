@@ -444,8 +444,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$this->gui->showJump($login);
 						$this->connection->addGuest($login, true);
 						$this->connection->chatSendServerMessageToLanguage(array(
-							array('Lang' => 'fr', 'Text' => self::PREFIX.sprintf('$<%s$> a rejoint le match comme remplaçant.', $player->nickname)),
-							array('Lang' => 'en', 'Text' => self::PREFIX.sprintf('$<%s$> joined a match as a substitute.', $player->nickName)),
+							array('Lang' => 'fr', 'Text' => self::PREFIX.sprintf('$<%s$> a rejoint son match comme remplaçant.', $player->nickname)),
+							array('Lang' => 'en', 'Text' => self::PREFIX.sprintf('$<%s$> joined his match as a substitute.', $player->nickName)),
 						));
 					}
 					unset($match, $player);
@@ -984,7 +984,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					{
 						foreach($messages as $key => $text)
 						{
-							$message[$language][$key] .= $notReadyPlayersTexts[$language][$key];
+							$message[$language][$key] .= "\n".$notReadyPlayersTexts[$language][$key];
 						}
 					}
 				}

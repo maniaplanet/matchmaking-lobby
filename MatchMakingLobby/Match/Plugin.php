@@ -562,7 +562,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->connection->chatSendServerMessageToLanguage(array(
 				array('Lang' => 'fr', 'Text' => static::PREFIX.'Le match commence, vous pouvez lancer un vote pour changer de map.'),
-				array('Lang' => 'en', 'Text' => static::PREFIX.'Match is starting, you can start a vote to change the map.'),
+				array('Lang' => 'en', 'Text' => static::PREFIX.'Match is starting, you can call a vote to change the map.'),
 			));
 			$ratios = array();
 			$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', 0.5);
