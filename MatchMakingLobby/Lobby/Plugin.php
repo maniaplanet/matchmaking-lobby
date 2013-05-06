@@ -698,7 +698,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
 			$this->connection->chatSendServerMessageToLanguage(array(
-				array('Lang' => 'fr', 'Text' => sprintf(static::PREFIX.'$<%s$> a annulé le départ du match.', $player->nickName)),
+				array('Lang' => 'fr', 'Text' => sprintf(static::PREFIX.'$<%s$> a annulé le départ d\'un match.', $player->nickName)),
 				array('Lang' => 'en', 'Text' => sprintf(static::PREFIX.'$<%s$> cancelled match start.', $player->nickName))
 			));
 

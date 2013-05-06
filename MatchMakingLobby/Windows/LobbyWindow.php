@@ -61,13 +61,6 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 			)
 		);
 
-		$ui = new Elements\Label(40);
-		$ui->setStyle(Elements\Label::TextTitle3);
-		$ui->setText('$s$999Lobby info');
-		$ui->setAlign('center', 'center2');
-		$ui->setPosition(22.5);
-		$this->addComponent($ui);
-
 		$ui = new Elements\Bgs1InRace(50, 20);
 		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
 		$ui->setPosY(-2);
