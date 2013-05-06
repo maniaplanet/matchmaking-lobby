@@ -20,16 +20,43 @@ class Help extends \ManiaLive\Gui\Window
 	public $modeName = '';
 
 	protected $textLabel;
+	
+	protected $dico;
 
 	protected function onConstruct()
 	{
+		$bullet = ' $<$ff0$o>$> ';
+		
+		$this->dico = array(
+			'fr' => array(
+				'switch' => 'Appuyez sur F7 pour l\'aide',
+				'help'=> 'Vous êtes sur un lobby de matchmaking.'."\n"."\n".
+						$bullet.'Jouez à une mode fun en attendant.'."\n".
+						$bullet.'Votre match '.$this->modeName.' commencera automatiquement.'."\n".
+						$bullet.'Vous serez redigirigé ici à la fin du match.'."\n".
+						$bullet.'Appuyez sur F7 pour fermer cette aide',
+				'tip' => 'Astuce: faites équipe avec vos amis',
+				'note' => 'Note: les deux joueurs doivent se définir comme alliés.'
+			),
+			'en' => array(
+				'switch' => 'Press F7 for help',
+				'help'=> 'You are on a matchmaking lobby.'."\n"."\n".
+						$bullet.'Play a fun mode while you wait.'."\n".
+						$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
+						$bullet.'You will be redirected here when game ends.'."\n".
+						$bullet.'Press F7 to close this help',
+				'tip' => 'Tip: team-up with your buddies',
+				'note' => 'Note: both players have to set the other as ally.'
+			)
+		);
+		
 		$ui = new LegacyLabel(300);
 		$ui->setPosition(0, -55);
 		$ui->setStyle(LegacyLabel::TextRaceMessageBig);
 		$ui->setTextSize(5);
 		$ui->setHalign('center');
 		$ui->setId('help-label');
-		$ui->setText('Press F7 for help');
+		$ui->setTextid('switch');
 		$this->addComponent($ui);
 
 		$frame = new Frame();
@@ -40,22 +67,13 @@ class Help extends \ManiaLive\Gui\Window
 		$ui->setSubStyle(Bgs1::BgWindow1);
 		$frame->addComponent($ui);
 
-
-		$bullet = ' $<$ff0$o>$> ';
-
 		$this->textLabel = new LegacyLabel(200);
 		$this->textLabel->setPosition(-140, -10);
 		$this->textLabel->setStyle(LegacyLabel::TextRaceMessageBig);
 		$this->textLabel->setTextSize(5);
 		$this->textLabel->enableAutonewline();
 		$this->textLabel->setId('help-label');
-		$this->textLabel->setText(
-			'You are on a matchmaking lobby.'."\n"."\n".
-			$bullet.'Play a fun mode while you wait.'."\n".
-			$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
-			$bullet.'You will be redirected here when game ends.'."\n".
-			$bullet.'Press F7 to close this help'
-		);
+		$this->textLabel->setTextid('help');
 		$frame->addComponent($this->textLabel);
 
 		$allies = new Frame(80, 60);
@@ -65,7 +83,7 @@ class Help extends \ManiaLive\Gui\Window
 		$ui->setRelativeAlign('center');
 		$ui->setAlign('center');
 		$ui->setPosition(0, -3, 0.1);
-		$ui->setText('Tip: team-up with your buddies');
+		$ui->setTextid('tip');
 		$ui->setStyle(LegacyLabel::TextTitle3);
 		$allies->addComponent($ui);
 
@@ -80,7 +98,8 @@ class Help extends \ManiaLive\Gui\Window
 		$ui->setRelativeAlign('center');
 		$ui->setAlign('center');
 		$ui->setPosition(0, -50, 0.1);
-		$ui->setText('$fff'.'Note: both players have to set the other as ally.');
+		$ui->setTextColor('fff');
+		$ui->setTextid('note');
 		$allies->addComponent($ui);
 
 		$frame->addComponent($allies);
@@ -93,14 +112,15 @@ class Help extends \ManiaLive\Gui\Window
 		
 		$bullet = ' $<$ff0$o>$> ';
 		$displayHelpManiaScript = $this->displayHelp ? 'True' : 'False';
-		$this->textLabel->setText(
-			'You are on a matchmaking lobby.'."\n"."\n".
-			$bullet.'Play a fun mode while you wait.'."\n".
-			$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
-			$bullet.'You will be redirected here when game ends.'."\n".
-			$bullet.'Press F7 to close this help'
-		);
+//		$this->textLabel->setText(
+//			'You are on a matchmaking lobby.'."\n"."\n".
+//			$bullet.'Play a fun mode while you wait.'."\n".
+//			$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
+//			$bullet.'You will be redirected here when game ends.'."\n".
+//			$bullet.'Press F7 to close this help'
+//		);
 
+		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->dico));
 		\ManiaLive\Gui\Manialinks::appendScript(
 			<<<MANIASCRIPT
 #RequireContext CMlScript
