@@ -43,7 +43,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 
 	protected function onConstruct()
 	{
-		$this->bg = new \ManiaLib\Gui\Elements\Bgs1(320, 16);
+		$this->bg = new \ManiaLib\Gui\Elements\Bgs1(320, 20);
 		$this->bg->setSubStyle(\ManiaLib\Gui\Elements\Bgs1::BgDialogBlur);
 		$this->bg->setAlign('center', 'center2');
 		$this->addComponent($this->bg);
