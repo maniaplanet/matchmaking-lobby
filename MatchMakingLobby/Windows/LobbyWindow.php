@@ -38,10 +38,28 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	 * @var Elements\Label
 	 */
 	protected $averageTime;
-
+	
+	/** @var array */
+	protected $dico;
+	
 	protected function onConstruct()
 	{
 		$this->setSize(50, 25);
+		
+		$this->dico = array(
+			'fr' => array(
+				'waitingTime' => 'Temps moyen d\'attente : ',
+				'playing' => 'En jeu',
+				'ready' => 'Prêt',
+				'total' => 'Total',
+			),
+			'en' => array(
+				'waitingTime' => 'Average waiting time: ',
+				'playing' => 'Playing',
+				'ready' => 'Ready',
+				'total' => 'Total',
+			)
+		);
 
 		$ui = new Elements\Label(40);
 		$ui->setStyle(Elements\Label::TextTitle3);
@@ -62,7 +80,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->addComponent($this->serverName);
 
 		$this->averageTime = new Elements\Label(65);
-		$this->averageTime->setText('Average time between matches: ');
+		$this->averageTime->setTextId('waitingTime');
 		$this->averageTime->setStyle(null);
 		$this->averageTime->setAlign('left', 'center2');
 		$this->averageTime->setPosition(3, -9);
@@ -70,7 +88,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->addComponent($this->averageTime);
 
 		$ui = new Elements\Label(30);
-		$ui->setText('Ready');
+		$ui->setTextid('ready');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
 		$ui->setPosition(7, -12);
@@ -87,7 +105,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->addComponent($this->readyPlayers);
 
 		$ui = new Elements\Label(30);
-		$ui->setText('Playing');
+		$ui->setTextId('playing');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
 		$ui->setPosition(22.5, -12);
@@ -104,7 +122,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->addComponent($this->playingPlayers);
 
 		$ui = new Elements\Label(30);
-		$ui->setText('Total');
+		$ui->setTextid('total');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
 		$ui->setPosition(38, -12);
@@ -128,12 +146,21 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->totalPlayers->setText($totalPlayers);
 		if($averageTime == -1)
 		{
-			$this->averageTime->setText('Average time between matches: -');
+			$this->dico['fr']['waitingTime'] = 'Temps moyen d\'attente : 6 min 30';
+			$this->dico['en']['waitingTime'] = 'Average waiting time: -';
 		}
 		else
 		{
-			$this->averageTime->setText(sprintf('Average time between matches: %.2f min', $averageTime / 60));
+			$average = $averageTime / 60;
+			$averageTime = rount($average);
+			$this->dico['fr']['waitingTime'] = sprintf('Temps moyen d\'attente : %d min%s', $average, ((int) $average < $averageTime ? ' 30' : ''));
+			$this->dico['en']['waitingTime'] = sprintf('Average waiting time: %d min%s', $average, ((int) $average < $averageTime ? ' 30' : ''));
 		}
+	}
+	
+	function onDraw()
+	{
+		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->dico));
 	}
 
 }
