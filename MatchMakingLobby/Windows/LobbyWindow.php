@@ -146,7 +146,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->totalPlayers->setText($totalPlayers);
 		if($averageTime == -1)
 		{
-			$this->dico['fr']['waitingTime'] = 'Temps moyen d\'attente : 6 min 30';
+			$this->dico['fr']['waitingTime'] = 'Temps moyen d\'attente : -';
 			$this->dico['en']['waitingTime'] = 'Average waiting time: -';
 		}
 		else
