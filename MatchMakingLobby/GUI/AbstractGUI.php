@@ -73,7 +73,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' => 'En attente de plus de joueurs prêt'
+				'text' => 'En attente de plus de joueurs prêts'
 			),
 			'en' => array(
 				'text' => 'Waiting for more ready players'
