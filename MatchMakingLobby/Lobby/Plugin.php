@@ -444,8 +444,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$this->gui->showJump($login);
 						$this->connection->addGuest($login, true);
 						$this->connection->chatSendServerMessageToLanguage(array(
-							array('Lang' => 'fr', 'Text' => self::PREFIX.$player->nickName.' a rejoint le match comme remplaçant'),
-							array('Lang' => 'en', 'Text' => self::PREFIX.$player->nickName.' joined a match as a substitute.'),
+							array('Lang' => 'fr', 'Text' => self::PREFIX.sprintf('$<%s$> a rejoint le match comme remplaçant.', $player->nickname)),
+							array('Lang' => 'en', 'Text' => self::PREFIX.sprintf('$<%s$> joined a match as a substitute.', $player->nickName)),
 						));
 					}
 					unset($match, $player);
