@@ -105,7 +105,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' => 'Aucun serveur de match disponible en ce moment, veuillez patienter'
+				'text' => 'Aucun serveur de match disponible pour l\'instant, veuillez patienter'
 			),
 			'en' => array(
 				'text' => 'No match server available at the moment, please wait'
@@ -121,7 +121,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' => "Un joueur a quitté\nNe partez pas, un remplaçant est recherché"
+				'text' => "Un joueur est parti\nNe partez pas, un remplaçant est recherché"
 			),
 			'en' => array(
 				'text' => "A player left\nDo not leave, searching for a substitute"
@@ -149,7 +149,7 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' =>  "\$0F0Vous êtes sélectionné comme remplaçant. Préparez-vous au transfert\nAppuyez sur F6 pour annuler"
+				'text' =>  "\$0F0Vous êtes sélectionnés comme remplaçant. Préparez-vous au transfert\nAppuyez sur F6 pour annuler"
 			),
 			'en' => array(
 				'text' =>  "\$0F0You are selected to be a substitute. Prepare to be transferred\nPress F6 to cancel"
