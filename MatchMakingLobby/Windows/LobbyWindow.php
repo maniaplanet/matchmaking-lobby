@@ -144,10 +144,9 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		}
 		else
 		{
-			$average = $averageTime / 60;
-			$averageTime = round($average);
-			$this->dico['fr']['waitingTime'] = sprintf('Temps moyen d\'attente : %d min%s', $average, ((int) $average < $averageTime ? ' 30' : ''));
-			$this->dico['en']['waitingTime'] = sprintf('Average waiting time: %d min%s', $average, ((int) $average < $averageTime ? ' 30' : ''));
+			$average = ceil($averageTime / 60);
+			$this->dico['fr']['waitingTime'] = sprintf('Temps moyen d\'attente : %d min', $average);
+			$this->dico['en']['waitingTime'] = sprintf('Average waiting time: %d min', $average);
 		}
 	}
 	
