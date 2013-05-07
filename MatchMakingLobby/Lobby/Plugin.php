@@ -432,7 +432,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			switch(--$countDown)
 			{
 				case -15:
-					//$this->gui->eraseJump($login);
+					$this->gui->eraseJump($login);
 					unset($this->replacerCountDown[$login]);
 					break;
 				case 0:
