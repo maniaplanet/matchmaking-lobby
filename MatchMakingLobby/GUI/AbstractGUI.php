@@ -383,7 +383,7 @@ abstract class AbstractGUI
 
 	final function prepareJump(array $players, $serverLogin, $titleIdString, $matchId)
 	{
-		$groupName = sprintf('match-%d',$matchId);
+		$groupName = sprintf('match-%s',$matchId);
 		$this->eraseJump($serverLogin);
 		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
 		$jumper = Windows\ForceManialink::Create($group);
@@ -392,14 +392,14 @@ abstract class AbstractGUI
 
 	final function eraseJump($matchId)
 	{
-		$groupName = sprintf('match-%d',$matchId);
+		$groupName = sprintf('match-%s',$matchId);
 		Windows\ForceManialink::Erase(\ManiaLive\Gui\Group::Get($groupName));
 		\ManiaLive\Gui\Group::Erase($groupName);
 	}
 
 	final function showJump($matchId)
 	{
-		$groupName = sprintf('match-%d',$matchId);
+		$groupName = sprintf('match-%s',$matchId);
 		$group = \ManiaLive\Gui\Group::Get($groupName);
 		Windows\ForceManialink::Create($group)->show();
 	}
