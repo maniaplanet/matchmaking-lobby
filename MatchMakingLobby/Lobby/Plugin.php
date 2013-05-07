@@ -977,7 +977,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			if (!array_key_exists($player->login, $this->blockedPlayers))
 			{
 				$message = $this->gui->getNotReadyText();
-				if (count(Services\PlayerInfo::GetReady() == 0) && $this->backupNeeded)
+				if (count(Services\PlayerInfo::GetReady()) == 0 && $this->backupNeeded)
 				{
 					$notReadyPlayersTexts = $this->gui->getNoReadyPlayers();
 					foreach($message as $language => $messages)
