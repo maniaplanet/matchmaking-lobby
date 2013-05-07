@@ -570,7 +570,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->executeMulticall();
 
 		//Debug
-		$timers = array_filter($timers, function($v) { return $v > 0.010; });
+		$timers = array_filter($timers, function($v) { return $v > 0.10; });
 		if(count($timers))
 		{
 			$line = array();
@@ -672,6 +672,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->eraseJump($login);
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+
+			//FIXME: it could have been QUITTER or GIVEUP
 			$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_QUITTER);
 
 			$this->onPlayerReady($login);
