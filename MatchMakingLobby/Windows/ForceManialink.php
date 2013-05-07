@@ -39,7 +39,8 @@ class ForceManialink extends \ManiaLive\Gui\Window
 		$this->label->setPosition(0, 10);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setTextSize(4);
-		$this->label->setText('$0F0You\'re being transfered. Please wait.');
+		$this->label->setTextColor('0f0');
+		$this->label->setTextid('text');
 		$this->addComponent($this->label);
 		
 	}
@@ -47,6 +48,15 @@ class ForceManialink extends \ManiaLive\Gui\Window
 	function set($to)
 	{
 		$this->xml->setContent('<script><!--main() { OpenLink("'.$to.'", CMlScript::LinkType::ManialinkBrowser); }--></script>');
+	}
+	
+	function onDraw()
+	{
+		$dico = array(
+			'fr' => array('text' => 'Vous êtes transféré. Veuillez patienter.'),
+			'en' => array('text' => 'You\'re being transfered. Please wait.'),
+		);
+		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($dico));
 	}
 
 }
