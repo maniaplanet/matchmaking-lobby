@@ -243,11 +243,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
 
-		if(array_key_exists($login, $this->blockedPlayers))
-		{
-			unset($this->blockedPlayers[$login]);
-		}
-
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if($match)
 		{
@@ -260,6 +255,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerCancelReplacement($login);
 			}
 		}
+
+		if(array_key_exists($login, $this->blockedPlayers))
+		{
+			unset($this->blockedPlayers[$login]);
+		}
+
 		$this->gui->removePlayerFromPlayerList($login);
 	}
 
@@ -435,12 +436,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->gui->eraseJump($login);
 					unset($this->replacerCountDown[$login]);
 					break;
+
 				case 0:
 					$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 					$player = $this->storage->getPlayerObject($login);
 					if($match->state >= Match::PREPARED)
 					{
-						$this->matchMakingService->updatePlayerState($this->replacerCountDown[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
+						$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
 						$this->gui->showJump($login);
 						$this->connection->addGuest($login, true);
 						$this->connection->chatSendServerMessageToLanguage(array(
