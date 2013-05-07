@@ -33,19 +33,19 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	 * @var Elements\Label
 	 */
 	protected $playingPlayers;
-	
+
 	/**
 	 * @var Elements\Label
 	 */
 	protected $averageTime;
-	
+
 	/** @var array */
 	protected $dico;
-	
+
 	protected function onConstruct()
 	{
 		$this->setSize(50, 25);
-		
+
 		$this->dico = array(
 			'fr' => array(
 				'waitingTime' => 'Temps moyen d\'attente : ',
@@ -54,7 +54,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 				'total' => 'Total',
 			),
 			'en' => array(
-				'waitingTime' => 'Average waiting time: ',
+				'waitingTime' => 'Estimated waiting time: ',
 				'playing' => 'Playing',
 				'ready' => 'Ready',
 				'total' => 'Total',
@@ -149,7 +149,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 			$this->dico['en']['waitingTime'] = sprintf('Average waiting time: %d min', $average);
 		}
 	}
-	
+
 	function onDraw()
 	{
 		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->dico));
