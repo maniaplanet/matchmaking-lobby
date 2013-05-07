@@ -33,10 +33,10 @@ class Help extends \ManiaLive\Gui\Window
 				'help'=> 'Vous êtes sur un lobby de matchmaking.'."\n"."\n".
 						$bullet.'Jouez à une mode fun en attendant.'."\n".
 						$bullet.'Votre match '.$this->modeName.' commencera automatiquement.'."\n".
-						$bullet.'Vous serez redigirigé ici à la fin du match.'."\n".
+						$bullet.'Vous serez redirigé ici à la fin du match.'."\n".
 						$bullet.'Appuyez sur F7 pour fermer cette aide',
 				'tip' => 'Astuce: faites équipe avec vos amis',
-				'note' => 'Note: les deux joueurs doivent se définir comme alliés.'
+				'note' => 'Note: les deux joueurs doivent chacun s\'allier à l\'autre.'
 			),
 			'en' => array(
 				'switch' => 'Press F7 for help',
