@@ -48,7 +48,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 
 		$this->dico = array(
 			'fr' => array(
-				'waitingTime' => 'Temps moyen d\'attente : ',
+				'waitingTime' => 'Temps d\'attente estimé : ',
 				'playing' => 'En jeu',
 				'ready' => 'Prêt',
 				'total' => 'Total',
