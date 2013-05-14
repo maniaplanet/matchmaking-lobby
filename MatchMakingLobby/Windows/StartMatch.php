@@ -50,32 +50,31 @@ class StartMatch extends \ManiaLive\Gui\Window
 		
 		$this->team1 = new \ManiaLive\Gui\Controls\Frame();
 		$this->team1->setLayout($layout);
-		$this->team1->setPosition(-25, -12);
+		$this->team1->setPosition(-40, -12);
 		$this->addComponent($this->team1);
 		
 		$this->team2 = clone $this->team1;
-		$this->team2->setPosX(25);
+		$this->team2->setPosX(40);
 		$this->addComponent($this->team2);
 
 		$this->versus = new Elements\Label(20);
-		$this->versus->setAlign('center');
-		$this->versus->setPosY(-12);
+		$this->versus->setAlign('center', 'center2');
 		$this->versus->setText('VS');
-		$this->versus->setTextSize(3);
+		$this->versus->setTextSize(7);
 		$this->versus->setStyle(Elements\Label::TextRaceMessageBig);
 		$this->addComponent($this->versus);
 		
 		$this->team1Label = new Elements\Label(35);
 		$this->team1Label->setAlign('center','top');
-		$this->team1Label->setPosition(-25, -3);
+		$this->team1Label->setPosition(-40, -3);
 		$this->team1Label->setTextid('blue');
 		$this->team1Label->setTextColor('00F');
-		$this->team1Label->setTextSize(5);
+		$this->team1Label->setTextSize(6);
 		$this->team1Label->setStyle(Elements\Label::TextRaceMessageBig);
 		$this->addComponent($this->team1Label);
 		
 		$this->team2Label = clone $this->team1Label;
-		$this->team2Label->setPosX(25);
+		$this->team2Label->setPosX(40);
 		$this->team2Label->setTextid('red');
 		$this->team2Label->setTextColor('F00');
 		$this->addComponent($this->team2Label);
@@ -83,26 +82,27 @@ class StartMatch extends \ManiaLive\Gui\Window
 	
 	function set(array $team1, array $team2)
 	{
-		$this->background->setSizeY(8 * max(count($team1), count($team2)) + 11);
+		$sizeY = 8 * max(count($team1), count($team2)) + 11;
+		$this->background->setSizeY($sizeY);
+		
+		$this->versus->setPosY(- $sizeY / 2);
+
+		$ui = new Elements\Label(50, 7);
+		$ui->setAlign('center', 'top');
+		$ui->setTextColor('fff');
+		$ui->setTextSize(3);
+		$ui->setStyle(Elements\Label::TextRankingsBig);
 		
 		foreach($team1 as $player)
 		{
-			$ui = new Elements\Label(28, 7);
-			$ui->setAlign('center', 'top');
-			$ui->setTextColor('fff');
 			$ui->setText($player);
-			$ui->setTextSize(3);
-			$this->team1->addComponent($ui);
+			$this->team1->addComponent(clone $ui);
 		}
 		
 		foreach($team2 as $player)
 		{
-			$ui = new Elements\Label(28, 7);
-			$ui->setAlign('center', 'top');
-			$ui->setTextColor('fff');
 			$ui->setText($player);
-			$ui->setTextSize(3);
-			$this->team2->addComponent($ui);
+			$this->team2->addComponent(clone $ui);
 		}
 	}
 	

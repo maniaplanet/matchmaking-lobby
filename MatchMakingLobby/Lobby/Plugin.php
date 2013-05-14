@@ -181,32 +181,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 
-//		$match = $this->matchMakingService->getMatch(100);
-//		if($match->team1 && $match->team2)
-//		{
-//			$storage = $this->storage;
-//			$team1 = array_map(function ($player) use ($storage)
-//				{
-//					$p = $storage->getPlayerObject($player);
-//					return ($p ? $p->nickName : $player);
-//				}, $match->team1);
-//			$team2 = array_map(function ($player) use ($storage)
-//				{
-//					$p = $storage->getPlayerObject($player);
-//					return ($p ? $p->nickName : $player);
-//				}, $match->team2);
-//		}
-//		else
-//		{
-//			$p1 = $this->storage->getPlayerObject($match->players[0]);
-//			$p2 = $this->storage->getPlayerObject($match->players[1]);
-//			$team1 = array($p1 ? $p1->nickName : $match->players[0]);
-//			$team2 = array($p2 ? $p2->nickName : $match->players[1]);
-//		}
-//		$window = Windows\StartMatch::Create();
-//		$window->setPosY(18);
-//		$window->set($team1, $team2);
-//		$window->show();
 	}
 
 	function onUnload()
