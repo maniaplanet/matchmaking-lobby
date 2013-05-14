@@ -56,7 +56,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	const WAITING_BACKUPS = 5;
 
-	const PREFIX = 'Match$08fBot$000»$8f0 ';
+	const PREFIX = 'Match$08fInfo$000»$8f0 ';
 
 	const TIME_WAITING_CONNECTION = 105;
 	const TIME_WAITING_BACKUP = 20;
