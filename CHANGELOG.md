@@ -6,6 +6,7 @@
 
 ### Lobby
 
+* Added a nicer window when going to match
 * Added average waiting time before match
 * Players can cancel when choosen to replace someone else
 * Adding command /setAllReady to set all players ready on lobby (admin only)
@@ -17,6 +18,7 @@
 
 * Quit dialog is cutomized to show a warning
 * Removing "Give up" button
+* Allowing kick (ratio 0.6)
 
 # 1.2.2
 
