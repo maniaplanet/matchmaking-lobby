@@ -16,7 +16,7 @@ use ManiaLive\Gui\Controls\Frame;
 class Help extends \ManiaLive\Gui\Window
 {
 
-	public $displayHelp = false;
+	public $displayHelp = true;
 	public $modeName = '';
 
 	protected $textLabel;
@@ -94,7 +94,7 @@ class Help extends \ManiaLive\Gui\Window
 			'fr' => array(
 				'switch' => 'Appuyez sur F7 pour l\'aide',
 				'help'=> 'Vous êtes dans la salle d\'attente du matchmaking.'."\n"."\n".
-						$bullet.'Appuyez sur F6 pour indiquer que vous êtes prêts.'."\n".
+						$bullet.'Appuyez sur F6 pour indiquer que vous êtes prêt.'."\n".
 						$bullet.'Jouez en attendant votre match.'."\n".
 						$bullet.'Il '.$this->modeName.' commencera automatiquement.'."\n".
 						$bullet.'Appuyez sur F7 pour fermer cette fenêtre.',
@@ -119,6 +119,7 @@ class Help extends \ManiaLive\Gui\Window
 #RequireContext CMlScript
 #Include "MathLib" as MathLib
 #Include "TextLib" as TextLib
+
 main()
 {
 	declare Boolean helpDisplayed = $displayHelpManiaScript;
@@ -152,6 +153,14 @@ main()
 						helpLabel.Hide();
 					}
 					helpDisplayed = !helpDisplayed;
+				}
+				else if(Event.KeyName == "F6")
+				{
+					if (helpDisplayed)
+					{
+						helpFrame.Hide();
+						helpLabel.Show();
+					}
 				}
 			}
 		}
