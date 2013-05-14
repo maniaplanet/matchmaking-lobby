@@ -164,7 +164,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$ratios = array(
 			new \DedicatedApi\Structures\VoteRatio('SetModeScriptSettings', -1.),
-			new \DedicatedApi\Structures\VoteRatio('Kick', -1.),
+			new \DedicatedApi\Structures\VoteRatio('Kick', 0.6),
 			new \DedicatedApi\Structures\VoteRatio('Ban', -1.),
 			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.));
 
