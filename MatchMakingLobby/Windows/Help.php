@@ -20,36 +20,13 @@ class Help extends \ManiaLive\Gui\Window
 	public $modeName = '';
 
 	protected $textLabel;
-	
+
 	protected $dico;
 
 	protected function onConstruct()
 	{
 		$bullet = ' $<$ff0$o>$> ';
-		
-		$this->dico = array(
-			'fr' => array(
-				'switch' => 'Appuyez sur F7 pour l\'aide',
-				'help'=> 'Vous êtes sur un lobby de matchmaking.'."\n"."\n".
-						$bullet.'Jouez à une mode fun en attendant.'."\n".
-						$bullet.'Votre match '.$this->modeName.' commencera automatiquement.'."\n".
-						$bullet.'Vous serez redirigé ici à la fin du match.'."\n".
-						$bullet.'Appuyez sur F7 pour fermer cette aide',
-				'tip' => 'Astuce: faites équipe avec vos amis',
-				'note' => 'Note: les deux joueurs doivent chacun s\'allier à l\'autre.'
-			),
-			'en' => array(
-				'switch' => 'Press F7 for help',
-				'help'=> 'You are on a matchmaking lobby.'."\n"."\n".
-						$bullet.'Play a fun mode while you wait.'."\n".
-						$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
-						$bullet.'You will be redirected here when game ends.'."\n".
-						$bullet.'Press F7 to close this help',
-				'tip' => 'Tip: team-up with your buddies',
-				'note' => 'Note: both players have to set the other as ally.'
-			)
-		);
-		
+
 		$ui = new LegacyLabel(300);
 		$ui->setPosition(0, -55);
 		$ui->setStyle(LegacyLabel::TextRaceMessageBig);
@@ -108,17 +85,33 @@ class Help extends \ManiaLive\Gui\Window
 
 	function onDraw()
 	{
-		$this->posZ = 2; 
-		
+		$this->posZ = 2;
+
 		$bullet = ' $<$ff0$o>$> ';
 		$displayHelpManiaScript = $this->displayHelp ? 'True' : 'False';
-//		$this->textLabel->setText(
-//			'You are on a matchmaking lobby.'."\n"."\n".
-//			$bullet.'Play a fun mode while you wait.'."\n".
-//			$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
-//			$bullet.'You will be redirected here when game ends.'."\n".
-//			$bullet.'Press F7 to close this help'
-//		);
+
+		$this->dico = array(
+			'fr' => array(
+				'switch' => 'Appuyez sur F7 pour l\'aide',
+				'help'=> 'Vous êtes dans la salle d\'attente du matchmaking.'."\n"."\n".
+						$bullet.'Appuyez sur F6 pour indiquer que vous êtes prêts.'."\n".
+						$bullet.'Jouez en attendant votre match.'."\n".
+						$bullet.'Il '.$this->modeName.' commencera automatiquement.'."\n".
+						$bullet.'Appuyez sur F7 pour fermer cette fenêtre.',
+				'tip' => 'Astuce : faites équipe avec vos amis',
+				'note' => 'Note : les deux joueurs doivent chacun s\'allier l\'un l\'autre.'
+			),
+			'en' => array(
+				'switch' => 'Press F7 for help',
+				'help'=> 'You are on a matchmaking waiting room server.'."\n"."\n".
+						$bullet.'Press F6 to show that you are ready.'."\n".
+						$bullet.'Play a fun mode while you wait.'."\n".
+						$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
+						$bullet.'Press F7 to close this help.',
+				'tip' => 'Tip: team-up with your buddies',
+				'note' => 'Note: both players have to set the other as ally.'
+			)
+		);
 
 		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->dico));
 		\ManiaLive\Gui\Manialinks::appendScript(
