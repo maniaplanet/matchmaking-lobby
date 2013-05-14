@@ -385,7 +385,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else
 		{
-			$matchesNeedingBackup = false;
+			$this->backupNeeded = false;
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
