@@ -180,7 +180,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
-		
+
 //		$match = $this->matchMakingService->getMatch(100);
 //		if($match->team1 && $match->team2)
 //		{
@@ -233,7 +233,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			return;
 		}
-		
+
 		$player = Services\PlayerInfo::Get($login);
 		$player->isInMatch = $this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		$player->setAway(false);
@@ -345,12 +345,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onTick()
 	{
 		$timers = array();
-		$mtime = microtime(true);
-		foreach($this->blockedPlayers as $login => $time)
+		if ($this->tick % 8)
 		{
-			$this->updateKarma($login);
+			$mtime = microtime(true);
+			foreach($this->blockedPlayers as $login => $time)
+			{
+				$this->updateKarma($login);
+			}
+			$timers['blocked'] = microtime(true) - $mtime;
 		}
-		$timers['blocked'] = microtime(true) - $mtime;
 
 		//If there is some match needing players
 		//find backup in ready players and send them to the match server
@@ -743,7 +746,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			{
 				Services\PlayerInfo::Get($playerLogin)->isInMatch = false;
 				$this->gui->eraseMatchSumUp($playerLogin);
-				
+
 				if($playerLogin != $login)
 					$this->onPlayerReady($playerLogin);
 				else
