@@ -720,8 +720,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function isEverybodyHere()
 	{
-		//TODO: usage of 0 instead of Services\PlayerInfo::PLAYER_STATE_*
-		return count(array_filter($this->players, function ($p) { return $p > 0; })) == count($this->players);
+		return count(array_filter($this->players, function ($p) { return $p == -1; })) == 0;
 	}
 
 	protected function setGui(GUI\AbstractGUI $GUI)
