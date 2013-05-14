@@ -263,10 +263,10 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' =>  sprintf("Un remplaçant est recherché")
+				'text' =>  sprintf("Un match est en attente de remplaçant")
 			),
 			'en' => array(
-				'text' => sprintf("A substitute is required")
+				'text' => sprintf("A match is expecting a substitute")
 			),
 		);
 	}
