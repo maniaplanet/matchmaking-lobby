@@ -624,7 +624,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			return;
 		}
 
-		if (count($this->players) <= 1)
+		if ($this->countConnectedPlayers(array_keys($this->players)) <= 1)
 		{
 			$this->cancel();
 			return;
