@@ -52,6 +52,7 @@ class ForceManialink extends \ManiaLive\Gui\Window
 	
 	function onDraw()
 	{
+		$this->posZ = 3;
 		$dico = array(
 			'fr' => array('text' => 'Vous êtes transféré. Veuillez patienter.'),
 			'en' => array('text' => 'You\'re being transfered. Please wait.'),

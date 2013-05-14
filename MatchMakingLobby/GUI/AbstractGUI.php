@@ -137,10 +137,10 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' => "\$0F0Votre match commence dans \$<\$FFF%%1 \$>...\nF6 pour annuler"
+				'text' => "\$0F0Votre match commence dans \$<\$FFF%1 \$>...\nF6 pour annuler"
 			),
 			'en' => array(
-				'text' =>  "\$0F0Match starts in \$<\$FFF%%1 \$>...\nF6 to cancel"
+				'text' =>  "\$0F0Match starts in \$<\$FFF%1 \$>...\nF6 to cancel"
 			),
 		);
 	}
@@ -326,6 +326,7 @@ abstract class AbstractGUI
 		}
 		$window = Windows\StartMatch::Create($receiver);
 		$window->set($team1, $team2);
+		$window->setPosY(11);
 		$window->show();
 	}
 	
@@ -423,7 +424,7 @@ abstract class AbstractGUI
 		$this->eraseJump($serverLogin);
 		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
 		$jumper = Windows\ForceManialink::Create($group);
-		$jumper->setPosition(0, 40);
+		$jumper->setPosition(0, 21.5);
 		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString);
 	}
 

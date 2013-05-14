@@ -85,7 +85,7 @@ class Help extends \ManiaLive\Gui\Window
 
 	function onDraw()
 	{
-		$this->posZ = 2;
+		$this->posZ = 3;
 
 		$bullet = ' $<$ff0$o>$> ';
 		$displayHelpManiaScript = $this->displayHelp ? 'True' : 'False';
