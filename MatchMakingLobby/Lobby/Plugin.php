@@ -243,9 +243,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
 
+		//Erase potential replacer jumper
+		$this->gui->eraseJump($login);
+
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if($match)
 		{
+			//Erase potential jumper
+			$this->gui->eraseJump($match->id);
+
 			if (array_key_exists($match->id, $this->countDown) && $this->countDown[$match->id] > 0)
 			{
 				$this->onPlayerCancelMatchStart($login);
