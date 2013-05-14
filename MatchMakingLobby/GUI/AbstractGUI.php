@@ -131,12 +131,20 @@ abstract class AbstractGUI
 
 	/**
 	 * Returns the message displayed when a player is selected in a match
-	 * @param Match $m The match that will be played
-	 * @param string $player The login of a player in the match
 	 * @return string
 	 */
-	abstract function getLaunchMatchText(Match $m, $player);
-
+	function getLaunchMatchText()
+	{
+		return array(
+			'fr' => array(
+				'text' => "\$0F0Votre match commence dans \$<\$FFF%%1 \$>...\nF6 pour annuler"
+			),
+			'en' => array(
+				'text' =>  "\$0F0Match starts in \$<\$FFF%%1 \$>...\nF6 to cancel"
+			),
+		);
+	}
+	
 	abstract function getCustomizedQuitDialogManiaLink();
 
 	/**
@@ -297,6 +305,34 @@ abstract class AbstractGUI
 		$ui->showBackground = $showBackgroud;
 		$ui->show();
 	}
+	
+	final function showMatchSumUp(Match $match, $receiver)
+	{
+		$storage = Storage::getInstance();
+		$getNicknameCallback = function ($login) use ($storage)
+			{
+				$p = $storage->getPlayerObject($login);
+				return ($p ? $p->nickName : $login);
+			};
+		if($match->team1 && $match->team2)
+		{
+			$team1 = array_map($getNicknameCallback, $match->team1);
+			$team2 = array_map($getNicknameCallback, $match->team2);
+		}
+		else
+		{
+			$team1 = array(call_user_func($getNicknameCallback, $match->players[0]));
+			$team2 = array(call_user_func($getNicknameCallback, $match->players[1]));
+		}
+		$window = Windows\StartMatch::Create($receiver);
+		$window->set($team1, $team2);
+		$window->show();
+	}
+	
+	final function eraseMatchSumUp($receiver)
+	{
+		Windows\StartMatch::Erase($receiver);
+	}
 
 	/**
 	 * Display the lobby Window on the right of the screen
@@ -387,6 +423,7 @@ abstract class AbstractGUI
 		$this->eraseJump($serverLogin);
 		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
 		$jumper = Windows\ForceManialink::Create($group);
+		$jumper->setPosition(0, 40);
 		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString);
 	}
 
