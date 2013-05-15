@@ -62,7 +62,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 		$this->label2->setTextSize(5);
 		$this->label2->setAlign('center', 'center2');
 		$this->label2->enableAutonewline();
-		$this->label2->setText('Please wait...');
+		$this->label2->setTextid('wait');
 		$this->label2->setId('wait-label');
 		$this->addComponent($this->label2);
 		
@@ -82,6 +82,8 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 	function setMessage($message, $countdown = null)
 	{
 		$this->message = $message;
+		$this->message['en']['wait'] = 'Please wait...';
+		$this->message['fr']['wait'] = 'Veuillez patienter...';
 		$this->countdown = $countdown;
 
 		$this->sound->setVisibility($this->countdown !== null);
