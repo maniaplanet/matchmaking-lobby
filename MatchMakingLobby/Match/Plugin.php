@@ -191,7 +191,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
 
-		$this->connection->customizeQuitDialog($this->gui->getCustomizedQuitDialogManiaLink(), '#qjoin='.$this->lobby->backLink, false);
+		$this->connection->customizeQuitDialog($this->gui->getCustomizedQuitDialogManiaLink(), '#qjoin='.$this->lobby->backLink, false, 10000);
 
 		//Check if a match existed before to cancel it
 		$match = $this->matchMakingService->getServerCurrentMatch($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
@@ -209,7 +209,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 			$this->end();
 		}
-		$this->connection->customizeQuitDialog('','',true);
+		$this->connection->customizeQuitDialog('', '', true, 0);
 		parent::onUnload();
 	}
 

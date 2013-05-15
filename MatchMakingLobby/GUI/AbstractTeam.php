@@ -6,8 +6,6 @@
  */
 namespace ManiaLivePlugins\MatchMakingLobby\GUI;
 
-use ManiaLivePlugins\MatchMakingLobby\Services\Match;
-
 /**
  * Extend this if your are running a team mode script
  */
@@ -19,10 +17,12 @@ abstract class AbstractTeam extends AbstractGUI
 	{
 		$message = array(
 			'fr' => array(
-				'text' =>  'Voulez-vous vraiment abandonner vos alliés ?'
+				'text' =>  'Voulez-vous vraiment abandonner vos alliés ?',
+				'available' => 'Disponible dans :'
 			),
 			'en' => array(
-				'text' =>  'Do you really want to abandon your teammates?'
+				'text' =>  'Do you really want to abandon your teammates?',
+				'available' => 'Available in:'
 			),
 		);
 		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog($message);

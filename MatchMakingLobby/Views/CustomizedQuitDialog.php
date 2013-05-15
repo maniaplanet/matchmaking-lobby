@@ -27,7 +27,7 @@ class CustomizedQuitDialog
 		Manialink::load();
 		Manialink::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->displayedText));
 		
-		/*Manialink::appendScript(<<<MANIASCRIPT
+		Manialink::appendScript(<<<MANIASCRIPT
 #RequireContext CMlScript
 #Include "MathLib" as MathLib
 #Include "TextLib" as TextLib
@@ -56,7 +56,7 @@ main()
 	}
 }
 MANIASCRIPT
-			);*/
+			);
 		
 		
 		$frame = new \ManiaLib\Gui\Elements\Frame();
@@ -84,7 +84,7 @@ MANIASCRIPT
 		}
 		$frame->save();
 		
-	/*	$frame = new \ManiaLib\Gui\Elements\Frame();
+		$frame = new \ManiaLib\Gui\Elements\Frame();
 		$frame->setPosition(0, -6.5, 10);
 		$frame->setScriptEvents();
 		$frame->setId('block-quit');
@@ -108,7 +108,7 @@ MANIASCRIPT
 			$ui->setPosition(0, -6, 0.1);
 			$ui->setStyle(Label::TextRaceMessageBig);
 			$ui->setTextSize(4);
-			$ui->setText('Available in:');
+			$ui->setTextid('available');
 			$frame->add($ui);
 			
 			$ui = new Label(20);
@@ -120,7 +120,7 @@ MANIASCRIPT
 			$ui->setText('10');
 			$frame->add($ui);
 		}
-		$frame->save();*/
+		$frame->save();
 		return Manialink::render(true);
 	}
 
