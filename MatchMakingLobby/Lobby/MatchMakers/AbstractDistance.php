@@ -21,10 +21,19 @@ use ManiaLivePlugins\MatchMakingLobby\Lobby\Helpers\DistanciableObject;
 abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements MatchMakerInterface
 {
 
-	const WAITING_STEP = 60;
+	/**
+	 * Lower waiting step = faster decrease
+	 */
+	const WAITING_STEP = 40;
 
-	const DISTANCE_PLAYERS_THRESHOLD = 200000;
+	/**
+	 * Threshold used to make team with near players
+	 */
+	const DISTANCE_PLAYERS_THRESHOLD = 20000;
 
+	/**
+	 * Threshold used to matchmake teams
+	 */
 	const DISTANCE_TEAMS_THRESHOLD = 30000;
 
 	/** @var Helpers\Graph */
