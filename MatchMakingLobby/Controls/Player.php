@@ -63,7 +63,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->allyIcon->setPosition(4, -2.5);
 		$this->addComponent($this->allyIcon);
 
-		$this->label = new Elements\Label(25);
+		$this->label = new Elements\Label(34);
 		$this->label->setValign('center2');
 		$this->label->setPosition(7.5, -2.5);
 		$this->label->setText($nickname);

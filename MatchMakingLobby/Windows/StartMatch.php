@@ -108,6 +108,8 @@ class StartMatch extends \ManiaLive\Gui\Window
 	
 	protected function onDraw()
 	{
+		$this->posZ = 5;
+		
 		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build(array(
 			'en' => array(
 				'blue' => 'Blue',

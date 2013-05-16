@@ -3,6 +3,7 @@
 * MatchMaking function improvment 
 * Better performances
 * New penalties system (banned player have to stay online during their ban period)
+* Every texts are translated in English and French
 
 ### Lobby
 
@@ -10,9 +11,9 @@
 * Added average waiting time before match
 * Players can cancel when choosen to replace someone else
 * Adding command /setAllReady to set all players ready on lobby (admin only)
-* Adding command /kickNotReady to kick all not ready players
-* Adding command /setPenalty <login> to reset the penalty of an user
-* Adding command /resetAllPenalties to reset the penalties of all players
+* Adding command /kickNotReady to kick all not ready players (admin only)
+* Adding command /setPenalty <login> to reset the penalty of an user (admin only)
+* Adding command /resetAllPenalties to reset the penalties of all players (admin only)
 
 ### Match
 

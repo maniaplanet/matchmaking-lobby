@@ -41,7 +41,7 @@ class Help extends \ManiaLive\Gui\Window
 
 		$ui = new Bgs1(340, 60);
 		$ui->setPosition(-170, 0, -0.1);
-		$ui->setSubStyle(Bgs1::BgWindow1);
+		$ui->setSubStyle(Bgs1::BgDialogBlur);
 		$frame->addComponent($ui);
 
 		$this->textLabel = new LegacyLabel(200);
