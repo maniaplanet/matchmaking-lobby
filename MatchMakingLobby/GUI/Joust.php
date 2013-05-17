@@ -10,7 +10,6 @@
 namespace ManiaLivePlugins\MatchMakingLobby\GUI;
 
 use ManiaLive\Gui\Windows\Shortkey;
-use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 
 class Joust extends AbstractGUI
 {
@@ -47,10 +46,12 @@ class Joust extends AbstractGUI
 	{
 		$message = array(
 			'fr' => array(
-				'text' =>  'Voulez-vous vraiment abandonner ?'
+				'text' =>  'Voulez-vous vraiment abandonner ?',
+				'available' => 'Disponible dans :'
 			),
 			'en' => array(
-				'text' =>  'Do you really want to give up?'
+				'text' =>  'Do you really want to give up?',
+				'available' => 'Available in:'
 			),
 		);
 		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog($message);
