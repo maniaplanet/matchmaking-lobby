@@ -451,9 +451,9 @@ class MatchMakingService
 			'WHERE m.lobbyLogin = %s '.
 			'AND m.scriptName = %s '.
 			'AND m.titleIdString = %s '.
-			'AND m.state NOT IN (-3) AND m.creationDate > DATE_SUB(NOW(), INTERVAL 1 HOUR) '.
-			'ORDER BY creationDate ASC', $this->db->quote($lobbyLogin),
-			$this->db->quote($scriptName), $this->db->quote($titleIdString)
+			'AND m.state NOT IN (%s) AND m.creationDate > DATE_SUB(NOW(), INTERVAL 1 HOUR) '.
+			'ORDER BY creationDate ASC LIMIT 10', $this->db->quote($lobbyLogin),
+			$this->db->quote($scriptName), $this->db->quote($titleIdString), implode(',',array(Match::PLAYER_CANCEL))
 		)->fetchArrayOfSingleValues();
 
 		if(count($creationTimestamps) < 2)
