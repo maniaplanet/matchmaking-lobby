@@ -96,7 +96,7 @@ class Help extends \ManiaLive\Gui\Window
 				'help'=> 'Vous êtes dans la salle d\'attente du matchmaking.'."\n"."\n".
 						$bullet.'Appuyez sur F6 pour indiquer que vous êtes prêt.'."\n".
 						$bullet.'Jouez en attendant votre match.'."\n".
-						$bullet.'Il '.$this->modeName.' commencera automatiquement.'."\n".
+						$bullet.'Votre match '.$this->modeName.' commencera automatiquement.'."\n".
 						$bullet.'Appuyez sur F7 pour fermer cette fenêtre.',
 				'tip' => 'Astuce : faites équipe avec vos amis',
 				'note' => 'Note : les deux joueurs doivent chacun s\'allier l\'un l\'autre.'
