@@ -124,14 +124,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			throw new \ManiaLive\Application\FatalException(sprintf('You ManiaLive version is too old, please update to %s', \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE));
 		}
+		
+		$this->config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 
 		//Get the Script name
 		$script = $this->connection->getScriptName();
-		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
+		$this->scriptName = $this->config->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script['CurrentValue']);
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		//Get the GUI abstraction class
-		$guiClassName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
+		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
 		if (!class_exists($guiClassName))
 		{
 			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
@@ -142,7 +144,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
 
-		$this->config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 	}
 
 	function onLoad()
@@ -222,7 +223,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		if(new \DateTime() < $this->nextTick) return;
 
-		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
 		switch($this->state)
 		{
 			case self::SLEEPING:
@@ -281,7 +281,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->waitBackups();
 				break;
 			case self::WAITING_BACKUPS:
-				switch($config->waitingForBackups)
+				switch($this->config->waitingForBackups)
 				{
 					case 0:
 						$isWaitingTimeOver = true;
@@ -617,8 +617,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function waitBackups()
 	{
-		$config = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance();
-		if($config->waitingForBackups == 0)
+		if($this->config->waitingForBackups == 0)
 		{
 			$this->cancel();
 			return;
@@ -632,8 +631,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if($this->match->team1 && $this->match->team2)
 		{
-			if($this->countConnectedPlayers($this->match->team1) <= $config->minPlayersByTeam ||
-				$this->countConnectedPlayers($this->match->team2) <= $config->minPlayersByTeam)
+			if($this->countConnectedPlayers($this->match->team1) <= $this->config->minPlayersByTeam ||
+				$this->countConnectedPlayers($this->match->team2) <= $this->config->minPlayersByTeam)
 			{
 				\ManiaLive\Utilities\Logger::debug('Not enough players. Match cancel');
 				$this->cancel();
@@ -720,7 +719,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function isEverybodyHere()
 	{
-		$matchMakerClassname = '\\ManiaLivePlugins\\MatchMakingLobby\\Lobby\\MatchMakers\\'.$this->scriptName;
+		$matchMakerClassName = $this->config->matchMakerClassName ? : '\\ManiaLivePlugins\\MatchMakingLobby\\Lobby\\MatchMakers\\'.$this->scriptName;
 		$matchMaker = $matchMakerClassname::getInstance();
 		return count(array_filter($this->players, function ($p) { return $p == Services\PlayerInfo::PLAYER_STATE_CONNECTED; })) == $matchMaker->getPlayersPerMatch();
 	}
@@ -736,7 +735,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->matchMakingService->increasePlayerPenalty(
 					$login,
-					\ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->penaltyForQuitter,
+					$this->config->penaltyForQuitter,
 					$this->lobby->login,
 					$this->scriptName,
 					$this->titleIdString
