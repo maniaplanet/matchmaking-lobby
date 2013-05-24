@@ -87,12 +87,7 @@ class Config extends \ManiaLib\Utils\Singleton
 
 	public function getMatchSettingsClassName($scriptName)
 	{
-		
-	}
-
-	protected function getClassName($scriptName = null)
-	{
-
+		return $this->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$scriptName;
 	}
 }
 

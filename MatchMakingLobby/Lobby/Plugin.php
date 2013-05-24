@@ -124,7 +124,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_INFO_CHANGED
 		);
 
-		$matchSettingsClass = $this->config->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
+		$matchSettingsClass = $this->config->getMatchSettingsClassName($this->scriptName);
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
 		if (!class_exists($matchSettingsClass))
 		{

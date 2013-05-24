@@ -176,7 +176,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->enableTickerEvent();
 
 		//Set needed rules to run the lobny
-		$matchSettingsClass = $this->config->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$this->scriptName;
+		$matchSettingsClass = $this->config->getMatchSettingsClassName($this->scriptName);
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
 		if (!class_exists($matchSettingsClass))
 		{
