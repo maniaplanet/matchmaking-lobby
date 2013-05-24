@@ -1,3 +1,9 @@
+# 2.1.0
+
+### Lobby
+
+* Player who cancel more than 3 matches start are now banned
+
 # 2.0.0
 
 * MatchMaking function improvment 
