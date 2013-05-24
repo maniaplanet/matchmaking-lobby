@@ -70,6 +70,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	protected $backupNeeded = false;
 
+	/**
+	 * @var int[string]
+	 */
+	protected $matchCancellers = array();
+
 	function onInit()
 	{
 		$this->setVersion('2.0.0');
@@ -252,6 +257,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			//Erase potential jumper
 			$this->gui->eraseJump($match->id);
+
+			if (array_key_exists($match, $this->matchCancellers))
+			{
+				unset($this->matchCancellers[$login]);
+			}
 
 			if (array_key_exists($match->id, $this->countDown) && $this->countDown[$match->id] > 0)
 			{
@@ -706,6 +716,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->eraseJump($match->id);
 			unset($this->countDown[$match->id]);
+
+			if (array_key_exists($login, $this->matchCancellers))
+			{
+				$this->matchCancellers[$login]++;
+			}
+			else
+			{
+				$this->matchCancellers[$login] = 1;
+			}
+
+			if ($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
+			{
+				$this->matchMakingService->increasePlayerPenalty($login, 2, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+				$this->blockedPlayers[$login] = time();
+			}
 
 			$this->matchMakingService->cancelMatch($match);
 

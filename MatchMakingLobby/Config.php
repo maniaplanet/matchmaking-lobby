@@ -79,6 +79,21 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * @var int
 	 */
 	public $penaltyForQuitter = 240;
+
+	/**
+	 * @var int
+	 */
+	public $authorizedMatchCancellation = 3;
+
+	public function getMatchSettingsClassName($scriptName)
+	{
+		
+	}
+
+	protected function getClassName($scriptName = null)
+	{
+
+	}
 }
 
 ?>
