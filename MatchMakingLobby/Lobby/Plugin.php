@@ -258,7 +258,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			//Erase potential jumper
 			$this->gui->eraseJump($match->id);
 
-			if (array_key_exists($match, $this->matchCancellers))
+			if (array_key_exists($login, $this->matchCancellers))
 			{
 				unset($this->matchCancellers[$login]);
 			}
