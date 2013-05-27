@@ -757,7 +757,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			if($match === false)
 			{
-				\ManiaLive\Utilities\Logger::debug(sprintf('error: player %s cancel unknown match start',$login, $match->id));
+				\ManiaLive\Utilities\Logger::debug(sprintf('error: player %s cancel unknown match start',$login));
 			}
 			else
 			{
