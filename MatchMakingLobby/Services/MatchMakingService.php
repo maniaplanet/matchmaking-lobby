@@ -292,6 +292,14 @@ class MatchMakingService
 				implode(',', array(Match::PLAYER_CANCEL))
 			)->fetchSingleValue(0);
 	}
+	
+	function updateMatchScores($matchId, $matchPointsTeam1, $matchPointsTeam2, $mapPointsTeam1, $mapPointsTeam2)
+	{
+		$this->db->query(
+			'UPDATE Matches SET matchPointsTeam1 = %d, matchPointsTeam2 = %d, '.
+			'mapPointsTeam1 = %d, mapPointsTeam2 = %d WHERE id = %d', $matchPointsTeam1, $matchPointsTeam2, $mapPointsTeam1,
+			$mapPointsTeam2, $matchId);
+	}
 
 	/**
 	 * Get number of server available to host a match
@@ -755,6 +763,10 @@ CREATE TABLE IF NOT EXISTS `Matches` (
 	`titleIdString` VARCHAR(51) NOT NULL,
 	`lobbyLogin` VARCHAR(25) NOT NULL,
 	`lastUpdateDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`matchPointsTeam1` INT(10) NOT NULL DEFAULT '0',
+	`matchPointsTeam2` INT(10) NOT NULL DEFAULT '0',
+	`mapPointsTeam1` INT(10) NOT NULL DEFAULT '0',
+	`mapPointsTeam2` INT(10) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`id`),
 	INDEX `FK_Matches_MatchServers_idx` (`matchServerLogin`),
 	INDEX `FK_Matches_MatchServers` (`matchServerLogin`, `scriptName`, `titleIdString`),

@@ -447,9 +447,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->scores['match'][1] = $param2[1];
 				$this->scores['map'][0] = $param2[2];
 				$this->scores['map'][1] = $param2[3];
+				$this->matchMakingService->updateMatchScores($this->matchId, $this->scores['match'][0], $this->scores['match'][1], $this->scores['map'][0], $this->scores['map'][1]);
 				break;
 			case 'LibXmlRpc_EndRound':
 				\ManiaLive\Utilities\Logger::debug('EndRound n°'.$param2[0]);
+				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
 				break;
 			case 'LibXmlRpc_EndTurn':
 				\ManiaLive\Utilities\Logger::debug('EndTurn n°'.$param2[0]);
