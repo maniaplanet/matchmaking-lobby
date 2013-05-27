@@ -120,7 +120,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('2.1.0');
+		$this->setVersion('2.1.1');
 
 		if (version_compare(\ManiaLiveApplication\Version, \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE) < 0)
 		{
@@ -755,7 +755,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function isEverybodyHere()
 	{
 		$matchMakerClassname = $this->config->matchMakerClassName ? : '\\ManiaLivePlugins\\MatchMakingLobby\\Lobby\\MatchMakers\\'.$this->scriptName;
-		$matchMaker = $matchMakerClassname::getInstance();
+		$matchMaker = $matchMakerClassName::getInstance();
 		return count(array_filter($this->players, function ($p) { return $p == Services\PlayerInfo::PLAYER_STATE_CONNECTED; })) == $matchMaker->getPlayersPerMatch();
 	}
 
