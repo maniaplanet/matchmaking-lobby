@@ -720,7 +720,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected function isEverybodyHere()
 	{
 		$matchMakerClassName = $this->config->matchMakerClassName ? : '\\ManiaLivePlugins\\MatchMakingLobby\\Lobby\\MatchMakers\\'.$this->scriptName;
-		$matchMaker = $matchMakerClassname::getInstance();
+		$matchMaker = $matchMakerClassName::getInstance();
 		return count(array_filter($this->players, function ($p) { return $p == Services\PlayerInfo::PLAYER_STATE_CONNECTED; })) == $matchMaker->getPlayersPerMatch();
 	}
 
