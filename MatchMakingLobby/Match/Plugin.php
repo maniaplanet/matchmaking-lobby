@@ -115,6 +115,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * @var \ManiaLivePlugins\MatchMakingLobby\Config
 	 */
 	protected $config;
+	
+	protected $scores = array();
 
 	function onInit()
 	{
@@ -433,6 +435,34 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 		}
 	}
+	
+	function onModeScriptCallback($param1, $param2)
+	{
+		switch($param1)
+		{
+			case 'LibXmlRpc_Scores':
+				\ManiaLive\Utilities\Logger::debug('Scores!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+				\ManiaLive\Utilities\Logger::debug($param2);
+				$this->scores['match'][0] = $param2[0];
+				$this->scores['match'][1] = $param2[1];
+				$this->scores['map'][0] = $param2[2];
+				$this->scores['map'][1] = $param2[3];
+				break;
+			case 'LibXmlRpc_EndRound':
+				\ManiaLive\Utilities\Logger::debug('EndRound n°'.$param2[0]);
+				break;
+			case 'LibXmlRpc_EndTurn':
+				\ManiaLive\Utilities\Logger::debug('EndTurn n°'.$param2[0]);
+				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
+				break;
+			case 'LibXmlRpc_EndMap':
+				\ManiaLive\Utilities\Logger::debug('EndMap n°'.$param2[0]);
+				break;
+			case 'LibXmlRpc_EndMatch':
+				\ManiaLive\Utilities\Logger::debug('EndMatch n°'.$param2[0]);
+				break;
+		}
+	}
 
 	function onPlayerGiveUp($login)
 	{
@@ -463,7 +493,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->forcePlayerTeam($login, $team - 1);
 		}
 	}
-
+	
 	/**
 	 * Prepare the server config to host a match
 	 * Then wait players' connection
@@ -489,7 +519,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
 			ServerEvent::ON_END_MATCH |
-			ServerEvent::ON_PLAYER_INFO_CHANGED
+			ServerEvent::ON_END_ROUND |
+			ServerEvent::ON_PLAYER_INFO_CHANGED |
+			ServerEvent::ON_MODE_SCRIPT_CALLBACK |
+			ServerEvent::ON_MODE_SCRIPT_CALLBACK_ARRAY
 		);
 
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
@@ -719,7 +752,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function isEverybodyHere()
 	{
-		$matchMakerClassName = $this->config->matchMakerClassName ? : '\\ManiaLivePlugins\\MatchMakingLobby\\Lobby\\MatchMakers\\'.$this->scriptName;
+		$matchMakerClassname = $this->config->matchMakerClassName ? : '\\ManiaLivePlugins\\MatchMakingLobby\\Lobby\\MatchMakers\\'.$this->scriptName;
 		$matchMaker = $matchMakerClassname::getInstance();
 		return count(array_filter($this->players, function ($p) { return $p == Services\PlayerInfo::PLAYER_STATE_CONNECTED; })) == $matchMaker->getPlayersPerMatch();
 	}
