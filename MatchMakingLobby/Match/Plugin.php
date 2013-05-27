@@ -133,7 +133,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		//Get the GUI abstraction class
-		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
+		$guiClassName = $this->config->getGuiClassName($this->scriptName);
 		if (!class_exists($guiClassName))
 		{
 			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
@@ -719,7 +719,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function isEverybodyHere()
 	{
-		$matchMakerClassName = $this->config->matchMakerClassName ? : '\\ManiaLivePlugins\\MatchMakingLobby\\Lobby\\MatchMakers\\'.$this->scriptName;
+		$matchMakerClassName = $this->config->getMatchMakerClassName($this->scriptName);
 		$matchMaker = $matchMakerClassName::getInstance();
 		return count(array_filter($this->players, function ($p) { return $p == Services\PlayerInfo::PLAYER_STATE_CONNECTED; })) == $matchMaker->getPlayersPerMatch();
 	}

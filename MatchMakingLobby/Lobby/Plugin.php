@@ -89,13 +89,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$script = $this->storage->gameInfos->scriptName;
 		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script);
 
-		$matchMakerClassName = $this->config->matchMakerClassName ? : __NAMESPACE__.'\MatchMakers\\'.$this->scriptName;
+		$matchMakerClassName = $this->config->getMatchMakerClassName($this->scriptName);
 		if (!class_exists($matchMakerClassName))
 		{
 			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchMakerClassName or the script name",$matchMakerClassName));
 		}
 
-		$guiClassName = $this->config->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$this->scriptName;
+		$guiClassName = $this->config->getGuiClassName($this->scriptName);
 		if (!class_exists($guiClassName))
 		{
 			throw new \Exception(sprintf("Can't find class %s. You should either set up the config : ManiaLivePlugins\MatchMakingLobby\Config.guiClassName or the script name",$guiClassName));
