@@ -210,8 +210,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		$player->isInMatch = false;
-		
+
 		if($match)
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('send %s to is match %d', $login, $match->id));
@@ -475,7 +474,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				case 0:
 					$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 					$player = $this->storage->getPlayerObject($login);
-					if($match->state >= Match::PREPARED)
+					if($match && $match->state >= Match::PREPARED)
 					{
 						$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
 						$this->gui->showJump($login);
@@ -484,6 +483,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 							array('Lang' => 'fr', 'Text' => self::PREFIX.sprintf('$<%s$> a rejoint son match comme remplaçant.', $player->nickName)),
 							array('Lang' => 'en', 'Text' => self::PREFIX.sprintf('$<%s$> joined his match as a substitute.', $player->nickName)),
 						));
+					}
+					else
+					{
+						\ManiaLive\Utilities\Logger::debug(sprintf('For replacer %s, match does not exist anymore', $login));
 					}
 					unset($match, $player);
 					//nobreak
