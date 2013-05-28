@@ -26,7 +26,8 @@ class Elite implements MatchSettings
 			'S_UsePlayerClublinks' => false,
 			'S_Mode' => 1,
 			'S_MatchmakingSleep' => 15,
-			'S_WarmUpDuration' => 5
+			'S_WarmUpDuration' => 5,
+			'S_UseScriptCallbacks' => true
 		);
 		return $rules;
 	}

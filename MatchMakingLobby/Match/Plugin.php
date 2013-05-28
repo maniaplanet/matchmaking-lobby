@@ -115,6 +115,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * @var \ManiaLivePlugins\MatchMakingLobby\Config
 	 */
 	protected $config;
+	
+	protected $scores = array();
 
 	function onInit()
 	{
@@ -402,6 +404,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
+		\ManiaLive\Utilities\Logger::debug('onEndMach');
 		\ManiaLive\Utilities\Logger::debug($this->connection->checkEndMatchCondition());
 		switch ($this->state)
 		{
@@ -430,6 +433,37 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->over();
 				break;
 			case static::OVER:
+				break;
+		}
+	}
+	
+	function onModeScriptCallback($param1, $param2)
+	{
+		switch($param1)
+		{
+			case 'LibXmlRpc_Scores':
+				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_Scores');
+				$this->scores['match'][0] = $param2[0];
+				$this->scores['match'][1] = $param2[1];
+				$this->scores['map'][0] = $param2[2];
+				$this->scores['map'][1] = $param2[3];
+				$this->matchMakingService->updateMatchScores($this->matchId, $this->scores['match'][0], $this->scores['match'][1], $this->scores['map'][0], $this->scores['map'][1]);
+				break;
+			case 'LibXmlRpc_EndRound':
+				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndRound n°'.$param2[0]);
+				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
+				break;
+			case 'LibXmlRpc_EndTurn':
+				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndTurn n°'.$param2[0]);
+				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
+				break;
+			case 'LibXmlRpc_EndMap':
+				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndMap n°'.$param2[0]);
+				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
+				break;
+			case 'LibXmlRpc_EndMatch':
+				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndMatch n°'.$param2[0]);
+				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
 				break;
 		}
 	}
@@ -463,7 +497,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->forcePlayerTeam($login, $team - 1);
 		}
 	}
-
+	
 	/**
 	 * Prepare the server config to host a match
 	 * Then wait players' connection
@@ -489,7 +523,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
 			ServerEvent::ON_END_MATCH |
-			ServerEvent::ON_PLAYER_INFO_CHANGED
+			ServerEvent::ON_END_ROUND |
+			ServerEvent::ON_PLAYER_INFO_CHANGED |
+			ServerEvent::ON_MODE_SCRIPT_CALLBACK |
+			ServerEvent::ON_MODE_SCRIPT_CALLBACK_ARRAY
 		);
 
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
