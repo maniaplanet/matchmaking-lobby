@@ -712,7 +712,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = $this->storage->getPlayerObject($login);
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		if ($match !== false && $match->state == Match::PREPARED && $this->countDown[$match->id] > 0)
+		if ($match !== false && $match->state == Match::PREPARED && array_key_exists($match->id, $this->countDown) && $this->countDown[$match->id] > 0)
 		{
 			$this->gui->eraseJump($match->id);
 			unset($this->countDown[$match->id]);
