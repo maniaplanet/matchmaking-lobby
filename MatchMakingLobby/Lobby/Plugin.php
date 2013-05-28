@@ -532,6 +532,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Do periodic nextmap
 		if(++$this->mapTick % 1800 == 0)
 		{
+			\ManiaLive\Utilities\Logger::debug('NextMap');
 			$this->connection->nextMap();
 		}
 
