@@ -498,6 +498,20 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->gui->eraseJump($matchId);
 					unset($this->countDown[$matchId]);
 					break;
+				case -10:
+					//nobreak;
+				case -5:
+					$this->gui->eraseJump($matchId);
+					$match = $this->matchMakingService->getMatch($matchId);
+					$players = array_filter($match->players, function ($p) { return Services\PlayerInfo::Get($p)->isReady(); });
+					if($players)
+					{
+						\ManiaLive\Utilities\Logger::debug('re-display jumper for: '.implode(',', $players));
+						$this->gui->prepareJump($players, $match->matchServerLogin, $this->titleIdString, $matchId);
+						$this->gui->showJump($matchId);
+					}
+					$this->countDown[$matchId] = $countDown;
+					break;
 				case 0:
 					\ManiaLive\Utilities\Logger::debug(sprintf('prepare jump for match : %d', $matchId));
 					$match = $this->matchMakingService->getMatch($matchId);
