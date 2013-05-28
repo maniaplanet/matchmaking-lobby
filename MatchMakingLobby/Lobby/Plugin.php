@@ -210,6 +210,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+		$player->isInMatch = false;
+		
 		if($match)
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('send %s to is match %d', $login, $match->id));
