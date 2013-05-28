@@ -721,16 +721,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			if (array_key_exists($login, $this->matchCancellers))
 			{
 				$this->matchCancellers[$login]++;
+
+				if ($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
+				{
+					$this->matchMakingService->increasePlayerPenalty($login, 45, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+					$this->blockedPlayers[$login] = time();
+				}
 			}
 			else
 			{
 				$this->matchCancellers[$login] = 1;
-			}
-
-			if ($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
-			{
-				$this->matchMakingService->increasePlayerPenalty($login, 45, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-				$this->blockedPlayers[$login] = time();
 			}
 
 			$this->matchMakingService->cancelMatch($match);
