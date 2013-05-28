@@ -429,6 +429,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case static::PLAYING:
 				\ManiaLive\Utilities\Logger::debug('SUCCESS: onEndMatch while playing');
 				$this->registerRankings($rankings);
+				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
 				$this->matchMakingService->updateMatchState($this->matchId, Services\Match::FINISHED);
 				$this->over();
 				break;
@@ -443,11 +444,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case 'LibXmlRpc_Scores':
 				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_Scores');
-				$this->scores['match'][0] = $param2[0];
-				$this->scores['match'][1] = $param2[1];
-				$this->scores['map'][0] = $param2[2];
-				$this->scores['map'][1] = $param2[3];
-				$this->matchMakingService->updateMatchScores($this->matchId, $this->scores['match'][0], $this->scores['match'][1], $this->scores['map'][0], $this->scores['map'][1]);
+				if($this->matchId)
+				{
+					$this->scores['match'][0] = $param2[0];
+					$this->scores['match'][1] = $param2[1];
+					$this->scores['map'][0] = $param2[2];
+					$this->scores['map'][1] = $param2[3];
+					$this->matchMakingService->updateMatchScores($this->matchId, $this->scores['match'][0], $this->scores['match'][1], $this->scores['map'][0], $this->scores['map'][1]);
+				}
 				break;
 			case 'LibXmlRpc_EndRound':
 				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndRound n°'.$param2[0]);
