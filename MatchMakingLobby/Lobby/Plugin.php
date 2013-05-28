@@ -197,27 +197,36 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerConnect($login, $isSpectator)
 	{
 		\ManiaLive\Utilities\Logger::debug(sprintf('Player connected: %s', $login));
+
+		$player = Services\PlayerInfo::Get($login);
+		$player->setAway(false);
+
+		$playerObject = $this->storage->getPlayerObject($login);
+
+		if($playerObject)
+		{
+			$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
+			$player->allies = $playerObject->allies;
+		}
+
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if($match)
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('send %s to is match %d', $login, $match->id));
+
+			$player->isInMatch = true;
+
 			$jumper = Windows\ForceManialink::Create($login);
 			$jumper->set('maniaplanet://#qjoin='.$match->matchServerLogin.'@'.$match->titleIdString);
 			$jumper->show();
 			$this->gui->createLabel($this->gui->getMatchInProgressText(), $login);
 			return;
 		}
-		$playerObject = $this->storage->getPlayerObject($login);
+
 		if(!$playerObject)
 		{
 			return;
 		}
-
-		$player = Services\PlayerInfo::Get($login);
-		$player->isInMatch = $this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		$player->setAway(false);
-		$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
-		$player->allies = $playerObject->allies;
 
 		$this->setNotReadyLabel($login);
 
