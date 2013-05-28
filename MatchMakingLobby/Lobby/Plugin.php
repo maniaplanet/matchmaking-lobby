@@ -222,6 +222,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->createLabel($this->gui->getMatchInProgressText(), $login);
 			return;
 		}
+		else
+		{
+			$player->isInMatch = false;
+		}
 
 		if(!$playerObject)
 		{
