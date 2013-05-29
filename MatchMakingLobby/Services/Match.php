@@ -72,6 +72,30 @@ class Match
 	 * @var int
 	 */
 	public $ranking;
+	
+	/**
+	 * Number of map won by the team 1
+	 * @var int
+	 */
+	public $matchPointsTeam1;
+	
+	/**
+	 * Number of map won by the team 2
+	 * @var int
+	 */
+	public $matchPointsTeam2;
+	
+	/**
+	 * Number of point of the team 1 during the last map
+	 * @var int
+	 */
+	public $mapPointsTeam1;
+	
+	/**
+	 * Number of point of the team 2 during the last map
+	 * @var int
+	 */
+	public $mapPointsTeam2;
 
 	/**
 	 * add a login in a team, throw an exception if the login is already teamed or if the team does not exist

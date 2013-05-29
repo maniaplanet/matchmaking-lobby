@@ -399,7 +399,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 							$teamId = $match->getTeam($quitter);
 							$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
-							$this->gui->createLabel($this->gui->getBackUpLaunchText(), $backup, 0, false, false);
+							$this->gui->createLabel($this->gui->getBackUpLaunchText($match), $backup, 0, false, false);
 							$this->setShortKey($backup, array($this, 'onPlayerCancelReplacement'));
 							$this->gui->prepareJump(array($backup), $match->matchServerLogin, $match->titleIdString, $backup);
 							$this->replacerCountDown[$backup] = 7;

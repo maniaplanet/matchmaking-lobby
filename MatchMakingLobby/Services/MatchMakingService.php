@@ -55,7 +55,7 @@ class MatchMakingService
 	function getMatch($matchId)
 	{
 		$match = $this->db->execute(
-				'SELECT id, matchServerLogin, scriptName, titleIdString, state '.
+				'SELECT id, matchServerLogin, scriptName, titleIdString, state, matchPointsTeam1, matchPointsTeam2, mapPointsTeam1, mapPointsTeam2 '.
 				'FROM Matches '.
 				'WHERE id = %d ',
 				$matchId

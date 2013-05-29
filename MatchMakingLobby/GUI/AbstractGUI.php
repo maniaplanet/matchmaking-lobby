@@ -153,17 +153,7 @@ abstract class AbstractGUI
 	 * @param string $player
 	 * @return string
 	 */
-	function getBackUpLaunchText()
-	{
-		return array(
-			'fr' => array(
-				'text' =>  "\$0F0Vous êtes sélectionnés comme remplaçant. Préparez-vous au transfert\nAppuyez sur F6 pour annuler"
-			),
-			'en' => array(
-				'text' =>  "\$0F0You are selected to be a substitute. Prepare to be transferred\nPress F6 to cancel"
-			),
-		);
-	}
+	abstract function getBackUpLaunchText(Match $match);
 
 	/**
 	 * Returns the message when a player join the lobby and he have a match still running

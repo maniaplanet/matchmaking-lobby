@@ -57,6 +57,18 @@ class Joust extends AbstractGUI
 		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog($message);
 		return $manialink->display();
 	}
+	
+	function getBackUpLaunchText(\ManiaLivePlugins\MatchMakingLobby\Services\Match $match)
+	{
+		return array(
+			'fr' => array(
+				'text' =>  "\$0F0Vous êtes sélectionnés comme remplaçant. Préparez-vous au transfert\nAppuyez sur F6 pour annuler"
+			),
+			'en' => array(
+				'text' =>  "\$0F0You are selected to be a substitute. Prepare to be transferred\nPress F6 to cancel"
+			),
+		);
+	}
 }
 
 ?>
