@@ -5,7 +5,7 @@ class Undersiege extends AbstractAllies
 {
     function getNumberOfTeam()
     {
-        return 5;
+        return 2;
     }
 
     function getPlayersPerMatch()
@@ -15,7 +15,7 @@ class Undersiege extends AbstractAllies
 
     protected function getFallbackMatchMaker()
     {
-        return DistanceElite::getInstance();
+        return DistanceHeroes::getInstance();
     }
 
 }
