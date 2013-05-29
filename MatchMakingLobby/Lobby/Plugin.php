@@ -74,7 +74,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * @var int[string]
 	 */
 	protected $matchCancellers = array();
-
+	
 	function onInit()
 	{
 		$this->setVersion('2.1.1');
@@ -602,16 +602,27 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		//Moving players that are not ready for a long time
-		if($this->tick % 42 == 0)
+		if($this->tick % 12 == 0)
 		{
-//			$notReadyPlayers = Services\PlayerInfo::GetNotReady();
-//			foreach($notReadyPlayers as $notReadyPlayer)
-//			{
-//				if($notReadyPlayer->getNotReadyTime() > 240)
-//				{
-//					$this->connection->forceSpectator($notReadyPlayer->login, 3, true);
-//				}
-//			}
+			if($this->scriptName == 'Elite' || $this->scriptName == 'Combo')
+			{
+				$endedMatches = $this->matchMakingService->getEndedMatchesSince($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+				foreach($endedMatches as $endedMatch)
+				{
+					if($endedMatch->team1)
+					{
+						$blue = implode(', ', array_map('\ManiaLib\Utils\Formatting::stripStyles', $endedMatch->team1));
+						$red = implode(', ', array_map('\ManiaLib\Utils\Formatting::stripStyles', $endedMatch->team2));
+					}
+					else
+					{
+						$blue = \ManiaLib\Utils\Formatting::stripStyles($endedMatch->players[0]);
+						$red = \ManiaLib\Utils\Formatting::stripStyles($endedMatch->players[1]);
+					}
+					
+					$this->connection->chatSendServerMessage(sprintf('$<$00f%s$> $o%d-%d$z $<$f00%s$>',$blue,$endedMatch->mapPointsTeam1, $endedMatch->mapPointsTeam2, $red));
+				}
+			}
 		}
 
 		if($this->updatePlayerList)

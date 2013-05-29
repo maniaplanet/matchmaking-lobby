@@ -161,6 +161,21 @@ class MatchMakingService
 	{
 		return $this->getMatches($this->getCurrentLobbyMatchIds($lobbyLogin, $scriptName, $titleIdString));
 	}
+	
+	function getEndedMatchesSince($lobbyLogin, $scriptName, $titleIdString)
+	{
+		$ids = $this->db->execute(
+			'SELECT id FROM Matches '.
+			'WHERE lobbyLogin = %s AND scriptName = %s AND titleIdString = %s '.
+			'AND DATE_ADD(lastUpdateDate, INTERVAL 12 SECOND) > NOW() '.
+			'AND state IN (%s) '.
+			'ORDER BY id ASC',
+			$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString),
+			implode(',', array(Match::FINISHED, Match::PLAYER_LEFT, Match::FINISHED_WAITING_BACKUPS))
+			)->fetchArrayOfSingleValues();
+		
+		return $this->getMatches($ids);
+	}
 
 	/**
 	 * @param string $lobbyLogin
