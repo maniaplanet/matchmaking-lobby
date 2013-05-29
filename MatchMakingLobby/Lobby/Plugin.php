@@ -254,6 +254,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 
 		}
+		$this->connection->forceSpectator($login, 1);
 	}
 
 	function onPlayerDisconnect($login, $disconnectionReason)
@@ -659,6 +660,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->setReadyLabel($login);
 
 			$this->updatePlayerList = true;
+			
+			$this->connection->forceSpectator($login, 2);
+			$this->connection->forceSpectator($login, 0);
 		}
 		else
 		{
@@ -678,6 +682,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setNotReadyLabel($login);
 
 		$this->updatePlayerList = true;
+		
+		$this->connection->forceSpectator($login, 1);
 
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
