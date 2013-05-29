@@ -535,7 +535,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						{
 							if($player && !array_key_exists($player->login, $this->blockedPlayers))
 							{
-								$nicknames[] = '$<'.$player->nickName.'$>';
+								$nicknames[] = '$<'.\ManiaLib\Utils\Formatting::stripStyles($player->nickName).'$>';
 								$this->connection->addGuest($player, true);
 							}
 						}
