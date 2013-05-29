@@ -56,7 +56,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	const WAITING_BACKUPS = 5;
 
-	const PREFIX = 'Match$08fInfo$000»$8f0 ';
+	const PREFIX = '$000»$8f0 ';
 
 	const TIME_WAITING_CONNECTION = 105;
 	const TIME_WAITING_BACKUP = 20;
@@ -115,7 +115,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * @var \ManiaLivePlugins\MatchMakingLobby\Config
 	 */
 	protected $config;
-	
+
 	protected $scores = array();
 
 	function onInit()
@@ -437,7 +437,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 		}
 	}
-	
+
 	function onModeScriptCallback($param1, $param2)
 	{
 		switch($param1)
@@ -501,7 +501,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->forcePlayerTeam($login, $team - 1);
 		}
 	}
-	
+
 	/**
 	 * Prepare the server config to host a match
 	 * Then wait players' connection
