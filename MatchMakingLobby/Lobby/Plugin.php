@@ -631,7 +631,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->updatePlayerList($this->blockedPlayers);
 			$this->updatePlayerList = false;
 		}
-		$this->registerLobby();
+		if ($this->tick % 12 == 0)
+		{
+			$this->registerLobby();
+		}
 		Services\PlayerInfo::CleanUp();
 
 		$this->connection->executeMulticall();
