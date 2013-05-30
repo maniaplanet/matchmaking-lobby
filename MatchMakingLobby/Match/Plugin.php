@@ -61,6 +61,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	const TIME_WAITING_CONNECTION = 105;
 	const TIME_WAITING_BACKUP = 20;
 
+	/**
+	 * @var int
+	 */
+	protected $tick = 0;
+
 	/** @var int */
 	protected $state = self::SLEEPING;
 
@@ -219,9 +224,26 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	//Core of the plugin
 	function onTick()
 	{
-		if($this->state != self::SLEEPING)
+		$this->tick++;
+
+		switch ($this->state)
 		{
-			$this->updateLobbyWindow();
+			case self::OVER:
+			case self::SLEEPING:
+				break;
+
+			case self::WAITING:
+			case self::DECIDING:
+			case self::PLAYING:
+				if ($this->tick % 30 == 0)
+					$this->updateLobbyWindow();
+				break;
+
+			case self::PLAYER_LEFT:
+			case self::WAITING_BACKUPS:
+				if ($this->tick % 6 == 0)
+					$this->updateLobbyWindow();
+				break;
 		}
 		if(new \DateTime() < $this->nextTick) return;
 
