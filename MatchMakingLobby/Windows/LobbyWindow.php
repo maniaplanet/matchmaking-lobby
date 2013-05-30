@@ -116,14 +116,14 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->playingPlayers->setText($playingPlayersCount);
 		if($averageTime == -1)
 		{
-			$this->dico['fr']['waitingTime'] = 'Temps moyen d\'attente : -';
-			$this->dico['en']['waitingTime'] = 'Average waiting time: -';
+			$this->dico['fr']['waitingTime'] = 'Temps d\'attente estimé : - ';
+			$this->dico['en']['waitingTime'] = 'Estimated waiting time: -';
 		}
 		else
 		{
 			$average = ceil($averageTime / 60);
-			$this->dico['fr']['waitingTime'] = sprintf('Temps d\'attente moyen : %d min', $average);
-			$this->dico['en']['waitingTime'] = sprintf('Average waiting time: %d min', $average);
+			$this->dico['fr']['waitingTime'] = sprintf('Temps d\'attente estimé : %d min', $average);
+			$this->dico['en']['waitingTime'] = sprintf('Estimated waiting time: %d min', $average);
 		}
 	}
 
