@@ -613,17 +613,18 @@ class MatchMakingService
 	 * @param string $lobbyLogin
 	 * @param string $state
 	 */
-	function registerMatchServer($serverLogin, $lobbyLogin, $state, $scriptName, $titleIdString)
+	function registerMatchServer($serverLogin, $lobbyLogin, $state, $scriptName, $titleIdString, $currentMap)
 	{
 		$this->db->execute(
-			'INSERT INTO MatchServers (login, lobbyLogin, state, lastLive, scriptName, titleIdString) '.
-			'VALUES(%s, %s, %d, NOW(), %s, %s) '.
-			'ON DUPLICATE KEY UPDATE state=VALUES(state), lobbyLogin=VALUES(lobbyLogin), lastLive=VALUES(lastLive)',
+			'INSERT INTO MatchServers (login, lobbyLogin, state, lastLive, scriptName, titleIdString, currentMap) '.
+			'VALUES(%s, %s, %d, NOW(), %s, %s, %s) '.
+			'ON DUPLICATE KEY UPDATE state=VALUES(state), lobbyLogin=VALUES(lobbyLogin), lastLive=VALUES(lastLive), currentMap=VALUES(currentMap)',
 			$this->db->quote($serverLogin),
 			$this->db->quote($lobbyLogin),
 			$state,
 			$this->db->quote($scriptName),
-			$this->db->quote($titleIdString)
+			$this->db->quote($titleIdString),
+			$this->db->quote($currentMap)
 		);
 	}
 
@@ -758,6 +759,7 @@ CREATE TABLE IF NOT EXISTS `MatchServers` (
 	`scriptName` VARCHAR(75) NOT NULL,
 	`titleIdString` VARCHAR(51) NOT NULL,
 	`matchId` INT(10) NULL DEFAULT NULL,
+	`currentMap` VARCHAR(60) NOT NULL DEFAULT '',
 	PRIMARY KEY (`login`, `scriptName`, `titleIdString`),
 	INDEX `FK_MatchServers_Lobbies_idx` (`lobbyLogin`),
 	CONSTRAINT `FK_MatchServers_LobbyServers` FOREIGN KEY (`lobbyLogin`) REFERENCES `LobbyServers` (`login`) ON UPDATE CASCADE ON DELETE NO ACTION

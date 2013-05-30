@@ -748,7 +748,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->lobby->login,
 			$this->state,
 			$this->scriptName,
-			$this->titleIdString
+			$this->titleIdString, 
+			$this->storage->currentMap->name
 		);
 		if ($this->state != $state)
 		{
