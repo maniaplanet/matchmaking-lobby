@@ -74,7 +74,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * @var int[string]
 	 */
 	protected $matchCancellers = array();
-	
+
 	function onInit()
 	{
 		$this->setVersion('2.2.0');
@@ -620,8 +620,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$blue = \ManiaLib\Utils\Formatting::stripStyles($endedMatch->players[0]);
 						$red = \ManiaLib\Utils\Formatting::stripStyles($endedMatch->players[1]);
 					}
-					
-					$this->connection->chatSendServerMessage(sprintf('$<$00f%s$> $o%d-%d$z $<$f00%s$>',$blue,$endedMatch->mapPointsTeam1, $endedMatch->mapPointsTeam2, $red));
+
+					$this->connection->chatSendServerMessage(sprintf(self::PREFIX.'$<$00f%s$> $o%d - %d$z $<$f00%s$>',$blue,$endedMatch->mapPointsTeam1, $endedMatch->mapPointsTeam2, $red));
 				}
 			}
 		}
@@ -660,7 +660,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->setReadyLabel($login);
 
 			$this->updatePlayerList = true;
-			
+
 			$this->connection->forceSpectator($login, 2);
 			$this->connection->forceSpectator($login, 0);
 		}
@@ -682,7 +682,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setNotReadyLabel($login);
 
 		$this->updatePlayerList = true;
-		
+
 		$this->connection->forceSpectator($login, 1);
 
 		$time = microtime(true) - $mtime;
