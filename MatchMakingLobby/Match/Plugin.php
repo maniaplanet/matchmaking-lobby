@@ -506,7 +506,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->updateLobbyWindow(
 			$this->lobby->name,
 			$this->lobby->readyPlayers,
-			$this->lobby->connectedPlayers + $playingPlayers,
 			$playingPlayers,
 			$this->matchMakingService->getAverageTimeBetweenMatches($this->lobby->login, $this->scriptName, $this->titleIdString)
 		);

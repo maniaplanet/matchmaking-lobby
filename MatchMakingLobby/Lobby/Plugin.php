@@ -171,12 +171,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->setCallVoteRatiosEx(false, array($voteRatio));
 
 		$playersCount = $this->getReadyPlayersCount();
-		$totalPlayerCount = $this->getTotalPlayerCount();
 
 		$this->gui->updateLobbyWindow(
 			$this->storage->server->name,
 			$playersCount,
-			$totalPlayerCount,
 			$this->getPlayingPlayersCount(),
 			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
 		);
@@ -978,12 +976,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	private function updateLobbyWindow()
 	{
 		$playersCount = $this->getReadyPlayersCount();
-		$totalPlayerCount = $this->getTotalPlayerCount();
 		$playingPlayersCount = $this->getPlayingPlayersCount();
 		$this->gui->updateLobbyWindow(
 			$this->storage->server->name,
 			$playersCount,
-			$totalPlayerCount,
 			$playingPlayersCount,
 			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
 		);

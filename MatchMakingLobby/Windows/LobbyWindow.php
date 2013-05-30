@@ -27,11 +27,6 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	/**
 	 * @var Elements\Label
 	 */
-	protected $totalPlayers;
-
-	/**
-	 * @var Elements\Label
-	 */
 	protected $playingPlayers;
 
 	/**
@@ -51,13 +46,11 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 				'waitingTime' => 'Temps d\'attente estimé : ',
 				'playing' => 'En jeu',
 				'ready' => 'Prêt',
-				'total' => 'Total',
 			),
 			'en' => array(
 				'waitingTime' => 'Estimated waiting time: ',
 				'playing' => 'Playing',
 				'ready' => 'Ready',
-				'total' => 'Total',
 			)
 		);
 
@@ -84,14 +77,14 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$ui->setTextid('ready');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(7, -12);
+		$ui->setPosition(11, -12);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 
 
 		$this->readyPlayers = new Elements\Label(17);
 		$this->readyPlayers->setAlign('center', 'center2');
-		$this->readyPlayers->setPosition(7, -18);
+		$this->readyPlayers->setPosition(11, -18);
 		$this->readyPlayers->setStyle(Elements\Label::TextRaceChrono);
 		$this->readyPlayers->setText(6);
 		$this->readyPlayers->setScale(0.75);
@@ -101,42 +94,26 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$ui->setTextId('playing');
 		$ui->setStyle(null);
 		$ui->setAlign('center', 'center2');
-		$ui->setPosition(22.5, -12);
+		$ui->setPosition(33, -12);
 		$ui->setScale(0.6);
 		$this->addComponent($ui);
 
 
 		$this->playingPlayers = new Elements\Label(17);
 		$this->playingPlayers->setAlign('center', 'center2');
-		$this->playingPlayers->setPosition(22.5, -18);
+		$this->playingPlayers->setPosition(33, -18);
 		$this->playingPlayers->setStyle(Elements\Label::TextRaceChrono);
 		$this->playingPlayers->setText(6);
 		$this->playingPlayers->setScale(0.75);
 		$this->addComponent($this->playingPlayers);
 
-		$ui = new Elements\Label(30);
-		$ui->setTextid('total');
-		$ui->setStyle(null);
-		$ui->setAlign('center', 'center2');
-		$ui->setPosition(38, -12);
-		$ui->setScale(0.6);
-		$this->addComponent($ui);
-
-		$this->totalPlayers = new Elements\Label(17);
-		$this->totalPlayers->setAlign('center', 'center2');
-		$this->totalPlayers->setPosition(38, -18);
-		$this->totalPlayers->setStyle(Elements\Label::TextRaceChrono);
-		$this->totalPlayers->setText(6);
-		$this->totalPlayers->setScale(0.75);
-		$this->addComponent($this->totalPlayers);
 	}
 
-	function set($serverName, $readyPlayersCount, $totalPlayers, $playingPlayersCount, $averageTime)
+	function set($serverName, $readyPlayersCount, $playingPlayersCount, $averageTime)
 	{
 		$this->serverName->setText($serverName);
 		$this->readyPlayers->setText($readyPlayersCount);
 		$this->playingPlayers->setText($playingPlayersCount);
-		$this->totalPlayers->setText($totalPlayers);
 		if($averageTime == -1)
 		{
 			$this->dico['fr']['waitingTime'] = 'Temps moyen d\'attente : -';
