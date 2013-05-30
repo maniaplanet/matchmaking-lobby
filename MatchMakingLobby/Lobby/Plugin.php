@@ -183,7 +183,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
-
 	}
 
 	function onUnload()
@@ -934,7 +933,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				else
 				{
 					$this->blockedPlayers[$login] = time();
-					
+
 					$this->connection->chatSendServerMessageToLanguage(
 						array(
 							array('Lang' => 'fr','Text' => sprintf(self::PREFIX.'$<%s$> est suspendu.', $player->nickName)),

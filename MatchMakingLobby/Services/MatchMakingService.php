@@ -161,7 +161,7 @@ class MatchMakingService
 	{
 		return $this->getMatches($this->getCurrentLobbyMatchIds($lobbyLogin, $scriptName, $titleIdString));
 	}
-	
+
 	function getEndedMatchesSince($lobbyLogin, $scriptName, $titleIdString)
 	{
 		$ids = $this->db->execute(
@@ -173,7 +173,7 @@ class MatchMakingService
 			$this->db->quote($lobbyLogin), $this->db->quote($scriptName), $this->db->quote($titleIdString),
 			implode(',', array(Match::FINISHED, Match::PLAYER_LEFT, Match::FINISHED_WAITING_BACKUPS))
 			)->fetchArrayOfSingleValues();
-		
+
 		return $this->getMatches($ids);
 	}
 
@@ -263,9 +263,8 @@ class MatchMakingService
 				'SELECT COUNT(*) '.
 				'FROM Players P '.
 				'INNER JOIN Matches M ON P.matchId = M.id '.
-				'INNER JOIN MatchServers MS ON MS.matchId = M.id '.
 				'WHERE M.`state` >= %d AND P.state >= %d '.
-				'AND MS.lobbyLogin = %s',
+				'AND M.lobbyLogin = %s',
 				Match::PREPARED, PlayerInfo::PLAYER_STATE_CONNECTED,
 				$this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
@@ -307,7 +306,7 @@ class MatchMakingService
 				implode(',', array(Match::PLAYER_CANCEL))
 			)->fetchSingleValue(0);
 	}
-	
+
 	function updateMatchScores($matchId, $matchPointsTeam1, $matchPointsTeam2, $mapPointsTeam1, $mapPointsTeam2)
 	{
 		$this->db->query(
