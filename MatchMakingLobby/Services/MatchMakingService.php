@@ -211,8 +211,7 @@ class MatchMakingService
 		}
 		$ids = $this->db->execute(
 				'SELECT M.id FROM Matches M '.
-				'INNER JOIN MatchServers MS ON M.id = MS.matchId '.
-				'WHERE MS.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
+				'WHERE M.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
 				'AND M.state = %d '.
 				'AND M.id IN (%s)',
 				$this->db->quote($lobbyLogin),
