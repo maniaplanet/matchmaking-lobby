@@ -35,7 +35,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		try
 		{
 			$playerObj = $storage->getPlayerObject($login);
-			$tmp = new Player($playerObj ? $playerObj->nickName : $login);
+			$tmp = new Player($login, $playerObj ? $playerObj->nickName : $login);
 		}
 		catch(\Exception $e)
 		{
@@ -58,27 +58,29 @@ class PlayerList extends \ManiaLive\Gui\Window
 	protected function updateItemList()
 	{
 		$this->frame->clearComponents();
-
+		
 		uasort($this->playerList,
 			function (Player $p1, Player $p2)
 			{
+				$p1Obj = \ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::Get($p1->login);
+				$p2Obj = \ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::Get($p2->login);
 				if($p1->state == $p2->state)
 				{
 					if($p1->isAlly && $p2->isAlly)
 					{
-						if($p1->rank == $p2->rank)
+						if($p1Obj->ladderPoints == $p2Obj->ladderPoints)
 						{
 							return 0;
 						}
-						return $p1->rank < $p2->rank ? -1 : 1;
+						return $p1Obj->ladderPoints > $p2Obj->ladderPoints ? -1 : 1;
 					}
 					elseif(!$p1->isAlly && !$p2->isAlly)
 					{
-						if($p1->rank == $p2->rank)
+						if($p1Obj->ladderPoints == $p2Obj->ladderPoints)
 						{
 							return 0;
 						}
-						return $p1->rank < $p2->rank ? -1 : 1;
+						return $p1Obj->ladderPoints > $p2Obj->ladderPoints ? -1 : 1;
 					}
 					return $p1->isAlly ? -1 : 1;
 				}

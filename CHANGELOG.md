@@ -1,3 +1,13 @@
+# 2.2.0
+
+### Lobby
+
+ * Player list is now sorted on Player's LP
+
+### Match
+
+ * Current server map is registered in database
+
 # 2.1.0
 
 ### Lobby

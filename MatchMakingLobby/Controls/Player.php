@@ -20,6 +20,7 @@ class Player extends \ManiaLive\Gui\Control
 
 	public $state;
 	public $isAlly = false;
+	public $login;
 	public $nickname;
 	public $rank;
 
@@ -43,7 +44,7 @@ class Player extends \ManiaLive\Gui\Control
 	 */
 	protected $rankLabel;
 
-	function __construct($nickname)
+	function __construct($login, $nickname)
 	{
 		$this->setSize(50, 5);
 
