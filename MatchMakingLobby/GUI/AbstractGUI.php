@@ -144,7 +144,7 @@ abstract class AbstractGUI
 			),
 		);
 	}
-	
+
 	abstract function getCustomizedQuitDialogManiaLink();
 
 	/**
@@ -180,10 +180,10 @@ abstract class AbstractGUI
 	{
 		return array(
 			'fr' => array(
-				'text' =>  sprintf("\$F00Vous avez quitté votre dernier match\nVous êtes suspendu pour %d minutes", ceil($time / 60.))
+				'text' =>  sprintf("\$F00Vous êtes suspendu pour %d minutes", ceil($time / 60.))
 			),
 			'en' => array(
-				'text' =>  sprintf("\$F00You left your last match\nYou are suspended for %d minutes", ceil($time / 60.))
+				'text' =>  sprintf("\$F00You are suspended for %d minutes", ceil($time / 60.))
 			),
 		);
 	}
@@ -295,7 +295,7 @@ abstract class AbstractGUI
 		$ui->showBackground = $showBackgroud;
 		$ui->show();
 	}
-	
+
 	final function showMatchSumUp(Match $match, $receiver)
 	{
 		$storage = Storage::getInstance();
@@ -319,7 +319,7 @@ abstract class AbstractGUI
 		$window->setPosY(11);
 		$window->show();
 	}
-	
+
 	final function eraseMatchSumUp($receiver)
 	{
 		Windows\StartMatch::Erase($receiver);
