@@ -265,6 +265,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Erase potential replacer jumper
 		$this->gui->eraseJump($login);
 
+		if (array_key_exists($login, $this->blockedPlayers))
+		{
+			$this->matchMakingService->decreasePlayerPenalty($login, time() - $this->blockedPlayers[$login], $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+			unset($this->blockedPlayers[$login]);
+		}
+
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if($match)
 		{
@@ -284,11 +290,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			{
 				$this->onPlayerCancelReplacement($login);
 			}
-		}
-
-		if(array_key_exists($login, $this->blockedPlayers))
-		{
-			unset($this->blockedPlayers[$login]);
 		}
 
 		$this->gui->removePlayerFromPlayerList($login);
@@ -925,18 +926,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			{
 				if(array_key_exists($login, $this->blockedPlayers))
 				{
-					$this->matchMakingService->decreasePlayerPenalty($login, time() - $this->blockedPlayers[$login], $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+					if ((time() - $this->blockedPlayers[$login]) >= $penalty)
+					{
+						$this->matchMakingService->decreasePlayerPenalty($login, time() - $this->blockedPlayers[$login], $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+					}
 				}
 				else
 				{
+					$this->blockedPlayers[$login] = time();
+					
 					$this->connection->chatSendServerMessageToLanguage(
 						array(
 							array('Lang' => 'fr','Text' => sprintf(self::PREFIX.'$<%s$> est suspendu.', $player->nickName)),
 							array('Lang' => 'en','Text' => sprintf(self::PREFIX.'$<%s$> is suspended.', $player->nickName)),
 					));
 				}
-
-				$this->blockedPlayers[$login] = time();
 
 				$this->onPlayerNotReady($login);
 
