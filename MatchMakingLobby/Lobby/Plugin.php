@@ -74,6 +74,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * @var int[string]
 	 */
 	protected $matchCancellers = array();
+	
+	protected $newPlayers = array();
 
 	function onInit()
 	{
@@ -251,8 +253,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 
 		}
-		$this->connection->forceSpectator($login, 1);
-		$this->connection->forceSpectator($login, 0);
+		$this->newPlayers[$login] = true;
 	}
 
 	function onPlayerDisconnect($login, $disconnectionReason)
@@ -317,6 +318,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if(!$player->isReady())
 		{
 			$player->setReady(false);
+		}
+		if(array_key_exists($playerInfo->login, $this->newPlayers) !== false && $playerInfo->hasJoinedGame)
+		{
+			$this->connection->forceSpectator($player->login, 3);
+			unset($this->newPlayers[$playerInfo->login]);
 		}
 
 		/*if($playerInfo->hasJoinedGame)
