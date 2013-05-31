@@ -11,6 +11,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\Lobby;
 
 use DedicatedApi\Structures;
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
+use ManiaLive\Data\Event as StorageEvent;
 use ManiaLive\Gui\Windows\Shortkey;
 use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\Services;
@@ -75,8 +76,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	protected $matchCancellers = array();
 	
-	protected $newPlayers = array();
-
 	function onInit()
 	{
 		$this->setVersion('2.2.0');
@@ -122,8 +121,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
 			ServerEvent::ON_PLAYER_ALLIES_CHANGED |
-			ServerEvent::ON_BEGIN_MAP |
-			ServerEvent::ON_PLAYER_INFO_CHANGED
+			ServerEvent::ON_BEGIN_MAP 
+		);
+		$this->enableStorageEvents(
+			StorageEvent::ON_PLAYER_CHANGE_SIDE |
+			StorageEvent::ON_PLAYER_JOIN_GAME
 		);
 
 		$matchSettingsClass = $this->config->getMatchSettingsClassName($this->scriptName);
@@ -248,7 +250,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 
 		}
-		$this->newPlayers[$login] = true;
 	}
 
 	function onPlayerDisconnect($login, $disconnectionReason)
@@ -289,50 +290,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		$this->gui->removePlayerFromPlayerList($login);
-	}
-
-	function onPlayerInfoChanged($playerInfo)
-	{
-		$playerInfo = $this->storage->getPlayerObject($playerInfo['Login']);
-		if(!$playerInfo)
-		{
-			return;
-		}
-		if($playerInfo->spectator)
-		{
-			$this->gui->showHelp($playerInfo->login, $this->scriptName, true);
-		}
-		else
-		{
-			$this->onPlayerReady($playerInfo->login);
-		}
-		$player = Services\PlayerInfo::Get($playerInfo->login);
-		if(!$player->isReady())
-		{
-			$player->setReady(false);
-		}
-		if(array_key_exists($playerInfo->login, $this->newPlayers) !== false && $playerInfo->hasJoinedGame)
-		{
-			$this->connection->forceSpectator($player->login, 3);
-			unset($this->newPlayers[$playerInfo->login]);
-		}
-
-		/*if($playerInfo->hasJoinedGame)
-		{
-			if($this->matchService->isInMatch($playerInfo->login))
-			{
-				//TODO Change The Label
-				list($server, ) = Services\PlayerInfo::Get($playerInfo->login)->getMatch();
-				$jumper = Windows\ForceManialink::Create($playerInfo->login);
-				$jumper->set('maniaplanet://#qjoin='.$server.'@'.$this->connection->getSystemInfo()->titleId);
-				$jumper->show();
-				$this->gui->createLabel($playerInfo->login, $this->gui->getMatchInProgressText());
-				return;
-			}
-
-			//TODO Something for new players to set them ready ?
-			//TODO Splashscreen ??
-		}*/
 	}
 
 	function onBeginMap($map, $warmUp, $matchContinuation)
@@ -651,6 +608,24 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			\ManiaLive\Utilities\Logger::debug(implode('|', $line));
 		}
+	}
+	
+	function onPlayerChangeSide($player, $oldSide)
+	{
+		if($oldSide == 'player')
+		{
+			$this->gui->showHelp($player->login, $this->scriptName, true);
+		}
+		else
+		{
+			$this->onPlayerReady($player->login);
+			$this->gui->showHelp($player->login, $this->scriptName);
+		}
+	}
+	
+	function onPlayerJoinGame($login)
+	{
+		$this->connection->forceSpectator($login, 3);
 	}
 
 	function onPlayerReady($login)
