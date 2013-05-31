@@ -82,27 +82,36 @@ class StartMatch extends \ManiaLive\Gui\Window
 	
 	function set(array $team1, array $team2)
 	{
-		$sizeY = 8 * max(count($team1), count($team2)) + 11;
+		$sizeY = 11 * max(count($team1), count($team2)) + 11;
 		$this->background->setSizeY($sizeY);
 		
 		$this->versus->setPosY(- $sizeY / 2);
 
-		$ui = new Elements\Label(50, 7);
-		$ui->setAlign('center', 'top');
-		$ui->setTextColor('fff');
-		$ui->setTextSize(3);
-		$ui->setStyle(Elements\Label::TextRankingsBig);
+		$this->addElements($team1, $this->team1);
+		$this->addElements($team2, $this->team2);
 		
-		foreach($team1 as $player)
-		{
-			$ui->setText($player);
-			$this->team1->addComponent(clone $ui);
-		}
+	}
+	
+	function addElements(array $players, \ManiaLive\Gui\Controls\Frame $frame)
+	{
+		$playerNickname = new Elements\Label(50, 4);
+		$playerNickname->setAlign('center', 'top');
+		$playerNickname->setTextColor('fff');
+		$playerNickname->setTextSize(3);
+		$playerNickname->setStyle(Elements\Label::TextRankingsBig);
 		
-		foreach($team2 as $player)
+		$playerRank = new Elements\Label(50, 5);
+		$playerRank->setAlign('center', 'top');
+		$playerRank->setTextSize(1);
+		$playerRank->setTextEmboss();
+		$playerRank->setStyle(Elements\Label::TextTips);
+		
+		foreach($players as $player)
 		{
-			$ui->setText($player);
-			$this->team2->addComponent(clone $ui);
+			$playerNickname->setText($player->nickname);
+			$playerRank->setText(sprintf('%s: %s', $player->zone, ($player->rank > 0 ? $player->rank : '-')));
+			$frame->addComponent(clone $playerNickname);
+			$frame->addComponent(clone $playerRank);
 		}
 	}
 	
