@@ -252,7 +252,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		}
 		$this->connection->forceSpectator($login, 1);
-		$this->connection->forceSpectator($login, 3);
+		$this->connection->forceSpectator($login, 0);
 	}
 
 	function onPlayerDisconnect($login, $disconnectionReason)
