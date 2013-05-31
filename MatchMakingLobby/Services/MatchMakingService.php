@@ -64,7 +64,7 @@ class MatchMakingService
 			return false;
 
 		$results = $this->db->execute(
-				'SELECT P.login, P.teamId, P.rank '.
+				'SELECT P.login, P.teamId, P.rank, P.state '.
 				'FROM Players P '.
 				'WHERE P.matchId = %d ', $match->id
 			)->fetchArrayOfAssoc();
@@ -72,6 +72,8 @@ class MatchMakingService
 		foreach($results as $row)
 		{
 			$match->players[] = $row['login'];
+			$match->playersState[$row['login']] = $row['state'];
+
 			if($row['rank'] !== null)
 			{
 					$match->ranking[$row['rank']][] = $row['login'];

@@ -570,8 +570,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				{
 					if($endedMatch->team1)
 					{
-						$blue = implode(', ', array_map('\ManiaLib\Utils\Formatting::stripStyles', $endedMatch->team1));
-						$red = implode(', ', array_map('\ManiaLib\Utils\Formatting::stripStyles', $endedMatch->team2));
+						$states = $endedMatch->playersState;
+						$connectedPlayersCallBack = function ($login) use ($states) { return $states[$login] == Services\PlayerInfo::PLAYER_STATE_CONNECTED;};
+						$team1 = array_filter($endedMatch->team1, $connectedPlayersCallBack);
+						$team2 = array_filter($endedMatch->team2, $connectedPlayersCallBack);
+						$blue = implode(', ', array_map('\ManiaLib\Utils\Formatting::stripStyles', $team1));
+						$red = implode(', ', array_map('\ManiaLib\Utils\Formatting::stripStyles', $team2));
 					}
 					else
 					{

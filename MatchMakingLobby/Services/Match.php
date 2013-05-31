@@ -96,6 +96,12 @@ class Match
 	 * @var int
 	 */
 	public $mapPointsTeam2;
+	
+	/**
+	 * Current player state of the player
+	 * @var int[string]
+	 */
+	public $playersState = array();
 
 	/**
 	 * add a login in a team, throw an exception if the login is already teamed or if the team does not exist
