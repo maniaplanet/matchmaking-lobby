@@ -656,14 +656,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 			case static::PLAYER_LEFT:
 				$this->connection->chatSendServerMessageToLanguage(array(
-					array('Lang' => 'fr', 'Text' => static::PREFIX.'Le joueur est de retour, le match continu.'),
-					array('Lang' => 'en', 'Text' => static::PREFIX.'Player is back, match continues.'),
+					array('Lang' => 'fr', 'Text' => static::PREFIX.'Le joueur est de retour.'),
+					array('Lang' => 'en', 'Text' => static::PREFIX.'Player is back.'),
 				));
 				break;
 			case static::WAITING_BACKUPS:
 				$this->connection->chatSendServerMessageToLanguage(array(
-					array('Lang' => 'fr', 'Text' => static::PREFIX.'Les remplaçants sont connecté, le match continue.'),
-					array('Lang' => 'en', 'Text' => static::PREFIX.'Substitutes are connected, match continues.'),
+					array('Lang' => 'fr', 'Text' => static::PREFIX.'Les remplaçants sont connecté.'),
+					array('Lang' => 'en', 'Text' => static::PREFIX.'Substitutes are connected.'),
 				));
 				break;
 		}
@@ -769,7 +769,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->lobby->login,
 			$this->state,
 			$this->scriptName,
-			$this->titleIdString, 
+			$this->titleIdString,
 			$this->storage->currentMap->name
 		);
 		if ($this->state != $state)
