@@ -251,6 +251,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 
 		}
+		$this->connection->forceSpectator($login, 1);
 		$this->connection->forceSpectator($login, 3);
 	}
 
