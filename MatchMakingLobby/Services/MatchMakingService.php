@@ -204,21 +204,15 @@ class MatchMakingService
 
 	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
 	{
-		$currentMatchIds = $this->getCurrentLobbyMatchIds($lobbyLogin, $scriptName, $titleIdString);
-		if (count($currentMatchIds) <= 0)
-		{
-			return array();
-		}
 		$ids = $this->db->execute(
 				'SELECT M.id FROM Matches M '.
+				'INNER JOIN MatchServers MS ON M.id = MS.matchId '.
 				'WHERE M.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
-				'AND M.state = %d '.
-				'AND M.id IN (%s)',
+				'AND M.state = %d ',
 				$this->db->quote($lobbyLogin),
 				$this->db->quote($scriptName),
 				$this->db->quote($titleIdString),
-				Match::WAITING_BACKUPS,
-				implode(', ', $currentMatchIds)
+				Match::WAITING_BACKUPS
 			)->fetchArrayOfSingleValues();
 
 		return array_map(array($this,'getMatch'), $ids);
@@ -262,8 +256,9 @@ class MatchMakingService
 				'SELECT COUNT(*) '.
 				'FROM Players P '.
 				'INNER JOIN Matches M ON P.matchId = M.id '.
+				'INNER JOIN MatchServers MS ON MS.matchId = M.id '.
 				'WHERE M.`state` >= %d AND P.state >= %d '.
-				'AND M.lobbyLogin = %s',
+				'AND MS.lobbyLogin = %s',
 				Match::PREPARED, PlayerInfo::PLAYER_STATE_CONNECTED,
 				$this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
