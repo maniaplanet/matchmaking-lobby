@@ -446,6 +446,15 @@ abstract class AbstractGUI
 	{
 		Windows\Splash::Erase($login);
 	}
+	
+	final function showHelp($login, $scriptName, $displayHelp = false)
+	{
+		Windows\Help::Erase($login);
+		$help = Windows\Help::Create($login);
+		$help->displayHelp = $displayHelp;
+		$help->modeName = $scriptName;
+		$help->show();
+	}
 
 }
 

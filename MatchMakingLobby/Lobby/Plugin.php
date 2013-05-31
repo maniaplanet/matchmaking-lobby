@@ -156,10 +156,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->updateKarma($login);
 
-			$help = Windows\Help::Create($login);
-			$help->modeName = $this->scriptName;
-			$help->displayHelp = ($playerObject->isSpectator ? true : false);
-			$help->show();
+			$this->gui->showHelp($login, $this->scriptName, ($playerObject->isSpectator ? true : false));
 		}
 		$this->updatePlayerList = true;
 
@@ -239,9 +236,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->updateKarma($login);
 
-		$help = Windows\Help::Create($login);
-		$help->modeName = $this->scriptName;
-		$help->show();
+		$this->gui->showHelp($login, $this->scriptName);
 
 		$this->checkAllies($player);
 
@@ -305,10 +300,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		if($playerInfo->spectator)
 		{
-			$help = Windows\Help::Create($playerInfo->login);
-			$help->displayHelp = true;
-			$help->modeName = $this->scriptName;
-			$help->redraw();
+			$this->gui->showHelp($playerInfo->login, $this->scriptName, true);
 		}
 		else
 		{
