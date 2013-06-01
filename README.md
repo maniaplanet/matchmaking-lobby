@@ -15,7 +15,7 @@ Requirements
 
 Installation
 ------------
-Online guide : https://github.com/maniaplanet/guides/blob/master/server/start-a-combo-lobby.md
+Online guide : https://github.com/maniaplanet/documentation/blob/master/dedicated-server/start-a-combo-lobby.md
 
 It does not work!
 -----------------
