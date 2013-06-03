@@ -63,8 +63,11 @@ class PlayerList extends \ManiaLive\Gui\Window
 			function (Player $p1, Player $p2)
 			{
 				$storage = \ManiaLive\Data\Storage::getInstance();
-				$player1Lp = $storage->getPlayerObject($p1->login)->ladderStats['PlayerRankings'][0]['Score'];
-				$player2Lp = $storage->getPlayerObject($p2->login)->ladderStats['PlayerRankings'][0]['Score'];
+				$player1 = $storage->getPlayerObject($p1->login);
+				$player2 = $storage->getPlayerObject($p2->login);
+				
+				$player1Lp = ($player1 ? $player1->ladderStats['PlayerRankings'][0]['Score'] : -1);
+				$player2Lp = ($player2 ? $player2->ladderStats['PlayerRankings'][0]['Score'] : -1);
 				if($p1->state == $p2->state)
 				{
 					if($p1->isAlly && $p2->isAlly)
