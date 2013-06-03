@@ -729,10 +729,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			//FIXME: it could have been QUITTER or GIVEUP
 			$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_QUITTER);
 
-			$this->onPlayerReady($login);
-
 			unset($this->replacerCountDown[$login]);
 			unset($this->replacers[$login]);
+			
+			if(!Services\PlayerInfo::Get($login)->isAway())
+			{
+				$this->onPlayerReady($login);
+			}
 		}
 	}
 
@@ -779,7 +782,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 				if($playerLogin != $login)
 					$this->onPlayerReady($playerLogin);
-				else
+				elseif(!Services\PlayerInfo::Get($login)->isAway())
 					$this->onPlayerNotReady($playerLogin);
 			}
 			$this->updateKarma($login);
