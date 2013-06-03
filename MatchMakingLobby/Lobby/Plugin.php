@@ -372,7 +372,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			else
 			{
-				$this->setReadyLabel();
+				$this->setNotReadyLabel();
 			}
 			unset($potentialBackups);
 		}
@@ -439,8 +439,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$this->gui->showJump($login);
 						$this->connection->addGuest($login, true);
 						$this->connection->chatSendServerMessageToLanguage(array(
-							array('Lang' => 'fr', 'Text' => self::PREFIX.sprintf('$<%s$> a rejoint son match comme remplaçant.', $player->nickName)),
-							array('Lang' => 'en', 'Text' => self::PREFIX.sprintf('$<%s$> joined his match as a substitute.', $player->nickName)),
+							array('Lang' => 'fr', 'Text' => self::PREFIX.sprintf('$<%s$> a rejoint son match comme remplaçant.', ($player ? $player->nickName : $login))),
+							array('Lang' => 'en', 'Text' => self::PREFIX.sprintf('$<%s$> joined his match as a substitute.', ($player ? $player->nickName : $login))),
 						));
 					}
 					else
@@ -718,8 +718,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerCancelReplacement($login)
 	{
 		\ManiaLive\Utilities\Logger::debug('Player cancel replacement: '.$login);
-
-		$player = $this->storage->getPlayerObject($login);
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 
