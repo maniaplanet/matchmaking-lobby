@@ -285,7 +285,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->cancel(false);
 					break;
 				}
-				if($match != $this->match || $match->id != $this->matchId)
+				if($this->match->isDifferent($match))
 				{
 					$this->prepare($match);
 					break;
