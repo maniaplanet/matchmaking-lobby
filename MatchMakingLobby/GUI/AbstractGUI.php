@@ -299,20 +299,24 @@ abstract class AbstractGUI
 	final function showMatchSumUp(Match $match, $receiver)
 	{
 		$storage = Storage::getInstance();
-		$getNicknameCallback = function ($login) use ($storage)
+		$getPlayerInfosCallback = function ($login) use ($storage)
 			{
 				$p = $storage->getPlayerObject($login);
-				return ($p ? $p->nickName : $login);
+				return (object) array(
+					'nickname' => ($p ? $p->nickName : $login),
+					'zone' => ($p ? array_pop(explode('|', $p->ladderStats['PlayerRankings'][0]['Path'])) : 'World'),
+					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1)
+				);
 			};
 		if($match->team1 && $match->team2)
 		{
-			$team1 = array_map($getNicknameCallback, $match->team1);
-			$team2 = array_map($getNicknameCallback, $match->team2);
+			$team1 = array_map($getPlayerInfosCallback, $match->team1);
+			$team2 = array_map($getPlayerInfosCallback, $match->team2);
 		}
 		else
 		{
-			$team1 = array(call_user_func($getNicknameCallback, $match->players[0]));
-			$team2 = array(call_user_func($getNicknameCallback, $match->players[1]));
+			$team1 = array(call_user_func($getPlayerInfosCallback, $match->players[0]));
+			$team2 = array(call_user_func($getPlayerInfosCallback, $match->players[1]));
 		}
 		$window = Windows\StartMatch::Create($receiver);
 		$window->set($team1, $team2);
