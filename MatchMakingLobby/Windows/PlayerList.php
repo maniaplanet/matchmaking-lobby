@@ -62,25 +62,26 @@ class PlayerList extends \ManiaLive\Gui\Window
 		uasort($this->playerList,
 			function (Player $p1, Player $p2)
 			{
-				$p1Obj = \ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::Get($p1->login);
-				$p2Obj = \ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::Get($p2->login);
+				$storage = \ManiaLive\Data\Storage::getInstance();
+				$player1Lp = $storage->getPlayerObject($p1->login)->ladderStats['PlayerRankings'][0]['Score'];
+				$player2Lp = $storage->getPlayerObject($p2->login)->ladderStats['PlayerRankings'][0]['Score'];
 				if($p1->state == $p2->state)
 				{
 					if($p1->isAlly && $p2->isAlly)
 					{
-						if($p1Obj->ladderPoints == $p2Obj->ladderPoints)
+						if($player1Lp == $player2Lp)
 						{
 							return 0;
 						}
-						return $p1Obj->ladderPoints > $p2Obj->ladderPoints ? -1 : 1;
+						return $player1Lp > $player2Lp ? -1 : 1;
 					}
 					elseif(!$p1->isAlly && !$p2->isAlly)
 					{
-						if($p1Obj->ladderPoints == $p2Obj->ladderPoints)
+						if($player1Lp == $player2Lp)
 						{
 							return 0;
 						}
-						return $p1Obj->ladderPoints > $p2Obj->ladderPoints ? -1 : 1;
+						return $player1Lp > $player2Lp ? -1 : 1;
 					}
 					return $p1->isAlly ? -1 : 1;
 				}
