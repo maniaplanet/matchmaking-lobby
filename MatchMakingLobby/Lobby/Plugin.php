@@ -644,8 +644,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->updatePlayerList = true;
 
-			$this->connection->forceSpectator($login, 2);
-			$this->connection->forceSpectator($login, 0);
+			if(!Services\PlayerInfo::Get($login)->isAway())
+			{
+				$this->connection->forceSpectator($login, 2);
+				$this->connection->forceSpectator($login, 0);
+			}
 		}
 		else
 		{
@@ -666,7 +669,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->updatePlayerList = true;
 
-		$this->connection->forceSpectator($login, 3);
+		if(!Services\PlayerInfo::Get($login)->isAway())
+		{
+			$this->connection->forceSpectator($login, 3);
+		}
 
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
@@ -732,10 +738,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			unset($this->replacerCountDown[$login]);
 			unset($this->replacers[$login]);
 			
-			if(!Services\PlayerInfo::Get($login)->isAway())
-			{
-				$this->onPlayerReady($login);
-			}
+			$this->onPlayerReady($login);
 		}
 	}
 
@@ -782,7 +785,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 				if($playerLogin != $login)
 					$this->onPlayerReady($playerLogin);
-				elseif(!Services\PlayerInfo::Get($login)->isAway())
+				else
 					$this->onPlayerNotReady($playerLogin);
 			}
 			$this->updateKarma($login);
