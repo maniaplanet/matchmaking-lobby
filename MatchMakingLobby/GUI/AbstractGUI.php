@@ -367,7 +367,6 @@ abstract class AbstractGUI
 	{
 		$storage = Storage::getInstance();
 		$playerLists = Windows\PlayerList::GetAll();
-		$matchMakingService = new \ManiaLivePlugins\MatchMakingLobby\Services\MatchMakingService();
 		foreach($playerLists as $playerList)
 		{
 			$currentPlayerObj = $storage->getPlayerObject($playerList->getRecipient());
@@ -390,7 +389,9 @@ abstract class AbstractGUI
 				$isAlly = $this->displayAllies && $player && in_array($player->login, $currentPlayerObj->allies);
 				$path = explode('|',$playerObj->ladderStats['PlayerRankings'][0]['Path']);
 				$zone = array_pop($path);
-				$playerList->setPlayer($player->login, $state, $isAlly, $playerObj->ladderStats['PlayerRankings'][0]['Ranking'], $zone);
+				$rank = $playerObj->ladderStats['PlayerRankings'][0]['Ranking'];
+				$ladderPoints = $playerObj->ladderStats['PlayerRankings'][0]['Score'];
+				$playerList->setPlayer($player->login, $state, $isAlly, $rank, $zone, $ladderPoints);
 			}
 		}
 		Windows\PlayerList::RedrawAll();

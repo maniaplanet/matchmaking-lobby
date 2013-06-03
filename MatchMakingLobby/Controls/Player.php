@@ -23,7 +23,8 @@ class Player extends \ManiaLive\Gui\Control
 	public $login;
 	public $nickname;
 	public $rank;
-
+	public $ladderPoints;
+	
 	/**
 	 * @var Elements\Icons64x64_1
 	 */
@@ -85,7 +86,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->state = static::STATE_NOT_READY;
 	}
 
-	function setState($state = 1, $isAlly = false, $rank = 0, $zone = 'World')
+	function setState($state = 1, $isAlly = false, $rank = 0, $zone = 'World', $ladderPoints = -1)
 	{
 		switch($state)
 		{
@@ -107,6 +108,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->state = $state;
 		$this->isAlly = $isAlly;
 		$this->rank = $rank;
+		$this->ladderPoints = $ladderPoints;
 
 		$this->icon->setSubStyle($subStyle);
 		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
