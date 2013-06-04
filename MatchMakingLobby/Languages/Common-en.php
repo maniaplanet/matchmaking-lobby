@@ -10,9 +10,11 @@ $lang = array(
 	'needReadyPlayers' => 'Waiting for more ready players',
 	'playerBackLabelPrefix' => 'Welcome back. ',
 	'noServerAvailable' => 'No match server available at the moment, please wait',
-	'illegalLeave' => "A player left\nDo not leave, searching for a substitute",
-	'launchMatch' => "\$0F0Match starts in \$<\$FFF%1 \$>...\nF6 to cancel",
-	'matchInProgress' => "You have a match in progress. Prepare to be transferred",
+	'illegalLeave' => 'A player left
+Do not leave, searching for a substitute',
+	'launchMatch' => '$0F0Match starts in $<$FFF%1 $>...
+F6 to cancel',
+	'matchInProgress' => 'You have a match in progress. Prepare to be transferred',
 	'suspended' => '$F00You are suspended for %d minutes',
 	'matchOver' => 'Match over. You will be transferred back.',
 	'giveUp' => 'A player gave up\nDo not leave, searching for a substitute',
@@ -30,12 +32,12 @@ $lang = array(
 	'backupConnected' => '%sSubstitutes are connected, match continues.',
 	'transfer' => 'You\'re being transfered. Please wait.',
 	'helpSwitch' => 'Press F7 for help',
-	'helpText' => "You are on a matchmaking waiting room server.
+	'helpText' => 'You are on a matchmaking waiting room server.
 		
-%1\$s Press F6 to show that you are ready.
-%1\$s Play a fun mode while you wait.
-%1\$s Your %2\$s game will start automatically.
-%1\$s Press F7 to close this help.",
+%1$s Press F6 to show that you are ready.
+%1$s Play a fun mode while you wait.
+%1$s Your %2$s game will start automatically.
+%1$s Press F7 to close this help.',
 	'helpTip' => 'Tip: team-up with your buddies',
 	'helpNote' => 'Note: both players have to set the other as ally.',
 	'wait' => 'Please wait...',
