@@ -40,7 +40,7 @@ $lang = array(
 	'helpNote' => 'Note: both players have to set the other as ally.',
 	'wait' => 'Please wait...',
 	'waitingTime' => 'Estimated waiting time: %s',
-	'playing' => 'En jeu',
+	'playing' => 'Playing',
 	'ready' => 'Ready',
 );
 ?>
