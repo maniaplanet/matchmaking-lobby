@@ -186,7 +186,7 @@ abstract class AbstractGUI
 	 */
 	function getBadKarmaText($time)
 	{
-		return 'suspended';
+		return array('textId' => 'suspended', 'params' => array(ceil($time / 60)));
 		return array(
 			'fr' => array(
 				'text' =>  sprintf("\$F00Vous êtes suspendu pour %d minutes", ceil($time / 60.))

@@ -122,7 +122,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $config;
 
 	protected $scores = array();
-
+	
+	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
+	protected $dictionary;
+		
 	function onInit()
 	{
 		$this->setVersion('2.2.0');
@@ -150,6 +153,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Load services
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
+		
+		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->scriptName);
 
 	}
 
@@ -607,10 +612,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->gui->createLabel($this->gui->getMatchoverText(), null, null, false, false);
 
-		$this->connection->chatSendServerMessageToLanguage(array(
-			array('Lang' => 'fr', 'Text' => static::PREFIX.'Match annulé.'),
-			array('Lang' => 'en', 'Text' => static::PREFIX.'Match aborted.'),
-		));
+		$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
+			'textId' => 'matchAborted', 'params' => array(static::PREFIX)
+		)));
 
 		$this->over();
 	}
@@ -622,10 +626,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->gui->createLabel($this->gui->getDecidingText(), null, null, false, false);
 
-			$this->connection->chatSendServerMessageToLanguage(array(
-				array('Lang' => 'fr', 'Text' => static::PREFIX.'Le match commence, vous pouvez lancer un vote pour changer de map.'),
-				array('Lang' => 'en', 'Text' => static::PREFIX.'Match is starting, you can call a vote to change the map.'),
-			));
+			$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
+					'textId' => 'matchDeciding', 'params' => array(static::PREFIX)
+			)));
 			$ratios = array();
 			$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', 0.5);
 			$ratios[] = new \DedicatedApi\Structures\VoteRatio('JumpToMapIndex', 0.5);
@@ -648,23 +651,21 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$ratios = array();
 				$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', -1.);
 				$ratios[] = new \DedicatedApi\Structures\VoteRatio('JumpToMapIndex', -1.);
-				$this->connection->setCallVoteRatiosEx(false,$ratios);
-				$this->connection->chatSendServerMessageToLanguage(array(
-					array('Lang' => 'fr', 'Text' => static::PREFIX.'Le match commence. Bonne chance et amusez-vous !'),
-					array('Lang' => 'en', 'Text' => static::PREFIX.'Match is starting. Good luck and have fun!'),
-				));
+				$this->connection->setCallVoteRatiosEx(false, $ratios);
+
+				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
+						'textId' => 'matchStarting', 'params' => array(static::PREFIX)
+				)));
 				break;
 			case static::PLAYER_LEFT:
-				$this->connection->chatSendServerMessageToLanguage(array(
-					array('Lang' => 'fr', 'Text' => static::PREFIX.'Le joueur est de retour, le match continu.'),
-					array('Lang' => 'en', 'Text' => static::PREFIX.'Player is back, match continues.'),
-				));
+				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
+						'textId' => 'playerBack', 'params' => array(static::PREFIX)
+				)));
 				break;
 			case static::WAITING_BACKUPS:
-				$this->connection->chatSendServerMessageToLanguage(array(
-					array('Lang' => 'fr', 'Text' => static::PREFIX.'Les remplaçants sont connecté, le match continue.'),
-					array('Lang' => 'en', 'Text' => static::PREFIX.'Substitutes are connected, match continues.'),
-				));
+				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
+						'textId' => 'backupConnected', 'params' => array(static::PREFIX)
+				)));
 				break;
 		}
 
