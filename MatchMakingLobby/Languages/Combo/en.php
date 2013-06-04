@@ -1,3 +1,3 @@
 <?php
-require_once __DIR__.'/../AbstractTeam/'.__FILE__;
+require_once __DIR__.'/../AbstractTeam/en.php';
 ?>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/../Common/'.__FILE__;
+require_once __DIR__.'/../Common/en.php';
 
 $lang['playerLeft'] = "Your opponent left\nDo not leave, you will be transfered back";
 $lang['giveUp'] = "Your opponent gave up\nDo not leave, you will be transfered back";
