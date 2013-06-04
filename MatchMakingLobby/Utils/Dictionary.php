@@ -47,7 +47,6 @@ class Dictionary
 			{
 				require_once $folder.$file;
 				$this->lang[$match[1]] = $lang;
-				unset($lang);
 			}
 		}
 		
