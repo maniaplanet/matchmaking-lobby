@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/../Common/en.php';
+require_once __DIR__.'/Common-en.php';
 
 $lang['quitMatchQuestion'] = 'Do you really want to abandon your teammates?';
 $lang['available'] = 'Available in:';

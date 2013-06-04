@@ -37,12 +37,13 @@ class Dictionary
 	{
 		$this->script = $script;
 		
-		$folder = __DIR__.'/../Languages/'.$script.'/';
+		$folder = __DIR__.'/../Languages/';
 		$files = scandir($folder);
+		$pattern = sprintf('/%s-(\\w{2,3})\\.php/ixu', $script);
 		foreach($files as $file)
 		{
 			$match = array();
-			if(preg_match('/(.*)\\.php$/ixu',$file, $match))
+			if(preg_match($pattern,$file, $match))
 			{
 				require_once $folder.$file;
 				$this->lang[$match[1]] = $lang;
