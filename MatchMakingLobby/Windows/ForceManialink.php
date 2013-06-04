@@ -10,6 +10,7 @@
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 use ManiaLib\Gui\Elements;
+use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 
 class ForceManialink extends \ManiaLive\Gui\Window
 {
@@ -53,11 +54,7 @@ class ForceManialink extends \ManiaLive\Gui\Window
 	function onDraw()
 	{
 		$this->posZ = 90;
-		$dico = array(
-			'fr' => array('text' => 'Vous êtes transféré. Veuillez patienter.'),
-			'en' => array('text' => 'You\'re being transfered. Please wait.'),
-		);
-		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($dico));
+		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink(array('text' => 'transfer')));
 	}
 
 }

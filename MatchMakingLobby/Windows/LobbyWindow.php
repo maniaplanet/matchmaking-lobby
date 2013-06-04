@@ -10,6 +10,7 @@
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 use ManiaLib\Gui\Elements;
+use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 
 class LobbyWindow extends \ManiaLive\Gui\Window
 {
@@ -42,16 +43,8 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->setSize(50, 25);
 
 		$this->dico = array(
-			'fr' => array(
-				'waitingTime' => 'Temps d\'attente estimé : ',
-				'playing' => 'En jeu',
-				'ready' => 'Prêt',
-			),
-			'en' => array(
-				'waitingTime' => 'Estimated waiting time: ',
-				'playing' => 'Playing',
-				'ready' => 'Ready',
-			)
+			'playing' => 'playing',
+			'ready' => 'ready',
 		);
 
 		$ui = new Elements\Bgs1InRace(50, 20);
@@ -106,7 +99,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->playingPlayers->setText(6);
 		$this->playingPlayers->setScale(0.75);
 		$this->addComponent($this->playingPlayers);
-
+		
 	}
 
 	function set($serverName, $readyPlayersCount, $playingPlayersCount, $averageTime)
@@ -116,20 +109,18 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->playingPlayers->setText($playingPlayersCount);
 		if($averageTime == -1)
 		{
-			$this->dico['fr']['waitingTime'] = 'Temps d\'attente estimé : - ';
-			$this->dico['en']['waitingTime'] = 'Estimated waiting time: -';
+			$average = '-';
 		}
 		else
 		{
-			$average = ceil($averageTime / 60);
-			$this->dico['fr']['waitingTime'] = sprintf('Temps d\'attente estimé : %d min', $average);
-			$this->dico['en']['waitingTime'] = sprintf('Estimated waiting time: %d min', $average);
+			$average = sprintf('%d min', ceil($averageTime / 60));
 		}
+		$this->dico['waitingTime'] = array('textId' => 'waitingTime', 'params' => array($average));
 	}
 
 	function onDraw()
 	{
-		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->dico));
+		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink($this->dico));
 	}
 
 }

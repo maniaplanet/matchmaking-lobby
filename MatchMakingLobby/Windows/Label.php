@@ -83,7 +83,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 	function setMessage($message, $countdown = null)
 	{
 		$this->message['text'] = $message;
-		$this->message['wait-label'] = 'wait';
+		$this->message['wait'] = 'wait';
 		$this->countdown = $countdown;
 
 		$this->sound->setVisibility($this->countdown !== null);

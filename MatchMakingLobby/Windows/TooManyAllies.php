@@ -6,6 +6,8 @@
  */
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
+use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
+
 class TooManyAllies extends \ManiaLive\Gui\Window
 {
 	/**
@@ -28,12 +30,12 @@ class TooManyAllies extends \ManiaLive\Gui\Window
 
 	public function setText($text)
 	{
-		$this->dico = $text;
+		$this->dico = array('textId' => 'tooManyAllies', 'params' => array($text));
 	}
 	
 	protected function onDraw()
 	{
-		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->dico));
+		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink($this->dico));
 	}
 
 }

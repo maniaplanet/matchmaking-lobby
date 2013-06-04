@@ -613,7 +613,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->createLabel($this->gui->getMatchoverText(), null, null, false, false);
 
 		$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-			'textId' => 'matchAborted', 'params' => array(static::PREFIX)
+			array('textId' => 'matchAborted', 'params' => array(static::PREFIX))
 		)));
 
 		$this->over();
@@ -627,7 +627,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->createLabel($this->gui->getDecidingText(), null, null, false, false);
 
 			$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-					'textId' => 'matchDeciding', 'params' => array(static::PREFIX)
+					array('textId' => 'matchDeciding', 'params' => array(static::PREFIX))
 			)));
 			$ratios = array();
 			$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', 0.5);
@@ -654,17 +654,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->connection->setCallVoteRatiosEx(false, $ratios);
 
 				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-						'textId' => 'matchStarting', 'params' => array(static::PREFIX)
+						array('textId' => 'matchStarting', 'params' => array(static::PREFIX))
 				)));
 				break;
 			case static::PLAYER_LEFT:
 				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-						'textId' => 'playerBack', 'params' => array(static::PREFIX)
+						array('textId' => 'playerBack', 'params' => array(static::PREFIX))
 				)));
 				break;
 			case static::WAITING_BACKUPS:
 				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-						'textId' => 'backupConnected', 'params' => array(static::PREFIX)
+						array('textId' => 'backupConnected', 'params' => array(static::PREFIX))
 				)));
 				break;
 		}

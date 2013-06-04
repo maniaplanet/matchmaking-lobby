@@ -12,6 +12,7 @@ use ManiaLib\Gui\Elements\Quad;
 use ManiaLib\Gui\Elements\Icons128x128_Blink;
 use ManiaLib\Gui\Elements\Label;
 use ManiaLib\Gui\Elements\Bgs1;
+use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 
 class CustomizedQuitDialog
 {
@@ -25,7 +26,7 @@ class CustomizedQuitDialog
 	public function display()
 	{
 		Manialink::load();
-		Manialink::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->displayedText));
+		Manialink::appendXML(Dictionary::getInstance()->getManiaLink($this->displayedText));
 		
 		Manialink::appendScript(<<<MANIASCRIPT
 #RequireContext CMlScript

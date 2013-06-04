@@ -446,8 +446,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$this->gui->showJump($login);
 						$this->connection->addGuest($login, true);
 						$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
-							'textId' => 'tooManyAllies', 'parameters' => array(self::PREFIX, $player->nickName
-							))));
+							array('textId' => 'substituteMoved', 'parameters' => array(self::PREFIX, $player->nickName))
+							)));
 					}
 					else
 					{
@@ -505,7 +505,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 							}
 						}
 						$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
-							'textId' => 'substituteMoved', 'params' => array(self::PREFIX, implode(' & ', $nicknames))
+							array('textId' => 'substituteMoved', 'params' => array(self::PREFIX, implode(' & ', $nicknames)))
 							)));
 					}
 					else
@@ -779,7 +779,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
 			$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
-				'textId' => 'matchCancel', 'params' => array(static::PREFIX, $player->nickName)
+				array('textId' => 'matchCancel', 'params' => array(static::PREFIX, $player->nickName))
 			)));
 
 			foreach($match->players as $playerLogin)
@@ -925,8 +925,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$this->blockedPlayers[$login] = time();
 
 					$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
-							'textId' => 'playerSuspended' , 'params' => array(self::PREFIX, $player->nickName)
-,
+							array('textId' => 'playerSuspended' , 'params' => array(self::PREFIX, $player->nickName))
 					)));
 				}
 
