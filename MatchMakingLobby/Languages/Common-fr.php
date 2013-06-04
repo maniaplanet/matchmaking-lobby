@@ -33,7 +33,7 @@ Ne partez pas, un remplaçant est recherché',
   'backupConnected' => '%sLes remplaçants sont connectés, le match continue.',
   'transfer' => 'Vous allez être transféré. Veuillez patienter.',
   'helpSwitch' => 'Appuyez sur F7 pour voir l\'aide',
-  'helpText' => 'Vous $etes dans la salle d\'attente du matchmaking.
+  'helpText' => 'Vous êtes dans la salle d\'attente du matchmaking.
 
 %1$s Appuyez sur F6 pour indiquer que vous êtes prêt.
 %1$s Jouez en attendant votre match.

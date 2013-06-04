@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/Common-en.php';
+require_once __DIR__.'/Common-fr.php';
 
   $lang["playerLeft"] = "";
   $lang["giveUp"] = "";

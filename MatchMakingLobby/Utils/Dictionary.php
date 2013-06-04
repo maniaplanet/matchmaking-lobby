@@ -103,6 +103,7 @@ class Dictionary
 				$dictionnary[$language][$outputTextId] = implode('', $dictionnary[$language][$outputTextId]);
 				if(is_array($elements) && array_key_exists('params', $elements))
 				{
+					$params = array();
 					$params[] = $dictionnary[$language][$outputTextId];
 					$params = array_merge($params, $elements['params']);
 					$dictionnary[$language][$outputTextId] = call_user_func_array('sprintf', $params);
