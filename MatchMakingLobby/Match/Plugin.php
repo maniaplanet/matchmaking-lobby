@@ -658,14 +658,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				)));
 				break;
 			case static::PLAYER_LEFT:
-				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-						array('textId' => 'playerBack', 'params' => array(static::PREFIX))
-				)));
+				$this->connection->chatSendServerMessageToLanguage(array(
+					array('Lang' => 'fr', 'Text' => static::PREFIX.'Le joueur est de retour.'),
+					array('Lang' => 'en', 'Text' => static::PREFIX.'Player is back.'),
+				));
 				break;
 			case static::WAITING_BACKUPS:
-				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-						array('textId' => 'backupConnected', 'params' => array(static::PREFIX))
-				)));
+				$this->connection->chatSendServerMessageToLanguage(array(
+					array('Lang' => 'fr', 'Text' => static::PREFIX.'Les remplaçants sont connecté.'),
+					array('Lang' => 'en', 'Text' => static::PREFIX.'Substitutes are connected.'),
+				));
 				break;
 		}
 
@@ -765,14 +767,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else $this->disableTickerEvent();
 
-		$this->matchMakingService->registerMatchServer(
-			$this->storage->serverLogin,
-			$this->lobby->login,
-			$this->state,
-			$this->scriptName,
-			$this->titleIdString, 
-			$this->storage->currentMap->name
-		);
+		if (!($this->state == self::SLEEPING && $this->tick % 10 == 0))
+		{
+			$this->matchMakingService->registerMatchServer(
+				$this->storage->serverLogin,
+				$this->lobby->login,
+				$this->state,
+				$this->scriptName,
+				$this->titleIdString,
+				$this->storage->currentMap->name
+			);
+		}
 		if ($this->state != $state)
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('State: %d', $state));
