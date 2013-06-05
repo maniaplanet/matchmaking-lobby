@@ -16,15 +16,6 @@ abstract class AbstractTeam extends AbstractGUI
 	function getCustomizedQuitDialogManiaLink()
 	{
 		$message = array('text' => 'quitMatchQuestion','available' => 'available');
-		/*	'fr' => array(
-				'text' =>  'Voulez-vous vraiment abandonner vos alliés ?',
-				'available' => 'Disponible dans :'
-			),
-			'en' => array(
-				'text' =>  'Do you really want to abandon your teammates?',
-				'available' => 'Available in:'
-			),
-		);*/
 		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog($message);
 		return $manialink->display();
 	}
