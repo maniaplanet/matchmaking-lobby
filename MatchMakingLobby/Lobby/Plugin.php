@@ -66,19 +66,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var bool */
 	protected $updatePlayerList = false;
 
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	protected $backupNeeded = false;
 
-	/**
-	 * @var int[string]
-	 */
+	/** @var int[string] */
 	protected $matchCancellers = array();
 	
-	/**
-	 * @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary
-	 */
+	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
 	protected $dictionnary;
 	
 	function onInit()
@@ -627,7 +621,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else
 		{
-			$this->onPlayerReady($player->login);
+			if(!Services\PlayerInfo::Get($player->login)->isReady())
+			{
+				$this->onPlayerReady($player->login);
+			}
 			$this->gui->showHelp($player->login, $this->scriptName);
 		}
 	}
