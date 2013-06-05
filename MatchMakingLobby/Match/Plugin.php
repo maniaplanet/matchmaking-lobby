@@ -182,6 +182,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.));
 
 		$this->connection->setCallVoteRatiosEx(false, $ratios);
+		$this->connection->setCallVoteTimeOut(15000);
 
 		$this->state = self::SLEEPING;
 
@@ -503,6 +504,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->giveUp($login);
 	}
+	
+	function onVoteUpdated($stateName, $login, $cmdName, $cmdParam)
+	{
+		if($stateName == 'NewVote' && $this->state == self::DECIDING && in_array($cmdName, array('NextMap','JumpToMapIndex')))
+		{
+			$diff = $this->nextTick->diff(new \DateTime);
+			if($diff->s <= 10 && $diff->invert == 1 && $cmdName )
+			{
+				$this->connection->cancelVote();
+			}
+		}
+	}
 
 	protected function updateLobbyWindow()
 	{
@@ -556,7 +569,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_END_ROUND |
 			ServerEvent::ON_PLAYER_INFO_CHANGED |
 			ServerEvent::ON_MODE_SCRIPT_CALLBACK |
-			ServerEvent::ON_MODE_SCRIPT_CALLBACK_ARRAY
+			ServerEvent::ON_MODE_SCRIPT_CALLBACK_ARRAY |
+			ServerEvent::ON_VOTE_UPDATED
 		);
 
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
@@ -600,7 +614,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->waitBackups();
 	}
-
+	
 	protected function cancel($updateState = true)
 	{
 		\ManiaLive\Utilities\Logger::debug('cancel()');
