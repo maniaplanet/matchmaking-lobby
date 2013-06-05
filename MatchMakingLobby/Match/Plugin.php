@@ -764,14 +764,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else $this->disableTickerEvent();
 
-		$this->matchMakingService->registerMatchServer(
-			$this->storage->serverLogin,
-			$this->lobby->login,
-			$this->state,
-			$this->scriptName,
-			$this->titleIdString,
-			$this->storage->currentMap->name
-		);
+		if (!($this->state == self::SLEEPING && $this->tick % 10 == 0))
+		{
+			$this->matchMakingService->registerMatchServer(
+				$this->storage->serverLogin,
+				$this->lobby->login,
+				$this->state,
+				$this->scriptName,
+				$this->titleIdString,
+				$this->storage->currentMap->name
+			);
+		}
 		if ($this->state != $state)
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('State: %d', $state));
