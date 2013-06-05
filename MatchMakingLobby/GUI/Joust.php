@@ -20,6 +20,7 @@ class Joust extends AbstractGUI
 
 	function getIllegalLeaveText()
 	{
+		return 'illegalLeave';
 		return array(
 			'fr' => array(
 				'text' =>  "Votre opposant a quitté le match\nNe partez pas, vous allez être retransféré"
@@ -32,6 +33,7 @@ class Joust extends AbstractGUI
 
 	function getGiveUpText()
 	{
+		return 'giveUp';
 		return array(
 			'fr' => array(
 				'text' =>  "Votre opposant a abandonné\nNe partez pas, vous allez être retransféré"
@@ -44,7 +46,8 @@ class Joust extends AbstractGUI
 	
 	function getCustomizedQuitDialogManiaLink()
 	{
-		$message = array(
+		$message = array('text' => 'quitMatchQuestion','available' => 'available');
+		/*$message = array(
 			'fr' => array(
 				'text' =>  'Voulez-vous vraiment abandonner ?',
 				'available' => 'Disponible dans :'
@@ -53,13 +56,14 @@ class Joust extends AbstractGUI
 				'text' =>  'Do you really want to give up?',
 				'available' => 'Available in:'
 			),
-		);
+		);*/
 		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog($message);
 		return $manialink->display();
 	}
 	
 	function getBackUpLaunchText(\ManiaLivePlugins\MatchMakingLobby\Services\Match $match)
 	{
+		return 'backUpTransfert';
 		return array(
 			'fr' => array(
 				'text' =>  "\$0F0Vous êtes sélectionnés comme remplaçant. Préparez-vous au transfert\nAppuyez sur F6 pour annuler"

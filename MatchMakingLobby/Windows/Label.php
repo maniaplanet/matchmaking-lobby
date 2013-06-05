@@ -10,6 +10,7 @@
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 use ManiaLive\Features\Tick;
+use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 
 class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 {
@@ -74,16 +75,15 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 
 	function onDraw()
 	{
-		\ManiaLib\Gui\Manialink::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->message));
+		\ManiaLib\Gui\Manialink::appendXML(Dictionary::getInstance()->getManiaLink($this->message));
 		$this->bg->setVisibility($this->showBackground);
 		$this->setScript($this->countdown, $this->animated, $this->hideOnF6);
 	}
 
 	function setMessage($message, $countdown = null)
 	{
-		$this->message = $message;
-		$this->message['en']['wait'] = 'Please wait...';
-		$this->message['fr']['wait'] = 'Veuillez patienter...';
+		$this->message['text'] = $message;
+		$this->message['wait'] = 'wait';
 		$this->countdown = $countdown;
 
 		$this->sound->setVisibility($this->countdown !== null);

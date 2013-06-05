@@ -15,8 +15,8 @@ abstract class AbstractTeam extends AbstractGUI
 
 	function getCustomizedQuitDialogManiaLink()
 	{
-		$message = array(
-			'fr' => array(
+		$message = array('text' => 'quitMatchQuestion','available' => 'available');
+		/*	'fr' => array(
 				'text' =>  'Voulez-vous vraiment abandonner vos alliés ?',
 				'available' => 'Disponible dans :'
 			),
@@ -24,13 +24,14 @@ abstract class AbstractTeam extends AbstractGUI
 				'text' =>  'Do you really want to abandon your teammates?',
 				'available' => 'Available in:'
 			),
-		);
+		);*/
 		$manialink = new \ManiaLivePlugins\MatchMakingLobby\Views\CustomizedQuitDialog($message);
 		return $manialink->display();
 	}
 	
 	function getBackUpLaunchText(\ManiaLivePlugins\MatchMakingLobby\Services\Match $match)
 	{
+		return array('textId' => 'backUpTransfert', 'params' => array($match->mapPointsTeam1, $match->mapPointsTeam2));
 		return array(
 			'fr' => array(
 				'text' =>  sprintf("\$0F0Vous êtes sélectionnés comme remplaçant. Préparez-vous au transfert\nLe score est %d - %d. Appuyez sur F6 pour annuler", $match->mapPointsTeam1, $match->mapPointsTeam2)

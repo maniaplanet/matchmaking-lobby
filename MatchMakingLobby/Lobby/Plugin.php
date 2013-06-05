@@ -66,15 +66,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var bool */
 	protected $updatePlayerList = false;
 
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	protected $backupNeeded = false;
 
-	/**
-	 * @var int[string]
-	 */
+	/** @var int[string] */
 	protected $matchCancellers = array();
+	
+	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
+	protected $dictionnary;
 	
 	function onInit()
 	{
@@ -108,6 +107,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setGui(new $guiClassName());
 		$this->gui->lobbyBoxPosY = 45;
 		$this->setMatchMaker($matchMakerClassName::getInstance());
+		
+		$this->dictionnary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->scriptName);
 	}
 
 	function onLoad()
@@ -372,7 +373,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			else
 			{
-				$this->setReadyLabel();
+				$this->setNotReadyLabel();
 			}
 			unset($potentialBackups);
 		}
@@ -438,10 +439,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
 						$this->gui->showJump($login);
 						$this->connection->addGuest($login, true);
-						$this->connection->chatSendServerMessageToLanguage(array(
-							array('Lang' => 'fr', 'Text' => self::PREFIX.sprintf('$<%s$> a rejoint son match comme remplaçant.', $player->nickName)),
-							array('Lang' => 'en', 'Text' => self::PREFIX.sprintf('$<%s$> joined his match as a substitute.', $player->nickName)),
-						));
+						$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
+							array('textId' => 'substituteMoved', 'parameters' => array(self::PREFIX, $player->nickName))
+							)));
 					}
 					else
 					{
@@ -498,10 +498,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 								$this->connection->addGuest($player, true);
 							}
 						}
-						$this->connection->chatSendServerMessageToLanguage(array(
-							array('Lang' => 'fr', 'Text' => self::PREFIX.implode(' & ', $nicknames).' ont rejoint un match.'),
-							array('Lang' => 'en', 'Text' => self::PREFIX.implode(' & ', $nicknames).' join a match.'),
-						));
+						$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
+							array('textId' => 'substituteMoved', 'params' => array(self::PREFIX, implode(' & ', $nicknames)))
+							)));
 					}
 					else
 					{
@@ -622,7 +621,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else
 		{
-			$this->onPlayerReady($player->login);
+			if(!Services\PlayerInfo::Get($player->login)->isReady())
+			{
+				$this->onPlayerReady($player->login);
+			}
 			$this->gui->showHelp($player->login, $this->scriptName);
 		}
 	}
@@ -644,8 +646,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->updatePlayerList = true;
 
-			$this->connection->forceSpectator($login, 2);
-			$this->connection->forceSpectator($login, 0);
+			if(!Services\PlayerInfo::Get($login)->isAway())
+			{
+				$this->connection->forceSpectator($login, 2);
+				$this->connection->forceSpectator($login, 0);
+			}
 		}
 		else
 		{
@@ -666,7 +671,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->updatePlayerList = true;
 
-		$this->connection->forceSpectator($login, 3);
+		if(!Services\PlayerInfo::Get($login)->isAway())
+		{
+			$this->connection->forceSpectator($login, 3);
+		}
 
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
@@ -719,8 +727,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::debug('Player cancel replacement: '.$login);
 
-		$player = $this->storage->getPlayerObject($login);
-
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 
 		if ($match)
@@ -731,10 +737,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			//FIXME: it could have been QUITTER or GIVEUP
 			$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_QUITTER);
 
-			$this->onPlayerReady($login);
-
 			unset($this->replacerCountDown[$login]);
 			unset($this->replacers[$login]);
+			
+			$this->onPlayerReady($login);
 		}
 	}
 
@@ -769,10 +775,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
-			$this->connection->chatSendServerMessageToLanguage(array(
-				array('Lang' => 'fr', 'Text' => sprintf(static::PREFIX.'$<%s$> a annulé le départ d\'un match.', $player->nickName)),
-				array('Lang' => 'en', 'Text' => sprintf(static::PREFIX.'$<%s$> cancelled match start.', $player->nickName))
-			));
+			$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
+				array('textId' => 'matchCancel', 'params' => array(static::PREFIX, $player->nickName))
+			)));
 
 			foreach($match->players as $playerLogin)
 			{
@@ -916,11 +921,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				{
 					$this->blockedPlayers[$login] = time();
 
-					$this->connection->chatSendServerMessageToLanguage(
-						array(
-							array('Lang' => 'fr','Text' => sprintf(self::PREFIX.'$<%s$> est suspendu.', $player->nickName)),
-							array('Lang' => 'en','Text' => sprintf(self::PREFIX.'$<%s$> is suspended.', $player->nickName)),
-					));
+					$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
+							array('textId' => 'playerSuspended' , 'params' => array(self::PREFIX, $player->nickName))
+					)));
 				}
 
 				$this->onPlayerNotReady($login);
@@ -1055,14 +1058,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$message = $this->gui->getNotReadyText();
 				if (count(Services\PlayerInfo::GetReady()) == 0 && $this->backupNeeded)
 				{
-					$notReadyPlayersTexts = $this->gui->getNoReadyPlayers();
-					foreach($message as $language => $messages)
-					{
-						foreach($messages as $key => $text)
-						{
-							$message[$language][$key] .= "\n".$notReadyPlayersTexts[$language][$key];
-						}
-					}
+					$message .= '|'.$this->gui->getNoReadyPlayers();
 				}
 				$this->setShortKey($player->login, array($this,'onPlayerReady'));
 				$this->gui->createLabel($message, $player->login, null, false, true, true);

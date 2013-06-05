@@ -12,6 +12,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLib\Gui\Elements\Bgs1;
 use ManiaLib\Gui\Elements\Label as LegacyLabel;
 use ManiaLive\Gui\Controls\Frame;
+use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 
 class Help extends \ManiaLive\Gui\Window
 {
@@ -91,29 +92,13 @@ class Help extends \ManiaLive\Gui\Window
 		$displayHelpManiaScript = $this->displayHelp ? 'True' : 'False';
 
 		$this->dico = array(
-			'fr' => array(
-				'switch' => 'Appuyez sur F7 pour l\'aide',
-				'help'=> 'Vous êtes dans la salle d\'attente du matchmaking.'."\n"."\n".
-						$bullet.'Appuyez sur F6 pour indiquer que vous êtes prêt.'."\n".
-						$bullet.'Jouez en attendant votre match.'."\n".
-						$bullet.'Votre match '.$this->modeName.' commencera automatiquement.'."\n".
-						$bullet.'Appuyez sur F7 pour fermer cette fenêtre.',
-				'tip' => 'Astuce : faites équipe avec vos amis',
-				'note' => 'Note : les deux joueurs doivent chacun s\'allier l\'un l\'autre.'
-			),
-			'en' => array(
-				'switch' => 'Press F7 for help',
-				'help'=> 'You are on a matchmaking waiting room server.'."\n"."\n".
-						$bullet.'Press F6 to show that you are ready.'."\n".
-						$bullet.'Play a fun mode while you wait.'."\n".
-						$bullet.'Your '.$this->modeName.' game will start automatically.'."\n".
-						$bullet.'Press F7 to close this help.',
-				'tip' => 'Tip: team-up with your buddies',
-				'note' => 'Note: both players have to set the other as ally.'
-			)
+			'switch' => 'helpSwitch',
+			'help' => array('textId' => 'helpText', 'params' => array($bullet, $this->modeName)),
+			'tip' => 'helpTip',
+			'note' => 'helpNote',
 		);
 
-		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build($this->dico));
+		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink($this->dico));
 		\ManiaLive\Gui\Manialinks::appendScript(
 			<<<MANIASCRIPT
 #RequireContext CMlScript
