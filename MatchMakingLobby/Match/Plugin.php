@@ -122,10 +122,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $config;
 
 	protected $scores = array();
-	
+
 	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
 	protected $dictionary;
-		
+
 	function onInit()
 	{
 		$this->setVersion('2.2.0');
@@ -153,7 +153,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Load services
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
-		
+
 		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->scriptName);
 
 	}
@@ -767,7 +767,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else $this->disableTickerEvent();
 
-		if (!($this->state == self::SLEEPING && $this->tick % 10 == 0))
+		if (!($this->state == self::SLEEPING && $this->tick % 10 != 0))
 		{
 			$this->matchMakingService->registerMatchServer(
 				$this->storage->serverLogin,

@@ -71,10 +71,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var int[string] */
 	protected $matchCancellers = array();
-	
+
 	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
 	protected $dictionnary;
-	
+
 	function onInit()
 	{
 		$this->setVersion('2.2.0');
@@ -107,7 +107,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setGui(new $guiClassName());
 		$this->gui->lobbyBoxPosY = 45;
 		$this->setMatchMaker($matchMakerClassName::getInstance());
-		
+
 		$this->dictionnary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->scriptName);
 	}
 
@@ -122,7 +122,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
 			ServerEvent::ON_PLAYER_ALLIES_CHANGED |
-			ServerEvent::ON_BEGIN_MAP 
+			ServerEvent::ON_BEGIN_MAP
 		);
 		$this->enableStorageEvents(
 			StorageEvent::ON_PLAYER_CHANGE_SIDE |
@@ -303,7 +303,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onTick()
 	{
 		$timers = array();
-		if ($this->tick % 8)
+		if ($this->tick % 8 == 0)
 		{
 			$mtime = microtime(true);
 			foreach($this->blockedPlayers as $login => $time)
@@ -316,70 +316,73 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//If there is some match needing players
 		//find backup in ready players and send them to the match server
 		$mtime = microtime(true);
-		$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-		if ($matchesNeedingBackup)
+		if($this->tick % 3 == 0)
 		{
-			$this->backupNeeded = true;
-			$potentialBackups = $this->getMatchablePlayers();
-			$storage = $this->storage;
-
-			//removing player which has allies from the potential backups
-			$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
+			$matchesNeedingBackup = $this->matchMakingService->getMatchesNeedingBackup($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+			if ($matchesNeedingBackup)
 			{
-				$obj = $storage->getPlayerObject($login);
-				if($obj)
-				{
-					return !count($obj->allies);
-				}
-			});
-			if ($potentialBackups)
-			{
-				foreach($matchesNeedingBackup as $match)
-				{
-					$potentialBackupsForMatch = array_filter($potentialBackups,
-						function ($backup) use ($match)
-						{
-							return !in_array($backup, $match->players);
-						}
-					);
+				$this->backupNeeded = true;
+				$potentialBackups = $this->getMatchablePlayers();
+				$storage = $this->storage;
 
-					/** @var Match $match */
-					$quitters = $this->matchMakingService->getMatchQuitters($match->id);
-					foreach ($quitters as $quitter)
+				//removing player which has allies from the potential backups
+				$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
+				{
+					$obj = $storage->getPlayerObject($login);
+					if($obj)
 					{
-						$backup = $this->matchMaker->getBackup($quitter, $potentialBackupsForMatch);
-						if ($backup)
+						return !count($obj->allies);
+					}
+				});
+				if ($potentialBackups)
+				{
+					foreach($matchesNeedingBackup as $match)
+					{
+						$potentialBackupsForMatch = array_filter($potentialBackups,
+							function ($backup) use ($match)
+							{
+								return !in_array($backup, $match->players);
+							}
+						);
+
+						/** @var Match $match */
+						$quitters = $this->matchMakingService->getMatchQuitters($match->id);
+						foreach ($quitters as $quitter)
 						{
-							\ManiaLive\Utilities\Logger::debug(
-							sprintf('match %d, %s will replace %s', $match->id, $backup, $quitter)
-							);
+							$backup = $this->matchMaker->getBackup($quitter, $potentialBackupsForMatch);
+							if ($backup)
+							{
+								\ManiaLive\Utilities\Logger::debug(
+								sprintf('match %d, %s will replace %s', $match->id, $backup, $quitter)
+								);
 
-							$this->matchMakingService->updatePlayerState($quitter, $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACER_PROPOSED);
-							$this->replacers[$backup] = $quitter;
+								$this->matchMakingService->updatePlayerState($quitter, $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACER_PROPOSED);
+								$this->replacers[$backup] = $quitter;
 
-							$teamId = $match->getTeam($quitter);
-							$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
-							$this->gui->createLabel($this->gui->getBackUpLaunchText($match), $backup, 0, false, false);
-							$this->setShortKey($backup, array($this, 'onPlayerCancelReplacement'));
-							$this->gui->prepareJump(array($backup), $match->matchServerLogin, $match->titleIdString, $backup);
-							$this->replacerCountDown[$backup] = 7;
+								$teamId = $match->getTeam($quitter);
+								$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
+								$this->gui->createLabel($this->gui->getBackUpLaunchText($match), $backup, 0, false, false);
+								$this->setShortKey($backup, array($this, 'onPlayerCancelReplacement'));
+								$this->gui->prepareJump(array($backup), $match->matchServerLogin, $match->titleIdString, $backup);
+								$this->replacerCountDown[$backup] = 7;
 
-							//Unset this replacer for next iteration
-							unset($potentialBackupsForMatch[array_search($backup, $potentialBackupsForMatch)]);
-							unset($potentialBackups[array_search($backup, $potentialBackups)]);
+								//Unset this replacer for next iteration
+								unset($potentialBackupsForMatch[array_search($backup, $potentialBackupsForMatch)]);
+								unset($potentialBackups[array_search($backup, $potentialBackups)]);
+							}
 						}
 					}
 				}
+				else
+				{
+					$this->setNotReadyLabel();
+				}
+				unset($potentialBackups);
 			}
 			else
 			{
-				$this->setNotReadyLabel();
+				$this->backupNeeded = false;
 			}
-			unset($potentialBackups);
-		}
-		else
-		{
-			$this->backupNeeded = false;
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
@@ -612,7 +615,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			\ManiaLive\Utilities\Logger::debug(implode('|', $line));
 		}
 	}
-	
+
 	function onPlayerChangeSide($player, $oldSide)
 	{
 		if($oldSide == 'player')
@@ -628,7 +631,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->showHelp($player->login, $this->scriptName);
 		}
 	}
-	
+
 	function onPlayerJoinGame($login)
 	{
 		$this->connection->forceSpectator($login, 3);
@@ -739,7 +742,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			unset($this->replacerCountDown[$login]);
 			unset($this->replacers[$login]);
-			
+
 			$this->onPlayerReady($login);
 		}
 	}
@@ -1012,7 +1015,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$matchablePlayers = array_filter($readyPlayers,
 			function (Services\PlayerInfo $p) use ($service, $serverLogin, $scriptName, $titleIdString, $blockedPlayers)
 			{
-				return !$service->isInMatch($p->login, $serverLogin, $scriptName, $titleIdString) && !in_array($p->login, $blockedPlayers) && !$p->isAway();
+				return !in_array($p->login, $blockedPlayers) && !$p->isAway() && !$service->isInMatch($p->login, $serverLogin, $scriptName, $titleIdString);
 			});
 
 		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $matchablePlayers);
