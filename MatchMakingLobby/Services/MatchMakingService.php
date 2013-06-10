@@ -207,14 +207,13 @@ class MatchMakingService
 	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
 	{
 		$ids = $this->db->execute(
-				'SELECT M.id FROM Matches M '.
-				'INNER JOIN MatchServers MS ON M.id = MS.matchId '.
-				'WHERE M.lobbyLogin = %s  AND M.scriptName = %s AND M.titleIdString = %s '.
-				'AND M.state = %d ',
+				'SELECT MS.id FROM MatchServers MS '.
+				'WHERE MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s '.
+				'AND MS.state = %d ',
 				$this->db->quote($lobbyLogin),
 				$this->db->quote($scriptName),
 				$this->db->quote($titleIdString),
-				Match::WAITING_BACKUPS
+				\ManiaLivePlugins\MatchMakingLobby\Match\Plugin::WAITING_BACKUPS
 			)->fetchArrayOfSingleValues();
 
 		return array_map(array($this,'getMatch'), $ids);
