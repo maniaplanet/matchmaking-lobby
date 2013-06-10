@@ -615,7 +615,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	
 	function onPlayerChangeSide($player, $oldSide)
 	{
-		if($oldSide == 'player')
+		if($oldSide == 'player' && !Services\PlayerInfo::Get($player->login)->isReady())
 		{
 			$this->gui->showHelp($player->login, $this->scriptName, true);
 		}
@@ -851,7 +851,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->showMatchSumUp($match, $player);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			Services\PlayerInfo::Get($player)->isInMatch = true;
+			$this->connection->forceSpectator($player, 3, true);
 		}
+		$this->connection->executeMulticall();
 
 		$this->updatePlayerList = true;
 	}
