@@ -27,9 +27,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var int */
 	protected $tick;
 
-	/** @var int */
-	protected $mapTick;
-
 	/** @var Config */
 	protected $config;
 
@@ -295,7 +292,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onBeginMap($map, $warmUp, $matchContinuation)
 	{
-		$this->mapTick = 0;
 		$this->connection->restartMap();
 	}
 
@@ -518,13 +514,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 		$timers['jumper'] = microtime(true) - $mtime;
-
-		//Do periodic nextmap
-		if(++$this->mapTick % 1800 == 0)
-		{
-			\ManiaLive\Utilities\Logger::debug('NextMap');
-			$this->connection->nextMap();
-		}
 
 		//Clean guest list for not in match players
 		if($this->tick % 29 == 0)
