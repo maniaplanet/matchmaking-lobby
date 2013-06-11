@@ -17,7 +17,8 @@ F6 to cancel',
 	'matchInProgress' => 'You have a match in progress. Prepare to be transferred',
 	'suspended' => '$F00You are suspended for %d minutes',
 	'matchOver' => 'Match over. You will be transferred back.',
-	'giveUp' => 'A player gave up\nDo not leave, searching for a substitute',
+	'giveUp' => 'A player gave up
+Do not leave, searching for a substitute',
 	'deciding' => 'Waiting for all player to connect before starting match',
 	'tooManyAllies' => '$F00You have too many allies, maximum is %d',
 	'expectingReadyPlayers' => '
