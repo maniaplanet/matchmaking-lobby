@@ -651,8 +651,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			if(!Services\PlayerInfo::Get($login)->isAway())
 			{
-				$this->connection->forceSpectator($login, 2);
-				$this->connection->forceSpectator($login, 0);
+				$this->connection->forceSpectator($login, 2, true);
+				$this->connection->forceSpectator($login, 0, true);
 			}
 		}
 		else
