@@ -56,7 +56,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	const WAITING_BACKUPS = 5;
 
-	const PREFIX = '$000»$8f0 ';
+	const PREFIX = '$000»$39c ';
 
 	const TIME_WAITING_CONNECTION = 105;
 	const TIME_WAITING_BACKUP = 20;
@@ -504,7 +504,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->giveUp($login);
 	}
-	
+
 	function onVoteUpdated($stateName, $login, $cmdName, $cmdParam)
 	{
 		if($stateName == 'NewVote' && $this->state == self::DECIDING && in_array($cmdName, array('NextMap','JumpToMapIndex')))
@@ -614,7 +614,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->waitBackups();
 	}
-	
+
 	protected function cancel($updateState = true)
 	{
 		\ManiaLive\Utilities\Logger::debug('cancel()');

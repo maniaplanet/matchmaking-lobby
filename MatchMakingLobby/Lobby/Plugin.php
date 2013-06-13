@@ -22,7 +22,7 @@ use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 class Plugin extends \ManiaLive\PluginHandler\Plugin
 {
 
-	const PREFIX = '$000»$8f0 ';
+	const PREFIX = '$000»$39c ';
 
 	/** @var int */
 	protected $tick;
