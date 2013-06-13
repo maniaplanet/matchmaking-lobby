@@ -67,13 +67,12 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->label->setStyle(Elements\Label::TextCardMedium);
 		$this->addComponent($this->label);
 
-		$this->rankLabel = new Elements\Label(15);
+		$this->rankLabel = new Elements\Label(30);
 		$this->rankLabel->setAlign('left','center2');
 		$this->rankLabel->setPosition(26, -17.5);
 		$this->rankLabel->setText('-');
 		$this->rankLabel->setTextColor('fff');
 		$this->rankLabel->setTextSize(1);
-		$this->rankLabel->setScale(0.6);
 		$this->addComponent($this->rankLabel);
 		
 		$this->countryFlag = new Elements\Quad(4, 3);

@@ -11,6 +11,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\GUI;
 
 use ManiaLive\Gui\Windows\Shortkey;
 use ManiaLive\Data\Storage;
+use ManiaLive\Gui\Group;
 use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
@@ -38,6 +39,7 @@ abstract class AbstractGUI
 	public $displayAllies = false;
 	
 	protected $nonReadyGroupName = 'nonReadyPlayers';
+	protected $readyGroupName = 'readyPlayers';
 
 	/**
 	 * Returns the text to display when a player is not ready
@@ -183,6 +185,18 @@ abstract class AbstractGUI
 	 */
 	final function createLabel($message, $login = null, $countdown = null, $isAnimated = false, $hideOnF6 = true, $showBackgroud = false)
 	{
+		$this->removeLabel($login);
+		$ui = Windows\Label::Create($login);
+		$ui->setPosition(0, 40);
+		$ui->setMessage($message, $countdown);
+		$ui->animated = $isAnimated;
+		$ui->hideOnF6 = $hideOnF6;
+		$ui->showBackground = $showBackgroud;
+		$ui->show();
+	}
+	
+	final function removeLabel($login = null)
+	{
 		if($login)
 		{
 			Windows\Label::Erase($login);
@@ -191,13 +205,6 @@ abstract class AbstractGUI
 		{
 			Windows\Label::EraseAll();
 		}
-		$ui = Windows\Label::Create($login);
-		$ui->setPosition(0, 40);
-		$ui->setMessage($message, $countdown);
-		$ui->animated = $isAnimated;
-		$ui->hideOnF6 = $hideOnF6;
-		$ui->showBackground = $showBackgroud;
-		$ui->show();
 	}
 
 	final function showMatchSumUp(Match $match, $receiver)
@@ -242,7 +249,7 @@ abstract class AbstractGUI
 	 */
 	final function updateLobbyWindow($serverName, $playersCount, $playingPlayersCount, $averageTime)
 	{
-		$lobbyWindow = Windows\LobbyWindow::Create();
+		$lobbyWindow = Windows\LobbyWindow::Create(Group::Create($this->readyGroupName));
 		$lobbyWindow->setAlign('right','bottom');
 		$lobbyWindow->setPosition(165, $this->lobbyBoxPosY);
 		$lobbyWindow->set($serverName, $playersCount, $playingPlayersCount, $averageTime);
@@ -260,7 +267,7 @@ abstract class AbstractGUI
 		{
 			$groupName = 'readyPlayers';
 			$align = array('right');
-			$position = array(140, $this->lobbyBoxPosY + 3);
+			$position = array(160, $this->lobbyBoxPosY + 3);
 		}
 		else
 		{
@@ -310,6 +317,22 @@ abstract class AbstractGUI
 		}
 	}
 	
+	final function showAlliesList($login, array $allies)
+	{
+		$allies = Windows\AlliesList::Create($login);
+		$allies->setPosition(95, 50);
+		foreach($allies as $ally)
+		{
+			$allies->addPlayer($ally);
+		}
+		$allies->show();
+	}
+	
+	final function removeAlliesList($login)
+	{
+		Windows\AlliesList::Erase($login);
+	}
+	
 	final function createWaitingScreen($serverName, $readyAction)
 	{
 		$group = \ManiaLive\Gui\Group::Create($this->nonReadyGroupName);
@@ -324,6 +347,7 @@ abstract class AbstractGUI
 	{
 		\ManiaLive\Gui\Group::Create($this->nonReadyGroupName, array($login));
 	}
+	
 	
 	final function updateWaitingScreen($serverName, $avgWaitTime, $readyCount, $playingCount)
 	{
@@ -418,11 +442,16 @@ abstract class AbstractGUI
 	
 	final function showHelp($login, $scriptName, $displayHelp = false)
 	{
-		Windows\Help::Erase($login);
+		$this->removeHelp($login);
 		$help = Windows\Help::Create($login);
 		$help->displayHelp = $displayHelp;
 		$help->modeName = $scriptName;
 		$help->show();
+	}
+	
+	final function removeHelp($login)
+	{
+		Windows\Help::Erase($login);
 	}
 
 }

@@ -68,14 +68,9 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 	function onConstruct()
 	{
-		$ui = new Elements\Bgs1(320, 128);
-		$ui->setAlign('center', 'center');
-		$ui->setSubStyle(Elements\Bgs1::BgDialogBlur);
-		$this->addComponent($ui);
-		
 		$ui = new Elements\Quad(320, 142);
 		$ui->setAlign('center', 'center');
-		$ui->setImage('http://127.0.0.1/lobby-background.png',true);
+		$ui->setImage('http://127.0.0.1/elements/lobby-background.png',true);
 		$this->addComponent($ui);
 
 		$this->serverNameLabel = new Elements\Label(100, 20);
@@ -84,11 +79,22 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->serverNameLabel->setStyle(Elements\Label::TextTitle1);
 		$this->serverNameLabel->setTextEmboss();
 		$this->addComponent($this->serverNameLabel);
+		
+		$ui = new Elements\Label(100,40);
+		$ui->setAlign('center');
+		$ui->setPosY(45);
+		$ui->setTextColor('fff');
+		$ui->setTextSize(3);
+		$ui->enableAutonewline();
+		$ui->setText('Welcome to the matchmaking waiting room.
+Press $oREADY$o to play, and wait your match.
+Your Elite game will start automatically.');
+		$this->addComponent($ui);
 
-		$ui = new Elements\Bgs1InRace(40, 10);
+		$ui = new Elements\Bgs1InRace(40, 8);
 		$ui->setAlign('center', 'center');
 		$ui->setPosition(-95, 50);
-		$ui->setSubStyle(Elements\Bgs1InRace::BgTitle3_5);
+		$ui->setImage('http://127.0.0.1/elements/grey-quad.png',true);
 		$this->addComponent($ui);
 
 		// TODO Add to Translation files
@@ -100,31 +106,15 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setText('Players');
 		$this->addComponent($ui);
 
-		$ui = new Elements\Bgs1InRace(40, 10);
-		$ui->setAlign('center', 'center');
-		$ui->setPosition(95, 50);
-		$ui->setSubStyle(Elements\Bgs1InRace::BgTitle3_5);
-		$this->addComponent($ui);
-
-		// TODO Add to Translation files
-		$ui = new Elements\Label(40, 10);
-		$ui->setAlign('center', 'center');
-		$ui->setPosition(95, 50);
-		$ui->setStyle(Elements\Label::TextTitle3);
-		$ui->setTextEmboss();
-		$ui->setText('Allies');
-		$this->addComponent($ui);
-		
-		
-		$ui = new Elements\Bgs1InRace(25, 15);
+		$ui = new Elements\Bgs1InRace(25, 12);
 		$ui->setAlign('right', 'center');
-		$ui->setPosition(-5, 35);
-		$ui->setSubStyle(Elements\Bgs1InRace::BgTitle3_1);
+		$ui->setPosition(-5, 15);
+		$ui->setImage('http://127.0.0.1/elements/red-quad-small.png',true);
 		$this->addComponent($ui);
 		
 		$uiLabel = new Elements\Label(25);
 		$uiLabel->setAlign('center');
-		$uiLabel->setPosition(-17.5, 28);
+		$uiLabel->setPosition(-17.5, 8);
 		$uiLabel->setStyle(Elements\Label::TextButtonSmall);
 		$uiLabel->setTextid('playing');
 		$uiLabel->setTextSize(2);
@@ -132,7 +122,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$this->playingCountLabel = new Elements\Label(25, 15);
 		$this->playingCountLabel->setAlign('center', 'center2');
-		$this->playingCountLabel->setPosition(-17.5, 35);
+		$this->playingCountLabel->setPosition(-17.5, 15);
 		$this->playingCountLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$this->playingCountLabel->setText('16');
 		$this->playingCountLabel->setTextSize(7);
@@ -145,23 +135,23 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$uiLabel = clone $uiLabel;
 		$uiLabel->setTextid('ready');
-		$uiLabel->setPosition(17.5, 28);
+		$uiLabel->setPosition(17.5, 8);
 		$this->addComponent($uiLabel);
 		
 		$this->waitingCountLabel = clone $this->playingCountLabel;
 		$this->waitingCountLabel->setPosX(17.5);
-		$this->waitingCountLabel->setText(32);
+		$this->waitingCountLabel->setText(12);
 		$this->addComponent($this->waitingCountLabel);
 		
-		$ui = new Elements\Bgs1InRace(40, 15);
+		$ui = new Elements\Bgs1InRace(40, 12);
 		$ui->setAlign('center', 'center');
-		$ui->setPosition(0, 15);
-		$ui->setSubStyle(Elements\Bgs1InRace::BgTitle3_1);
+		$ui->setPosition(0, -5);
+		$ui->setImage('http://127.0.0.1/elements/red-quad-wide.png',true);
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(35,15);
 		$ui->setAlign('center', 'center');
-		$ui->setPosition(0, 7.5);
+		$ui->setPosition(0, -13.5);
 		$ui->setStyle(Elements\Label::TextButtonSmall);
 		$ui->setTextSize(2);
 		$ui->setText('AVG Waiting Time');
@@ -169,7 +159,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$this->avgWaitTimeLabel = new Elements\Label(35, 15);
 		$this->avgWaitTimeLabel->setAlign('center', 'center2');
-		$this->avgWaitTimeLabel->setPosition(0, 15);
+		$this->avgWaitTimeLabel->setPosition(0, -5);
 		$this->avgWaitTimeLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$this->avgWaitTimeLabel->setText('00:00');
 		$this->avgWaitTimeLabel->setTextSize(7);
@@ -187,19 +177,27 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setAction('0');
 		$this->buttonFrame->addComponent($ui);
 		
-		$this->readyButton = new Elements\Button();
+		$frame = new Frame();
+		$frame->setSize(50,10);
+		$this->buttonFrame->addComponent($frame);
+		
+		$this->readyButton = new Elements\Quad(50,10);
 		$this->readyButton->setHalign('center');
-		$this->readyButton->setText('Ready');
-		$this->buttonFrame->addComponent($this->readyButton);
+		$this->readyButton->setImage('http://127.0.0.1/elements/red-button.png', true);
+		$this->readyButton->setImageFocus('http://127.0.0.1/elements/red-button-hover.png', true);
+		$frame->addComponent($this->readyButton);
+		
+		$ui = new Elements\Label();
+		$ui->setAlign('center', 'center');
+		$ui->setPosY(-5);
+		$ui->setStyle(Elements\Label::TextButtonMedium);
+		$ui->setText('Ready');
+		$frame->addComponent($ui);
 		
 		$ui = new Elements\Button();
 		$ui->setHalign('center');
 		$ui->setText('Rules');
 		$ui->setManialink('');
-		$this->buttonFrame->addComponent($ui);
-		
-		$p = \ManiaLive\Data\Storage::getInstance()->getPlayerObject('satanasdiabolo');
-		$ui = \ManiaLivePlugins\MatchMakingLobby\Controls\PlayerDetailed::fromPlayer($p);
 		$this->buttonFrame->addComponent($ui);
 	}
 

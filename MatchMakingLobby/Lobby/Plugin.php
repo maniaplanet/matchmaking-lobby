@@ -159,11 +159,22 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->updateKarma($login);
 
-			$this->gui->showHelp($login, $this->scriptName, ($playerObject->isSpectator ? true : false));
+			if($player->isReady())
+			{
+				$this->gui->showHelp($login, $this->scriptName);
+			}
+			else
+			{
+				$this->gui->removeHelp($login);
+			}
+			$storage = $this->storage;
+			$this->gui->showAlliesList($login,
+				array_map(function ($login) use ($storage)
+					{
+						return $storage->getPlayerObject($login);
+					}, $obj->allies));
 		}
 		$this->updatePlayerList = true;
-
-		$this->setNotReadyLabel();
 
 		$this->registerLobby();
 
@@ -172,23 +183,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$voteRatio->ratio = -1.;
 		$this->connection->setCallVoteRatiosEx(false, array($voteRatio));
 
-		$playersCount = $this->getReadyPlayersCount();
-
-		$this->gui->updateLobbyWindow(
-			$this->storage->server->name,
-			$playersCount,
-			$this->getPlayingPlayersCount(),
-			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
-		);
-		
 		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
-			
-		$waiting = Windows\WaitingScreen::Create();
-		Windows\WaitingScreen::$serverName = $this->storage->server->name;
-		Windows\WaitingScreen::$avgWaitTime = 3.2;
-		Windows\WaitingScreen::$readyAction = $ah->createAction(array($this,'onPlayerReady'));
-		$waiting->show();
-
+		$this->gui->createWaitingScreen($this->storage->server->name, $ah->createAction(array($this,'onPlayerReady')));
+		$this->updateLobbyWindow();
+		
 		$this->registerChatCommand('setAllReady', 'onSetAllReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
@@ -246,8 +244,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updatePlayerList = true;
 
 		$this->updateKarma($login);
-
-		$this->gui->showHelp($login, $this->scriptName);
 
 		$this->checkAllies($player);
 		
@@ -618,7 +614,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		if($oldSide == 'player' && !Services\PlayerInfo::Get($player->login)->isReady())
 		{
-			$this->gui->showHelp($player->login, $this->scriptName, true);
+			$this->gui->removeHelp($player->login);
 		}
 		else
 		{
@@ -628,6 +624,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			$this->gui->showHelp($player->login, $this->scriptName);
 		}
+		$this->updateLobbyWindow();
 	}
 	
 	function onPlayerJoinGame($login)
@@ -658,6 +655,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('Player try to be ready while in match: %s', $login));
 		}
+		$this->gui->removeAlliesList($login);
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
 			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerReady:%f',$time));
@@ -679,6 +677,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->forceSpectator($login, 3);
 		}
 
+		$storage = $this->storage;
+		$this->gui->showAlliesList($login,
+			array_map(function ($login) use ($storage)
+				{
+					return $storage->getPlayerObject($login);
+				}, $player->allies));
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
 			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerNotReady:%f',$time));
@@ -692,7 +696,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
 			$this->checkAllies($player);
 		}
-		$this->updatePlayerList = true;
+		$storage = $this->storage;
+		$this->gui->showAlliesList($login,
+			array_map(function ($login) use ($storage)
+				{
+					return $storage->getPlayerObject($login);
+				}, $player->allies));
 	}
 
 	protected function checkAllies($player)
@@ -970,13 +979,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$playersCount = $this->getReadyPlayersCount();
 		$playingPlayersCount = $this->getPlayingPlayersCount();
+		$avgWaitingTime = $this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		$this->gui->updateLobbyWindow(
 			$this->storage->server->name,
 			$playersCount,
 			$playingPlayersCount,
-			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
+			$avgWaitingTime
 		);
-
+		
+		$this->gui->updateWaitingScreen($this->storage->server->name, $avgWaitingTime, $playersCount, $playingPlayersCount);
 	}
 
 	private function setLobbyInfo($enable = true)
@@ -1058,16 +1069,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$players = ($login === null) ? Services\PlayerInfo::GetNotReady() : array(Services\PlayerInfo::Get($login));
 		foreach ($players as $player)
 		{
-			if (!array_key_exists($player->login, $this->blockedPlayers))
-			{
-				$message = $this->gui->getNotReadyText();
-				if (count(Services\PlayerInfo::GetReady()) == 0 && $this->backupNeeded)
-				{
-					$message .= '|'.$this->gui->getNoReadyPlayers();
-				}
+			$this->gui->removeLabel($player->login);
+//			if (!array_key_exists($player->login, $this->blockedPlayers))
+//			{
+//				$message = $this->gui->getNotReadyText();
+//				if (count(Services\PlayerInfo::GetReady()) == 0 && $this->backupNeeded)
+//				{
+//					$message .= '|'.$this->gui->getNoReadyPlayers();
+//				}
 				$this->setShortKey($player->login, array($this,'onPlayerReady'));
-				$this->gui->createLabel($message, $player->login, null, false, true, true);
-			}
+//				$this->gui->createLabel($message, $player->login, null, false, true, true);
+//			}
 		}
 	}
 }
