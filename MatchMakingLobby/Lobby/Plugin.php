@@ -859,8 +859,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		foreach($match->players as $player)
 		{
-			$this->gui->createLabel($this->gui->getLaunchMatchText(), $player, 10);
-			$this->gui->showMatchSumUp($match, $player);
+//			$this->gui->createLabel($this->gui->getLaunchMatchText(), $player, 10);
+			$this->gui->showMatchSumUp($match, $player, 10);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			Services\PlayerInfo::Get($player)->isInMatch = true;
 			$this->connection->forceSpectator($player, 3, true);

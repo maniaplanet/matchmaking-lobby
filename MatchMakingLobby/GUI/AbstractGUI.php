@@ -207,13 +207,14 @@ abstract class AbstractGUI
 		}
 	}
 
-	final function showMatchSumUp(Match $match, $receiver)
+	final function showMatchSumUp(Match $match, $receiver, $time)
 	{
 		$storage = Storage::getInstance();
 		$getPlayerInfosCallback = function ($login) use ($storage)
 			{
 				$p = $storage->getPlayerObject($login);
 				return (object) array(
+					'login' => $login,
 					'nickname' => ($p ? $p->nickName : $login),
 					'zone' => ($p ? array_pop(explode('|', $p->ladderStats['PlayerRankings'][0]['Path'])) : 'World'),
 					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1)
@@ -230,8 +231,7 @@ abstract class AbstractGUI
 			$team2 = array(call_user_func($getPlayerInfosCallback, $match->players[1]));
 		}
 		$window = Windows\StartMatch::Create($receiver);
-		$window->set($team1, $team2);
-		$window->setPosY(11);
+		$window->set($team1, $team2, $time);
 		$window->show();
 	}
 
