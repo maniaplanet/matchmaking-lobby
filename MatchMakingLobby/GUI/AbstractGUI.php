@@ -36,6 +36,8 @@ abstract class AbstractGUI
 	 * @var bool
 	 */
 	public $displayAllies = false;
+	
+	protected $nonReadyGroupName = 'nonReadyPlayers';
 
 	/**
 	 * Returns the text to display when a player is not ready
@@ -252,12 +254,84 @@ abstract class AbstractGUI
 	 * @param string $login
 	 * @param string[] $blockedPlayerList
 	 */
-	final function createPlayerList($login)
+	final function createPlayerList($isReady = false)
 	{
-		$playerList = Windows\PlayerList::Create($login);
-		$playerList->setAlign('right');
-		$playerList->setPosition(165, $this->lobbyBoxPosY + 3);
+		if($isReady)
+		{
+			$groupName = 'readyPlayers';
+			$align = array('right');
+			$position = array(140, $this->lobbyBoxPosY + 3);
+		}
+		else
+		{
+			$groupName = 'nonReadyPlayers';
+			$align = array('left');
+			$position = array(-130, 45);
+		}
+		$group = \ManiaLive\Gui\Group::Create($groupName);
+		$playerList = Windows\PlayerList::Create($group);
+		call_user_func_array(array($playerList,'setAlign'), $align);
+		call_user_func_array(array($playerList,'setPosition'), $position);
 		$playerList->show();
+	}
+	
+	final function addToGroup($login, $isReady)
+	{
+		if($isReady)
+		{
+			$oldGroupName = 'nonReadyPlayers';
+			$groupName = 'readyPlayers';
+		}
+		else
+		{
+			$oldGroupName = 'readyPlayers';
+			$groupName= 'nonReadyPlayers';
+		}
+		$oldGroup = \ManiaLive\Gui\Group::Get($oldGroupName);
+		if($oldGroup->contains($login))
+		{
+			$oldGroup->remove($login);
+		}
+		\ManiaLive\Gui\Group::Create($groupName, array($login));
+	}
+	
+	final function removeFromGroup($login)
+	{
+		$group = \ManiaLive\Gui\Group::Get('readyPlayers');
+		if($group->contains($login))
+		{
+			$group->remove($login);
+		}
+		
+		$group = \ManiaLive\Gui\Group::Get('nonReadyPlayers');
+		if($group->contains($login))
+		{
+			$group->remove($login);
+		}
+	}
+	
+	final function createWaitingScreen($serverName, $readyAction)
+	{
+		$group = \ManiaLive\Gui\Group::Create($this->nonReadyGroupName);
+		
+		$waiting = Windows\WaitingScreen::Create($group);
+		Windows\WaitingScreen::$serverName = $serverName;
+		Windows\WaitingScreen::$readyAction = $readyAction;
+		$waiting->show();
+	}
+	
+	final function showWaitingScreen($login)
+	{
+		\ManiaLive\Gui\Group::Create($this->nonReadyGroupName, array($login));
+	}
+	
+	final function updateWaitingScreen($serverName, $avgWaitTime, $readyCount, $playingCount)
+	{
+		Windows\WaitingScreen::$playingCount = $playingCount;
+		Windows\WaitingScreen::$waitingCount = $readyCount;
+		Windows\WaitingScreen::$avgWaitTime = $avgWaitTime;
+		Windows\WaitingScreen::$serverName = $serverName;
+		Windows\WaitingScreen::RedrawAll();
 	}
 
 	/**
@@ -268,33 +342,25 @@ abstract class AbstractGUI
 	final function updatePlayerList(array $blockedPlayerList)
 	{
 		$storage = Storage::getInstance();
-		$playerLists = Windows\PlayerList::GetAll();
-		foreach($playerLists as $playerList)
+		foreach(array_merge($storage->players, $storage->spectators) as $player)
 		{
-			$currentPlayerObj = $storage->getPlayerObject($playerList->getRecipient());
-			foreach(array_merge($storage->players, $storage->spectators) as $player)
+			if(PlayerInfo::Get($player->login)->isAway())
 			{
-				if(PlayerInfo::Get($player->login)->isAway())
-				{
-					continue;
-				}
-
-				$playerInfo = PlayerInfo::Get($player->login);
-				$playerObj = $storage->getPlayerObject($player->login);
-				$state = Player::STATE_NOT_READY;
-				if($playerInfo->isReady()) $state = Player::STATE_READY;
-				//FIXME: how to be sure that he is in match?
-				if($playerInfo->isInMatch) $state = Player::STATE_IN_MATCH;
-				if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
-
-				/* @var $playerList Windows\PlayerList */
-				$isAlly = $this->displayAllies && $player && in_array($player->login, $currentPlayerObj->allies);
-				$path = explode('|',$playerObj->ladderStats['PlayerRankings'][0]['Path']);
-				$zone = array_pop($path);
-				$rank = $playerObj->ladderStats['PlayerRankings'][0]['Ranking'];
-				$ladderPoints = $playerObj->ladderStats['PlayerRankings'][0]['Score'];
-				$playerList->setPlayer($player->login, $state, $isAlly, $rank, $zone, $ladderPoints);
+				continue;
 			}
+
+			$playerInfo = PlayerInfo::Get($player->login);
+			$playerObj = $storage->getPlayerObject($player->login);
+			$state = Player::STATE_NOT_READY;
+			if($playerInfo->isReady()) $state = Player::STATE_READY;
+			if($playerInfo->isInMatch) $state = Player::STATE_IN_MATCH;
+			if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
+
+			/* @var $playerList Windows\PlayerList */
+			$path = explode('|', $playerObj->path);
+			$zone = $path[1];
+			$ladderPoints = $playerObj->ladderStats['PlayerRankings'][0]['Score'];
+			Windows\PlayerList::setPlayer($player->login, $state, $zone, $ladderPoints);
 		}
 		Windows\PlayerList::RedrawAll();
 	}
@@ -307,11 +373,7 @@ abstract class AbstractGUI
 	{
 		Windows\PlayerList::Erase($login);
 
-		$playerLists = Windows\PlayerList::GetAll();
-		foreach($playerLists as $playerList)
-		{
-			$playerList->removePlayer($login);
-		}
+		Windows\PlayerList::removePlayer($login);
 		Windows\PlayerList::RedrawAll();
 	}
 

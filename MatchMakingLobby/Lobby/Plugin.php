@@ -143,6 +143,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		$this->backLink = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->titleIdString;
+		
+		$this->gui->createPlayerList();
+		$this->gui->createPlayerList(true);
 
 		$this->setLobbyInfo();
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
@@ -152,7 +155,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
 			$player->allies = $playerObject->allies;
 
-			$this->gui->createPlayerList($login);
+			$this->gui->addToGroup($login, false);
 
 			$this->updateKarma($login);
 
@@ -177,6 +180,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->getPlayingPlayersCount(),
 			$this->matchMakingService->getAverageTimeBetweenMatches($this->storage->serverLogin, $this->scriptName, $this->titleIdString)
 		);
+		
+		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
+			
+		$waiting = Windows\WaitingScreen::Create();
+		Windows\WaitingScreen::$serverName = $this->storage->server->name;
+		Windows\WaitingScreen::$avgWaitTime = 3.2;
+		Windows\WaitingScreen::$readyAction = $ah->createAction(array($this,'onPlayerReady'));
+		$waiting->show();
 
 		$this->registerChatCommand('setAllReady', 'onSetAllReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
@@ -229,9 +240,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			return;
 		}
 
-		$this->setNotReadyLabel($login);
+//		$this->setNotReadyLabel($login);
 
-		$this->gui->createPlayerList($login);
+		$this->gui->addToGroup($login, false);
 		$this->updatePlayerList = true;
 
 		$this->updateKarma($login);
@@ -239,7 +250,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->showHelp($login, $this->scriptName);
 
 		$this->checkAllies($player);
-
+		
 		try
 		{
 			$this->connection->removeGuest($login);
@@ -288,6 +299,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		$this->gui->removePlayerFromPlayerList($login);
+		$this->gui->removeFromGroup($login);
 	}
 
 	function onBeginMap($map, $warmUp, $matchContinuation)
@@ -634,6 +646,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->setReadyLabel($login);
 
 			$this->updatePlayerList = true;
+			$this->gui->addToGroup($login, true);
 
 			if(!Services\PlayerInfo::Get($login)->isAway())
 			{
@@ -658,6 +671,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->setNotReadyLabel($login);
 
+		$this->gui->addToGroup($login, false);
 		$this->updatePlayerList = true;
 
 		if(!Services\PlayerInfo::Get($login)->isAway())

@@ -22,17 +22,12 @@ class Player extends \ManiaLive\Gui\Control
 	public $isAlly = false;
 	public $login;
 	public $nickname;
-	public $rank;
 	public $ladderPoints;
 	
 	/**
 	 * @var Elements\Icons64x64_1
 	 */
 	protected $icon;
-	/**
-	 * @var Elements\Icons64x64_1
-	 */
-	protected $allyIcon;
 
 	/**
 	 * @var Elements\Label
@@ -40,30 +35,29 @@ class Player extends \ManiaLive\Gui\Control
 	protected $label;
 
 	/**
-	 *
 	 * @var Elements\Label
 	 */
 	protected $rankLabel;
+	
+	/**
+	 * @var Elements\Quad
+	 */
+	protected $countryFlag;
 
-	function __construct($login, $nickname)
+	function __construct($nickname)
 	{
-		$this->setSize(50, 5);
+		$this->setSize(70, 5);
 
-		$ui = new Elements\Bgs1InRace(50, 5);
-		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
+		$ui = new Elements\Bgs1InRace(70, 5);
+//		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
+		$ui->setBgcolor('222');
 		$this->addComponent($ui);
 
 		$this->icon = new Elements\Icons64x64_1(2.5, 2.5);
 		$this->icon->setSubStyle(Elements\Icons64x64_1::LvlRed);
-		$this->icon->setValign('center');
-		$this->icon->setPosition(1, -2.5);
+		$this->icon->setAlign('right','center');
+		$this->icon->setPosition(63, -2.5);
 		$this->addComponent($this->icon);
-
-		$this->allyIcon = new Elements\Icons64x64_1(2.5, 2.5);
-		$this->allyIcon->setSubStyle(Elements\Icons64x64_1::Buddy);
-		$this->allyIcon->setValign('center');
-		$this->allyIcon->setPosition(4, -2.5);
-		$this->addComponent($this->allyIcon);
 
 		$this->label = new Elements\Label(34);
 		$this->label->setValign('center2');
@@ -74,19 +68,24 @@ class Player extends \ManiaLive\Gui\Control
 		$this->addComponent($this->label);
 
 		$this->rankLabel = new Elements\Label(15);
-		$this->rankLabel->setAlign('right','center2');
-		$this->rankLabel->setPosition(43, -2.5);
-		$this->rankLabel->setText(sprintf('World %7s',($this->rank > 0 ? $this->rank : '-')));
+		$this->rankLabel->setAlign('left','center2');
+		$this->rankLabel->setPosition(1, -2.5);
+		$this->rankLabel->setText('-');
 		$this->rankLabel->setTextColor('fff');
 		$this->rankLabel->setTextSize(1);
 		$this->rankLabel->setScale(0.6);
 		$this->addComponent($this->rankLabel);
+		
+		$this->countryFlag = new Elements\Quad(4, 3);
+		$this->countryFlag->setAlign('right','center');
+		$this->countryFlag->setPosition(69, -2.5);
+		$this->addComponent($this->countryFlag);
 
 		$this->nickname = $nickname;
 		$this->state = static::STATE_NOT_READY;
 	}
 
-	function setState($state = 1, $isAlly = false, $rank = 0, $zone = 'World', $ladderPoints = -1)
+	function setState($state = 1, $zone = 'World', $ladderPoints = -1)
 	{
 		switch($state)
 		{
@@ -100,19 +99,16 @@ class Player extends \ManiaLive\Gui\Control
 				$subStyle = Elements\Icons64x64_1::StatePrivate;
 				break;
 			case static::STATE_NOT_READY:
-				$subStyle = Elements\Icons64x64_1::LvlRed;
-				break;
+				//nobreak
 			default :
 				$subStyle = Elements\Icons64x64_1::LvlRed;
 		}
 		$this->state = $state;
-		$this->isAlly = $isAlly;
-		$this->rank = $rank;
 		$this->ladderPoints = $ladderPoints;
 
 		$this->icon->setSubStyle($subStyle);
-		$this->allyIcon->setSubStyle($isAlly ? Elements\Icons64x64_1::Buddy : Elements\Icons64x64_1::EmptyIcon);
-		$this->rankLabel->setText(sprintf('%s %-7s',$zone, ($this->rank > 0 ? $this->rank : '-')));
+		$this->countryFlag->setImage('http://www.pepinieresbonnetfreres.be/Flags/france-flag.jpg', true);
+		$this->rankLabel->setText($ladderPoints > 0 ? (int)$ladderPoints : '-');
 	}
 }
 
