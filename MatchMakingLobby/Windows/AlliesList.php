@@ -28,7 +28,7 @@ class AlliesList extends \ManiaLive\Gui\Window
 		
 		$ui = new Elements\Bgs1InRace(40, 8);
 		$ui->setAlign('center', 'center');
-		$ui->setImage('http://127.0.0.1/elements/grey-quad.png',true);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad.png',true);
 		$this->addComponent($ui);
 		
 		// TODO Add to Translation files

@@ -70,7 +70,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	{
 		$ui = new Elements\Quad(320, 142);
 		$ui->setAlign('center', 'center');
-		$ui->setImage('http://127.0.0.1/elements/lobby-background.png',true);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/lobby-background.png',true);
 		$this->addComponent($ui);
 
 		$this->serverNameLabel = new Elements\Label(100, 20);
@@ -94,7 +94,7 @@ Your Elite game will start automatically.');
 		$ui = new Elements\Bgs1InRace(40, 8);
 		$ui->setAlign('center', 'center');
 		$ui->setPosition(-95, 50);
-		$ui->setImage('http://127.0.0.1/elements/grey-quad.png',true);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad.png',true);
 		$this->addComponent($ui);
 
 		// TODO Add to Translation files
@@ -109,7 +109,7 @@ Your Elite game will start automatically.');
 		$ui = new Elements\Bgs1InRace(25, 12);
 		$ui->setAlign('right', 'center');
 		$ui->setPosition(-5, 15);
-		$ui->setImage('http://127.0.0.1/elements/red-quad-small.png',true);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/red-quad-small.png',true);
 		$this->addComponent($ui);
 		
 		$uiLabel = new Elements\Label(25);
@@ -146,7 +146,7 @@ Your Elite game will start automatically.');
 		$ui = new Elements\Bgs1InRace(40, 12);
 		$ui->setAlign('center', 'center');
 		$ui->setPosition(0, -5);
-		$ui->setImage('http://127.0.0.1/elements/red-quad-wide.png',true);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/red-quad-wide.png',true);
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(35,15);
@@ -183,8 +183,8 @@ Your Elite game will start automatically.');
 		
 		$this->readyButton = new Elements\Quad(50,10);
 		$this->readyButton->setHalign('center');
-		$this->readyButton->setImage('http://127.0.0.1/elements/red-button.png', true);
-		$this->readyButton->setImageFocus('http://127.0.0.1/elements/red-button-hover.png', true);
+		$this->readyButton->setImage('http://static.maniaplanet.com/manialinks/lobbies/red-button.png', true);
+		$this->readyButton->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/red-button-hover.png', true);
 		$frame->addComponent($this->readyButton);
 		
 		$ui = new Elements\Label();

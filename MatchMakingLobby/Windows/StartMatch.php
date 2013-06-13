@@ -47,7 +47,7 @@ class StartMatch extends \ManiaLive\Gui\Window
 	{
 		$this->background = new Elements\Quad(320, 142);
 		$this->background->setAlign('center', 'center');
-		$this->background->setImage('http://127.0.0.1/elements/lobby-background.png',true);
+		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/lobby-background.png',true);
 		$this->addComponent($this->background);
 		
 		$this->label = new Elements\Label(120, 20);
@@ -85,7 +85,7 @@ class StartMatch extends \ManiaLive\Gui\Window
 		
 		$ui = new Elements\Quad(25, 15);
 		$ui->setAlign('center', 'center');
-		$ui->setImage('http://127.0.0.1/elements/grey-quad.png', true);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad.png', true);
 		$this->addComponent($ui);
 
 		$this->versus = new Elements\Label(30);
