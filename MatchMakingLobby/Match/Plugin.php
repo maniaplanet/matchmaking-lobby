@@ -76,7 +76,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $intervals = array(
 		self::PLAYER_LEFT => '40 seconds',
 		self::WAITING => '5 seconds',
-		self::SLEEPING => '5 seconds',
+		self::SLEEPING => '2 seconds',
 		self::DECIDING => '50 seconds',
 		self::PLAYING => '15 seconds',
 		self::OVER => '10 seconds',

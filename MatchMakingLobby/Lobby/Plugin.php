@@ -846,11 +846,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug($match);
 
 		$this->gui->prepareJump($match->players, $server, $this->titleIdString, $id);
-		$this->countDown[$id] = 12;
+		$this->countDown[$id] = 7;
 
 		foreach($match->players as $player)
 		{
-			$this->gui->createLabel($this->gui->getLaunchMatchText(), $player, 10);
+			$this->gui->createLabel($this->gui->getLaunchMatchText(), $player, 5);
 			$this->gui->showMatchSumUp($match, $player);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			Services\PlayerInfo::Get($player)->isInMatch = true;
