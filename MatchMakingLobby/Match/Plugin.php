@@ -66,6 +66,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	protected $tick = 0;
 
+	/**
+	 * @var int
+	 */
+	protected $lastRegisterTick = 0;
+
 	/** @var int */
 	protected $state = self::SLEEPING;
 
@@ -781,7 +786,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else $this->disableTickerEvent();
 
-		if (($this->state != self::SLEEPING || $this->tick % 10 == 0))
+		if (($this->state != self::SLEEPING || (($this->tick - $this->lastRegisterTick) > 12)))
 		{
 			$this->matchMakingService->registerMatchServer(
 				$this->storage->serverLogin,
@@ -791,6 +796,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->titleIdString,
 				$this->storage->currentMap->name
 			);
+
+			$this->lastRegisterTick = $this->tick;
 		}
 		if ($this->state != $state)
 		{
