@@ -72,6 +72,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
 	protected $dictionnary;
 	
+	protected $setReadyAction;
+	
 	function onInit()
 	{
 		$this->setVersion('2.2.0');
@@ -148,6 +150,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->createPlayerList(true);
 
 		$this->setLobbyInfo();
+		$this->gui->createWaitingScreen(
+			$this->storage->server->name, 
+			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')), 
+			$this->scriptName);
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
 			$playerObject =  $this->storage->getPlayerObject($login);
@@ -159,20 +165,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->updateKarma($login);
 
-			if($player->isReady())
-			{
-				$this->gui->showHelp($login, $this->scriptName);
-			}
-			else
-			{
-				$this->gui->removeHelp($login);
-			}
 			$storage = $this->storage;
-			$this->gui->showAlliesList($login,
+			$this->gui->updateAlliesList(
+				$login,
 				array_map(function ($login) use ($storage)
 					{
 						return $storage->getPlayerObject($login);
-					}, $obj->allies));
+					}, $obj->allies)
+			);
 		}
 		$this->updatePlayerList = true;
 
@@ -183,9 +183,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$voteRatio->ratio = -1.;
 		$this->connection->setCallVoteRatiosEx(false, array($voteRatio));
 
-		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
-		$this->gui->createWaitingScreen($this->storage->server->name, $ah->createAction(array($this,'onPlayerReady')));
 		$this->updateLobbyWindow();
+		$this->gui->showHelp($this->scriptName);
 		
 		$this->registerChatCommand('setAllReady', 'onSetAllReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
@@ -238,9 +237,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			return;
 		}
 
-//		$this->setNotReadyLabel($login);
-
 		$this->gui->addToGroup($login, false);
+		$storage = $this->storage;
+		$this->gui->updateAlliesList(
+				$login,
+				array_map(function ($login) use ($storage)
+					{
+						return $storage->getPlayerObject($login);
+					}, $playerObject->allies)
+			);
 		$this->updatePlayerList = true;
 
 		$this->updateKarma($login);
@@ -612,17 +617,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	
 	function onPlayerChangeSide($player, $oldSide)
 	{
-		if($oldSide == 'player' && !Services\PlayerInfo::Get($player->login)->isReady())
+		if($oldSide == 'spectator' && !Services\PlayerInfo::Get($player->login)->isReady())
 		{
-			$this->gui->removeHelp($player->login);
-		}
-		else
-		{
-			if(!Services\PlayerInfo::Get($player->login)->isReady())
-			{
 				$this->onPlayerReady($player->login);
-			}
-			$this->gui->showHelp($player->login, $this->scriptName);
 		}
 		$this->updateLobbyWindow();
 	}
@@ -644,6 +641,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->updatePlayerList = true;
 			$this->gui->addToGroup($login, true);
+			$this->gui->removeWaitingScreen($login);
 
 			if(!Services\PlayerInfo::Get($login)->isAway())
 			{
@@ -655,7 +653,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('Player try to be ready while in match: %s', $login));
 		}
-		$this->gui->removeAlliesList($login);
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
 			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerReady:%f',$time));
@@ -670,6 +667,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setNotReadyLabel($login);
 
 		$this->gui->addToGroup($login, false);
+		$this->gui->addToGroup($login, false);
 		$this->updatePlayerList = true;
 
 		if(!Services\PlayerInfo::Get($login)->isAway())
@@ -678,11 +676,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		$storage = $this->storage;
-		$this->gui->showAlliesList($login,
-			array_map(function ($login) use ($storage)
-				{
-					return $storage->getPlayerObject($login);
-				}, $player->allies));
+		$this->gui->updateAlliesList(
+				$login,
+				array_map(function ($login) use ($storage)
+					{
+						return $storage->getPlayerObject($login);
+					}, $this->storage->getPlayerObject($login)->allies)
+			);
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
 			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerNotReady:%f',$time));
@@ -697,11 +697,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->checkAllies($player);
 		}
 		$storage = $this->storage;
-		$this->gui->showAlliesList($login,
-			array_map(function ($login) use ($storage)
-				{
-					return $storage->getPlayerObject($login);
-				}, $player->allies));
+		if(!Services\PlayerInfo::Get($login)->isReady())
+		{
+			$this->gui->updateAlliesList($login,
+				array_map(function ($login) use ($storage)
+					{
+						return $storage->getPlayerObject($login);
+					}, $player->allies));
+		}
 	}
 
 	protected function checkAllies($player)
@@ -859,7 +862,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		foreach($match->players as $player)
 		{
-//			$this->gui->createLabel($this->gui->getLaunchMatchText(), $player, 10);
+			$this->gui->removeLabel($player);
+			$this->gui->removeFromGroup($player);
+			$this->gui->removeWaitingScreen($player);
 			$this->gui->showMatchSumUp($match, $player, 10);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			Services\PlayerInfo::Get($player)->isInMatch = true;

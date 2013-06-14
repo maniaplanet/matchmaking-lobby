@@ -17,7 +17,7 @@ class AlliesList extends \ManiaLive\Gui\Window
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
-	protected $frame;
+	protected $playerListFrame;
 	
 	protected $emptySlot;
 
@@ -54,9 +54,9 @@ class AlliesList extends \ManiaLive\Gui\Window
 		$ui->setText('Set another ally');
 		$this->emptySlot->addComponent($ui);
 		
-		$this->frame = new \ManiaLive\Gui\Controls\Frame(0,-5, new \ManiaLib\Gui\Layouts\Column());
-		$this->frame->getLayout()->setMarginHeight(3);
-		$this->addComponent($this->frame);
+		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0,-5, new \ManiaLib\Gui\Layouts\Column());
+		$this->playerListFrame->getLayout()->setMarginHeight(3);
+		$this->addComponent($this->playerListFrame);
 	}
 	
 	function addPlayer(\DedicatedApi\Structures\Player $player)
@@ -79,19 +79,24 @@ class AlliesList extends \ManiaLive\Gui\Window
 		}
 	}
 	
+	function clearAlliesList()
+	{
+		$this->playerList = array();
+	}
+	
 	function onDraw()
 	{
-		$this->frame->clearComponents();
+		$this->playerListFrame->clearComponents();
 		$playerKeys = array_keys($this->playerList);
 		for($i = 0; $i < 2; $i++)
 		{
 			if(array_key_exists($i, $playerKeys))
 			{
-				$this->frame->addComponent($this->playerList[$playerKeys[$i]]);
+				$this->playerListFrame->addComponent($this->playerList[$playerKeys[$i]]);
 			}
 			else
 			{
-				$this->frame->addComponent(clone $this->emptySlot);
+				$this->playerListFrame->addComponent(clone $this->emptySlot);
 			}
 		}
 		$this->posZ = 5;

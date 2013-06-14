@@ -25,6 +25,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->setSize(70, 100);
 
 		$this->frame = new \ManiaLive\Gui\Controls\Frame(0,0, new \ManiaLib\Gui\Layouts\Column());
+		$this->frame->getLayout()->setMarginHeight(0.5);
 		$this->addComponent($this->frame);
 	}
 

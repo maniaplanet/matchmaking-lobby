@@ -317,38 +317,29 @@ abstract class AbstractGUI
 		}
 	}
 	
-	final function showAlliesList($login, array $allies)
+	final function updateAlliesList($login, array $allies)
 	{
-		$allies = Windows\AlliesList::Create($login);
-		$allies->setPosition(95, 50);
+		$alliesList = Windows\WaitingScreen::Create($login);
+		$alliesList->clearAlliesList();
 		foreach($allies as $ally)
 		{
-			$allies->addPlayer($ally);
+			$alliesList->addAlly($ally);
 		}
-		$allies->show();
+		$alliesList->show();
 	}
 	
-	final function removeAlliesList($login)
+	final function createWaitingScreen($serverName, $readyAction, $scriptName)
 	{
-		Windows\AlliesList::Erase($login);
-	}
-	
-	final function createWaitingScreen($serverName, $readyAction)
-	{
-		$group = \ManiaLive\Gui\Group::Create($this->nonReadyGroupName);
-		
-		$waiting = Windows\WaitingScreen::Create($group);
 		Windows\WaitingScreen::$serverName = $serverName;
 		Windows\WaitingScreen::$readyAction = $readyAction;
-		$waiting->show();
+		Windows\WaitingScreen::$scriptName = $scriptName;
 	}
 	
-	final function showWaitingScreen($login)
+	final function removeWaitingScreen($login)
 	{
-		\ManiaLive\Gui\Group::Create($this->nonReadyGroupName, array($login));
+		Windows\WaitingScreen::Erase($login);
 	}
-	
-	
+
 	final function updateWaitingScreen($serverName, $avgWaitTime, $readyCount, $playingCount)
 	{
 		Windows\WaitingScreen::$playingCount = $playingCount;
@@ -396,7 +387,6 @@ abstract class AbstractGUI
 	final function removePlayerFromPlayerList($login)
 	{
 		Windows\PlayerList::Erase($login);
-
 		Windows\PlayerList::removePlayer($login);
 		Windows\PlayerList::RedrawAll();
 	}
@@ -440,18 +430,17 @@ abstract class AbstractGUI
 		Windows\Splash::Erase($login);
 	}
 	
-	final function showHelp($login, $scriptName, $displayHelp = false)
+	final function showHelp($scriptName)
 	{
-		$this->removeHelp($login);
-		$help = Windows\Help::Create($login);
-		$help->displayHelp = $displayHelp;
+		$this->removeHelp();
+		$help = Windows\Help::Create(\ManiaLive\Gui\Group::Get($this->readyGroupName));
 		$help->modeName = $scriptName;
 		$help->show();
 	}
 	
-	final function removeHelp($login)
+	final function removeHelp()
 	{
-		Windows\Help::Erase($login);
+		Windows\Help::Erase(\ManiaLive\Gui\Group::Get($this->readyGroupName));
 	}
 
 }

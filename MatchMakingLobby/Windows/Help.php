@@ -17,7 +17,7 @@ use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 class Help extends \ManiaLive\Gui\Window
 {
 
-	public $displayHelp = true;
+	public $displayHelp = false;
 	public $modeName = '';
 
 	protected $textLabel;

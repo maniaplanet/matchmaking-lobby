@@ -768,7 +768,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else $this->disableTickerEvent();
 
-		if (!($this->state == self::SLEEPING && $this->tick % 10 == 0))
+//		if (!($this->state == self::SLEEPING && $this->tick % 10 == 0))
 		{
 			$this->matchMakingService->registerMatchServer(
 				$this->storage->serverLogin,

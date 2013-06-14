@@ -68,8 +68,8 @@ class Player extends \ManiaLive\Gui\Control
 		$this->addComponent($this->label);
 
 		$this->rankLabel = new Elements\Label(15);
-		$this->rankLabel->setAlign('left','center2');
-		$this->rankLabel->setPosition(1, -2.5);
+		$this->rankLabel->setAlign('right','center2');
+		$this->rankLabel->setPosition(69, -2.5);
 		$this->rankLabel->setText('-');
 		$this->rankLabel->setTextColor('fff');
 		$this->rankLabel->setTextSize(1);
@@ -77,8 +77,8 @@ class Player extends \ManiaLive\Gui\Control
 		$this->addComponent($this->rankLabel);
 		
 		$this->countryFlag = new Elements\Quad(4, 3);
-		$this->countryFlag->setAlign('right','center');
-		$this->countryFlag->setPosition(69, -2.5);
+		$this->countryFlag->setAlign('left','center');
+		$this->countryFlag->setPosition(1, -2.5);
 		$this->addComponent($this->countryFlag);
 
 		$this->nickname = $nickname;
