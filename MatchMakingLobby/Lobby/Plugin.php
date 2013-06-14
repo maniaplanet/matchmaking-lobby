@@ -22,7 +22,7 @@ use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 class Plugin extends \ManiaLive\PluginHandler\Plugin
 {
 
-	const PREFIX = '$000»$39c ';
+	const PREFIX = '$000»$09f ';
 
 	/** @var int */
 	protected $tick;
@@ -71,9 +71,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
 	protected $dictionnary;
-	
+
 	protected $setReadyAction;
-	
+
 	function onInit()
 	{
 		$this->setVersion('2.2.0');
@@ -145,14 +145,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
 
 		$this->backLink = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->titleIdString;
-		
+
 		$this->gui->createPlayerList();
 		$this->gui->createPlayerList(true);
 
 		$this->setLobbyInfo();
 		$this->gui->createWaitingScreen(
-			$this->storage->server->name, 
-			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')), 
+			$this->storage->server->name,
+			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')),
 			$this->scriptName);
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
@@ -186,7 +186,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->updateLobbyWindow();
 		$this->gui->showHelp($this->scriptName);
-		
+
 		$this->connection->disableServiceAnnounces(true);
 
 		$this->registerChatCommand('setAllReady', 'onSetAllReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
@@ -254,7 +254,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updateKarma($login);
 
 		$this->checkAllies($player);
-		
+
 		try
 		{
 			$this->connection->removeGuest($login);
@@ -998,7 +998,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$playingPlayersCount,
 			$avgWaitingTime
 		);
-		
+
 		$this->gui->updateWaitingScreen($this->storage->server->name, $avgWaitingTime, $playersCount, $playingPlayersCount);
 	}
 

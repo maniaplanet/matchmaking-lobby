@@ -56,7 +56,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	const WAITING_BACKUPS = 5;
 
-	const PREFIX = '$000»$39c ';
+	const PREFIX = '$000»$09f ';
 
 	const TIME_WAITING_CONNECTION = 105;
 	const TIME_WAITING_BACKUP = 20;
