@@ -172,6 +172,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$voteRatio->ratio = -1.;
 		$this->connection->setCallVoteRatiosEx(false, array($voteRatio));
 
+		$this->connection->disableServiceAnnounces(true);
+
 		$playersCount = $this->getReadyPlayersCount();
 
 		$this->gui->updateLobbyWindow(
