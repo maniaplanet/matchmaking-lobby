@@ -207,9 +207,9 @@ class MatchMakingService
 	function getMatchesNeedingBackup($lobbyLogin, $scriptName, $titleIdString)
 	{
 		$ids = $this->db->execute(
-				'SELECT MS.id FROM MatchServers MS '.
+				'SELECT MS.matchId FROM MatchServers MS '.
 				'WHERE MS.lobbyLogin = %s AND MS.scriptName = %s AND MS.titleIdString = %s '.
-				'AND MS.state = %d ',
+				'AND MS.state = %d AND MS.matchId IS NOT NULL',
 				$this->db->quote($lobbyLogin),
 				$this->db->quote($scriptName),
 				$this->db->quote($titleIdString),
