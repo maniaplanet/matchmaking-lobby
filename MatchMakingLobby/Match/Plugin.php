@@ -56,7 +56,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 */
 	const WAITING_BACKUPS = 5;
 
-	const PREFIX = '$000»$8f0 ';
+	const PREFIX = '$000»$39c ';
 
 	const TIME_WAITING_CONNECTION = 105;
 	const TIME_WAITING_BACKUP = 20;
@@ -65,6 +65,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	 * @var int
 	 */
 	protected $tick = 0;
+
+	/**
+	 * @var int
+	 */
+	protected $lastRegisterTick = 0;
 
 	/** @var int */
 	protected $state = self::SLEEPING;
@@ -76,7 +81,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $intervals = array(
 		self::PLAYER_LEFT => '40 seconds',
 		self::WAITING => '5 seconds',
-		self::SLEEPING => '5 seconds',
+		self::SLEEPING => '2 seconds',
 		self::DECIDING => '50 seconds',
 		self::PLAYING => '15 seconds',
 		self::OVER => '10 seconds',
@@ -122,10 +127,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $config;
 
 	protected $scores = array();
-	
+
 	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
 	protected $dictionary;
-		
+
 	function onInit()
 	{
 		$this->setVersion('2.2.0');
@@ -153,7 +158,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//Load services
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
-		
+
 		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->scriptName);
 
 	}
@@ -177,11 +182,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$ratios = array(
 			new \DedicatedApi\Structures\VoteRatio('SetModeScriptSettings', -1.),
-			new \DedicatedApi\Structures\VoteRatio('Kick', 0.6),
+			new \DedicatedApi\Structures\VoteRatio('Kick', 0.7),
 			new \DedicatedApi\Structures\VoteRatio('Ban', -1.),
 			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.));
 
 		$this->connection->setCallVoteRatiosEx(false, $ratios);
+		$this->connection->setCallVoteTimeOut(15000);
 
 		$this->state = self::SLEEPING;
 
@@ -504,6 +510,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->giveUp($login);
 	}
 
+	function onVoteUpdated($stateName, $login, $cmdName, $cmdParam)
+	{
+		if($stateName == 'NewVote' && $this->state == self::DECIDING && in_array($cmdName, array('NextMap','JumpToMapIndex')))
+		{
+			$diff = $this->nextTick->diff(new \DateTime);
+			if($diff->s <= 10 && $diff->invert == 1 && $cmdName )
+			{
+				$this->connection->cancelVote();
+			}
+		}
+	}
+
 	protected function updateLobbyWindow()
 	{
 		$this->lobby = $this->matchMakingService->getLobby($this->lobby->login);
@@ -556,7 +574,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_END_ROUND |
 			ServerEvent::ON_PLAYER_INFO_CHANGED |
 			ServerEvent::ON_MODE_SCRIPT_CALLBACK |
-			ServerEvent::ON_MODE_SCRIPT_CALLBACK_ARRAY
+			ServerEvent::ON_MODE_SCRIPT_CALLBACK_ARRAY |
+			ServerEvent::ON_VOTE_UPDATED
 		);
 
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
@@ -768,7 +787,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		else $this->disableTickerEvent();
 
-//		if (!($this->state == self::SLEEPING && $this->tick % 10 == 0))
+		if (($this->state != self::SLEEPING || (($this->tick - $this->lastRegisterTick) > 12)))
 		{
 			$this->matchMakingService->registerMatchServer(
 				$this->storage->serverLogin,
@@ -778,6 +797,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->titleIdString,
 				$this->storage->currentMap->name
 			);
+
+			$this->lastRegisterTick = $this->tick;
 		}
 		if ($this->state != $state)
 		{
