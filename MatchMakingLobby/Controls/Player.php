@@ -53,7 +53,7 @@ class Player extends \ManiaLive\Gui\Control
 
 		$this->bg = new Elements\Bgs1InRace($this->sizeX, $this->sizeY);
 		$this->bg->setSubStyle(Elements\Bgs1InRace::BgListLine);
-		$this->bg->setBgcolor('222');
+//		$this->bg->setBgcolor('222');
 		$this->addComponent($this->bg);
 
 		$this->icon = new Elements\Icons64x64_1(2.5, 2.5);
@@ -65,18 +65,18 @@ class Player extends \ManiaLive\Gui\Control
 		$this->label->setValign('center2');
 		$this->label->setText($nickname);
 		$this->label->setTextColor('fff');
-		$this->label->setScale(0.75);
+		$this->label->setTextSize(1);
 		$this->addComponent($this->label);
 
 		$this->rankLabel = new Elements\Label(15);
 		$this->rankLabel->setAlign('right','center2');
 		$this->rankLabel->setText('-');
 		$this->rankLabel->setTextColor('fff');
+		$this->rankLabel->setTextPrefix('$o$s');
 		$this->rankLabel->setTextSize(1);
-		$this->rankLabel->setScale(0.6);
 		$this->addComponent($this->rankLabel);
 		
-		$this->countryFlag = new Elements\Quad(4, 3);
+		$this->countryFlag = new Elements\Quad(6.7, 5);
 		$this->countryFlag->setAlign('left','center');
 		$this->addComponent($this->countryFlag);
 
@@ -106,12 +106,12 @@ class Player extends \ManiaLive\Gui\Control
 		$this->icon->setPosition($this->sizeX - 6, - $this->sizeY / 2);
 		$this->label->setPosition(7.5, - $this->sizeY / 2);
 		$this->rankLabel->setPosition($this->sizeX - 1, - $this->sizeY / 2);
-		$this->countryFlag->setPosition(1, - $this->sizeY / 2);
+		$this->countryFlag->setPosition(0, - $this->sizeY / 2);
 		$this->bg->setSize($this->sizeX, $this->sizeY);
 		
 		$this->icon->setSubStyle($subStyle);
 		$this->countryFlag->setImage($this->zoneFlagURL, true);
-		$this->rankLabel->setText($this->ladderPoints > 0 ? (int)$this->ladderPoints : '-');
+		$this->rankLabel->setText($this->ladderPoints > 0 ? floor($this->ladderPoints /10000) : '-');
 	}
 }
 
