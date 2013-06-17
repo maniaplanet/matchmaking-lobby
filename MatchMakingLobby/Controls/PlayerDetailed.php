@@ -16,6 +16,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 	public $login;
 	public $nickname;
 	public $rank;
+	public $countryFlagUrl;
 	
 	/**
 	 * @var Elements\Icons64x64_1
@@ -50,10 +51,10 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 
 	function __construct()
 	{
-		$this->setSize(70, 20);
+		$this->setSize(80, 20);
 
-		$ui = new Elements\Quad(70, 20);
-		$ui->setBgcolor('333');
+		$ui = new Elements\Quad(80, 20);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/player-card-blank.png',true);
 		$this->addComponent($ui);
 
 		$this->icon = new Elements\Icons64x64_1(20, 20);
@@ -80,10 +81,10 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->countryFlag->setPosition(21, -17.5);
 		$this->addComponent($this->countryFlag);
 		
-		$ui = new Elements\Bgs1(14,24);
+		$ui = new Elements\Bgs1(20,24);
 		$ui->setSubStyle(Elements\Bgs1::BgTitle3_1);
 		$ui->setHalign('right');
-		$ui->setPosition(72, 2);
+		$ui->setPosition(82, 2);
 		$this->addComponent($ui);
 	}
 	
@@ -92,7 +93,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->icon->setImage($this->avatarUrl, true);
 		$this->label->setText($this->nickname);
 		$this->rankLabel->setText(sprintf('%s: %d', $this->zone, $this->rank));
-		$this->countryFlag->setImage('http://www.pepinieresbonnetfreres.be/Flags/france-flag.jpg', true);
+		$this->countryFlag->setImage($this->countryFlagUrl, true);
 	}
 }
 

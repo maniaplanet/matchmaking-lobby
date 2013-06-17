@@ -21,6 +21,8 @@ class ForceManialink extends \ManiaLive\Gui\Window
 	/** @var Elements\Bgs1*/
 	protected $bg;
 	
+	protected $displayMessage = true;
+	
 	/** @var Elements\Label */
 	protected $label;
 	
@@ -46,14 +48,22 @@ class ForceManialink extends \ManiaLive\Gui\Window
 		
 	}
 
-	function set($to)
+	function set($to, $displayMessage = true)
 	{
 		$this->xml->setContent('<script><!--main() { OpenLink("'.$to.'", CMlScript::LinkType::ManialinkBrowser); }--></script>');
+		$this->displayMessage = $displayMessage;
 	}
 	
 	function onDraw()
 	{
 		$this->posZ = 90;
+		$this->removeComponent($this->bg);
+		$this->removeComponent($this->label);
+		if($this->displayMessage)
+		{
+			$this->addComponent($this->bg);
+			$this->addComponent($this->label);
+		}
 		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink(array('text' => 'transfer')));
 	}
 

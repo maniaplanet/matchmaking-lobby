@@ -18,6 +18,9 @@ class StartMatch extends \ManiaLive\Gui\Window
 	
 	/** @var Elements\Label */
 	protected $label;
+	
+	/** @var Elements\Label */
+	protected $transferLabel;
 
 	/** @var \ManiaLive\Gui\Controls\Frame */
 	protected $team1;
@@ -47,17 +50,24 @@ class StartMatch extends \ManiaLive\Gui\Window
 	{
 		$this->background = new Elements\Quad(320, 142);
 		$this->background->setAlign('center', 'center');
-		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/lobby-background.png',true);
+		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/background.png',true);
 		$this->addComponent($this->background);
 		
-		$this->label = new Elements\Label(120, 20);
+		$this->label = new Elements\Label(200, 20);
 		$this->label->setAlign('center', 'center2');
 		$this->label->setPosY(47);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
-		$this->label->setText('$FF0Match starts in %1...');
+		$this->label->setTextColor('FF0');
+		$this->label->setTextid('text');
 		$this->label->setId('info-label');
 		$this->label->setTextSize(7);
 		$this->addComponent($this->label);
+		
+		$this->transferLabel = clone $this->label;
+		$this->transferLabel->setTextColor(null);
+		$this->transferLabel->setTextid('transferText');
+		$this->transferLabel->setId('transfer-label');
+		$this->addComponent($this->transferLabel);
 
 		$layout = new \ManiaLib\Gui\Layouts\Column();
 		$layout->setMarginHeight(1);
@@ -121,6 +131,7 @@ class StartMatch extends \ManiaLive\Gui\Window
 			$playerCard->zone = $player->zone;
 			$playerCard->rank = $player->rank;
 			$playerCard->avatarUrl = 'file://Avatars/'.$player->login.'/Default';
+			$playerCard->countryFlagUrl = $player->zoneFlag;
 			$frame->addComponent(clone $playerCard);
 		}
 	}
@@ -140,8 +151,10 @@ main()
 	declare Integer countdownTimeLeft = $countdown;
 	declare Boolean waiting = False;
 	declare CMlLabel label <=> (Page.MainFrame.GetFirstChild("info-label") as CMlLabel);
+	declare CMlLabel label2 <=> (Page.MainFrame.GetFirstChild("transfer-label") as CMlLabel);
 	declare Text labelText = label.Value;
 	label.SetText(TextLib::Compose(labelText, TextLib::ToText(countdownTimeLeft)));
+	label2.Hide();
 
 	while(True)
 	{
@@ -153,6 +166,8 @@ main()
 		}
 		else if(countdownTimeLeft <= 0)
 		{
+			label2.Show();
+			label.Hide();
 			waiting = True;
 		}
 		yield;
@@ -161,15 +176,12 @@ main()
 MANIASCRIPT
 		);
 		
-		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::build(array(
-			'en' => array(
-				'blue' => 'Blue',
-				'red' => 'Red'
-			),
-			'fr' => array(
-				'blue' => 'Bleu',
-				'red' => 'Rouge'
-			)
+		\ManiaLive\Gui\Manialinks::appendXML(
+		\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance()->getManialink(array(
+				'blue' => 'blue',
+				'red' => 'red',
+				'text' => 'launchMatch',
+				'transferText' => 'transfer',
 		)));
 	}
 	

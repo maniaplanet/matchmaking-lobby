@@ -9,6 +9,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 use ManiaLib\Gui\Elements;
 use ManiaLive\Gui\Controls\Frame;
+use ManiaLivePlugins\MatchMakingLobby\Controls\PlayerDetailed;
 use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 
 class WaitingScreen extends \ManiaLive\Gui\Window
@@ -37,6 +38,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	static public $readyAction;
 	
 	static public $scriptName;
+	
+	public $disableReadyButton = false;
 
 	/**
 	 * @var Elements\Label
@@ -105,21 +108,19 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setTextColor('fff');
 		$ui->setTextSize(3);
 		$ui->enableAutonewline();
-		$ui->setText('Welcome to the matchmaking waiting room.
-Press $oREADY$o to play, and wait your match.
-Your Elite game will start automatically.');
+		$ui->setTextid('text');
 		$this->addComponent($ui);
 
 		$ui = new Elements\Bgs1InRace(40, 8);
 		$ui->setAlign('center', 'center');
-		$ui->setPosition(-95, 50);
+		$ui->setPosition(-105, 50);
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad.png',true);
 		$this->addComponent($ui);
 		
 		
 		// TODO Add to Translation files
 		$frame = new Frame();
-		$frame->setPosition(95, 50);
+		$frame->setPosition(105, 50);
 		$this->addComponent($frame);
 		
 		$ui = new Elements\Bgs1InRace(40, 8);
@@ -131,22 +132,22 @@ Your Elite game will start automatically.');
 		$ui->setAlign('center', 'center');
 		$ui->setStyle(Elements\Label::TextTitle3);
 		$ui->setTextEmboss();
-		$ui->setText('Allies');
+		$ui->setTextid('allies');
 		$frame->addComponent($ui);
 		
 		$this->emptySlot = new \ManiaLive\Gui\Controls\Frame();
 		$this->emptySlot->setSize(70, 20);
 		
-		$ui = new Elements\Quad(70, 20);
+		$ui = new Elements\Quad(80, 20);
 		$ui->setAlign('center', 'top');
-		$ui->setBgcolor('0009');
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/player-card-blank.png',true);
 		$this->emptySlot->addComponent($ui);
 		
-		$ui = new Elements\Label(70);
+		$ui = new Elements\Label(80);
 		$ui->setAlign('center', 'center');
 		$ui->setPosition(0, -10);
 		$ui->setStyle(Elements\Label::TextButtonSmall);
-		$ui->setText('Set another ally');
+		$ui->setTextid('setAlly');
 		$this->emptySlot->addComponent($ui);
 		
 		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0,-5, new \ManiaLib\Gui\Layouts\Column());
@@ -156,10 +157,10 @@ Your Elite game will start automatically.');
 		// TODO Add to Translation files
 		$ui = new Elements\Label(40, 10);
 		$ui->setAlign('center', 'center');
-		$ui->setPosition(-95, 50);
+		$ui->setPosition(-105, 50);
 		$ui->setStyle(Elements\Label::TextTitle3);
 		$ui->setTextEmboss();
-		$ui->setText('Players');
+		$ui->setTextid('players');
 		$this->addComponent($ui);
 		
 		$frame = new Frame();
@@ -214,7 +215,7 @@ Your Elite game will start automatically.');
 		$ui->setPosition(0, -33.5);
 		$ui->setStyle(Elements\Label::TextButtonSmall);
 		$ui->setTextSize(2);
-		$ui->setText('AVG Waiting Time');
+		$ui->setTextid('avgWaiting');
 		$frame->addComponent($ui);
 		
 		$this->avgWaitTimeLabel = new Elements\Label(35, 15);
@@ -234,7 +235,7 @@ Your Elite game will start automatically.');
 		$ui = new Elements\Label(40,5);
 		$ui->setHalign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextButtonBig);
-		$ui->setText('Back');
+		$ui->setTextid('back');
 		$ui->setTextColor('fff');
 		$ui->setAction('0');
 		$this->buttonFrame->addComponent($ui);
@@ -252,14 +253,14 @@ Your Elite game will start automatically.');
 		$ui = new Elements\Label();
 		$ui->setAlign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextButtonBig);
-		$ui->setText('Ready');
+		$ui->setTextid('readyButton');
 		$ui->setTextSize(3);
 		$frame->addComponent($ui);
 		
 		$ui = new Elements\Label(40,6);
 		$ui->setHalign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextButtonBig);
-		$ui->setText('Rules');
+		$ui->setTextid('rules');
 		$ui->setTextColor('fff');
 		$ui->setManialink('');
 		$this->buttonFrame->addComponent($ui);
@@ -269,11 +270,13 @@ Your Elite game will start automatically.');
 	{
 		$path = explode('|', $player->path);
 		$zone = $path[1];
+		$zoneService = new \ManiaLivePlugins\MatchMakingLobby\Services\ZoneService();
 		$this->playerList[$player->login] = new PlayerDetailed();
 		$this->playerList[$player->login]->nickname = $player->nickName ? : $player->login;
 		$this->playerList[$player->login]->zone = $zone;
 		$this->playerList[$player->login]->avatarUrl = 'file://Avatars/'.$player->login.'/Default';
 		$this->playerList[$player->login]->rank = $player->ladderStats['PlayerRankings'][0]['Ranking'];
+		$this->playerList[$player->login]->countryFlagUrl = $zoneService->getFlag(implode('|', array_slice($path, 0, 3)));
 		$this->playerList[$player->login]->setHalign('center');
 	}
 	
@@ -292,9 +295,9 @@ Your Elite game will start automatically.');
 	
 	function setTextId($textId = null)
 	{
-		$this->textId = $textId ? : array('textId' => 'helpText', 'params' => array('Elite'));
+		$this->textId = $textId ? : array('textId' => 'waitingHelp', 'params' => array(self::$scriptName));
 	}
-
+	
 	function onDraw()
 	{
 		if(self::$avgWaitTime < 0)
@@ -303,9 +306,8 @@ Your Elite game will start automatically.');
 		}
 		else
 		{
-			$min = self::$avgWaitTime / 60;
-			$secs = ceil(($min - (int) $min) * 4) *15;
-			$avgWaitingTime = sprintf('%1$02d:%2$02d',$min, $secs);
+			$min = ceil(self::$avgWaitTime / 60);
+			$avgWaitingTime = sprintf('%d min',$min);
 		}
 		
 		$this->playerListFrame->clearComponents();
@@ -326,10 +328,25 @@ Your Elite game will start automatically.');
 		$this->playingCountLabel->setText(self::$playingCount);
 		$this->waitingCountLabel->setText(self::$waitingCount);
 		$this->avgWaitTimeLabel->setText($avgWaitingTime);
-		$this->readyButton->setAction(self::$readyAction);
+		if(!$this->disableReadyButton)
+		{
+			$this->readyButton->setAction(self::$readyAction);
+		}
 		$this->posZ = 3.9;
-		$textId = $this->textId ? : array('textId' => 'helpText', 'params' => array('', self::$scriptName));
-		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink(array('playing' => 'playing', 'ready'=>'ready', 'text' => $textId)));
+
+		$textId = $this->textId ? : array('textId' => 'waitingHelp', 'params' => array(self::$scriptName));
+		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink(array(
+				'playing' => 'playing',
+				'ready' => 'ready',
+				'readyButton' => 'readyButton',
+				'text' => $textId,
+				'players' => 'players',
+				'allies' => 'allies',
+				'avgWaiting' => 'waitingScreenWaitingLabel',
+				'rules' => 'rules',
+				'back' => 'back',
+				'setAlly' => 'setAlly'
+		)));
 	}
 
 }

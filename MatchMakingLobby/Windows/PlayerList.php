@@ -14,6 +14,8 @@ use ManiaLivePlugins\MatchMakingLobby\Controls\Player;
 class PlayerList extends \ManiaLive\Gui\Window
 {
 	static protected $playerList = array();
+	
+	public $smallCards = false;
 
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
@@ -29,14 +31,19 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->addComponent($this->frame);
 	}
 
-	static function addPlayer($login, $state = 0, $zone = 'World', $ladderPoints = -1)
+	static function addPlayer($login, $state = 0, $zone = 'World', $ladderPoints = -1, $flagURL = '')
 	{
 		$storage = \ManiaLive\Data\Storage::getInstance();
 		try
 		{
 			$playerObj = $storage->getPlayerObject($login);
-			self::$playerList[$login] = new Player($playerObj ? $playerObj->nickName : $login);
-			self::$playerList[$login]->setState($state, $zone, $ladderPoints);
+			self::$playerList[$login] = array(
+				'nickname' => $playerObj ? $playerObj->nickName : $login,
+				'zone' => $zone,
+				'ladderPoints' => $ladderPoints,
+				'state' => $state,
+				'zoneFlag' => $flagURL
+				);
 		}
 		catch(\Exception $e)
 		{
@@ -52,15 +59,17 @@ class PlayerList extends \ManiaLive\Gui\Window
 		}
 	}
 	
-	static function setPlayer($login, $state, $zone = 'World', $ladderPoints = -1)
+	static function setPlayer($login, $state, $zone = 'World', $ladderPoints = -1, $flagUrl = '')
 	{
 		if(array_key_exists($login, self::$playerList))
 		{
-			self::$playerList[$login]->setState($state, $zone, $ladderPoints);
+			self::$playerList[$login]['state'] = $state;
+			self::$playerList[$login]['zone'] = $zone;
+			self::$playerList[$login]['ladderPoints'] = $ladderPoints;
 		}
 		else
 		{
-			self::addPlayer($login, $state, $zone, $ladderPoints);
+			self::addPlayer($login, $state, $zone, $ladderPoints, $flagUrl);
 		}
 	}
 	
@@ -75,22 +84,32 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->frame->clearComponents();
 		
 		uasort(self::$playerList,
-			function (Player $p1, Player $p2)
+			function ($p1, $p2)
 			{
-				if($p1->state == $p2->state)
+				if($p1['state'] == $p2['state'])
 				{
-					if($p1->ladderPoints == $p2->ladderPoints)
+					if($p1['ladderPoints'] == $p2['ladderPoints'])
 					{
 						return 0;
 					}
-					return $p1->ladderPoints > $p2->ladderPoints ? 1 : -1;
+					return $p1['ladderPoints'] > $p2['ladderPoints'] ? 1 : -1;
 				}
-				return $p1->state > $p2->state ? -1 : 1;
+				return $p1['state'] > $p2['state'] ? -1 : 1;
 			}
 		);
 		
-		foreach(self::$playerList as $component)
+		foreach(self::$playerList as $player)
+		{
+			$component = new Player($player['nickname']);
+			$component->state = $player['state'];
+			$component->ladderPoints = $player['ladderPoints'];
+			$component->zoneFlagURL = $player['zoneFlag'];
+			if($this->smallCards)
+			{
+				$component->setSizeX(45);
+			}
 			$this->frame->addComponent($component);
+		}
 	}
 
 

@@ -44,7 +44,21 @@ A match is expecting a substitute',
 	'helpNote' => 'Note: both players have to set the other as ally.',
 	'wait' => 'Please wait...',
 	'waitingTime' => 'Estimated waiting time: %s',
+	'waitingScreenWaitingLabel' => 'AVG Waiting Time',
+	'waitingHelp' => 'Welcome to the matchmaking waiting room.
+Press $oREADY$o to play, and wait your match.
+Your Elite game will start automatically.
+
+',
 	'playing' => 'Playing',
 	'ready' => 'Ready',
+	'readyButton' => 'Ready (F6)',
+	'players' => 'Players',
+	'allies' => 'Allies',
+	'rules' => 'Learn',
+	'back' => 'Back',
+	'red' => 'Red',
+	'blue' => 'Blue',
+	'setAlly' => 'Set another ally',
 );
 ?>

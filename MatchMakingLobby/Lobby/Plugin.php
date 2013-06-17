@@ -127,6 +127,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			StorageEvent::ON_PLAYER_CHANGE_SIDE |
 			StorageEvent::ON_PLAYER_JOIN_GAME
 		);
+		
+		Services\ZoneService::constructDataStore();
 
 		$matchSettingsClass = $this->config->getMatchSettingsClassName($this->scriptName);
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
@@ -227,7 +229,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$jumper = Windows\ForceManialink::Create($login);
 			$jumper->set('maniaplanet://#qjoin='.$match->matchServerLogin.'@'.$match->titleIdString);
 			$jumper->show();
-			$this->gui->createLabel($this->gui->getMatchInProgressText(), $login);
+			$this->gui->updateWaitingScreenLabel($this->gui->getMatchInProgressText(), $login);
 			return;
 		}
 		else
@@ -490,7 +492,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					if($players)
 					{
 						\ManiaLive\Utilities\Logger::debug('re-display jumper for: '.implode(',', $players));
-						$this->gui->prepareJump($players, $match->matchServerLogin, $this->titleIdString, $matchId);
+						$this->gui->prepareJump($players, $match->matchServerLogin, $this->titleIdString, $matchId, false);
 						$this->gui->showJump($matchId);
 					}
 					$this->countDown[$matchId] = $countDown;
@@ -703,7 +705,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->checkAllies($player);
 		}
 		$storage = $this->storage;
-		if(!Services\PlayerInfo::Get($login)->isReady())
+		if(!Services\PlayerInfo::Get($login)->isReady() && !Services\PlayerInfo::Get($login)->isAway())
 		{
 			$this->gui->updateAlliesList($login,
 				array_map(function ($login) use ($storage)
@@ -863,7 +865,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match %d on server: %s',$id, $server));
 		\ManiaLive\Utilities\Logger::debug($match);
 
-		$this->gui->prepareJump($match->players, $server, $this->titleIdString, $id);
+		$this->gui->prepareJump($match->players, $server, $this->titleIdString, $id, false);
 		$this->countDown[$id] = 7;
 
 		foreach($match->players as $player)
@@ -871,7 +873,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->removeLabel($player);
 			$this->gui->removeFromGroup($player);
 			$this->gui->removeWaitingScreen($player);
-			$this->gui->showMatchSumUp($match, $player, 10);
+			$this->gui->showMatchSumUp($match, $player, 5);
 			$this->connection->forceSpectator($player, 3, true);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			Services\PlayerInfo::Get($player)->isInMatch = true;
@@ -954,14 +956,17 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 				$this->onPlayerNotReady($login);
 
-				$this->gui->createLabel($this->gui->getBadKarmaText($penalty), $login, null, false, false);
 				$this->resetShortKey($login);
 				$this->updatePlayerList = true;
+				$this->gui->updateWaitingScreenLabel($this->gui->getBadKarmaText($penalty), $login);
+				$this->gui->disableReadyButton($login);
 			}
 			else
 			{
 				unset($this->blockedPlayers[$login]);
 				$this->onPlayerNotReady($login);
+				$this->gui->updateWaitingScreenLabel(null, $login);
+				$this->gui->disableReadyButton($login, false);
 			}
 		}
 		else
@@ -1082,16 +1087,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		foreach ($players as $player)
 		{
 			$this->gui->removeLabel($player->login);
-//			if (!array_key_exists($player->login, $this->blockedPlayers))
-//			{
-//				$message = $this->gui->getNotReadyText();
-//				if (count(Services\PlayerInfo::GetReady()) == 0 && $this->backupNeeded)
-//				{
-//					$message .= '|'.$this->gui->getNoReadyPlayers();
-//				}
+			if (!array_key_exists($player->login, $this->blockedPlayers))
+			{
+				$message = null;
+				if (count(Services\PlayerInfo::GetReady()) == 0 && $this->backupNeeded)
+				{
+					$message = $this->gui->getNoReadyPlayers();
+				}
 				$this->setShortKey($player->login, array($this,'onPlayerReady'));
-//				$this->gui->createLabel($message, $player->login, null, false, true, true);
-//			}
+				$this->gui->updateWaitingScreenLabel($message, $player->login);
+			}
 		}
 	}
 }

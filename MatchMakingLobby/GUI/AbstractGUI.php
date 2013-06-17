@@ -213,11 +213,15 @@ abstract class AbstractGUI
 		$getPlayerInfosCallback = function ($login) use ($storage)
 			{
 				$p = $storage->getPlayerObject($login);
+				$pathArray = explode('|', $p->ladderStats['PlayerRankings'][0]['Path']);
+				$path = implode('|', array_slice($pathArray, 0, 3));
+				$service = new \ManiaLivePlugins\MatchMakingLobby\Services\ZoneService();
 				return (object) array(
 					'login' => $login,
 					'nickname' => ($p ? $p->nickName : $login),
-					'zone' => ($p ? array_pop(explode('|', $p->ladderStats['PlayerRankings'][0]['Path'])) : 'World'),
-					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1)
+					'zone' => ($p ? array_pop($pathArray) : 'World'),
+					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1),
+					'countryFlag' => $service->getFlag($path)
 				);
 			};
 		if($match->team1 && $match->team2)
@@ -263,20 +267,19 @@ abstract class AbstractGUI
 	 */
 	final function createPlayerList($isReady = false)
 	{
+		$group = \ManiaLive\Gui\Group::Create($isReady ? $this->readyGroupName : $this->nonReadyGroupName);
+		$playerList = Windows\PlayerList::Create($group);
 		if($isReady)
 		{
-			$groupName = 'readyPlayers';
 			$align = array('right');
-			$position = array(160, $this->lobbyBoxPosY + 3);
+			$position = array(185.2, $this->lobbyBoxPosY + 3);
+			$playerList->smallCards = true;
 		}
 		else
 		{
-			$groupName = 'nonReadyPlayers';
 			$align = array('left');
-			$position = array(-130, 45);
+			$position = array(-140, 45);
 		}
-		$group = \ManiaLive\Gui\Group::Create($groupName);
-		$playerList = Windows\PlayerList::Create($group);
 		call_user_func_array(array($playerList,'setAlign'), $align);
 		call_user_func_array(array($playerList,'setPosition'), $position);
 		$playerList->show();
@@ -348,6 +351,33 @@ abstract class AbstractGUI
 		Windows\WaitingScreen::$serverName = $serverName;
 		Windows\WaitingScreen::RedrawAll();
 	}
+	
+	final function updateWaitingScreenLabel($textId, $login = null)
+	{
+		if($login)
+		{
+			$screens = Windows\WaitingScreen::Get($login);
+		}
+		else
+		{
+			$screens = Windows\WaitingScreen::GetAll();
+		}
+		foreach($screens as $screen)
+		{
+			$screen->setTextId($textId);
+			$screen->redraw();
+		}
+	}
+	
+	function disableReadyButton($login, $disable = true)
+	{
+		$screens = Windows\WaitingScreen::Get($login);
+		foreach($screens as $screen)
+		{
+			$screen->disableReadyButton = $disable;
+			$screen->redraw();
+		}
+	}
 
 	/**
 	 * update the Player list
@@ -357,6 +387,7 @@ abstract class AbstractGUI
 	final function updatePlayerList(array $blockedPlayerList)
 	{
 		$storage = Storage::getInstance();
+		$zoneService = new \ManiaLivePlugins\MatchMakingLobby\Services\ZoneService();
 		foreach(array_merge($storage->players, $storage->spectators) as $player)
 		{
 			if(PlayerInfo::Get($player->login)->isAway())
@@ -374,8 +405,10 @@ abstract class AbstractGUI
 			/* @var $playerList Windows\PlayerList */
 			$path = explode('|', $playerObj->path);
 			$zone = $path[1];
+			$path = array_slice($path, 0, 3);
+			$flagURL = $zoneService->getFlag(implode('|', $path));
 			$ladderPoints = $playerObj->ladderStats['PlayerRankings'][0]['Score'];
-			Windows\PlayerList::setPlayer($player->login, $state, $zone, $ladderPoints);
+			Windows\PlayerList::setPlayer($player->login, $state, $zone, $ladderPoints, $flagURL);
 		}
 		Windows\PlayerList::RedrawAll();
 	}
@@ -391,14 +424,14 @@ abstract class AbstractGUI
 		Windows\PlayerList::RedrawAll();
 	}
 
-	final function prepareJump(array $players, $serverLogin, $titleIdString, $matchId)
+	final function prepareJump(array $players, $serverLogin, $titleIdString, $matchId, $showMessage = true)
 	{
 		$groupName = sprintf('match-%s',$matchId);
 		$this->eraseJump($serverLogin);
 		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->setPosition(0, 21.5);
-		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString);
+		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString, $showMessage);
 	}
 
 	final function eraseJump($matchId)

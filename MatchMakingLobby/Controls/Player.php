@@ -23,6 +23,9 @@ class Player extends \ManiaLive\Gui\Control
 	public $login;
 	public $nickname;
 	public $ladderPoints;
+	public $zoneFlagURL;
+
+	protected $bg;
 	
 	/**
 	 * @var Elements\Icons64x64_1
@@ -48,20 +51,18 @@ class Player extends \ManiaLive\Gui\Control
 	{
 		$this->setSize(70, 5);
 
-		$ui = new Elements\Bgs1InRace(70, 5);
-//		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
-		$ui->setBgcolor('222');
-		$this->addComponent($ui);
+		$this->bg = new Elements\Bgs1InRace($this->sizeX, $this->sizeY);
+		$this->bg->setSubStyle(Elements\Bgs1InRace::BgListLine);
+		$this->bg->setBgcolor('222');
+		$this->addComponent($this->bg);
 
 		$this->icon = new Elements\Icons64x64_1(2.5, 2.5);
 		$this->icon->setSubStyle(Elements\Icons64x64_1::LvlRed);
 		$this->icon->setAlign('right','center');
-		$this->icon->setPosition(63, -2.5);
 		$this->addComponent($this->icon);
 
 		$this->label = new Elements\Label(34);
 		$this->label->setValign('center2');
-		$this->label->setPosition(7.5, -2.5);
 		$this->label->setText($nickname);
 		$this->label->setTextColor('fff');
 		$this->label->setScale(0.75);
@@ -69,7 +70,6 @@ class Player extends \ManiaLive\Gui\Control
 
 		$this->rankLabel = new Elements\Label(15);
 		$this->rankLabel->setAlign('right','center2');
-		$this->rankLabel->setPosition(69, -2.5);
 		$this->rankLabel->setText('-');
 		$this->rankLabel->setTextColor('fff');
 		$this->rankLabel->setTextSize(1);
@@ -78,16 +78,15 @@ class Player extends \ManiaLive\Gui\Control
 		
 		$this->countryFlag = new Elements\Quad(4, 3);
 		$this->countryFlag->setAlign('left','center');
-		$this->countryFlag->setPosition(1, -2.5);
 		$this->addComponent($this->countryFlag);
 
 		$this->nickname = $nickname;
 		$this->state = static::STATE_NOT_READY;
 	}
-
-	function setState($state = 1, $zone = 'World', $ladderPoints = -1)
+	
+	function onDraw()
 	{
-		switch($state)
+		switch($this->state)
 		{
 			case static::STATE_READY:
 				$subStyle = Elements\Icons64x64_1::LvlGreen;
@@ -103,12 +102,16 @@ class Player extends \ManiaLive\Gui\Control
 			default :
 				$subStyle = Elements\Icons64x64_1::LvlRed;
 		}
-		$this->state = $state;
-		$this->ladderPoints = $ladderPoints;
-
+		
+		$this->icon->setPosition($this->sizeX - 6, - $this->sizeY / 2);
+		$this->label->setPosition(7.5, - $this->sizeY / 2);
+		$this->rankLabel->setPosition($this->sizeX - 1, - $this->sizeY / 2);
+		$this->countryFlag->setPosition(1, - $this->sizeY / 2);
+		$this->bg->setSize($this->sizeX, $this->sizeY);
+		
 		$this->icon->setSubStyle($subStyle);
-		$this->countryFlag->setImage('http://www.pepinieresbonnetfreres.be/Flags/france-flag.jpg', true);
-		$this->rankLabel->setText($ladderPoints > 0 ? (int)$ladderPoints : '-');
+		$this->countryFlag->setImage($this->zoneFlagURL, true);
+		$this->rankLabel->setText($this->ladderPoints > 0 ? (int)$this->ladderPoints : '-');
 	}
 }
 

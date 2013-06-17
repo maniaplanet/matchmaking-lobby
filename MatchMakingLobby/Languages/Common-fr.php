@@ -44,6 +44,20 @@ Un match est en attente de remplaçant',
   'helpNote' => 'Note : les deux joueurs doivent chacun s\'allier l\'un l\'autre',
   'wait' => 'Veuillez patienter...',
   'waitingTime' => 'Temps d\'attente estimé : %s',
+	'waitingScreenWaitingLabel' => 'Temps d\'attente moyen',
+	'waitingHelp' => 'Welcome to the matchmaking waiting room.
+Press $oREADY$o to play, and wait your match.
+Your Elite game will start automatically.
+
+',
   'playing' => 'En jeu',
   'ready' => 'Prêt',
+	'readyButton' => 'Prêt (F6)',
+	'players' => 'Joueurs',
+	'allies' => 'Alliés',
+	'rules' => 'Apprendre',
+	'back' => 'Retour',
+	'red' => 'Rouge',
+	'blue' => 'Bleu',
+	'setAlly' => 'Définir un autre allié',
 );?>
