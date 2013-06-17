@@ -170,10 +170,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$storage = $this->storage;
 			$this->gui->updateAlliesList(
 				$login,
-				array_map(function ($login) use ($storage)
+				array_filter(array_map(function ($login) use ($storage)
 					{
 						return $storage->getPlayerObject($login);
-					}, $obj->allies)
+					}, $obj->allies))
 			);
 		}
 		$this->updatePlayerList = true;
@@ -246,10 +246,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$storage = $this->storage;
 		$this->gui->updateAlliesList(
 				$login,
-				array_map(function ($login) use ($storage)
+				array_filter(array_map(function ($login) use ($storage)
 					{
 						return $storage->getPlayerObject($login);
-					}, $playerObject->allies)
+					}, $playerObject->allies))
 			);
 		$this->updatePlayerList = true;
 
@@ -686,10 +686,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$storage = $this->storage;
 		$this->gui->updateAlliesList(
 				$login,
-				array_map(function ($login) use ($storage)
+				array_filter(array_map(function ($login) use ($storage)
 					{
 						return $storage->getPlayerObject($login);
-					}, $this->storage->getPlayerObject($login)->allies)
+					}, $this->storage->getPlayerObject($login)->allies))
 			);
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
@@ -708,10 +708,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if(!Services\PlayerInfo::Get($login)->isReady() && !Services\PlayerInfo::Get($login)->isAway())
 		{
 			$this->gui->updateAlliesList($login,
-				array_map(function ($login) use ($storage)
+				array_filter(array_map(function ($login) use ($storage)
 					{
 						return $storage->getPlayerObject($login);
-					}, $player->allies));
+					}, $player->allies)));
 		}
 	}
 

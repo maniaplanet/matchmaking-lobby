@@ -92,7 +92,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 					{
 						return 0;
 					}
-					return $p1['ladderPoints'] > $p2['ladderPoints'] ? 1 : -1;
+					return $p1['ladderPoints'] > $p2['ladderPoints'] ? -1 : 1;
 				}
 				return $p1['state'] > $p2['state'] ? -1 : 1;
 			}

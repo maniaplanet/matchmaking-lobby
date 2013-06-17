@@ -71,6 +71,9 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 */
 	protected $readyButton;
 	
+	protected $readyButtonFrame;
+
+
 	protected $playerList = array();
 	
 	/**
@@ -102,9 +105,15 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->serverNameLabel->setTextEmboss();
 		$this->addComponent($this->serverNameLabel);
 		
+		$ui = new Elements\Quad(110, 42);
+		$ui->setPosY(3);
+		$ui->setAlign('center');
+		$ui->setBgcolor('0008');
+		$this->addComponent($ui);
+		
 		$ui = new Elements\Label(100,40);
 		$ui->setAlign('center');
-		$ui->setPosY(45);
+		$ui->setPosY(0);
 		$ui->setTextColor('fff');
 		$ui->setTextSize(3);
 		$ui->enableAutonewline();
@@ -164,7 +173,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->addComponent($ui);
 		
 		$frame = new Frame();
-		$frame->setPosition(0, 10);
+		$frame->setPosition(0, 45);
 		$this->addComponent($frame);
 
 		$ui = new Elements\Bgs1InRace(25, 12);
@@ -240,22 +249,23 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setAction('0');
 		$this->buttonFrame->addComponent($ui);
 		
-		$frame = new Frame();
-		$frame->setSize(60,3);
-		$this->buttonFrame->addComponent($frame);
+		$this->readyButtonFrame = new Frame();
+		$this->readyButtonFrame->setSize(60,3);
+		$this->readyButtonFrame->setPosition(0, -30);
+		$this->addComponent($this->readyButtonFrame);
 		
 		$this->readyButton = new Elements\Quad(60,8);
 		$this->readyButton->setAlign('center', 'center');
 		$this->readyButton->setImage('http://static.maniaplanet.com/manialinks/lobbies/red-button.png', true);
 		$this->readyButton->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/red-button-hover.png', true);
-		$frame->addComponent($this->readyButton);
+		$this->readyButtonFrame->addComponent($this->readyButton);
 		
 		$ui = new Elements\Label();
 		$ui->setAlign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextButtonBig);
 		$ui->setTextid('readyButton');
 		$ui->setTextSize(3);
-		$frame->addComponent($ui);
+		$this->readyButtonFrame->addComponent($ui);
 		
 		$ui = new Elements\Label(40,6);
 		$ui->setHalign('center', 'center2');
@@ -331,7 +341,12 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->avgWaitTimeLabel->setText($avgWaitingTime);
 		if(!$this->disableReadyButton)
 		{
+			$this->readyButtonFrame->setVisibility(true);
 			$this->readyButton->setAction(self::$readyAction);
+		}
+		else
+		{
+			$this->readyButtonFrame->setVisibility(false);
 		}
 		$this->posZ = 3.9;
 

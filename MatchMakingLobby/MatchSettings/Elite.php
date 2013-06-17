@@ -27,7 +27,8 @@ class Elite implements MatchSettings
 			'S_Mode' => 1,
 			'S_MatchmakingSleep' => 15,
 			'S_WarmUpDuration' => 5,
-			'S_UseScriptCallbacks' => true
+			'S_UseScriptCallbacks' => true,
+			'S_Matchmaking' => true
 		);
 		return $rules;
 	}
