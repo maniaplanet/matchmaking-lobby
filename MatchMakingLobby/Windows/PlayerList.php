@@ -98,8 +98,12 @@ class PlayerList extends \ManiaLive\Gui\Window
 			}
 		);
 		
-		foreach(self::$playerList as $player)
+		$count = 0;
+		reset(self::$playerList);
+		while(current(self::$playerList) && $count++ < 17)
 		{
+			$player = current(self::$playerList);
+
 			$component = new Player($player['nickname']);
 			$component->state = $player['state'];
 			$component->ladderPoints = $player['ladderPoints'];
@@ -108,7 +112,8 @@ class PlayerList extends \ManiaLive\Gui\Window
 			{
 				$component->setSizeX(45);
 			}
-			$this->frame->addComponent($component);
+			$this->frame->addComponent(clone $component);
+			next(self::$playerList);
 		}
 	}
 

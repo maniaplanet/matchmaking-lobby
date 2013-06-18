@@ -163,7 +163,7 @@ abstract class AbstractGUI
 	 */
 	function getTooManyAlliesText($n)
 	{
-		return 'tooManyAllies';
+		return array('textId' => 'tooManyAllies', 'params' => array($n));
 	}
 
 	/**
@@ -221,7 +221,7 @@ abstract class AbstractGUI
 					'nickname' => ($p ? $p->nickName : $login),
 					'zone' => ($p ? array_pop($pathArray) : 'World'),
 					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1),
-					'countryFlag' => $service->getFlag($path)
+					'zoneFlag' => $service->getFlag($path)
 				);
 			};
 		if($match->team1 && $match->team2)
@@ -278,7 +278,7 @@ abstract class AbstractGUI
 		else
 		{
 			$align = array('left');
-			$position = array(-140, 45);
+			$position = array(-145, 45);
 		}
 		call_user_func_array(array($playerList,'setAlign'), $align);
 		call_user_func_array(array($playerList,'setPosition'), $position);

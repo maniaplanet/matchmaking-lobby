@@ -30,7 +30,7 @@ class TooManyAllies extends \ManiaLive\Gui\Window
 
 	public function setText($text)
 	{
-		$this->dico = array('textId' => 'tooManyAllies', 'params' => array($text));
+		$this->dico = array('text' => $text);
 	}
 	
 	protected function onDraw()

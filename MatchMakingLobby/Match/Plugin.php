@@ -759,7 +759,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$jumper = Windows\ForceManialink::Create();
 		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
-		$jumper->setPosition(0, -42);
+		$jumper->setPosition(0, -50);
 		$jumper->show();
 		$this->connection->cleanGuestList();
 

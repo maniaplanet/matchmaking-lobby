@@ -105,10 +105,10 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->serverNameLabel->setTextEmboss();
 		$this->addComponent($this->serverNameLabel);
 		
-		$ui = new Elements\Quad(110, 42);
+		$ui = new Elements\Quad(110, 40);
 		$ui->setPosY(3);
 		$ui->setAlign('center');
-		$ui->setBgcolor('0008');
+		$ui->setBgcolor('000A');
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(100,40);
@@ -196,6 +196,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->playingCountLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$this->playingCountLabel->setText('16');
 		$this->playingCountLabel->setTextSize(7);
+		$this->playingCountLabel->setTextEmboss();
 		$frame->addComponent($this->playingCountLabel);
 		
 		$ui = clone $ui;
@@ -233,6 +234,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->avgWaitTimeLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$this->avgWaitTimeLabel->setText('00:00');
 		$this->avgWaitTimeLabel->setTextSize(7);
+		$this->avgWaitTimeLabel->setTextEmboss();
 		$frame->addComponent($this->avgWaitTimeLabel);
 		
 		$this->buttonFrame = new Frame();

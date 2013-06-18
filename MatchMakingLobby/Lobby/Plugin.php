@@ -338,7 +338,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->backupNeeded = true;
 				$potentialBackups = $this->getMatchablePlayers();
 				$storage = $this->storage;
-
+	
 				//removing player which has allies from the potential backups
 				$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
 				{
@@ -703,15 +703,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
 			$this->checkAllies($player);
-		}
-		$storage = $this->storage;
-		if(!Services\PlayerInfo::Get($login)->isReady() && !Services\PlayerInfo::Get($login)->isAway())
-		{
-			$this->gui->updateAlliesList($login,
-				array_filter(array_map(function ($login) use ($storage)
-					{
-						return $storage->getPlayerObject($login);
-					}, $player->allies)));
+			$storage = $this->storage;
+			if(!Services\PlayerInfo::Get($login)->isReady())
+			{
+				$this->gui->updateAlliesList($login,
+					array_filter(array_map(function ($login) use ($storage)
+						{
+							return $storage->getPlayerObject($login);
+						}, $player->allies)));
+			}
 		}
 	}
 
@@ -874,7 +874,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->removeFromGroup($player);
 			$this->gui->removeWaitingScreen($player);
 			$this->gui->showMatchSumUp($match, $player, 5);
-			$this->connection->forceSpectator($player, 3, true);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			Services\PlayerInfo::Get($player)->isInMatch = true;
 			$this->connection->forceSpectator($player, 3, true);
