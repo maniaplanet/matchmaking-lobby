@@ -159,7 +159,7 @@ abstract class AbstractGUI
 	 */
 	function getTooManyAlliesText($n)
 	{
-		return 'tooManyAllies';
+		return array('textId' => 'tooManyAllies', 'params' => $n);
 	}
 
 	/**
