@@ -264,6 +264,20 @@ class MatchMakingService
 				$this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
 	}
+	
+	function getPlayersPlaying($lobbyLogin)
+	{
+		return $this->db->execute(
+				'SELECT P.login '.
+				'FROM Players P '.
+				'INNER JOIN Matches M ON P.matchId = M.id '.
+				'INNER JOIN MatchServers MS ON MS.matchId = M.id '.
+				'WHERE M.`state` >= %d AND P.state >= %d '.
+				'AND MS.lobbyLogin = %s',
+				Match::PREPARED, PlayerInfo::PLAYER_STATE_CONNECTED,
+				$this->db->quote($lobbyLogin)
+			)->fetchArrayOfSingleValues();
+	}
 
 	/**
 	 * Get the number of server the lobby can use

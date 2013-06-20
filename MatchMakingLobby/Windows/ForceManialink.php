@@ -50,7 +50,7 @@ class ForceManialink extends \ManiaLive\Gui\Window
 
 	function set($to, $displayMessage = true)
 	{
-		$this->xml->setContent('<script><!--main() { OpenLink("'.$to.'", CMlScript::LinkType::ManialinkBrowser); }--></script>');
+//		$this->xml->setContent('<script><!--main() { OpenLink("'.$to.'", CMlScript::LinkType::ManialinkBrowser); }--></script>');
 		$this->displayMessage = $displayMessage;
 	}
 	

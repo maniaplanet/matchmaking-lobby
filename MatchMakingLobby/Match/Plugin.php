@@ -362,6 +362,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case static::SLEEPING:
 				\ManiaLive\Utilities\Logger::debug('ERROR: incoherent state: player connected while match sleeping');
+				$this->showTansfertLabel($login);
+				$this->connection->sendOpenLink($login, '#qjoin='.$this->lobby->backLink, 1);
 				break;
 			case static::WAITING:
 				if ($this->isEverybodyHere())
@@ -557,7 +559,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->players = array_fill_keys($match->players, Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED);
 		$this->match = $match;
 		$this->matchId = $match->id;
-		Windows\ForceManialink::EraseAll();
 		Label::EraseAll();
 
 		foreach($match->players as $login)
@@ -586,9 +587,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function sleep()
 	{
-		$jumper = Windows\ForceManialink::Create();
-		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
-		$jumper->show();
 		$this->changeState(self::SLEEPING);
 	}
 
@@ -613,9 +611,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->gui->createLabel($this->gui->getGiveUpText(), null, null, false, false);
 
-		$jumper = Windows\ForceManialink::Create($login);
-		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
-		$jumper->show();
+		$this->showTansfertLabel($login);
+		$this->connection->sendOpenLink($login, '#qjoin='.$this->lobby->backLink, 1);
 
 		$this->waitBackups();
 	}
@@ -757,10 +754,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::debug('end()');
 
-		$jumper = Windows\ForceManialink::Create();
-		$jumper->set('maniaplanet://#qjoin='.$this->lobby->backLink);
-		$jumper->setPosition(0, -50);
-		$jumper->show();
+		$this->showTansfertLabel(null, -50);
+		foreach($this->storage->players as $player)
+		{
+			$this->connection->sendOpenLink($player->login, '#qjoin='.$this->lobby->backLink, 1);
+		}
 		$this->connection->cleanGuestList();
 
 		$this->match = null;
@@ -858,6 +856,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 		return $count;
+	}
+	
+	protected function showTansfertLabel($login = null, $posY = 0)
+	{
+		$label = Label::Create($login);
+		$label->hideOnF6 = false;
+		$label->showBackground = true;
+		$label->setMessage('transfer');
+		$label->setPosY($posY);
+		$label->show();
 	}
 }
 

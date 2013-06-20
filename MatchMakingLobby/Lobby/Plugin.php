@@ -454,7 +454,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					if($match && $match->state >= Match::PREPARED)
 					{
 						$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
-						$this->gui->showJump($login);
+						$this->gui->createLabel('transfer', $login, null, false, false);
+						$link = $this->generateServerLink($match->matchServerLogin);
+						$this->connection->sendOpenLink($login, $link, 1);
 						$this->connection->addGuest($login, true);
 						$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
 							array('textId' => 'substituteMoved', 'params' => array(self::PREFIX, $player->nickName))
@@ -492,8 +494,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					if($players)
 					{
 						\ManiaLive\Utilities\Logger::debug('re-display jumper for: '.implode(',', $players));
-						$this->gui->prepareJump($players, $match->matchServerLogin, $this->titleIdString, $matchId, false);
-						$this->gui->showJump($matchId);
+						$link = $this->generateServerLink($match->matchServerLogin);
+						$this->connection->sendOpenLink($players, $link, 1);
 					}
 					$this->countDown[$matchId] = $countDown;
 					break;
@@ -504,7 +506,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					{
 						\ManiaLive\Utilities\Logger::debug(sprintf('jumping to server : %s', $match->matchServerLogin));
 						$players = array_map(array($this->storage, 'getPlayerObject'), $match->players);
-						$this->gui->showJump($matchId);
+						$link = $this->generateServerLink($match->matchServerLogin);
+						$this->connection->sendOpenLink($match->players, $link, 1);
 
 						$nicknames = array();
 						foreach($players as $player)
@@ -1012,13 +1015,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$lobbyPlayers = $this->getTotalPlayerCount();
 			$maxPlayers = $this->getTotalSlots();
+			$averageLevel = $this->getAveragePlayerLadder();
 		}
 		else
 		{
 			$lobbyPlayers = count($this->storage->players);
 			$maxPlayers = $this->storage->server->currentMaxPlayers;
+			$averageLevel = 20000.;
 		}
-		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers);
+		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers, $averageLevel);
 	}
 
 	protected function setGui(GUI\AbstractGUI $GUI)
@@ -1097,6 +1102,30 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->gui->updateWaitingScreenLabel($message, $player->login);
 			}
 		}
+	}
+	
+	protected function generateServerLink($serverLogin)
+	{
+		return sprintf('#qjoin=%s@%s', $serverLogin, $this->titleIdString);
+	}
+	
+	protected function getAveragePlayerLadder()
+	{
+		$logins = $this->matchMakingService->getPlayersPlaying($this->storage->serverLogin);
+		$points = array();
+		foreach($logins as $login)
+		{
+			$player = Services\PlayerInfo::Get($login);
+			if($player)
+			{
+				$points[] = $player->ladderPoints;
+			}
+		}
+		foreach(array_merge($this->storage->players, $this->storage->spectators) as $player)
+		{
+			$points[] = $player->ladderStats['PlayerRankings'][0]['Score'];
+		}
+		return array_sum($points) / count($points);
 	}
 }
 
