@@ -642,8 +642,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug('decide()');
 		if($this->state != self::DECIDING)
 		{
-			$this->gui->createLabel($this->gui->getDecidingText(), null, null, false, false);
-
 			$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
 					array('textId' => 'matchDeciding', 'params' => array(static::PREFIX))
 			)));
