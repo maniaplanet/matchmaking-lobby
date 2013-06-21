@@ -702,6 +702,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerAlliesChanged($login)
 	{
 		$player = $this->storage->getPlayerObject($login);
+		\ManiaLive\Utilities\Logger::debug('onPlayerAlliesChanged:'.$login);
 		if($player)
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
@@ -962,6 +963,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->updatePlayerList = true;
 				$this->gui->updateWaitingScreenLabel($this->gui->getBadKarmaText($penalty), $login);
 				$this->gui->disableReadyButton($login);
+				$this->connection->forceSpectator($login, 1);
 			}
 			else
 			{
@@ -969,6 +971,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerNotReady($login);
 				$this->gui->updateWaitingScreenLabel(null, $login);
 				$this->gui->disableReadyButton($login, false);
+				$this->connection->forceSpectator($login, 3);
 			}
 		}
 		else
@@ -1125,7 +1128,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$points[] = $player->ladderStats['PlayerRankings'][0]['Score'];
 		}
-		return array_sum($points) / count($points);
+		return count($points) == 0 ? 0. : array_sum($points) / count($points);
 	}
 }
 

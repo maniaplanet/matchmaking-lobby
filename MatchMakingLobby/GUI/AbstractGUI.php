@@ -272,7 +272,7 @@ abstract class AbstractGUI
 		if($isReady)
 		{
 			$align = array('right');
-			$position = array(185.2, $this->lobbyBoxPosY + 3);
+			$position = array(185.2, $this->lobbyBoxPosY - 2.5);
 			$playerList->smallCards = true;
 		}
 		else
@@ -298,7 +298,7 @@ abstract class AbstractGUI
 			$groupName= 'nonReadyPlayers';
 		}
 		$oldGroup = \ManiaLive\Gui\Group::Get($oldGroupName);
-		if($oldGroup->contains($login))
+		if($oldGroup && $oldGroup->contains($login))
 		{
 			$oldGroup->remove($login);
 		}
@@ -308,13 +308,13 @@ abstract class AbstractGUI
 	final function removeFromGroup($login)
 	{
 		$group = \ManiaLive\Gui\Group::Get('readyPlayers');
-		if($group->contains($login))
+		if($group && $group->contains($login))
 		{
 			$group->remove($login);
 		}
 		
 		$group = \ManiaLive\Gui\Group::Get('nonReadyPlayers');
-		if($group->contains($login))
+		if($group && $group->contains($login))
 		{
 			$group->remove($login);
 		}

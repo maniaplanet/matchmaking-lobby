@@ -354,6 +354,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerConnect($login, $isSpectator)
 	{
 		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_CONNECTED);
+		$this->gui->addToGroup($login, true);
 		$this->forcePlayerTeam($login);
 		//Force player as player
 		$this->connection->forceSpectator($login, ($isSpectator ? 1 : 2));
@@ -402,6 +403,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerDisconnect($login, $disconnectionReason)
 	{
+		$this->gui->removeFromGroup($login);
 		switch ($this->state)
 		{
 			case static::WAITING:
