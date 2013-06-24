@@ -10,7 +10,6 @@
 namespace ManiaLivePlugins\MatchMakingLobby\Match;
 
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
-use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
 use ManiaLivePlugins\MatchMakingLobby\Services;
 use ManiaLivePlugins\MatchMakingLobby\GUI;
@@ -612,9 +611,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->matchMakingService->updateMatchState($this->matchId, Services\Match::WAITING_BACKUPS);
 
 		$this->gui->createLabel($this->gui->getGiveUpText(), null, null, false, false);
-
-		$this->showTansfertLabel($login);
-		$this->connection->sendOpenLink($login, '#qjoin='.$this->lobby->backLink, 1);
 
 		$this->waitBackups();
 	}

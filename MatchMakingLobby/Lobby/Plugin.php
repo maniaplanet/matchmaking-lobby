@@ -637,7 +637,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerJoinGame($login)
 	{
-		$this->connection->forceSpectator($login, 3);
+		$this->connection->forceSpectator($login, 1);
 	}
 
 	function onPlayerReady($login)
@@ -683,7 +683,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if(!Services\PlayerInfo::Get($login)->isAway())
 		{
-			$this->connection->forceSpectator($login, 3);
+			$this->connection->forceSpectator($login, 1);
 		}
 
 		$storage = $this->storage;
@@ -880,7 +880,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->showMatchSumUp($match, $player, 5);
 			$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			Services\PlayerInfo::Get($player)->isInMatch = true;
-			$this->connection->forceSpectator($player, 3, true);
+			$this->connection->forceSpectator($player, 1, true);
 		}
 		$this->connection->executeMulticall();
 
@@ -963,7 +963,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->updatePlayerList = true;
 				$this->gui->updateWaitingScreenLabel($this->gui->getBadKarmaText($penalty), $login);
 				$this->gui->disableReadyButton($login);
-				$this->connection->forceSpectator($login, 1);
 			}
 			else
 			{
@@ -971,7 +970,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->onPlayerNotReady($login);
 				$this->gui->updateWaitingScreenLabel(null, $login);
 				$this->gui->disableReadyButton($login, false);
-				$this->connection->forceSpectator($login, 3);
 			}
 		}
 		else

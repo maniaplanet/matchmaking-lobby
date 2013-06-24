@@ -87,6 +87,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 	function onConstruct()
 	{
+		$ui = new Elements\Quad(320, 125);
+		$ui->setAlign('center', 'center');
+		$ui->setBgcolor('888F');
+		$this->addComponent($ui);
+		
 		$ui = new Elements\Quad(320, 142);
 		$ui->setAlign('center', 'center');
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/background.png',true);
@@ -108,7 +113,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui = new Elements\Quad(110, 40);
 		$ui->setPosY(3);
 		$ui->setAlign('center');
-		$ui->setBgcolor('000A');
+		$ui->setBgcolor('444');
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(100,40);
@@ -184,7 +189,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$uiLabel = new Elements\Label(25);
 		$uiLabel->setAlign('center');
-		$uiLabel->setPosition(-17.5, -7);
+		$uiLabel->setPosition(17.5, -7);
 		$uiLabel->setStyle(Elements\Label::TextButtonSmall);
 		$uiLabel->setTextid('playing');
 		$uiLabel->setTextSize(2);
@@ -192,7 +197,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$this->playingCountLabel = new Elements\Label(25, 15);
 		$this->playingCountLabel->setAlign('center', 'center2');
-		$this->playingCountLabel->setPosition(-17.5, 0);
+		$this->playingCountLabel->setPosition(17.5, 0);
 		$this->playingCountLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$this->playingCountLabel->setText('16');
 		$this->playingCountLabel->setTextSize(7);
@@ -206,11 +211,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$uiLabel = clone $uiLabel;
 		$uiLabel->setTextid('ready');
-		$uiLabel->setPosition(17.5, -7);
+		$uiLabel->setPosition(-17.5, -7);
 		$frame->addComponent($uiLabel);
 		
 		$this->waitingCountLabel = clone $this->playingCountLabel;
-		$this->waitingCountLabel->setPosX(17.5);
+		$this->waitingCountLabel->setPosX(-17.5);
 		$this->waitingCountLabel->setText(12);
 		$frame->addComponent($this->waitingCountLabel);
 		
@@ -248,7 +253,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setStyle(Elements\Label::TextButtonBig);
 		$ui->setTextid('back');
 		$ui->setTextColor('fff');
-		$ui->setAction('0');
+		$ui->setAction('maniaplanet:quitserver');
 		$this->buttonFrame->addComponent($ui);
 		
 		$this->readyButtonFrame = new Frame();

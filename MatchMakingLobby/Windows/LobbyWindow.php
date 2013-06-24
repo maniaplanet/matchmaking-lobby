@@ -49,7 +49,8 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		);
 
 		$ui = new Elements\Bgs1InRace(50, 26);
-		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
+//		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
+		$ui->setBgcolor('111F');
 		$ui->setPosY(-2);
 		$this->addComponent($ui);
 		

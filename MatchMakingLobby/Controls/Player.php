@@ -52,8 +52,8 @@ class Player extends \ManiaLive\Gui\Control
 		$this->setSize(80, 5);
 
 		$this->bg = new Elements\Bgs1InRace($this->sizeX, $this->sizeY);
-		$this->bg->setSubStyle(Elements\Bgs1InRace::BgListLine);
-//		$this->bg->setBgcolor('222');
+//		$this->bg->setSubStyle(Elements\Bgs1InRace::BgListLine);
+		$this->bg->setBgcolor('444');
 		$this->addComponent($this->bg);
 
 		$this->icon = new Elements\Icons64x64_1(2.5, 2.5);
@@ -106,7 +106,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->icon->setPosition($this->sizeX - 6, - $this->sizeY / 2);
 		$this->label->setPosition(7.5, - $this->sizeY / 2);
 		$this->rankLabel->setPosition($this->sizeX - 1, - $this->sizeY / 2);
-		$this->countryFlag->setPosition(0, - $this->sizeY / 2);
+		$this->countryFlag->setPosition(0.25, - $this->sizeY / 2);
 		$this->bg->setSize($this->sizeX, $this->sizeY);
 		
 		$this->icon->setSubStyle($subStyle);
