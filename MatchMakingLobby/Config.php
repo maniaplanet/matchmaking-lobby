@@ -83,7 +83,7 @@ class Config extends \ManiaLib\Utils\Singleton
 	/**
 	 * @var int
 	 */
-	public $authorizedMatchCancellation = 2;
+	public $authorizedMatchCancellation = 1;
 
 	public function getMatchSettingsClassName($scriptName)
 	{
