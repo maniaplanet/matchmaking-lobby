@@ -21,9 +21,20 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 			return $a->ladderPoints - $b->ladderPoints;
 		});
 
+		$itemsToStack = 1;
+		$currentIndex = 0;
 		foreach($playersObject as $index => $player)
 		{
-			$teams[$index % 2][] = $player->login;
+			if ($itemsToStack > 0)
+			{
+				$itemsToStack--;
+			}
+			else
+			{
+				$itemsToStack = 1;
+				$currentIndex = ($currentIndex == 0 ? 1 : 0);
+			}
+			$teams[$currentIndex][] = $player->login;
 		}
 
 		return $teams;
