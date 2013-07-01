@@ -527,6 +527,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function updateLobbyWindow()
 	{
+		return;
 		$this->lobby = $this->matchMakingService->getLobby($this->lobby->login);
 		$playingPlayers = $this->matchMakingService->getPlayersPlayingCount($this->lobby->login);
 		$this->gui->updateLobbyWindow(
@@ -853,7 +854,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		return $count;
 	}
-	
+
 	protected function showTansfertLabel($login = null, $posY = 0)
 	{
 		$label = Label::Create($login);
