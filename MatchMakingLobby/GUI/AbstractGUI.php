@@ -204,10 +204,23 @@ abstract class AbstractGUI
 		$getPlayerInfosCallback = function ($login) use ($storage)
 			{
 				$p = $storage->getPlayerObject($login);
+				if($p)
+				{
+					$pathArray = explode('|', $p->ladderStats['PlayerRankings'][0]['Path']);
+					$nickname = $p->nickName;
+					$zone = array_pop($pathArray);
+					$rank = $p->ladderStats['PlayerRankings'][0]['Ranking'];
+				}
+				else
+				{
+					$nickname = $login;
+					$zone = 'World';
+					$rank = -1;
+				}
 				return (object) array(
-					'nickname' => ($p ? $p->nickName : $login),
-					'zone' => ($p ? array_pop(explode('|', $p->ladderStats['PlayerRankings'][0]['Path'])) : 'World'),
-					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1)
+					'nickname' => $nickname,
+					'zone' => $zone,
+					'rank' => $rank
 				);
 			};
 		if($match->team1 && $match->team2)
