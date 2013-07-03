@@ -40,7 +40,17 @@ class Player extends \ManiaLive\Gui\Control
 	/**
 	 * @var Elements\Label
 	 */
-	protected $rankLabel;
+	protected $echelonLabel;
+	
+	/**
+	 * @var Elements\Quad
+	 */
+	protected $echelonQuad;
+	
+	/**
+	 * @var \ManiaLive\Gui\Controls\Frame
+	 */
+	protected $echelonFrame;
 	
 	/**
 	 * @var Elements\Quad
@@ -56,9 +66,9 @@ class Player extends \ManiaLive\Gui\Control
 		$this->bg->setBgcolor('444');
 		$this->addComponent($this->bg);
 
-		$this->icon = new Elements\Icons64x64_1(2.5, 2.5);
-		$this->icon->setSubStyle(Elements\Icons64x64_1::LvlRed);
-		$this->icon->setAlign('right','center');
+		$this->icon = new Elements\Quad(2, $this->sizeY);
+		$this->icon->setBgcolor('F00');
+		$this->icon->setAlign('left','center');
 		$this->addComponent($this->icon);
 
 		$this->label = new Elements\Label(34);
@@ -68,15 +78,30 @@ class Player extends \ManiaLive\Gui\Control
 		$this->label->setTextSize(1);
 		$this->addComponent($this->label);
 
-		$this->rankLabel = new Elements\Label(15);
-		$this->rankLabel->setAlign('right','center2');
-		$this->rankLabel->setText('-');
-		$this->rankLabel->setTextColor('fff');
-		$this->rankLabel->setTextPrefix('$o$s');
-		$this->rankLabel->setTextSize(1);
-		$this->addComponent($this->rankLabel);
+		$this->echelonFrame = new \ManiaLive\Gui\Controls\Frame(73.5, 1);
+		$this->echelonFrame->setScale(0.29);
+		$this->addComponent($this->echelonFrame);
 		
-		$this->countryFlag = new Elements\Quad(6.7, 5);
+		$this->echelonQuad = new Elements\Quad(14.1551, 17.6938);
+		$this->echelonQuad->setPosition(-1.25, -1.25);
+		$this->echelonQuad->setAlign('center', 'top');
+		$this->echelonFrame->addComponent($this->echelonQuad);
+		
+		$ui = new Elements\Label(15);
+		$ui->setAlign('center', 'top');
+		$ui->setStyle(Elements\Label::TextRaceMessage);
+		$ui->setPosition(-1, -4.95625);
+		$ui->setTextSize(0.5);
+		$ui->setText('Echelon');
+		$this->echelonFrame->addComponent($ui);
+		
+		$this->echelonLabel = new Elements\Label(10, 10);
+		$this->echelonLabel->setAlign('center','center');
+		$this->echelonLabel->setPosition(-1, -11.895);
+		$this->echelonLabel->setStyle(Elements\Label::TextRaceMessageBig);
+		$this->echelonFrame->addComponent($this->echelonLabel);
+		
+		$this->countryFlag = new Elements\Quad(5, 5);
 		$this->countryFlag->setAlign('left','center');
 		$this->addComponent($this->countryFlag);
 
@@ -89,29 +114,32 @@ class Player extends \ManiaLive\Gui\Control
 		switch($this->state)
 		{
 			case static::STATE_READY:
-				$subStyle = Elements\Icons64x64_1::LvlGreen;
+				$subStyle = '0F0';
 				break;
 			case static::STATE_IN_MATCH:
-				$subStyle = Elements\Icons64x64_1::LvlYellow;
+				$subStyle = 'FF0';
 				break;
 			case static::STATE_BLOCKED:
-				$subStyle = Elements\Icons64x64_1::StatePrivate;
+				$subStyle = '000';
 				break;
 			case static::STATE_NOT_READY:
 				//nobreak
 			default :
-				$subStyle = Elements\Icons64x64_1::LvlRed;
+				$subStyle = 'F00';
 		}
 		
-		$this->icon->setPosition($this->sizeX - 6, - $this->sizeY / 2);
-		$this->label->setPosition(7.5, - $this->sizeY / 2);
-		$this->rankLabel->setPosition($this->sizeX - 1, - $this->sizeY / 2);
-		$this->countryFlag->setPosition(0.25, - $this->sizeY / 2);
+		$this->icon->setSize(1, $this->sizeY);
+		$this->icon->setPosition(0, - $this->sizeY / 2);
+		$this->label->setPosition(8, - $this->sizeY / 2);
+		$this->echelonFrame->setPosition($this->sizeX - 1, 0.5);
+		$this->countryFlag->setPosition(2, - $this->sizeY / 2);
 		$this->bg->setSize($this->sizeX, $this->sizeY);
 		
-		$this->icon->setSubStyle($subStyle);
+		$echelon = $this->ladderPoints > 0 ? floor($this->ladderPoints /10000) : 0;
+		$this->icon->setBgcolor($subStyle);
 		$this->countryFlag->setImage($this->zoneFlagURL, true);
-		$this->rankLabel->setText($this->ladderPoints > 0 ? floor($this->ladderPoints /10000) : '-');
+		$this->echelonLabel->setText($echelon);
+		$this->echelonQuad->setImage(sprintf('file://Media/Manialinks/Common/Echelons/echelon%d.dds',$echelon), true);
 	}
 }
 
