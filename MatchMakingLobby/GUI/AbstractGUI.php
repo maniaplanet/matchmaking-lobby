@@ -215,13 +215,12 @@ abstract class AbstractGUI
 				$p = $storage->getPlayerObject($login);
 				$pathArray = explode('|', $p->ladderStats['PlayerRankings'][0]['Path']);
 				$path = implode('|', array_slice($pathArray, 0, 3));
-				$service = new \ManiaLivePlugins\MatchMakingLobby\Services\ZoneService();
 				return (object) array(
 					'login' => $login,
 					'nickname' => ($p ? $p->nickName : $login),
 					'zone' => ($p ? array_pop($pathArray) : 'World'),
 					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1),
-					'zoneFlag' => $service->getFlag($path)
+					'zoneFlag' => sprintf('file://ZoneFlags/Login/%s/country', $login)
 				);
 			};
 		if($match->team1 && $match->team2)
@@ -387,7 +386,6 @@ abstract class AbstractGUI
 	final function updatePlayerList(array $blockedPlayerList)
 	{
 		$storage = Storage::getInstance();
-		$zoneService = new \ManiaLivePlugins\MatchMakingLobby\Services\ZoneService();
 		foreach(array_merge($storage->players, $storage->spectators) as $player)
 		{
 			if(PlayerInfo::Get($player->login)->isAway())
@@ -406,7 +404,7 @@ abstract class AbstractGUI
 			$path = explode('|', $playerObj->path);
 			$zone = $path[1];
 			$path = array_slice($path, 0, 3);
-			$flagURL = $zoneService->getFlag(implode('|', $path));
+			$flagURL = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
 			$ladderPoints = $playerObj->ladderStats['PlayerRankings'][0]['Score'];
 			Windows\PlayerList::setPlayer($player->login, $state, $zone, $ladderPoints, $flagURL);
 		}
