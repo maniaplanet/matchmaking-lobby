@@ -90,5 +90,20 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 			return false;
 		}
 	}
+
+	public function findClosePlayer($closeTo, $availablePlayers, $number)
+	{
+		if ($number == 0 || count($availablePlayers) < $number)
+		{
+			return array();
+		}
+
+		$result = array();
+		for($i=0; $i<$n; $i++)
+		{
+			$result[] = $this->getBackup(array_rand($closeTo), $availablePlayers);
+		}
+		return $result;
+	}
 }
 ?>

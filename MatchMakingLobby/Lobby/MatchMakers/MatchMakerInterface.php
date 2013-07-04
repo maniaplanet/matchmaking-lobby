@@ -55,5 +55,14 @@ interface MatchMakerInterface
 	 */
 	public function getNumberOfTeam();
 
+	/**
+	 * Return the exact number of players
+	 * @param string[] $closeTo
+	 * @param string[] $availablePlayers
+	 * @param type $number
+	 * @returns array
+	 */
+	public function findClosePlayer($closeTo, $availablePlayers, $number);
+
 }
 ?>
