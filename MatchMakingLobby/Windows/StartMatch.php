@@ -53,9 +53,17 @@ class StartMatch extends \ManiaLive\Gui\Window
 		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/background.png',true);
 		$this->addComponent($this->background);
 		
+		$this->versus = new Elements\Label(70);
+		$this->versus->setAlign('center', 'center2');
+		$this->versus->setTextColor('fff7');
+		$this->versus->setText('VS');
+		$this->versus->setTextSize(50);
+		$this->versus->setStyle(Elements\Label::TextTitle3);
+		$this->addComponent($this->versus);
+		
 		$this->label = new Elements\Label(200, 20);
+		$this->label->setPosY(51);
 		$this->label->setAlign('center', 'center2');
-		$this->label->setPosY(47);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setTextColor('FF0');
 		$this->label->setTextid('text');
@@ -64,6 +72,7 @@ class StartMatch extends \ManiaLive\Gui\Window
 		$this->addComponent($this->label);
 		
 		$this->transferLabel = clone $this->label;
+		$this->transferLabel->setPosY(47);
 		$this->transferLabel->setTextColor(null);
 		$this->transferLabel->setTextid('transferText');
 		$this->transferLabel->setId('transfer-label');
@@ -71,18 +80,6 @@ class StartMatch extends \ManiaLive\Gui\Window
 
 		$layout = new \ManiaLib\Gui\Layouts\Column();
 		$layout->setMarginHeight(1);
-		
-		$this->team1Background = new Elements\Quad(125, 20);
-		$this->team1Background->setAlign('left', 'center');
-		$this->team1Background->setPosition(-160);
-		$this->team1Background->setBgcolor('0096');
-		$this->addComponent($this->team1Background);
-		
-		$this->team2Background = new Elements\Quad(125, 20);
-		$this->team2Background->setAlign('right', 'center');
-		$this->team2Background->setPosition(160);
-		$this->team2Background->setBgcolor('9006');
-		$this->addComponent($this->team2Background);
 		
 		$this->team1 = new \ManiaLive\Gui\Controls\Frame();
 		$this->team1->setLayout($layout);
@@ -92,28 +89,12 @@ class StartMatch extends \ManiaLive\Gui\Window
 		$this->team2 = clone $this->team1;
 		$this->team2->setPosX(70);
 		$this->addComponent($this->team2);
-		
-		$ui = new Elements\Quad(25, 15);
-		$ui->setAlign('center', 'center');
-		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad.png', true);
-		$this->addComponent($ui);
-
-		$this->versus = new Elements\Label(30);
-		$this->versus->setAlign('center', 'center2');
-		$this->versus->setText('VS');
-		$this->versus->setTextSize(7);
-		$this->versus->setStyle(Elements\Label::TextRaceMessageBig);
-		$this->addComponent($this->versus);
 	}
 	
 	function set(array $team1, array $team2, $time)
 	{
 		$this->team1->posY = count($team1) * 20 / 2;
 		$this->team2->posY = count($team2) * 20 / 2;
-		$this->team1Background->setSizeY(count($team1) * 20);
-		$this->team2Background->setSizeY(count($team2) * 20);
-		$this->team1Background->setPosY(- 0.5 * (count($team1) -1));
-		$this->team2Background->setPosY(- 0.5 * (count($team2) -1));
 		$this->addElements($team1, $this->team1);
 		$this->addElements($team2, $this->team2);
 		$this->time = $time;
@@ -132,6 +113,7 @@ class StartMatch extends \ManiaLive\Gui\Window
 			$playerCard->rank = $player->rank;
 			$playerCard->avatarUrl = 'file://Avatars/'.$player->login.'/Default';
 			$playerCard->countryFlagUrl = $player->zoneFlag;
+			$playerCard->echelon = $player->echelon;
 			$frame->addComponent(clone $playerCard);
 		}
 	}
@@ -178,8 +160,6 @@ MANIASCRIPT
 		
 		\ManiaLive\Gui\Manialinks::appendXML(
 		\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance()->getManialink(array(
-				'blue' => 'blue',
-				'red' => 'red',
 				'text' => 'launchMatch',
 				'transferText' => 'transfer',
 		)));

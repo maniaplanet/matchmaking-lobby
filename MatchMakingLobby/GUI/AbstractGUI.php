@@ -174,6 +174,11 @@ abstract class AbstractGUI
 	{
 		return 'expectingReadyPlayers';
 	}
+	
+	function getTransferText()
+	{
+		return 'transfer';
+	}
 
 	/**
 	 * Display a text message in the center of the player's screen
@@ -220,7 +225,8 @@ abstract class AbstractGUI
 					'nickname' => ($p ? $p->nickName : $login),
 					'zone' => ($p ? array_pop($pathArray) : 'World'),
 					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1),
-					'zoneFlag' => sprintf('file://ZoneFlags/Login/%s/country', $login)
+					'zoneFlag' => sprintf('file://ZoneFlags/Login/%s/country', $login),
+					'echelon' => floor($p->ladderStats['PlayerRankings'][0]['Score'] / 10000)
 				);
 			};
 		if($match->team1 && $match->team2)
@@ -319,22 +325,20 @@ abstract class AbstractGUI
 		}
 	}
 	
-	final function updateAlliesList($login, array $allies)
+	final function showWaitingScreen($login)
 	{
-		$alliesList = Windows\WaitingScreen::Create($login);
-		$alliesList->clearAlliesList();
-		foreach($allies as $ally)
-		{
-			$alliesList->addAlly($ally);
-		}
-		$alliesList->show();
+		$waitingScreen = Windows\WaitingScreen::Create($login);
+		$waitingScreen->clearParty();
+		$waitingScreen->createParty(Storage::getInstance()->getPlayerObject($login));
+		$waitingScreen->show();
 	}
 	
-	final function createWaitingScreen($serverName, $readyAction, $scriptName)
+	final function createWaitingScreen($serverName, $readyAction, $scriptName, $partySize)
 	{
-		Windows\WaitingScreen::$serverName = $serverName;
-		Windows\WaitingScreen::$readyAction = $readyAction;
-		Windows\WaitingScreen::$scriptName = $scriptName;
+		Windows\WaitingScreen::setServerName($serverName);
+		Windows\WaitingScreen::setReadyAction($readyAction);
+		Windows\WaitingScreen::setScriptName($scriptName);
+		Windows\WaitingScreen::setPartySize($partySize);
 	}
 	
 	final function removeWaitingScreen($login)
@@ -344,10 +348,10 @@ abstract class AbstractGUI
 
 	final function updateWaitingScreen($serverName, $avgWaitTime, $readyCount, $playingCount)
 	{
-		Windows\WaitingScreen::$playingCount = $playingCount;
-		Windows\WaitingScreen::$waitingCount = $readyCount;
-		Windows\WaitingScreen::$avgWaitTime = $avgWaitTime;
-		Windows\WaitingScreen::$serverName = $serverName;
+		Windows\WaitingScreen::setPlayingCount($playingCount);
+		Windows\WaitingScreen::setWaitingCount($readyCount);
+		Windows\WaitingScreen::setAverageWaitingTime($avgWaitTime);
+		Windows\WaitingScreen::setServerName($serverName);
 		Windows\WaitingScreen::RedrawAll();
 	}
 	
@@ -373,7 +377,7 @@ abstract class AbstractGUI
 		$screens = Windows\WaitingScreen::Get($login);
 		foreach($screens as $screen)
 		{
-			$screen->disableReadyButton = $disable;
+			$screen->disableReadyButton($disable);
 			$screen->redraw();
 		}
 	}
@@ -425,7 +429,7 @@ abstract class AbstractGUI
 	final function prepareJump(array $players, $serverLogin, $titleIdString, $matchId, $showMessage = true)
 	{
 		$groupName = sprintf('match-%s',$matchId);
-		$this->eraseJump($serverLogin);
+		$this->eraseJump($matchId);
 		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
 		$jumper = Windows\ForceManialink::Create($group);
 		$jumper->setPosition(0, 21.5);
@@ -446,19 +450,34 @@ abstract class AbstractGUI
 		Windows\ForceManialink::Create($group)->show();
 	}
 
-	final function showSplash($login, $serverName , array $lines, $callback)
+	final function showSplash($login, $backgroudnUrl, $clickCallBack, $closeCallBack)
 	{
+		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
 		$splash = Windows\Splash::Create($login);
-		$splash->set('Welcome on '.$serverName, $lines,
-			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this,'hideSplash')),
-			\ManiaLive\Gui\ActionHandler::getInstance()->createAction($callback)
-		);
+		$splash->setBackgroundUrl($backgroudnUrl);
+		$splash->setBackgroundClickAction($ah->createAction($clickCallBack));
+		$splash->setCloseAction($ah->createAction($closeCallBack));
 		$splash->show();
 	}
 
 	final function hideSplash($login)
 	{
 		Windows\Splash::Erase($login);
+	}
+	
+	final function showDialog($login, $question, $yesCallBack, $noCallBack)
+	{
+		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
+		$splash = Windows\Dialog::Create($login);
+		$splash->setQuestionText($question);
+		$splash->setYesAction($ah->createAction($yesCallBack));
+		$splash->setNoAction($ah->createAction($noCallBack));
+		$splash->show();
+	}
+	
+	function hideDialog($login)
+	{
+		Windows\Dialog::Erase($login);
 	}
 	
 	final function showHelp($scriptName)
@@ -473,7 +492,6 @@ abstract class AbstractGUI
 	{
 		Windows\Help::Erase(\ManiaLive\Gui\Group::Get($this->readyGroupName));
 	}
-
 }
 
 ?>

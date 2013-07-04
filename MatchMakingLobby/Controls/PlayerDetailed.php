@@ -79,8 +79,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->addComponent($ui);
 
 		$this->icon = new Elements\Icons64x64_1(20, 20);
-		$this->icon->setSubStyle(Elements\Icons64x64_1::LvlRed);
-		$this->icon->setPosition(1,0);
+		$this->icon->setBgcolor('F00');
 		$this->addComponent($this->icon);
 
 		$this->label = new Elements\Label(38);

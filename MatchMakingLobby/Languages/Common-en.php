@@ -55,10 +55,13 @@ Your Elite game will start automatically.
 	'readyButton' => 'Ready (F6)',
 	'players' => 'Players',
 	'allies' => 'Allies',
+	'party'=> 'Your party',
 	'rules' => 'Learn',
 	'back' => 'Back',
 	'red' => 'Red',
 	'blue' => 'Blue',
 	'setAlly' => 'Set another ally',
+	'yes' => 'Yes',
+	'no' => 'No',
 );
 ?>

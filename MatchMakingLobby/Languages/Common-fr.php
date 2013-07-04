@@ -13,7 +13,7 @@ $lang = array(
   'illegalLeave' => 'Un joueur a quitté,
 Ne partez pas, un remplaçant est recherché',
   'launchMatch' => '$0F0Le match commence dans $<$FFF%1 $>...
-Appyez sur F6 pour annuler',
+Appuyez sur F6 pour annuler',
   'matchInProgress' => 'Vous avez un match en cours. Préparez vous au transfert',
   'suspended' => '$F00Vous êtes suspendu pour %d minutes',
   'matchOver' => 'Match terminé. Vous allez être retransféré.',
@@ -55,9 +55,12 @@ Your Elite game will start automatically.
 	'readyButton' => 'Prêt (F6)',
 	'players' => 'Joueurs',
 	'allies' => 'Alliés',
+	'party'=> 'Your party',
 	'rules' => 'Apprendre',
 	'back' => 'Retour',
 	'red' => 'Rouge',
 	'blue' => 'Bleu',
 	'setAlly' => 'Définir un autre allié',
+	'yes' => 'Oui',
+	'no' => 'Non',
 );?>

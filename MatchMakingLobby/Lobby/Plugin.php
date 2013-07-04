@@ -155,7 +155,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->createWaitingScreen(
 			$this->storage->server->name,
 			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')),
-			$this->scriptName);
+			$this->scriptName,
+			($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1)
+		);
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
 			$playerObject =  $this->storage->getPlayerObject($login);
@@ -167,14 +169,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->updateKarma($login);
 
-			$storage = $this->storage;
-			$this->gui->updateAlliesList(
-				$login,
-				array_filter(array_map(function ($login) use ($storage)
-					{
-						return $storage->getPlayerObject($login);
-					}, $obj->allies))
-			);
+			$this->gui->showWaitingScreen($login);
 		}
 		$this->updatePlayerList = true;
 
@@ -243,14 +238,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 
 		$this->gui->addToGroup($login, false);
-		$storage = $this->storage;
-		$this->gui->updateAlliesList(
-				$login,
-				array_filter(array_map(function ($login) use ($storage)
-					{
-						return $storage->getPlayerObject($login);
-					}, $playerObject->allies))
-			);
+		$this->gui->showWaitingScreen($login);
 		$this->updatePlayerList = true;
 
 		$this->updateKarma($login);
@@ -377,7 +365,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 								$this->matchMakingService->addMatchPlayer($match->id, $backup, $teamId);
 								$this->gui->createLabel($this->gui->getBackUpLaunchText($match), $backup, 0, false, false);
 								$this->setShortKey($backup, array($this, 'onPlayerCancelReplacement'));
-								$this->gui->prepareJump(array($backup), $match->matchServerLogin, $match->titleIdString, $backup);
 								$this->replacerCountDown[$backup] = 7;
 
 								//Unset this replacer for next iteration
@@ -454,7 +441,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					if($match && $match->state >= Match::PREPARED)
 					{
 						$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
-						$this->gui->createLabel('transfer', $login, null, false, false);
+						//TODO Add transfer textId to AbstractGUI
+						$this->gui->createLabel($this->gui->getTransferText(), $login, null, false, false);
 						$link = $this->generateServerLink($match->matchServerLogin);
 						$this->connection->sendOpenLink($login, $link, 1);
 						$this->connection->addGuest($login, true);
@@ -643,22 +631,26 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerReady($login)
 	{
 		$mtime = microtime(true);
-		$player = Services\PlayerInfo::Get($login);
 		if(!$this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString))
 		{
-			$player->setReady(true);
-
-			$this->setReadyLabel($login);
-
-			$this->updatePlayerList = true;
-			$this->gui->addToGroup($login, true);
-			$this->gui->removeWaitingScreen($login);
-
-			if(!Services\PlayerInfo::Get($login)->isAway())
-			{
-				$this->connection->forceSpectator($login, 2, true);
-				$this->connection->forceSpectator($login, 0, true);
-			}
+//			$tokenInfos = $this->connection->getPlayerTokenInfos($login);
+//			if($tokenInfos->TokenCost > 0 && $tokenInfos->CanPayToken)
+//			{
+//				$question = sprintf("Playing this game will cost you %d planets.\nDo you want to continue ?", $tokenInfos->TokenCost);
+//				$this->gui->removeFromGroup($login);
+//				$this->gui->removeWaitingScreen($login);
+//				$this->gui->showDialog($login, $question, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
+//			}
+//			elseif($tokenInfos->TokenCost > 0 && !$tokenInfos->CanPayToken)
+//			{
+//				$this->gui->removeFromGroup($login);
+//				$this->gui->removeWaitingScreen($login);
+//				$this->gui->showSplash($login, null, array($this, 'onClickOnSplashBackground'), array($this,'onCloseSplash'));
+//			}
+//			elseif($tokenInfos->TokenCost == 0)
+//			{
+				$this->setPlayerReady($login);
+//			}
 		}
 		else
 		{
@@ -686,14 +678,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->forceSpectator($login, 1);
 		}
 
-		$storage = $this->storage;
-		$this->gui->updateAlliesList(
-				$login,
-				array_filter(array_map(function ($login) use ($storage)
-					{
-						return $storage->getPlayerObject($login);
-					}, $this->storage->getPlayerObject($login)->allies))
-			);
+		$this->gui->showWaitingScreen($login);
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
 			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerNotReady:%f',$time));
@@ -707,14 +692,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			Services\PlayerInfo::Get($login)->allies = $player->allies;
 			$this->checkAllies($player);
-			$storage = $this->storage;
 			if(!Services\PlayerInfo::Get($login)->isReady())
 			{
-				$this->gui->updateAlliesList($login,
-					array_filter(array_map(function ($login) use ($storage)
-						{
-							return $storage->getPlayerObject($login);
-						}, $player->allies)));
+				$this->gui->showWaitingScreen($login);
 			}
 		}
 	}
@@ -812,7 +792,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->gui->eraseMatchSumUp($playerLogin);
 
 				if($playerLogin != $login)
-					$this->onPlayerReady($playerLogin);
+					$this->setPlayerReady($playerLogin);
 				else
 					$this->onPlayerNotReady($playerLogin);
 			}
@@ -862,6 +842,52 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->decreasePlayerPenalty($player->login, 86000, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		}
 	}
+	
+	function onCloseSplash($login)
+	{
+		$this->gui->hideSplash($login);
+		$this->gui->addToGroup($login, false);
+		$this->gui->showWaitingScreen($login);
+		$this->updatePlayerList = true;
+	}
+	
+	function onClickOnSplashBackground($login)
+	{
+		$this->onCloseSplash($login);
+		$this->connection->sendOpenLink($login, 'http://www.google.fr', 0);
+	}
+	
+	function onAnswerNoToDialog($login)
+	{
+		$this->gui->hideDialog($login);
+		$this->gui->addToGroup($login, false);
+		$this->gui->showWaitingScreen($login);
+		$this->updatePlayerList = true;
+	}
+	
+	function onAnswerYesToDialog($login)
+	{
+		$this->gui->hideDialog($login);
+		$this->setPlayerReady($login);
+	}
+	
+	protected function setPlayerReady($login)
+	{
+		$player = Services\PlayerInfo::Get($login);
+		$player->setReady(true);
+
+		$this->setReadyLabel($login);
+
+		$this->updatePlayerList = true;
+		$this->gui->addToGroup($login, true);
+		$this->gui->removeWaitingScreen($login);
+
+		if(!Services\PlayerInfo::Get($login)->isAway())
+		{
+			$this->connection->forceSpectator($login, 2, true);
+			$this->connection->forceSpectator($login, 0, true);
+		}
+	}
 
 	private function prepareMatch($server, $match)
 	{
@@ -869,7 +895,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match %d on server: %s',$id, $server));
 		\ManiaLive\Utilities\Logger::debug($match);
 
-		$this->gui->prepareJump($match->players, $server, $this->titleIdString, $id, false);
 		$this->countDown[$id] = 7;
 
 		foreach($match->players as $player)

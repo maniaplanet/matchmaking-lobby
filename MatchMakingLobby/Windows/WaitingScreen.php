@@ -18,28 +18,42 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	/**
 	 * @var int
 	 */
-	static public $playingCount = 0;
+	static protected $playingCount = 0;
 
 	/**
 	 * @var int
 	 */
-	static public $waitingCount = 0;
+	static protected $waitingCount = 0;
 
 	/**
 	 * @var double
 	 */
-	static public $avgWaitTime = -1;
+	static protected $avgWaitTime = -1;
 
 	/**
 	 * @var string
 	 */
-	static public $serverName = '';
-	
-	static public $readyAction;
-	
-	static public $scriptName;
-	
-	public $disableReadyButton = false;
+	static protected $serverName = '';
+
+	/**
+	 * @var string
+	 */
+	static protected $readyAction;
+
+	/**
+	 * @var string
+	 */
+	static protected $scriptName;
+
+	/**
+	 * @var int
+	 */
+	static protected $partySize;
+
+	/**
+	 * @var bool
+	 */
+	protected $disableReadyButton = false;
 
 	/**
 	 * @var Elements\Label
@@ -71,6 +85,9 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 */
 	protected $readyButton;
 	
+	/**
+	 * @var \ManiaLive\Gui\Controls\Frame
+	 */
 	protected $readyButtonFrame;
 
 
@@ -81,9 +98,51 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 */
 	protected $palyerListFrame;
 	
+	/**
+	 * @var \ManiaLive\Gui\Controls\Frame
+	 */
 	protected $emptySlot;
 	
+	/**
+	 * @var string
+	 */
 	protected $textId;
+	
+	static function setReadyAction($action)
+	{
+		static::$readyAction = $action;
+	}
+	
+	static function setServerName($name)
+	{
+		static::$serverName = $name;
+	}
+	
+	static function setScriptName($script)
+	{
+		static::$scriptName = $script;
+	}
+	
+	static function setPartySize($size)
+	{
+		static::$partySize = $size;
+	}
+
+
+	static function setPlayingCount($count)
+	{
+		static::$playingCount = $count;
+	}
+	
+	static function setWaitingCount($count)
+	{
+		static::$waitingCount = $count;
+	}
+	
+	static function setAverageWaitingTime($time)
+	{
+		static::$avgWaitTime = $time;
+	}
 		
 	function onConstruct()
 	{
@@ -103,7 +162,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad-wide.png',true);
 		$this->addComponent($ui);
 
-		$this->serverNameLabel = new Elements\Label(100, 20);
+		$this->serverNameLabel = new Elements\Label(90, 20);
 		$this->serverNameLabel->setAlign('center', 'center');
 		$this->serverNameLabel->setPosY(62.5);
 		$this->serverNameLabel->setStyle(Elements\Label::TextTitle1);
@@ -283,7 +342,17 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->buttonFrame->addComponent($ui);
 	}
 	
-	function addAlly(\DedicatedApi\Structures\Player $player)
+	function createParty(\DedicatedApi\Structures\Player $player)
+	{
+		$this->addPlayerToParty($player);
+		
+		foreach($player->allies as $ally)
+		{
+			$this->addPlayerToParty(\ManiaLive\Data\Storage::getInstance()->getPlayerObject($ally));
+		}
+	}
+	
+	protected function addPlayerToParty(\DedicatedApi\Structures\Player $player)
 	{
 		$path = explode('|', $player->path);
 		$zone = $path[1];
@@ -305,31 +374,36 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		}
 	}
 	
-	function clearAlliesList()
+	function disableReadyButton($disable = true)
+	{
+		$this->disableReadyButton = $disable;
+	}
+	
+	function clearParty()
 	{
 		$this->playerList = array();
 	}
 	
 	function setTextId($textId = null)
 	{
-		$this->textId = $textId ? : array('textId' => 'waitingHelp', 'params' => array(self::$scriptName));
+		$this->textId = $textId ? : array('textId' => 'waitingHelp', 'params' => array(static::$scriptName));
 	}
 	
 	function onDraw()
 	{
-		if(self::$avgWaitTime < 0)
+		if(static::$avgWaitTime < 0)
 		{
 			$avgWaitingTime = '-';
 		}
 		else
 		{
-			$min = ceil(self::$avgWaitTime / 60);
+			$min = ceil(static::$avgWaitTime / 60);
 			$avgWaitingTime = sprintf('%d min',$min);
 		}
 		
 		$this->playerListFrame->clearComponents();
 		$playerKeys = array_keys($this->playerList);
-		for($i = 0; $i < 2; $i++)
+		for($i = 0; $i < static::$partySize; $i++)
 		{
 			if(array_key_exists($i, $playerKeys))
 			{
@@ -341,14 +415,14 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			}
 		}
 		
-		$this->serverNameLabel->setText(self::$serverName);
-		$this->playingCountLabel->setText(self::$playingCount);
-		$this->waitingCountLabel->setText(self::$waitingCount);
+		$this->serverNameLabel->setText(static::$serverName);
+		$this->playingCountLabel->setText(static::$playingCount);
+		$this->waitingCountLabel->setText(static::$waitingCount);
 		$this->avgWaitTimeLabel->setText($avgWaitingTime);
 		if(!$this->disableReadyButton)
 		{
 			$this->readyButtonFrame->setVisibility(true);
-			$this->readyButton->setAction(self::$readyAction);
+			$this->readyButton->setAction(static::$readyAction);
 		}
 		else
 		{
@@ -356,14 +430,14 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		}
 		$this->posZ = 3.9;
 
-		$textId = $this->textId ? : array('textId' => 'waitingHelp', 'params' => array(self::$scriptName));
+		$textId = $this->textId ? : array('textId' => 'waitingHelp', 'params' => array(static::$scriptName));
 		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink(array(
 				'playing' => 'playing',
 				'ready' => 'ready',
 				'readyButton' => 'readyButton',
 				'text' => $textId,
 				'players' => 'players',
-				'allies' => 'allies',
+				'allies' => 'party',
 				'avgWaiting' => 'waitingScreenWaitingLabel',
 				'rules' => 'rules',
 				'back' => 'back',
