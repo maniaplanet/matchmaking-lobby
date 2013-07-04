@@ -287,14 +287,13 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	{
 		$path = explode('|', $player->path);
 		$zone = $path[1];
-		$zoneService = new \ManiaLivePlugins\MatchMakingLobby\Services\ZoneService();
 		$this->playerList[$player->login] = new PlayerDetailed();
 		$this->playerList[$player->login]->nickname = $player->nickName ? : $player->login;
 		$this->playerList[$player->login]->zone = $zone;
 		$this->playerList[$player->login]->avatarUrl = 'file://Avatars/'.$player->login.'/Default';
 		$this->playerList[$player->login]->rank = $player->ladderStats['PlayerRankings'][0]['Ranking'];
 		$this->playerList[$player->login]->echelon = floor($player->ladderStats['PlayerRankings'][0]['Score'] / 10000);
-		$this->playerList[$player->login]->countryFlagUrl = $zoneService->getFlag(implode('|', array_slice($path, 0, 3)));
+		$this->playerList[$player->login]->countryFlagUrl = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
 		$this->playerList[$player->login]->setHalign('center');
 	}
 	

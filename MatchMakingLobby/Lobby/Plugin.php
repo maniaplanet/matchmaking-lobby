@@ -644,7 +644,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$mtime = microtime(true);
 		$player = Services\PlayerInfo::Get($login);
-		if (!$this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString))
+		if(!$this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString))
 		{
 			$player->setReady(true);
 
