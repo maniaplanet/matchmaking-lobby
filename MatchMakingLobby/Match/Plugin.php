@@ -205,6 +205,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->setModeScriptSettings($settings);
 
 		$this->lobby = $this->matchMakingService->getLobby($this->config->lobbyLogin);
+		if (!$this->lobby)
+		{
+			throw new \Exception('The lobby can\'t be found in the database. Are you sure that lobby and match server are sharing the same database?');
+		}
 
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
