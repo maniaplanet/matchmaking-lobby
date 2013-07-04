@@ -127,7 +127,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			StorageEvent::ON_PLAYER_CHANGE_SIDE |
 			StorageEvent::ON_PLAYER_JOIN_GAME
 		);
-		
+
 		Services\ZoneService::constructDataStore();
 
 		$matchSettingsClass = $this->config->getMatchSettingsClassName($this->scriptName);
@@ -338,7 +338,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->backupNeeded = true;
 				$potentialBackups = $this->getMatchablePlayers();
 				$storage = $this->storage;
-	
+
 				//removing player which has allies from the potential backups
 				$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
 				{
@@ -786,16 +786,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			if (array_key_exists($login, $this->matchCancellers))
 			{
 				$this->matchCancellers[$login]++;
-
-				if ($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
-				{
-					$this->matchMakingService->increasePlayerPenalty($login, 100 + pow(7, $this->matchCancellers[$login] - $this->config->authorizedMatchCancellation), $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-					$this->blockedPlayers[$login] = time();
-				}
 			}
 			else
 			{
 				$this->matchCancellers[$login] = 1;
+			}
+
+			if ($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
+			{
+				$this->matchMakingService->increasePlayerPenalty($login, 42 + pow(7, $this->matchCancellers[$login] - $this->config->authorizedMatchCancellation), $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+				$this->blockedPlayers[$login] = time();
 			}
 
 			$this->matchMakingService->cancelMatch($match);
@@ -1104,12 +1104,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 		}
 	}
-	
+
 	protected function generateServerLink($serverLogin)
 	{
 		return sprintf('#qjoin=%s@%s', $serverLogin, $this->titleIdString);
 	}
-	
+
 	protected function getAveragePlayerLadder()
 	{
 		$logins = $this->matchMakingService->getPlayersPlaying($this->storage->serverLogin);
