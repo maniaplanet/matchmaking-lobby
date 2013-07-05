@@ -494,19 +494,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				break;
 			case 'LibXmlRpc_EndRound':
-				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndRound n°'.$param2[0]);
 				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
 				break;
 			case 'LibXmlRpc_EndTurn':
-				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndTurn n°'.$param2[0]);
 				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
 				break;
 			case 'LibXmlRpc_EndMap':
-				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndMap n°'.$param2[0]);
 				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
 				break;
 			case 'LibXmlRpc_EndMatch':
-				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_EndMatch n°'.$param2[0]);
 				$this->connection->triggerModeScriptEvent('LibXmlRpc_GetScores', '');
 				break;
 		}
