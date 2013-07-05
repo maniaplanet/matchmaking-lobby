@@ -128,8 +128,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			StorageEvent::ON_PLAYER_JOIN_GAME
 		);
 
-		Services\ZoneService::constructDataStore();
-
 		$matchSettingsClass = $this->config->getMatchSettingsClassName($this->scriptName);
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
 		if (!class_exists($matchSettingsClass))
