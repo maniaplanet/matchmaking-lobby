@@ -245,7 +245,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		foreach($player->allies as $ally)
 		{
-			$this->addPlayerToParty(\ManiaLive\Data\Storage::getInstance()->getPlayerObject($ally));
+			$allyObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($ally);
+			if($allyObject)
+			{
+				$this->addPlayerToParty($allyObject);
+			}
 		}
 	}
 	
