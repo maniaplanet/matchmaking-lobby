@@ -12,8 +12,8 @@ $lang = array(
 	'noServerAvailable' => 'No match server available at the moment, please wait',
 	'illegalLeave' => 'A player left
 Do not leave, searching for a substitute',
-	'launchMatch' => '$0F0Match starts in $<$FFF%1 $>...
-F6 to cancel',
+	'launchMatch' => 'Match starts in $<$FFF%1 $>...',
+	'cancel' => 'F6 to cancel',
 	'matchInProgress' => 'You have a match in progress. Prepare to be transferred',
 	'suspended' => '$F00You are suspended for %d minutes',
 	'matchOver' => 'Match over. You will be transferred back.',
@@ -50,6 +50,7 @@ Press $oREADY$o to play, and wait your match.
 Your Elite game will start automatically.
 
 ',
+	'nextMatch' => 'Next match in: %d sec',
 	'playing' => 'Playing',
 	'ready' => 'Ready',
 	'readyButton' => 'Ready (F6)',
@@ -58,6 +59,7 @@ Your Elite game will start automatically.
 	'party'=> 'Your party',
 	'rules' => 'Learn',
 	'back' => 'Back',
+	'quit' => 'Quit',
 	'red' => 'Red',
 	'blue' => 'Blue',
 	'setAlly' => 'Set an ally',

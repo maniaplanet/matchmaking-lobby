@@ -156,13 +156,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->scriptName,
 			($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1)
 		);
+		$match = new Match;
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
 			$playerObject =  $this->storage->getPlayerObject($login);
 			$player = Services\PlayerInfo::Get($login);
 			$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
 			$player->allies = $playerObject->allies;
-
+			
 			$this->gui->addToGroup($login, false);
 
 			$this->updateKarma($login);
@@ -423,6 +424,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->setReadyLabel();
 			}
 		}
+		$this->gui->updateMatchmakerCounter(16 - ($this->tick % 16));
 
 		foreach($this->replacerCountDown as $login => $countDown)
 		{
