@@ -16,26 +16,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 {
 
 	/**
-	 * @var int
-	 */
-	static protected $playingCount = 0;
-
-	/**
-	 * @var int
-	 */
-	static protected $waitingCount = 0;
-
-	/**
-	 * @var double
-	 */
-	static protected $avgWaitTime = -1;
-
-	/**
-	 * @var string
-	 */
-	static protected $serverName = '';
-
-	/**
 	 * @var string
 	 */
 	static protected $readyAction;
@@ -121,12 +101,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		static::$readyAction = $action;
 	}
 	
-	static function setServerName($name)
-	{
-//		static::$serverName = $name;
-		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($name);
-	}
-	
 	static function setScriptName($script)
 	{
 		static::$scriptName = $script;
@@ -137,25 +111,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		static::$partySize = $size;
 	}
 
-
-	static function setPlayingCount($count)
-	{
-//		static::$playingCount = $count;
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setPlayingCount($count);
-	}
-	
-	static function setWaitingCount($count)
-	{
-//		static::$waitingCount = $count;
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setWaitingCount($count);
-	}
-	
-	static function setAverageWaitingTime($time)
-	{
-//		static::$avgWaitTime = $time;
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setAverageWaitingTime($time);
-	}
-		
 	function onConstruct()
 	{
 		$this->dico = array(
@@ -171,7 +126,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$ui = new Elements\Quad(320, 125);
 		$ui->setAlign('center', 'center');
-		$ui->setBgcolor('888F');
+		$ui->setBgcolor('888A');
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Quad(320, 142);
@@ -333,16 +288,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	
 	function onDraw()
 	{
-		if(static::$avgWaitTime < 0)
-		{
-			$avgWaitingTime = '-';
-		}
-		else
-		{
-			$min = ceil(static::$avgWaitTime / 60);
-			$avgWaitingTime = sprintf('%d min',$min);
-		}
-		
 		$this->playerListFrame->clearComponents();
 		$playerKeys = array_keys($this->playerList);
 		for($i = 0; $i < static::$partySize; $i++)
@@ -356,6 +301,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 				$this->playerListFrame->addComponent(clone $this->emptySlot);
 			}
 		}
+		
+		$this->readyButton->setAction(static::$readyAction);
 		
 		$this->posZ = 3.9;
 

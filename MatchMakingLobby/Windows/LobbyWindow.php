@@ -26,7 +26,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 
 	protected function onConstruct()
 	{
-		$this->setSize(50, 28);
+		$this->setSize(50, 32);
 
 		$this->dico = array(
 			'playing' => 'playing',
@@ -34,7 +34,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 			'avgWaiting' => 'waitingScreenWaitingLabel'
 		);
 
-		$ui = new Elements\Bgs1InRace(49, 28);
+		$ui = new Elements\Bgs1InRace(49, 32);
 //		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
 		$ui->setBgcolor('111A');
 		$ui->setPosition(0.2, -2);
@@ -45,8 +45,8 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->addComponent($ui);
 
 		$this->counters = new \ManiaLivePlugins\MatchMakingLobby\Controls\Counters();
-		$this->counters->setPosition(23, -7);
-		$this->counters->setHeightMargin(18);
+		$this->counters->setPosition(23, -9);
+		$this->counters->setHeightMargin(19);
 		$this->counters->setScale(0.6);
 		$this->addComponent($this->counters);
 	}

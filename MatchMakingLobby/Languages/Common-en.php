@@ -50,7 +50,7 @@ Press $oREADY$o to play, and wait your match.
 Your Elite game will start automatically.
 
 ',
-	'nextMatch' => 'Next match in: %d sec',
+	'nextMatch' => 'Next matchmaking: %d sec',
 	'playing' => 'Playing',
 	'ready' => 'Ready',
 	'readyButton' => 'Ready (F6)',

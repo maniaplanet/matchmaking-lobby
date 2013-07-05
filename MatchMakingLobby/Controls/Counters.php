@@ -142,7 +142,7 @@ class Counters extends \ManiaLive\Gui\Control
 		
 		$ui = new Elements\Label(35,15);
 		$ui->setAlign('center', 'center');
-		$ui->setPosition(0, -13);
+		$ui->setPosition(0, -14);
 		$ui->setStyle(Elements\Label::TextButtonSmall);
 		$ui->setTextSize(2);
 		$ui->setTextid('avgWaiting');
@@ -160,8 +160,8 @@ class Counters extends \ManiaLive\Gui\Control
 		$this->nextMatchmakerLabel->setAlign('center', 'center2');
 		$this->nextMatchmakerLabel->setStyle(Elements\Label::TextButtonSmall);
 		$this->nextMatchmakerLabel->setPosition(0, -18);
-		$this->nextMatchmakerLabel->setTextSize(0.5);
-		$this->nextMatchmakerLabel->setTextColor('ccc');
+		$this->nextMatchmakerLabel->setTextSize(0.7);
+		$this->nextMatchmakerLabel->setTextColor('999');
 		$this->nextMatchmakerLabel->setTextid('nextMatch');
 		$this->waitingTimeFrame->addComponent($this->nextMatchmakerLabel);
 	}

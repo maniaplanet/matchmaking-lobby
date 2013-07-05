@@ -338,7 +338,7 @@ abstract class AbstractGUI
 	
 	final function createWaitingScreen($serverName, $readyAction, $scriptName, $partySize)
 	{
-		Windows\WaitingScreen::setServerName($serverName);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($serverName);
 		Windows\WaitingScreen::setReadyAction($readyAction);
 		Windows\WaitingScreen::setScriptName($scriptName);
 		Windows\WaitingScreen::setPartySize($partySize);
