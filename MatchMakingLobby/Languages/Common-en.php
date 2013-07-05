@@ -60,7 +60,7 @@ Your Elite game will start automatically.
 	'back' => 'Back',
 	'red' => 'Red',
 	'blue' => 'Blue',
-	'setAlly' => 'Set another ally',
+	'setAlly' => 'Set an ally',
 	'yes' => 'Yes',
 	'no' => 'No',
 );

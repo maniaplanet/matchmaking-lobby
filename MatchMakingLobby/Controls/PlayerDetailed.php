@@ -95,13 +95,13 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->teamLabel->setStyle(Elements\Label::TextRaceMessage);
 		$this->teamLabel->setTextSize(2);
 		$this->teamLabel->setText('$o$09FLorem$z Ipsum Team');
-		$this->addComponent($this->teamLabel);
+//		$this->addComponent($this->teamLabel);
 		
 		$this->teamIcon = new Elements\Quad(4, 4);
 		$this->teamIcon->setValign('center');
 		$this->teamIcon->setPosition(22, -11.5);
 		$this->teamIcon->setBgcolor('FF0a');
-		$this->addComponent($this->teamIcon);
+//		$this->addComponent($this->teamIcon);
 
 		$this->rankLabel = new Elements\Label(30);
 		$this->rankLabel->setAlign('left','center2');
@@ -116,7 +116,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->countryFlag->setPosition(22, -17.5);
 		$this->addComponent($this->countryFlag);
 		
-		$frame = new \ManiaLive\Gui\Controls\Frame(73.2, 0);
+		$frame = new \ManiaLive\Gui\Controls\Frame(72, 0);
 		$frame->setScale(1.13);
 		$this->addComponent($frame);
 		
