@@ -109,7 +109,7 @@ abstract class AbstractAllies extends \ManiaLib\Utils\Singleton implements Match
 		return $this->getFallbackMatchMaker()->getBackup($missingPlayer, $players);
 	}
 
-	protected function findClosePlayer($closeTo, $availablePlayers, $number)
+	public function findClosePlayer($closeTo, $availablePlayers, $number)
 	{
 		return $this->getFallbackMatchMaker()->findClosePlayer($closeTo, $availablePlayers, $number);
 	}
