@@ -70,7 +70,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $matchCancellers = array();
 
 	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
-	protected $dictionnary;
+	protected $dictionary;
 
 	protected $setReadyAction;
 
@@ -444,7 +444,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$link = $this->generateServerLink($match->matchServerLogin);
 						$this->connection->sendOpenLink($login, $link, 1);
 						$this->connection->addGuest($login, true);
-						$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
+						$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
 							array('textId' => 'substituteMoved', 'params' => array(self::PREFIX, $player->nickName))
 							)));
 					}
@@ -504,7 +504,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 								$this->connection->addGuest($player, true);
 							}
 						}
-						$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
+						$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
 							array('textId' => 'matchJoin', 'params' => array(self::PREFIX, implode(' & ', $nicknames)))
 							)));
 					}
@@ -780,7 +780,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
-			$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
+			$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
 				array('textId' => 'matchCancel', 'params' => array(static::PREFIX, $player->nickName))
 			)));
 
@@ -975,7 +975,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				{
 					$this->blockedPlayers[$login] = time();
 
-					$this->connection->chatSendServerMessageToLanguage($this->dictionnary->getChat(array(
+					$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
 							array('textId' => 'playerSuspended' , 'params' => array(self::PREFIX, $player->nickName))
 					)));
 				}

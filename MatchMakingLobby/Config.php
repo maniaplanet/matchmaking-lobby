@@ -89,7 +89,7 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * If null, scriptName will be used
 	 * @var string
 	 */
-	public $dictionnary;
+	public $dictionary;
 
 	public function getMatchSettingsClassName($scriptName)
 	{
@@ -108,7 +108,7 @@ class Config extends \ManiaLib\Utils\Singleton
 
 	public function getDictionnary($scriptName)
 	{
-		return $this->dictionnary ? : $scriptName;
+		return $this->dictionary ? : $scriptName;
 	}
 
 }
