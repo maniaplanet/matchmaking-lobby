@@ -222,7 +222,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setPosition(0, -10);
 		$ui->setStyle(Elements\Label::TextButtonSmall);
 		$ui->setTextid('setAlly');
-//		$this->emptySlot->addComponent($ui);
+		$this->emptySlot->addComponent($ui);
 		
 		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0, -7, new \ManiaLib\Gui\Layouts\Column());
 		$this->playerListFrame->getLayout()->setMarginHeight(3);
@@ -268,14 +268,12 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->playingCountLabel->setAlign('center', 'center2');
 		$this->playingCountLabel->setPosition(17.5, 0);
 		$this->playingCountLabel->setStyle(Elements\Label::TextRaceMessageBig);
-		$this->playingCountLabel->setText('16');
 		$this->playingCountLabel->setTextSize(7);
 		$this->playingCountLabel->setTextEmboss();
 		$frame->addComponent($this->playingCountLabel);
 		
 		$this->waitingCountLabel = clone $this->playingCountLabel;
 		$this->waitingCountLabel->setPosX(-17.5);
-		$this->waitingCountLabel->setText(12);
 		$frame->addComponent($this->waitingCountLabel);
 		
 		$ui = new Elements\Bgs1InRace(40, 12);
@@ -296,7 +294,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->avgWaitTimeLabel->setAlign('center', 'center2');
 		$this->avgWaitTimeLabel->setPosition(0, -25);
 		$this->avgWaitTimeLabel->setStyle(Elements\Label::TextRaceMessageBig);
-		$this->avgWaitTimeLabel->setText('00:00');
 		$this->avgWaitTimeLabel->setTextSize(7);
 		$this->avgWaitTimeLabel->setTextEmboss();
 		$frame->addComponent($this->avgWaitTimeLabel);
@@ -441,7 +438,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 				'avgWaiting' => 'waitingScreenWaitingLabel',
 				'rules' => 'rules',
 				'back' => 'back',
-				'setAlly' => 'setAlly'
+				'setAlly' => 'picked'
 		)));
 	}
 

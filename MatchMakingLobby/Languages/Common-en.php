@@ -61,6 +61,7 @@ Your Elite game will start automatically.
 	'red' => 'Red',
 	'blue' => 'Blue',
 	'setAlly' => 'Set an ally',
+	'picked' => 'Picked by matchmaking',
 	'yes' => 'Yes',
 	'no' => 'No',
 );
