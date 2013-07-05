@@ -211,7 +211,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->emptySlot = new \ManiaLive\Gui\Controls\Frame();
 		$this->emptySlot->setSize(70, 20);
 		
-		$ui = new Elements\Quad(80, 20);
+		$ui = new Elements\Quad(83, 20);
 		$ui->setAlign('center', 'top');
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/player-card-blank.png',true);
 		$this->emptySlot->addComponent($ui);
@@ -227,7 +227,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->playerListFrame->getLayout()->setMarginHeight(3);
 		$frame->addComponent($this->playerListFrame);
 
-		// TODO Add to Translation files
 		$ui = new Elements\Label(40, 10);
 		$ui->setAlign('center', 'center');
 		$ui->setPosition(-105, 50);

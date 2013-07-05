@@ -116,26 +116,25 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->countryFlag->setPosition(22, -17.5);
 		$this->addComponent($this->countryFlag);
 		
-		$frame = new \ManiaLive\Gui\Controls\Frame(73.5, 1);
-		$frame->setScale(1.1);
+		$frame = new \ManiaLive\Gui\Controls\Frame(73.2, 0);
+		$frame->setScale(1.13);
 		$this->addComponent($frame);
 		
 		$this->echelonQuad = new Elements\Quad(14.1551, 17.6938);
-		$this->echelonQuad->setPosition(-1.25, -1.25);
 		$this->echelonQuad->setAlign('center', 'top');
 		$frame->addComponent($this->echelonQuad);
 		
 		$ui = new Elements\Label(15);
 		$ui->setAlign('center', 'top');
 		$ui->setStyle(Elements\Label::TextRaceMessage);
-		$ui->setPosition(-1, -4.95625);
+		$ui->setPosition(-0.25, -3.6);
 		$ui->setTextSize(0.5);
 		$ui->setText('Echelon');
 		$frame->addComponent($ui);
 		
 		$this->echelonLabel = new Elements\Label(10, 10);
 		$this->echelonLabel->setAlign('center','center');
-		$this->echelonLabel->setPosition(-1, -11.895);
+		$this->echelonLabel->setPosition(-0.25, -10.6);
 		$this->echelonLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$frame->addComponent($this->echelonLabel);
 	}
