@@ -105,7 +105,7 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 			$key = array_search($login, $availablePlayers);
 			if ($key !== false)
 			{
-				unset($availablePlayers[]);
+				unset($availablePlayers[$key]);
 			}
 			$result[] = $login;
 		}
