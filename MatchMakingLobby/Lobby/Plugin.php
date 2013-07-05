@@ -85,8 +85,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
-		$script = $this->storage->gameInfos->scriptName;
-		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $script);
+		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $this->storage->gameInfos->scriptName);
 
 		$matchMakerClassName = $this->config->getMatchMakerClassName($this->scriptName);
 		if (!class_exists($matchMakerClassName))
@@ -840,7 +839,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->decreasePlayerPenalty($player->login, 86000, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		}
 	}
-	
+
 	function onCloseSplash($login)
 	{
 		$this->gui->hideSplash($login);
@@ -848,13 +847,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->showWaitingScreen($login);
 		$this->updatePlayerList = true;
 	}
-	
+
 	function onClickOnSplashBackground($login)
 	{
 		$this->onCloseSplash($login);
 		$this->connection->sendOpenLink($login, 'http://www.google.fr', 0);
 	}
-	
+
 	function onAnswerNoToDialog($login)
 	{
 		$this->gui->hideDialog($login);
@@ -862,13 +861,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->showWaitingScreen($login);
 		$this->updatePlayerList = true;
 	}
-	
+
 	function onAnswerYesToDialog($login)
 	{
 		$this->gui->hideDialog($login);
 		$this->setPlayerReady($login);
 	}
-	
+
 	protected function setPlayerReady($login)
 	{
 		$player = Services\PlayerInfo::Get($login);
