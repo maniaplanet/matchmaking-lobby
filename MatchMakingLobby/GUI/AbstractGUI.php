@@ -283,7 +283,7 @@ abstract class AbstractGUI
 		else
 		{
 			$align = array('left');
-			$position = array(-145, 45);
+			$position = array(-143.3, 43);
 		}
 		call_user_func_array(array($playerList,'setAlign'), $align);
 		call_user_func_array(array($playerList,'setPosition'), $position);

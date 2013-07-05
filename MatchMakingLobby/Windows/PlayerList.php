@@ -10,6 +10,7 @@
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 use ManiaLivePlugins\MatchMakingLobby\Controls\Player;
+use ManiaLivePlugins\MatchMakingLobby\Controls\PlayerSmall;
 
 class PlayerList extends \ManiaLive\Gui\Window
 {
@@ -104,14 +105,17 @@ class PlayerList extends \ManiaLive\Gui\Window
 		{
 			$player = current(self::$playerList);
 
-			$component = new Player($player['nickname']);
+			if($this->smallCards)
+			{
+				$component = new PlayerSmall($player['nickname']);
+			}
+			else
+			{
+				$component = new Player($player['nickname']);
+			}
 			$component->state = $player['state'];
 			$component->ladderPoints = $player['ladderPoints'];
 			$component->zoneFlagURL = $player['zoneFlag'];
-			if($this->smallCards)
-			{
-				$component->setSizeX(45);
-			}
 			$this->frame->addComponent(clone $component);
 			next(self::$playerList);
 		}

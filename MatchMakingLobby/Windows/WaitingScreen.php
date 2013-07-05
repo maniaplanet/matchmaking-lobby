@@ -169,15 +169,16 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->serverNameLabel->setTextEmboss();
 		$this->addComponent($this->serverNameLabel);
 		
-		$ui = new Elements\Quad(110, 40);
+		$ui = new Elements\Bgs1(110, 40);
 		$ui->setPosY(3);
 		$ui->setAlign('center');
-		$ui->setBgcolor('444');
+		$ui->setSubStyle(Elements\Bgs1::BgHealthBar);
+//		$ui->setBgcolor('4449');
 		$this->addComponent($ui);
 		
-		$ui = new Elements\Label(100,40);
+		$ui = new Elements\Label(100);
 		$ui->setAlign('center');
-		$ui->setPosY(0);
+		$ui->setPosY(-5);
 		$ui->setTextColor('fff');
 		$ui->setTextSize(3);
 		$ui->enableAutonewline();
@@ -186,14 +187,14 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 
 		$ui = new Elements\Bgs1InRace(40, 8);
 		$ui->setAlign('center', 'center');
-		$ui->setPosition(-105, 50);
+		$ui->setPosition(-108, 50);
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad.png',true);
 		$this->addComponent($ui);
 		
 		
 		// TODO Add to Translation files
 		$frame = new Frame();
-		$frame->setPosition(105, 50);
+		$frame->setPosition(108, 50);
 		$this->addComponent($frame);
 		
 		$ui = new Elements\Bgs1InRace(40, 8);
@@ -211,9 +212,9 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->emptySlot = new \ManiaLive\Gui\Controls\Frame();
 		$this->emptySlot->setSize(70, 20);
 		
-		$ui = new Elements\Quad(83, 20);
+		$ui = new Elements\Bgs1(80, 20);
 		$ui->setAlign('center', 'top');
-		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/player-card-blank.png',true);
+		$ui->setSubStyle(Elements\Bgs1::BgListLine);
 		$this->emptySlot->addComponent($ui);
 		
 		$ui = new Elements\Label(80);
@@ -221,15 +222,15 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setPosition(0, -10);
 		$ui->setStyle(Elements\Label::TextButtonSmall);
 		$ui->setTextid('setAlly');
-		$this->emptySlot->addComponent($ui);
+//		$this->emptySlot->addComponent($ui);
 		
-		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0,-5, new \ManiaLib\Gui\Layouts\Column());
+		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0, -7, new \ManiaLib\Gui\Layouts\Column());
 		$this->playerListFrame->getLayout()->setMarginHeight(3);
 		$frame->addComponent($this->playerListFrame);
 
 		$ui = new Elements\Label(40, 10);
 		$ui->setAlign('center', 'center');
-		$ui->setPosition(-105, 50);
+		$ui->setPosition(-108, 50);
 		$ui->setStyle(Elements\Label::TextTitle3);
 		$ui->setTextEmboss();
 		$ui->setTextid('players');
@@ -253,15 +254,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$uiLabel->setTextSize(2);
 		$frame->addComponent($uiLabel);
 		
-		$this->playingCountLabel = new Elements\Label(25, 15);
-		$this->playingCountLabel->setAlign('center', 'center2');
-		$this->playingCountLabel->setPosition(17.5, 0);
-		$this->playingCountLabel->setStyle(Elements\Label::TextRaceMessageBig);
-		$this->playingCountLabel->setText('16');
-		$this->playingCountLabel->setTextSize(7);
-		$this->playingCountLabel->setTextEmboss();
-		$frame->addComponent($this->playingCountLabel);
-		
 		$ui = clone $ui;
 		$ui->setHalign('left');
 		$ui->setPosX(5);
@@ -271,6 +263,15 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$uiLabel->setTextid('ready');
 		$uiLabel->setPosition(-17.5, -7);
 		$frame->addComponent($uiLabel);
+		
+		$this->playingCountLabel = new Elements\Label(25, 15);
+		$this->playingCountLabel->setAlign('center', 'center2');
+		$this->playingCountLabel->setPosition(17.5, 0);
+		$this->playingCountLabel->setStyle(Elements\Label::TextRaceMessageBig);
+		$this->playingCountLabel->setText('16');
+		$this->playingCountLabel->setTextSize(7);
+		$this->playingCountLabel->setTextEmboss();
+		$frame->addComponent($this->playingCountLabel);
 		
 		$this->waitingCountLabel = clone $this->playingCountLabel;
 		$this->waitingCountLabel->setPosX(-17.5);

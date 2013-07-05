@@ -59,11 +59,10 @@ class Player extends \ManiaLive\Gui\Control
 
 	function __construct($nickname)
 	{
-		$this->setSize(80, 5);
+		$this->setSize(70, 5);
 
 		$this->bg = new Elements\Bgs1InRace($this->sizeX, $this->sizeY);
-//		$this->bg->setSubStyle(Elements\Bgs1InRace::BgListLine);
-		$this->bg->setBgcolor('444');
+		$this->bg->setBgcolor('3338');
 		$this->addComponent($this->bg);
 
 		$this->icon = new Elements\Quad(2, $this->sizeY);
@@ -114,18 +113,18 @@ class Player extends \ManiaLive\Gui\Control
 		switch($this->state)
 		{
 			case static::STATE_READY:
-				$subStyle = '0F0';
+				$subStyle = '0F0D';
 				break;
 			case static::STATE_IN_MATCH:
-				$subStyle = 'FF0';
+				$subStyle = 'FF0D';
 				break;
 			case static::STATE_BLOCKED:
-				$subStyle = '000';
+				$subStyle = '000D';
 				break;
 			case static::STATE_NOT_READY:
 				//nobreak
 			default :
-				$subStyle = 'F00';
+				$subStyle = 'F00D';
 		}
 		
 		$this->icon->setSize(1, $this->sizeY);

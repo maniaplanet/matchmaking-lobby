@@ -48,10 +48,10 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 			'avgWaiting' => 'waitingScreenWaitingLabel'
 		);
 
-		$ui = new Elements\Bgs1InRace(50, 26);
+		$ui = new Elements\Bgs1InRace(49, 26);
 //		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
-		$ui->setBgcolor('111F');
-		$ui->setPosY(-2);
+		$ui->setBgcolor('111A');
+		$ui->setPosition(0.2, -2);
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Quad(45, 7);
