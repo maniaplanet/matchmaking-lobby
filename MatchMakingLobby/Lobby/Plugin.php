@@ -106,7 +106,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->lobbyBoxPosY = 45;
 		$this->setMatchMaker($matchMakerClassName::getInstance());
 
-		$this->dictionnary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->scriptName);
+
+		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->config->getDictionnary($this->scriptName));
 	}
 
 	function onLoad()

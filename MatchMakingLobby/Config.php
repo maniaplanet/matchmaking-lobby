@@ -85,6 +85,12 @@ class Config extends \ManiaLib\Utils\Singleton
 	 */
 	public $authorizedMatchCancellation = 0;
 
+	/**
+	 * If null, scriptName will be used
+	 * @var string
+	 */
+	public $dictionnary;
+
 	public function getMatchSettingsClassName($scriptName)
 	{
 		return $this->matchSettingsClassName ? : '\ManiaLivePlugins\MatchMakingLobby\MatchSettings\\'.$scriptName;
@@ -98,6 +104,11 @@ class Config extends \ManiaLib\Utils\Singleton
 	public function getGuiClassName($scriptName)
 	{
 		return $this->guiClassName ? : '\ManiaLivePlugins\MatchMakingLobby\GUI\\'.$scriptName;
+	}
+
+	public function getDictionnary($scriptName)
+	{
+		return $this->dictionnary ? : $scriptName;
 	}
 
 }

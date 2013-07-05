@@ -158,8 +158,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->matchMakingService = new Services\MatchMakingService();
 		$this->matchMakingService->createTables();
 
-		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->scriptName);
-
+		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->config->getDictionnary($this->scriptName));
 	}
 
 	function onLoad()
