@@ -16,26 +16,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 {
 
 	/**
-	 * @var int
-	 */
-	static protected $playingCount = 0;
-
-	/**
-	 * @var int
-	 */
-	static protected $waitingCount = 0;
-
-	/**
-	 * @var double
-	 */
-	static protected $avgWaitTime = -1;
-
-	/**
-	 * @var string
-	 */
-	static protected $serverName = '';
-
-	/**
 	 * @var string
 	 */
 	static protected $readyAction;
@@ -104,18 +84,21 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	protected $emptySlot;
 	
 	/**
+	 * @var \ManiaLivePlugins\MatchMakingLobby\Controls\Counters
+	 */
+	protected $counters;
+	
+	/**
 	 * @var string
 	 */
 	protected $textId;
 	
+	protected $dico = array();
+
+
 	static function setReadyAction($action)
 	{
 		static::$readyAction = $action;
-	}
-	
-	static function setServerName($name)
-	{
-		static::$serverName = $name;
 	}
 	
 	static function setScriptName($script)
@@ -128,27 +111,22 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		static::$partySize = $size;
 	}
 
-
-	static function setPlayingCount($count)
-	{
-		static::$playingCount = $count;
-	}
-	
-	static function setWaitingCount($count)
-	{
-		static::$waitingCount = $count;
-	}
-	
-	static function setAverageWaitingTime($time)
-	{
-		static::$avgWaitTime = $time;
-	}
-		
 	function onConstruct()
 	{
+		$this->dico = array(
+			'playing' => 'playing',
+				'ready' => 'ready',
+				'readyButton' => 'readyButton',
+				'players' => 'players',
+				'allies' => 'party',
+				'avgWaiting' => 'waitingScreenWaitingLabel',
+				'rules' => 'rules',
+				'back' => 'quit',
+		);
+		
 		$ui = new Elements\Quad(320, 125);
 		$ui->setAlign('center', 'center');
-		$ui->setBgcolor('888F');
+		$ui->setBgcolor('888A');
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Quad(320, 142);
@@ -156,24 +134,15 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/background.png',true);
 		$this->addComponent($ui);
 		
-		$ui = new Elements\Quad(100, 15);
-		$ui->setAlign('center', 'center');
+		$ui = new \ManiaLivePlugins\MatchMakingLobby\Controls\ServerName();
 		$ui->setPosY(62.5);
-		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad-wide.png',true);
+		$ui->setAlign('center','center');
 		$this->addComponent($ui);
-
-		$this->serverNameLabel = new Elements\Label(90, 20);
-		$this->serverNameLabel->setAlign('center', 'center');
-		$this->serverNameLabel->setPosY(62.5);
-		$this->serverNameLabel->setStyle(Elements\Label::TextTitle1);
-		$this->serverNameLabel->setTextEmboss();
-		$this->addComponent($this->serverNameLabel);
 		
 		$ui = new Elements\Bgs1(110, 40);
 		$ui->setPosY(3);
 		$ui->setAlign('center');
 		$ui->setSubStyle(Elements\Bgs1::BgHealthBar);
-//		$ui->setBgcolor('4449');
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(100);
@@ -190,7 +159,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setPosition(-108, 50);
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/grey-quad.png',true);
 		$this->addComponent($ui);
-		
 		
 		// TODO Add to Translation files
 		$frame = new Frame();
@@ -209,20 +177,10 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setTextid('allies');
 		$frame->addComponent($ui);
 		
-		$this->emptySlot = new \ManiaLive\Gui\Controls\Frame();
-		$this->emptySlot->setSize(70, 20);
-		
-		$ui = new Elements\Bgs1(80, 20);
-		$ui->setAlign('center', 'top');
-		$ui->setSubStyle(Elements\Bgs1::BgListLine);
-		$this->emptySlot->addComponent($ui);
-		
-		$ui = new Elements\Label(80);
-		$ui->setAlign('center', 'center');
-		$ui->setPosition(0, -10);
-		$ui->setStyle(Elements\Label::TextButtonSmall);
-		$ui->setTextid('setAlly');
-//		$this->emptySlot->addComponent($ui);
+		$this->emptySlot = new \ManiaLivePlugins\MatchMakingLobby\Controls\EmptySlot();
+		$this->emptySlot->setSize(80, 20);
+		$this->emptySlot->setAlign('center');
+		$this->dico[$this->emptySlot->getLabelTextid()] = 'picked';
 		
 		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0, -7, new \ManiaLib\Gui\Layouts\Column());
 		$this->playerListFrame->getLayout()->setMarginHeight(3);
@@ -236,70 +194,9 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setTextid('players');
 		$this->addComponent($ui);
 		
-		$frame = new Frame();
-		$frame->setPosition(0, 45);
-		$this->addComponent($frame);
-
-		$ui = new Elements\Bgs1InRace(25, 12);
-		$ui->setAlign('right', 'center');
-		$ui->setPosition(-5, 0);
-		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/blue-quad-small.png',true);
-		$frame->addComponent($ui);
-		
-		$uiLabel = new Elements\Label(25);
-		$uiLabel->setAlign('center');
-		$uiLabel->setPosition(17.5, -7);
-		$uiLabel->setStyle(Elements\Label::TextButtonSmall);
-		$uiLabel->setTextid('playing');
-		$uiLabel->setTextSize(2);
-		$frame->addComponent($uiLabel);
-		
-		$ui = clone $ui;
-		$ui->setHalign('left');
-		$ui->setPosX(5);
-		$frame->addComponent($ui);
-		
-		$uiLabel = clone $uiLabel;
-		$uiLabel->setTextid('ready');
-		$uiLabel->setPosition(-17.5, -7);
-		$frame->addComponent($uiLabel);
-		
-		$this->playingCountLabel = new Elements\Label(25, 15);
-		$this->playingCountLabel->setAlign('center', 'center2');
-		$this->playingCountLabel->setPosition(17.5, 0);
-		$this->playingCountLabel->setStyle(Elements\Label::TextRaceMessageBig);
-		$this->playingCountLabel->setText('16');
-		$this->playingCountLabel->setTextSize(7);
-		$this->playingCountLabel->setTextEmboss();
-		$frame->addComponent($this->playingCountLabel);
-		
-		$this->waitingCountLabel = clone $this->playingCountLabel;
-		$this->waitingCountLabel->setPosX(-17.5);
-		$this->waitingCountLabel->setText(12);
-		$frame->addComponent($this->waitingCountLabel);
-		
-		$ui = new Elements\Bgs1InRace(40, 12);
-		$ui->setAlign('center', 'center');
-		$ui->setPosition(0, -25);
-		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/blue-quad-wide.png',true);
-		$frame->addComponent($ui);
-		
-		$ui = new Elements\Label(35,15);
-		$ui->setAlign('center', 'center');
-		$ui->setPosition(0, -33.5);
-		$ui->setStyle(Elements\Label::TextButtonSmall);
-		$ui->setTextSize(2);
-		$ui->setTextid('avgWaiting');
-		$frame->addComponent($ui);
-		
-		$this->avgWaitTimeLabel = new Elements\Label(35, 15);
-		$this->avgWaitTimeLabel->setAlign('center', 'center2');
-		$this->avgWaitTimeLabel->setPosition(0, -25);
-		$this->avgWaitTimeLabel->setStyle(Elements\Label::TextRaceMessageBig);
-		$this->avgWaitTimeLabel->setText('00:00');
-		$this->avgWaitTimeLabel->setTextSize(7);
-		$this->avgWaitTimeLabel->setTextEmboss();
-		$frame->addComponent($this->avgWaitTimeLabel);
+		$this->counters = new \ManiaLivePlugins\MatchMakingLobby\Controls\Counters();
+		$this->counters->setPosition(0, 50);
+		$this->addComponent($this->counters);
 		
 		$this->buttonFrame = new Frame();
 		$this->buttonFrame->setLayout(new \ManiaLib\Gui\Layouts\Column(0, 0, \ManiaLib\Gui\Layouts\Column::DIRECTION_UP));
@@ -326,7 +223,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->readyButton->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/red-button-hover.png', true);
 		$this->readyButtonFrame->addComponent($this->readyButton);
 		
-		$ui = new Elements\Label();
+		$ui = new Elements\Label(58);
 		$ui->setAlign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextButtonBig);
 		$ui->setTextid('readyButton');
@@ -348,7 +245,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		foreach($player->allies as $ally)
 		{
-			$this->addPlayerToParty(\ManiaLive\Data\Storage::getInstance()->getPlayerObject($ally));
+			$allyObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($ally);
+			if($allyObject)
+			{
+				$this->addPlayerToParty($allyObject);
+			}
 		}
 	}
 	
@@ -391,16 +292,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	
 	function onDraw()
 	{
-		if(static::$avgWaitTime < 0)
-		{
-			$avgWaitingTime = '-';
-		}
-		else
-		{
-			$min = ceil(static::$avgWaitTime / 60);
-			$avgWaitingTime = sprintf('%d min',$min);
-		}
-		
 		$this->playerListFrame->clearComponents();
 		$playerKeys = array_keys($this->playerList);
 		for($i = 0; $i < static::$partySize; $i++)
@@ -415,34 +306,14 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			}
 		}
 		
-		$this->serverNameLabel->setText(static::$serverName);
-		$this->playingCountLabel->setText(static::$playingCount);
-		$this->waitingCountLabel->setText(static::$waitingCount);
-		$this->avgWaitTimeLabel->setText($avgWaitingTime);
-		if(!$this->disableReadyButton)
-		{
-			$this->readyButtonFrame->setVisibility(true);
-			$this->readyButton->setAction(static::$readyAction);
-		}
-		else
-		{
-			$this->readyButtonFrame->setVisibility(false);
-		}
+		$this->readyButton->setAction(static::$readyAction);
+		
 		$this->posZ = 3.9;
 
 		$textId = $this->textId ? : array('textId' => 'waitingHelp', 'params' => array(static::$scriptName));
-		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink(array(
-				'playing' => 'playing',
-				'ready' => 'ready',
-				'readyButton' => 'readyButton',
-				'text' => $textId,
-				'players' => 'players',
-				'allies' => 'party',
-				'avgWaiting' => 'waitingScreenWaitingLabel',
-				'rules' => 'rules',
-				'back' => 'back',
-				'setAlly' => 'setAlly'
-		)));
+		$this->dico['text'] = $textId;
+		$this->dico[$this->counters->getNextMatchmakerTimeTextid()] = $this->counters->getNextMatchmakerTimeDictionaryElement();
+		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink($this->dico));
 	}
 
 }

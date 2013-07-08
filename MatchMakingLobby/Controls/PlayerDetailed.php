@@ -78,13 +78,13 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$ui->setImage('http://static.maniaplanet.com/manialinks/elite/PlayerCardBg.dds',true);
 		$this->addComponent($ui);
 
-		$this->icon = new Elements\Icons64x64_1(20, 20);
+		$this->icon = new Elements\Icons64x64_1(18.5, 18.5);
 		$this->icon->setBgcolor('F00');
+		$this->icon->setAlign('left', 'center');
 		$this->addComponent($this->icon);
 
 		$this->label = new Elements\Label(38);
 		$this->label->setPosition(22, -2.5);
-//		$this->label->setTextColor('fff');
 		$this->label->setTextSize(3);
 		$this->label->setStyle(Elements\Label::TextRaceMessage);
 		$this->addComponent($this->label);
@@ -142,6 +142,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 	function onDraw()
 	{
 		$this->icon->setImage($this->avatarUrl, true);
+		$this->icon->setPosition(0.75,-10);
 		$this->label->setText($this->nickname);
 		$this->rankLabel->setText(sprintf('%s: %d', $this->zone, $this->rank));
 		$this->countryFlag->setImage($this->countryFlagUrl, true);

@@ -261,7 +261,10 @@ abstract class AbstractGUI
 		$lobbyWindow = Windows\LobbyWindow::Create(Group::Create($this->readyGroupName));
 		$lobbyWindow->setAlign('right','bottom');
 		$lobbyWindow->setPosition(165, $this->lobbyBoxPosY);
-		$lobbyWindow->set($serverName, $playersCount, $playingPlayersCount, $averageTime);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($serverName);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setPlayingCount($playingPlayersCount);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setWaitingCount($playersCount);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setAverageWaitingTime($averageTime);
 		$lobbyWindow->show();
 	}
 
@@ -335,7 +338,7 @@ abstract class AbstractGUI
 	
 	final function createWaitingScreen($serverName, $readyAction, $scriptName, $partySize)
 	{
-		Windows\WaitingScreen::setServerName($serverName);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($serverName);
 		Windows\WaitingScreen::setReadyAction($readyAction);
 		Windows\WaitingScreen::setScriptName($scriptName);
 		Windows\WaitingScreen::setPartySize($partySize);
@@ -348,10 +351,17 @@ abstract class AbstractGUI
 
 	final function updateWaitingScreen($serverName, $avgWaitTime, $readyCount, $playingCount)
 	{
-		Windows\WaitingScreen::setPlayingCount($playingCount);
-		Windows\WaitingScreen::setWaitingCount($readyCount);
-		Windows\WaitingScreen::setAverageWaitingTime($avgWaitTime);
-		Windows\WaitingScreen::setServerName($serverName);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($serverName);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setPlayingCount($playingCount);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setWaitingCount($readyCount);
+		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setAverageWaitingTime($avgWaitTime);
+		Windows\WaitingScreen::RedrawAll();
+	}
+	
+	final function updateMatchmakerCounter($count)
+	{
+		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setNextMatchmakerTime($count);
+		Windows\LobbyWindow::RedrawAll();
 		Windows\WaitingScreen::RedrawAll();
 	}
 	

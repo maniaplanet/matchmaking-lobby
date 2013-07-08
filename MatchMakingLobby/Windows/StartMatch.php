@@ -21,6 +21,9 @@ class StartMatch extends \ManiaLive\Gui\Window
 	
 	/** @var Elements\Label */
 	protected $transferLabel;
+	
+	/** @var Elements\Label */
+	protected $cancelLabel;
 
 	/** @var \ManiaLive\Gui\Controls\Frame */
 	protected $team1;
@@ -62,10 +65,9 @@ class StartMatch extends \ManiaLive\Gui\Window
 		$this->addComponent($this->versus);
 		
 		$this->label = new Elements\Label(200, 20);
-		$this->label->setPosY(51);
+		$this->label->setPosY(47);
 		$this->label->setAlign('center', 'center2');
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
-		$this->label->setTextColor('FF0');
 		$this->label->setTextid('text');
 		$this->label->setId('info-label');
 		$this->label->setTextSize(7);
@@ -77,6 +79,16 @@ class StartMatch extends \ManiaLive\Gui\Window
 		$this->transferLabel->setTextid('transferText');
 		$this->transferLabel->setId('transfer-label');
 		$this->addComponent($this->transferLabel);
+		
+		$this->cancelLabel = new Elements\Label(200);
+		$this->cancelLabel->setPosY(-47);
+		$this->cancelLabel->setAlign('center', 'center2');
+		$this->cancelLabel->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
+		$this->cancelLabel->setTextColor('AAA');
+		$this->cancelLabel->setTextid('cancel');
+		$this->cancelLabel->setId('cancel-label');
+		$this->cancelLabel->setTextSize(7);
+		$this->addComponent($this->cancelLabel);
 
 		$layout = new \ManiaLib\Gui\Layouts\Column();
 		$layout->setMarginHeight(1);
@@ -134,6 +146,7 @@ main()
 	declare Boolean waiting = False;
 	declare CMlLabel label <=> (Page.MainFrame.GetFirstChild("info-label") as CMlLabel);
 	declare CMlLabel label2 <=> (Page.MainFrame.GetFirstChild("transfer-label") as CMlLabel);
+	declare CMlLabel label3 <=> (Page.MainFrame.GetFirstChild("cancel-label") as CMlLabel);
 	declare Text labelText = label.Value;
 	label.SetText(TextLib::Compose(labelText, TextLib::ToText(countdownTimeLeft)));
 	label2.Hide();
@@ -149,6 +162,7 @@ main()
 		else if(countdownTimeLeft <= 0)
 		{
 			label2.Show();
+			label3.Hide();
 			label.Hide();
 			waiting = True;
 		}
@@ -162,6 +176,7 @@ MANIASCRIPT
 		\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance()->getManialink(array(
 				'text' => 'launchMatch',
 				'transferText' => 'transfer',
+				'cancel' => 'cancel',
 		)));
 	}
 	
