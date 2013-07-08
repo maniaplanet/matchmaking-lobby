@@ -78,6 +78,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->setVersion('3.0.0');
 
+		$this->addDependency(new \ManiaLive\PluginHandler\Dependency('Standard\AutoTagMatchSettings'));
+
 		if (version_compare(\ManiaLiveApplication\Version, \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE) < 0)
 		{
 			throw new \ManiaLive\Application\FatalException(sprintf('You ManiaLive version is too old, please update to %s', \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE));
