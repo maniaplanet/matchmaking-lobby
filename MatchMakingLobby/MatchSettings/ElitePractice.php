@@ -14,8 +14,10 @@ class ElitePractice extends Elite implements MatchSettings
 	{
 		$rules = parent::getMatchScriptSettings();
 		$rules['S_Practice'] = true;
+		$rules['S_PracticeRoundLimit'] = 3; //# of attack rounds per persons
 		return $rules;
 	}
+
 }
 
 ?>
