@@ -787,7 +787,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			if ($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
 			{
 				$this->matchMakingService->increasePlayerPenalty($login, 42 + pow(7, $this->matchCancellers[$login] - $this->config->authorizedMatchCancellation), $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-				$this->blockedPlayers[$login] = time();
 			}
 
 			$this->matchMakingService->cancelMatch($match);
@@ -1137,7 +1136,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					$message = $this->gui->getNoReadyPlayers();
 				}
 				$this->setShortKey($player->login, array($this,'onPlayerReady'));
-				$this->gui->updateWaitingScreenLabel($message, $player->login);
+				if ($message)
+				{
+					$this->gui->updateWaitingScreenLabel($message, $player->login);
+				}
+			}
+			else
+			{
+				$this->resetShortKey($player->login);
 			}
 		}
 	}
