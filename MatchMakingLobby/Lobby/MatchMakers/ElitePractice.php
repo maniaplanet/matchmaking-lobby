@@ -10,7 +10,7 @@ class ElitePractice extends AbstractLadderPointsDistance
 {
 	function getNumberOfTeam()
 	{
-		return 2;
+		return 0;
 	}
 
 	function getPlayersPerMatch()
