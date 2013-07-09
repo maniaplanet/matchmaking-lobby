@@ -11,14 +11,14 @@ $lang = array(
 	'playerBackLabelPrefix' => 'Welcome back. ',
 	'noServerAvailable' => 'No match server available at the moment, please wait',
 	'illegalLeave' => 'A player left
-Do not leave, searching for a substitute',
-	'launchMatch' => 'Match starts in $<$FFF%1 $>...',
+$oDo not leave$o, searching for a substitute',
+	'launchMatch' => 'Match starts in $<$FFF%1$>...',
 	'cancel' => 'F6 to cancel',
 	'matchInProgress' => 'You have a match in progress. Prepare to be transferred',
 	'suspended' => '$F00You are suspended for %d minutes',
 	'matchOver' => 'Match over. You will be transferred back.',
 	'giveUp' => 'A player gave up
-Do not leave, searching for a substitute',
+$oDo not leave$o, searching for a substitute',
 	'deciding' => 'Waiting for all player to connect before starting match',
 	'tooManyAllies' => '$F00You have too many allies, maximum is %d',
 	'expectingReadyPlayers' => '
@@ -32,10 +32,10 @@ A match is expecting a substitute',
 	'matchStarting' => '%sMatch is starting. Good luck and have fun!',
 	'playerBack' => '%sPlayer is back, match continues.',
 	'backupConnected' => '%sSubstitutes are connected, match continues.',
-	'transfer' => 'You\'re being transfered. Please wait.',
+	'transfer' => 'You are being transferred. Please wait.',
 	'helpSwitch' => 'Press F7 for help',
 	'helpText' => 'You are on a matchmaking waiting room server.
-		
+
 %1$s Press F6 to show that you are ready.
 %1$s Play a fun mode while you wait.
 %1$s Your %2$s game will start automatically.
@@ -46,7 +46,7 @@ A match is expecting a substitute',
 	'waitingTime' => 'Estimated waiting time: %s',
 	'waitingScreenWaitingLabel' => 'AVG Waiting Time',
 	'waitingHelp' => 'Welcome to the matchmaking waiting room.
-Press $oREADY$o to play, and wait your match.
+Press $oREADY$o to play while waiting your match.
 Your Elite game will start automatically.
 
 ',
