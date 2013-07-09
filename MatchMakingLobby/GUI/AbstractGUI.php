@@ -226,9 +226,18 @@ abstract class AbstractGUI
 					'zone' => ($p ? array_pop($pathArray) : 'World'),
 					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1),
 					'zoneFlag' => sprintf('file://ZoneFlags/Login/%s/country', $login),
+					'ladderPoints' => $p->ladderStats['PlayerRankings'][0]['Score'],
 					'echelon' => floor($p->ladderStats['PlayerRankings'][0]['Score'] / 10000)
 				);
 			};
+		$sortPlayerCallback = function ($player1, $player2)
+		{
+			if($player1->ladderPoints == $player2->ladderPoints)
+			{
+				return 0;
+			}
+			return $player1->ladderPoints < $player2->ladderPoints ? 1 : -1;
+		};
 		if($match->team1 && $match->team2)
 		{
 			$team1 = array_map($getPlayerInfosCallback, $match->team1);
@@ -239,6 +248,8 @@ abstract class AbstractGUI
 			$team1 = array(call_user_func($getPlayerInfosCallback, $match->players[0]));
 			$team2 = array(call_user_func($getPlayerInfosCallback, $match->players[1]));
 		}
+		usort($team1, $sortPlayerCallback);
+		usort($team2, $sortPlayerCallback);
 		$window = Windows\StartMatch::Create($receiver);
 		$window->set($team1, $team2, $time);
 		$window->show();
