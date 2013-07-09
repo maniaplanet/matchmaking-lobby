@@ -221,6 +221,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->matchMakingService->updateMatchState($match->id, Services\Match::FINISHED);
 			$this->matchMakingService->updateServerCurrentMatchId(null, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		}
+
+		//Restart map to initialize script
+		$this->connection->executeMulticall(); // Flush calls
+		$this->connection->restartMap();
 	}
 
 	function onUnload()
