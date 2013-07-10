@@ -61,7 +61,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	protected $buttonFrame;
 	
 	/**
-	 * @var Elements\Button
+	 * @var Elements\Quad
 	 */
 	protected $readyButton;
 	
@@ -305,8 +305,15 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 				$this->playerListFrame->addComponent(clone $this->emptySlot);
 			}
 		}
-		
-		$this->readyButton->setAction(static::$readyAction);
+		if($this->disableReadyButton)
+		{
+			$this->readyButtonFrame->setVisibility(false);
+		}
+		else
+		{
+			$this->readyButtonFrame->setVisibility(true);
+			$this->readyButton->setAction(static::$readyAction);
+		}
 		
 		$this->posZ = 3.9;
 

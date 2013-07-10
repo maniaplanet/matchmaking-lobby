@@ -16,7 +16,7 @@ $oDo not leave$o, searching for a substitute',
 	'cancel' => 'F6 to cancel',
 	'matchInProgress' => 'You have a match in progress. Prepare to be transferred',
 	'suspended' => '$F00You are suspended for %d minutes
-Stay online for the specified duraction to play agian. ',
+Stay online for the specified duration to play again. ',
 	'matchOver' => 'Match over. You will be transferred back.',
 	'giveUp' => 'A player gave up
 $oDo not leave$o, searching for a substitute',
