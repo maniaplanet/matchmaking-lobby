@@ -21,6 +21,7 @@ class PlayerSmall extends Player
 		$this->setSize(45, 5);
 
 		$this->bg->setBgcolor('111A');
+		$this->label->setSizeX(32);
 	}
 	
 	function onDraw()
