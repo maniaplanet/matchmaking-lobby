@@ -212,7 +212,7 @@ abstract class AbstractGUI
 		}
 	}
 
-	final function showMatchSumUp(Match $match, $receiver, $time)
+	function showMatchSumUp(Match $match, $receiver, $time)
 	{
 		$storage = Storage::getInstance();
 		$getPlayerInfosCallback = function ($login) use ($storage)
