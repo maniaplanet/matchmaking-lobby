@@ -160,10 +160,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		);
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
-			$playerObject =  $this->storage->getPlayerObject($login);
 			$player = Services\PlayerInfo::Get($login);
-			$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
-			$player->allies = $playerObject->allies;
+			$player->ladderPoints = $obj->ladderStats['PlayerRankings'][0]['Score'];
+			$player->allies = $obj->allies;
 
 			$this->gui->addToGroup($login, false);
 
@@ -284,11 +283,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			if (array_key_exists($match->id, $this->countDown) && $this->countDown[$match->id] > 0)
 			{
-				$this->onPlayerCancelMatchStart($login);
+				$this->cancelMatch($login, $match);
 			}
 			if (array_key_exists($login, $this->replacerCountDown) && $this->replacerCountDown[$login] > 0)
 			{
-				$this->onPlayerCancelReplacement($login);
+				$this->cancelReplacement($login, $match);
 			}
 		}
 
@@ -676,21 +675,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerNotReady($login)
 	{
 		$mtime = microtime(true);
-		$player = Services\PlayerInfo::Get($login);
-		$player->setReady(false);
-
-		$this->setNotReadyLabel($login);
-
-		$this->gui->addToGroup($login, false);
-		$this->gui->addToGroup($login, false);
-		$this->updatePlayerList = true;
-
-		if(!Services\PlayerInfo::Get($login)->isAway())
-		{
-			$this->connection->forceSpectator($login, 1);
-		}
-
-		$this->gui->showWaitingScreen($login);
+		$this->setPlayerNotReady($login);
 		$time = microtime(true) - $mtime;
 		if($time > 0.05)
 			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerNotReady:%f',$time));
@@ -750,16 +735,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		if ($match)
 		{
-			$this->gui->eraseJump($login);
-			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
-
-			//FIXME: it could have been QUITTER or GIVEUP
-			$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_QUITTER);
-
-			unset($this->replacerCountDown[$login]);
-			unset($this->replacers[$login]);
-
-			$this->onPlayerReady($login);
+			$this->cancelReplacement($login, $match);
 		}
 	}
 
@@ -767,47 +743,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::debug('Player cancel match start: '.$login);
 
-		$player = $this->storage->getPlayerObject($login);
-
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if ($match !== false && $match->state == Match::PREPARED && array_key_exists($match->id, $this->countDown) && $this->countDown[$match->id] > 0)
 		{
-			$this->gui->eraseJump($match->id);
-			unset($this->countDown[$match->id]);
-
-			if (array_key_exists($login, $this->matchCancellers))
-			{
-				$this->matchCancellers[$login]++;
-			}
-			else
-			{
-				$this->matchCancellers[$login] = 1;
-			}
-
-			if ($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
-			{
-				$this->matchMakingService->increasePlayerPenalty($login, 42 + pow(7, $this->matchCancellers[$login] - $this->config->authorizedMatchCancellation), $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
-			}
-
-			$this->matchMakingService->cancelMatch($match);
-
-			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
-
-			$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-				array('textId' => 'matchCancel', 'params' => array(static::PREFIX, $player->nickName))
-			)));
-
-			foreach($match->players as $playerLogin)
-			{
-				Services\PlayerInfo::Get($playerLogin)->isInMatch = false;
-				$this->gui->eraseMatchSumUp($playerLogin);
-
-				if($playerLogin != $login)
-					$this->setPlayerReady($playerLogin);
-				else
-					$this->onPlayerNotReady($playerLogin);
-			}
-			$this->updateKarma($login);
+			$this->cancelMatch($login, $match);
 		}
 		else
 		{
@@ -898,6 +837,80 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->forceSpectator($login, 2, true);
 			$this->connection->forceSpectator($login, 0, true);
 		}
+	}
+	
+	protected function setPlayerNotReady($login)
+	{
+		$player = Services\PlayerInfo::Get($login);
+		$player->setReady(false);
+
+		$this->setNotReadyLabel($login);
+
+		$this->gui->addToGroup($login, false);
+		$this->gui->addToGroup($login, false);
+		$this->updatePlayerList = true;
+
+		if(!Services\PlayerInfo::Get($login)->isAway())
+		{
+			$this->connection->forceSpectator($login, 1);
+		}
+
+		$this->gui->showWaitingScreen($login);
+	}
+	
+	protected function cancelMatch($login, Match $match)
+	{
+		$this->gui->eraseJump($match->id);
+		unset($this->countDown[$match->id]);
+
+		if(array_key_exists($login, $this->matchCancellers))
+		{
+			$this->matchCancellers[$login]++;
+		}
+		else
+		{
+			$this->matchCancellers[$login] = 1;
+		}
+
+		if($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
+		{
+			$this->matchMakingService->increasePlayerPenalty($login,
+				42 + pow(7, $this->matchCancellers[$login] - $this->config->authorizedMatchCancellation),
+				$this->storage->serverLogin, $this->scriptName, $this->titleIdString);
+		}
+
+		$this->matchMakingService->cancelMatch($match);
+
+		$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+
+		$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
+				array('textId' => 'matchCancel', 'params' => array(static::PREFIX, $this->storage->getPlayerObject($login)->nickName))
+		)));
+
+		foreach($match->players as $playerLogin)
+		{
+			Services\PlayerInfo::Get($playerLogin)->isInMatch = false;
+			$this->gui->eraseMatchSumUp($playerLogin);
+
+			if($playerLogin != $login) $this->setPlayerReady($playerLogin);
+			else $this->setPlayerNotReady($playerLogin);
+		}
+		$this->updateKarma($login);
+	}
+	
+	protected function cancelReplacement($login, Match $match)
+	{
+		$this->gui->eraseJump($login);
+		$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+
+		//FIXME: it could have been QUITTER or GIVEUP
+		$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id,
+			Services\PlayerInfo::PLAYER_STATE_QUITTER);
+
+		unset($this->replacerCountDown[$login]);
+		unset($this->replacers[$login]);
+
+		$this->setPlayerReady($login);
 	}
 
 	private function prepareMatch($server, $match)
@@ -993,7 +1006,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					)));
 				}
 
-				$this->onPlayerNotReady($login);
+				$this->setPlayerNotReady($login);
 
 				$this->resetShortKey($login);
 				$this->updatePlayerList = true;
@@ -1003,7 +1016,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			else
 			{
 				unset($this->blockedPlayers[$login]);
-				$this->onPlayerNotReady($login);
+				$this->setPlayerNotReady($login);
 				$this->gui->updateWaitingScreenLabel(null, $login);
 				$this->gui->disableReadyButton($login, false);
 			}

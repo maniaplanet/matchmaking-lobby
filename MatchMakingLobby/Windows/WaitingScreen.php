@@ -29,6 +29,16 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var int
 	 */
 	static protected $partySize;
+	
+	/**
+	 * @var string
+	 */
+	static protected $logoLink;
+
+	/**
+	 * @var string
+	 */
+	static protected $logoURL;
 
 	/**
 	 * @var bool
@@ -110,7 +120,13 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	{
 		static::$partySize = $size;
 	}
-
+	
+	static function setLogo($URL, $link = '')
+	{
+		static::$logoURL = $URL;
+		static::$logoLink = $link;
+	}
+	
 	function onConstruct()
 	{
 		$this->dico = array(

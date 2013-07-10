@@ -90,6 +90,18 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * @var string
 	 */
 	public $dictionary;
+	
+	/**
+	 * If defined the logo will be clickable and will redirect the player to this link
+	 * @var string
+	 */
+	public $logoLink;
+
+	/**
+	 * If defined a logo will be displayed when the player is waiting
+	 * @var string 
+	 */
+	public $logoURL;
 
 	public function getMatchSettingsClassName($scriptName)
 	{
