@@ -150,6 +150,7 @@ main()
 	declare Text labelText = label.Value;
 	label.SetText(TextLib::Compose(labelText, TextLib::ToText(countdownTimeLeft)));
 	label2.Hide();
+	label3.Hide();
 
 	while(True)
 	{
@@ -162,7 +163,6 @@ main()
 		else if(countdownTimeLeft <= 0)
 		{
 			label2.Show();
-			label3.Hide();
 			label.Hide();
 			waiting = True;
 		}
