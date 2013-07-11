@@ -152,7 +152,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->createPlayerList(true);
 
 		$this->setLobbyInfo();
-		\ManiaLive\Utilities\Logger::info($this->config);
 		$this->gui->createWaitingScreen(
 			$this->storage->server->name,
 			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')),
