@@ -13,8 +13,7 @@ class Elite implements MatchSettings
 	public function getLobbyScriptSettings()
 	{
 		$rules = array(
-			'S_UseLobby' => true,
-			'S_LobbyTimePerMap' => 1800
+			'S_UseLobby' => true
 		);
 		return $rules;
 	}
