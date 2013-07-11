@@ -5,6 +5,7 @@
  * @date        $Date: $:
  */
 $lang = array(
+	'quitMatchQuestion' => 'You will be suspended if you leave an ingoing match',
 	'notReadyPlayer' => '$o$F90Press F6 to play a match$z',
 	'readyPlayer' => 'Searching for a match, press F6 to cancel',
 	'needReadyPlayers' => 'Waiting for more ready players',
