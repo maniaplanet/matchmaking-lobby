@@ -123,7 +123,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->enableDedicatedEvents(
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
-			ServerEvent::ON_PLAYER_ALLIES_CHANGED 
+			ServerEvent::ON_PLAYER_ALLIES_CHANGED
 		);
 		$this->enableStorageEvents(
 			StorageEvent::ON_PLAYER_CHANGE_SIDE |
@@ -174,9 +174,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->registerLobby();
 
-		$voteRatio = new Structures\VoteRatio();
-		$voteRatio->command = 'SetModeScriptSettings';
-		$voteRatio->ratio = -1.;
 		$this->connection->setCallVoteRatiosEx(false, array(
 			new Structures\VoteRatio('SetModeScriptSettings', -1.),
 			new Structures\VoteRatio('NextMap', -1.),
