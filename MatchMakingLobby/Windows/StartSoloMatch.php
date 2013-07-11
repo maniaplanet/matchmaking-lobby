@@ -28,9 +28,6 @@ class StartSoloMatch extends \ManiaLive\Gui\Window
 	protected $players;
 	
 	/** @var Elements\Label */
-	protected $versus;
-
-	/** @var Elements\Label */
 	protected $dico = array();
 	
 	protected $time;
@@ -41,14 +38,6 @@ class StartSoloMatch extends \ManiaLive\Gui\Window
 		$this->background->setAlign('center', 'center');
 		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/background.png',true);
 		$this->addComponent($this->background);
-		
-		$this->versus = new Elements\Label(70);
-		$this->versus->setAlign('center', 'center2');
-		$this->versus->setTextColor('fff7');
-		$this->versus->setText('VS');
-		$this->versus->setTextSize(50);
-		$this->versus->setStyle(Elements\Label::TextTitle3);
-		$this->addComponent($this->versus);
 		
 		$this->label = new Elements\Label(200, 20);
 		$this->label->setPosY(47);
@@ -76,12 +65,12 @@ class StartSoloMatch extends \ManiaLive\Gui\Window
 		$this->cancelLabel->setTextSize(7);
 		$this->addComponent($this->cancelLabel);
 
-		$layout = new \ManiaLib\Gui\Layouts\Flow(250, 100);
-		$layout->setMargin(20, 20);
+		$layout = new \ManiaLib\Gui\Layouts\Column();
+		$layout->setMarginHeight(2);
 		
 		$this->players = new \ManiaLive\Gui\Controls\Frame();
 		$this->players->setLayout($layout);
-		$this->players->setPosition(-50, 30);
+		$this->players->setPosition(0, 33);
 		$this->addComponent($this->players);
 	}
 	
