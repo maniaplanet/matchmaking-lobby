@@ -182,6 +182,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			new Structures\VoteRatio('SetModeScriptSettings', -1.),
 			new Structures\VoteRatio('NextMap', -1.),
 			new Structures\VoteRatio('JumpToMapIndex', -1.),
+			new Structures\VoteRatio('SetNextMapIndex', -1.),
 			new Structures\VoteRatio('RestartMap', -1.)
 			));
 
