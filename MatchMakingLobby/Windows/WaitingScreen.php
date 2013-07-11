@@ -99,6 +99,12 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	protected $counters;
 	
 	/**
+	 * @var Elements\Quad
+	 */
+	protected $logo;
+
+
+/**
 	 * @var string
 	 */
 	protected $textId;
@@ -253,6 +259,10 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setTextColor('fff');
 		$ui->setManialink('');
 		$this->buttonFrame->addComponent($ui);
+		
+		$this->logo = new Elements\Quad(80, 20);
+		$this->logo->setAlign('center', 'top');
+		$this->logo->setPosY(90);
 	}
 	
 	function createParty(\DedicatedApi\Structures\Player $player)
@@ -332,6 +342,17 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		}
 		
 		$this->posZ = 3.9;
+		
+		if(static::$logoURL)
+		{
+			$this->logo->setImage(static::$logoURL, true);
+			$this->logo->setUrl(static::$logoLink);
+			$this->addComponent($this->logo);
+		}
+		else
+		{
+			$this->removeComponent($this->logo);
+		}
 
 		$textId = $this->textId ? : array('textId' => 'waitingHelp', 'params' => array(static::$scriptName));
 		$this->dico['text'] = $textId;
