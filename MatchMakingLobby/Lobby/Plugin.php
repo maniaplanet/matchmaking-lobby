@@ -590,6 +590,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onModeScriptCallback($param1, $param2)
 	{
+		\ManiaLive\Utilities\Logger::debug($param1);
 		switch ($param1)
 		{
 			case 'RunMatchMaker':
