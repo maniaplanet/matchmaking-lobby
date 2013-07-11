@@ -324,7 +324,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
-		if (($this->config->matchMakerDelay == 0 && $this->allowRunMatchMaker && $this->$this->tick % 5 == 0) || ($this->config->matchMakerDelay != 0 && $this->tick % $this->config->matchMakerDelay == 0))
+		if (($this->config->matchMakerDelay == 0 && $this->allowRunMatchMaker && $this->tick % 5 == 0) || ($this->config->matchMakerDelay != 0 && $this->tick % $this->config->matchMakerDelay == 0))
 		{
 			$this->runMatchMaker();
 		}
