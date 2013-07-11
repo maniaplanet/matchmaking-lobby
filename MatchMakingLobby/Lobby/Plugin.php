@@ -74,6 +74,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected $setReadyAction;
 
+	protected $allowRunMatchMaker = false;
+
 	function onInit()
 	{
 		$this->setVersion('3.0.0');
@@ -107,7 +109,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setGui(new $guiClassName());
 		$this->gui->lobbyBoxPosY = 45;
 		$this->setMatchMaker($matchMakerClassName::getInstance());
-
 
 		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->config->getDictionnary($this->scriptName));
 	}
@@ -309,6 +310,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onTick()
 	{
 		$timers = array();
+		$this->tick++;
 		if ($this->tick % 8 == 0)
 		{
 			$mtime = microtime(true);
@@ -328,7 +330,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
-		if(++$this->tick % 16 == 0)
+		if (($this->config->matchMakerDelay == 0 && $this->allowRunMatchMaker && $this->$this->tick % 5 == 0) || ($this->config->matchMakerDelay != 0 && $this->tick % $this->config->matchMakerDelay == 0))
 		{
 			$this->runMatchMaker();
 		}
@@ -463,7 +465,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function runJumper()
 	{
-    foreach($this->countDown as $matchId => $countDown)
+		foreach($this->countDown as $matchId => $countDown)
 		{
 			switch(--$countDown)
 			{
@@ -590,6 +592,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		else
 		{
 			$this->backupNeeded = false;
+		}
+	}
+
+	function onModeScriptCallback($param1, $param2)
+	{
+		switch ($param1)
+		{
+			case 'RunMatchMaker':
+				$this->allowRunMatchMaker = true;
+				break;
+			case 'StopMatchMaker':
+				$this->allowRunMatchMaker = false;
+				break;
 		}
 	}
 

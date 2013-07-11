@@ -90,7 +90,7 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * @var string
 	 */
 	public $dictionary;
-	
+
 	/**
 	 * If defined the logo will be clickable and will redirect the player to this link
 	 * @var string
@@ -99,9 +99,16 @@ class Config extends \ManiaLib\Utils\Singleton
 
 	/**
 	 * If defined a logo will be displayed when the player is waiting
-	 * @var string 
+	 * @var string
 	 */
 	public $logoURL;
+
+	/**
+	 * Run matchmaker automatically every N seconds.
+	 * If set to 0, will wait for XML-RPC event 'RunMatchMaker' to run it
+	 * @var int
+	 */
+	public $matchMakerDelay = 0;
 
 	public function getMatchSettingsClassName($scriptName)
 	{
