@@ -123,8 +123,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->enableDedicatedEvents(
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
-			ServerEvent::ON_PLAYER_ALLIES_CHANGED |
-			ServerEvent::ON_BEGIN_MAP
+			ServerEvent::ON_PLAYER_ALLIES_CHANGED 
 		);
 		$this->enableStorageEvents(
 			StorageEvent::ON_PLAYER_CHANGE_SIDE |
@@ -300,11 +299,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->gui->removePlayerFromPlayerList($login);
 		$this->gui->removeFromGroup($login);
-	}
-
-	function onBeginMap($map, $warmUp, $matchContinuation)
-	{
-		$this->connection->restartMap();
 	}
 
 	//Core of the plugin
