@@ -12,7 +12,7 @@ $lang = array(
 	'playerBackLabelPrefix' => 'Welcome back. ',
 	'noServerAvailable' => 'No match server available at the moment, please wait',
 	'illegalLeave' => 'A player left
-$oDo not leave$o, searching for a substitute',
+Do not leave, searching for a substitute',
 	'launchMatch' => 'Match starts in $<$FFF%1$>...',
 	'cancel' => 'F6 to cancel',
 	'matchInProgress' => 'You have a match in progress. Prepare to be transferred',
@@ -20,7 +20,7 @@ $oDo not leave$o, searching for a substitute',
 Stay online for the specified duration to play again. ',
 	'matchOver' => 'Match over. You will be transferred back.',
 	'giveUp' => 'A player gave up
-$oDo not leave$o, searching for a substitute',
+Do not leave, searching for a substitute',
 	'deciding' => 'Waiting for all player to connect before starting match',
 	'tooManyAllies' => '$F00You have too many allies, maximum is %d',
 	'expectingReadyPlayers' => '
