@@ -182,7 +182,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			new \DedicatedApi\Structures\VoteRatio('SetModeScriptSettings', -1.),
 			new \DedicatedApi\Structures\VoteRatio('Kick', 0.7),
 			new \DedicatedApi\Structures\VoteRatio('Ban', -1.),
-			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.));
+			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.),
+			new \DedicatedApi\Structures\VoteRatio('RestartMap', -1.)
+		);
 
 		$this->connection->setCallVoteRatiosEx(false, $ratios);
 		$this->connection->setCallVoteTimeOut(15000);

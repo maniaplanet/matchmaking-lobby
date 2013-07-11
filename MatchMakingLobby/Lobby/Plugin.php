@@ -177,7 +177,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$voteRatio = new Structures\VoteRatio();
 		$voteRatio->command = 'SetModeScriptSettings';
 		$voteRatio->ratio = -1.;
-		$this->connection->setCallVoteRatiosEx(false, array($voteRatio));
+		$this->connection->setCallVoteRatiosEx(false, array(
+			new Structures\VoteRatio('SetModeScriptSettings', -1.),
+			new Structures\VoteRatio('NextMap', -1.),
+			new Structures\VoteRatio('JumpToMapIndex', -1.),
+			new Structures\VoteRatio('RestartMap', -1.)
+			));
 
 
 		$this->updateLobbyWindow();
@@ -838,7 +843,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->connection->forceSpectator($login, 0, true);
 		}
 	}
-	
+
 	protected function setPlayerNotReady($login)
 	{
 		$player = Services\PlayerInfo::Get($login);
@@ -857,7 +862,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->gui->showWaitingScreen($login);
 	}
-	
+
 	protected function cancelMatch($login, Match $match)
 	{
 		$this->gui->eraseJump($match->id);
@@ -897,7 +902,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$this->updateKarma($login);
 	}
-	
+
 	protected function cancelReplacement($login, Match $match)
 	{
 		$this->gui->eraseJump($login);
