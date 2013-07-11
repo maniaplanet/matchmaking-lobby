@@ -23,7 +23,7 @@ class Elite implements MatchSettings
 	{
 		$rules = array(
 			'S_UseLobby' => false,
-			'S_UsePlayerClublinks' => false,
+			'S_UsePlayerClublinks' => true,
 			'S_Mode' => 1,
 			'S_MatchmakingSleep' => 15,
 			'S_WarmUpDuration' => 5,
