@@ -194,6 +194,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
+
+		$this->callPublicMethod('Standard\AutoTagMatchSettings', 'setModeScriptSettingsTags');
 	}
 
 	function onUnload()
