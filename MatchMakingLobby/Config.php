@@ -44,7 +44,7 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * 2 to wait until the end of the match
 	 * @var int
 	 */
-	public $waitingForBackups = 1;
+	public $waitingForBackups = 2;
 
 	/**
 	 * If the team reach the minimum number of player, the match is cancelled
