@@ -264,7 +264,7 @@ class MatchMakingService
 				$this->db->quote($lobbyLogin)
 			)->fetchSingleValue(0);
 	}
-	
+
 	function getPlayersPlaying($lobbyLogin)
 	{
 		return $this->db->execute(
@@ -560,6 +560,8 @@ class MatchMakingService
 	 */
 	function addMatchPlayer($matchId, $login, $teamId)
 	{
+		if (!$login)
+			throw new \InvalidArgumentException;
 		switch($teamId)
 		{
 			case 1:
@@ -575,7 +577,7 @@ class MatchMakingService
 				throw new \InvalidArgumentException;
 		}
 		$this->db->execute(
-			'INSERT INTO Players (login, matchId, teamId, state) VALUES (%s,%d,%s, %d)',
+			'INSERT INTO Players (login, matchId, teamId, state) VALUES (%s, %d, %d, %d)',
 			$this->db->quote($login),
 			$matchId,
 			$teamId,
