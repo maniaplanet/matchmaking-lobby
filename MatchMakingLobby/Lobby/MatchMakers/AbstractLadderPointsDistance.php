@@ -112,12 +112,20 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 		for($i=0; $i<$number; $i++)
 		{
 			$login = $this->getBackup(array_rand($closeTo), $availablePlayers);
-			$key = array_search($login, $availablePlayers);
-			if ($key !== false)
+			//We may not find a backup!
+			if ($login)
 			{
-				unset($availablePlayers[$key]);
+				$key = array_search($login, $availablePlayers);
+				if ($key !== false)
+				{
+					unset($availablePlayers[$key]);
+					$result[] = $login;
+				}
 			}
-			$result[] = $login;
+		}
+		if (count($result) != $number)
+		{
+			return array();
 		}
 		return $result;
 	}
