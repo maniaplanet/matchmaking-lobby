@@ -138,21 +138,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			throw new \Exception(sprintf("Can't find class %s. You should set up the config : ManiaLivePlugins\MatchMakingLobby\Config.matchSettingsClassName",$matchSettingsClass));
 		}
 
-		$matchSettings = new $matchSettingsClass();
-		$settings = $matchSettings->getLobbyScriptSettings();
-		$this->connection->setModeScriptSettings($settings);
-		$this->connection->restartMap();
-
-		$this->enableTickerEvent();
-
 		$this->titleIdString = $this->connection->getSystemInfo()->titleId;
-
 		$this->backLink = $this->storage->serverLogin.':'.$this->storage->server->password.'@'.$this->titleIdString;
+
+		$this->registerLobby();
 
 		$this->gui->createPlayerList();
 		$this->gui->createPlayerList(true);
 
 		$this->setLobbyInfo();
+
 		$this->gui->createWaitingScreen(
 			$this->storage->server->name,
 			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')),
@@ -160,21 +155,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1),
 			$this->config->logoURL, $this->config->logoLink
 		);
+
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
-			$player = Services\PlayerInfo::Get($login);
-			$player->ladderPoints = $obj->ladderStats['PlayerRankings'][0]['Score'];
-			$player->allies = $obj->allies;
-
-			$this->gui->addToGroup($login, false);
-
-			$this->updateKarma($login);
-
-			$this->gui->showWaitingScreen($login);
+			//Simulate player connection
+			$this->onPlayerConnect($login, null);
 		}
 		$this->updatePlayerList = true;
 
-		$this->registerLobby();
+		$matchSettings = new $matchSettingsClass();
+		$settings = $matchSettings->getLobbyScriptSettings();
+		$this->connection->setModeScriptSettings($settings);
+
+		$this->enableTickerEvent();
 
 		$this->connection->setCallVoteRatiosEx(false, array(
 			new Structures\VoteRatio('SetModeScriptSettings', -1.),
@@ -184,9 +177,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			new Structures\VoteRatio('RestartMap', -1.)
 			));
 
-
 		$this->updateLobbyWindow();
-		$this->gui->showHelp($this->scriptName);
+
+		//$this->gui->showHelp($this->scriptName);
 
 		$this->connection->disableServiceAnnounces(true);
 
@@ -196,6 +189,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 
 		$this->callPublicMethod('Standard\AutoTagMatchSettings', 'setModeScriptSettingsTags');
+
+		$this->connection->restartMap();
 	}
 
 	function onUnload()
