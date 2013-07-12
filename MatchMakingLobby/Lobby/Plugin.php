@@ -887,7 +887,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if($this->matchCancellers[$login] > $this->config->authorizedMatchCancellation)
 		{
 			$this->matchMakingService->increasePlayerPenalty($login,
-				42 + pow(7, $this->matchCancellers[$login] - $this->config->authorizedMatchCancellation),
+				42 + 5 *($this->matchCancellers[$login] - $this->config->authorizedMatchCancellation),
 				$this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		}
 
