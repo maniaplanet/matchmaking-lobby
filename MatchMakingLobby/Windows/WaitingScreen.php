@@ -135,6 +135,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	
 	function onConstruct()
 	{
+		$this->setLayer(\ManiaLive\Gui\Window::LAYER_CUT_SCENE);
+		
 		$this->dico = array(
 			'playing' => 'playing',
 				'ready' => 'ready',
