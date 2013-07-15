@@ -25,6 +25,8 @@ class PlayerList extends \ManiaLive\Gui\Window
 
 	protected function onConstruct()
 	{
+		$this->setLayer(\ManiaLive\Gui\Window::LAYER_CUT_SCENE);
+		
 		$this->setSize(70, 100);
 
 		$this->frame = new \ManiaLive\Gui\Controls\Frame(0,0, new \ManiaLib\Gui\Layouts\Column());
