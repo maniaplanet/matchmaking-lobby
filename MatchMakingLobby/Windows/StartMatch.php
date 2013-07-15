@@ -51,6 +51,8 @@ class StartMatch extends \ManiaLive\Gui\Window
 
 	protected function onConstruct()
 	{
+		$this->setLayer(\ManiaLive\Gui\Window::LAYER_CUT_SCENE);
+		
 		$this->background = new Elements\Quad(320, 142);
 		$this->background->setAlign('center', 'center');
 		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/background.png',true);
