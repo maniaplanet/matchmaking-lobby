@@ -601,10 +601,22 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		\ManiaLive\Utilities\Logger::debug('Player illegal leave: '.$login);
 
 		$this->gui->createLabel($this->gui->getIllegalLeaveText(), null, null, false, false);
-
-
-		$this->changeState(self::PLAYER_LEFT);
+		
 		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_QUITTER);
+
+
+		//If already waiting backup, no need to change state.
+		//maybe the player won't have his 40 seconds to come back
+		//but hard to manage all possible cases
+		if ($this->state == self::WAITING_BACKUPS)
+		{
+			//Forcing wait backup to handle match cancellation etc...
+			$this->waitBackups();
+		}
+		else
+		{
+			$this->changeState(self::PLAYER_LEFT);
+		}
 	}
 
 	protected function giveUp($login)
