@@ -488,7 +488,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		switch($param1)
 		{
 			case 'LibXmlRpc_Scores':
-				\ManiaLive\Utilities\Logger::debug('LibXmlRpc_Scores');
 				if($this->matchId)
 				{
 					$this->scores['match'][0] = $param2[0];
