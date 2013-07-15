@@ -188,9 +188,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 
-		$this->callPublicMethod('Standard\AutoTagMatchSettings', 'setModeScriptSettingsTags');
-
 		$this->connection->restartMap();
+		
+		$this->callPublicMethod('Standard\AutoTagMatchSettings', 'setModeScriptSettingsTags');
 	}
 
 	function onUnload()
@@ -1086,7 +1086,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$maxPlayers = $this->storage->server->currentMaxPlayers;
 			$averageLevel = 20000.;
 		}
-		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers, $averageLevel);
+		$this->connection->setLobbyInfo($enable, $lobbyPlayers, $maxPlayers, (double) $averageLevel);
 	}
 
 	protected function setGui(GUI\AbstractGUI $GUI)
