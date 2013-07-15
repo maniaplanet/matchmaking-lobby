@@ -940,6 +940,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->gui->removeWaitingScreen($player);
 			$this->gui->showMatchSumUp($match, $player, 5);
 			//$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
+			$this->resetShortKey($player);
 			Services\PlayerInfo::Get($player)->isInMatch = true;
 			$this->connection->forceSpectator($player, 1, true);
 		}
