@@ -844,10 +844,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->addToGroup($login, true);
 		$this->gui->removeWaitingScreen($login);
 
-		if(!Services\PlayerInfo::Get($login)->isAway())
+		try
 		{
 			$this->connection->forceSpectator($login, 2, true);
 			$this->connection->forceSpectator($login, 0, true);
+		}
+		catch (\Exception $e)
+		{
+			//Do nothing
+			//Maybe log because it's strange :)
 		}
 	}
 
