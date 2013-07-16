@@ -848,6 +848,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->connection->forceSpectator($login, 2, true);
 			$this->connection->forceSpectator($login, 0, true);
+			$this->connection->executeMulticall();
 		}
 		catch (\Exception $e)
 		{
