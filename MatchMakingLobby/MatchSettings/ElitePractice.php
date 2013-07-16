@@ -10,6 +10,14 @@ namespace ManiaLivePlugins\MatchMakingLobby\MatchSettings;
 
 class ElitePractice extends Elite implements MatchSettings
 {
+	
+	public function getLobbyScriptSettings()
+	{
+		$rules = parent::getLobbyScriptSettings();
+		$rules['S_Practice'] = true;
+		return $rules;
+	}
+	
 	public function getMatchScriptSettings()
 	{
 		$rules = parent::getMatchScriptSettings();
