@@ -11,7 +11,7 @@ use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 abstract class AbstractLadderPointsDistance extends AbstractDistance
 {
 
-	const MAX_DISTANCE_BACKUP = 10000;
+	protected $maxDistanceBackup = 10000;
 
 	protected function dispatch($players)
 	{
@@ -88,7 +88,7 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 			$player = array_shift($playersObject);
 
 			//If distance is too big, no replacer
-			if (abs($player->ladderPoints-$quitterInfo->ladderPoints) > static::MAX_DISTANCE_BACKUP)
+			if (abs($player->ladderPoints-$quitterInfo->ladderPoints) > $this->maxDistanceBackup)
 			{
 				return false;
 			}
@@ -111,7 +111,10 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 		$result = array();
 		for($i=0; $i<$number; $i++)
 		{
+			$old = $this->maxDistanceBackup;
+			$this->maxDistanceBackup = 100000;
 			$login = $this->getBackup(array_rand($closeTo), $availablePlayers);
+			$this->maxDistanceBackup = $old;
 			//We may not find a backup!
 			if ($login)
 			{
