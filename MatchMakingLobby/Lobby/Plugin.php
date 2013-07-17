@@ -75,6 +75,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $setReadyAction;
 
 	protected $allowRunMatchMaker = false;
+	
+	protected $maintenanceMode = false;
 
 	function onInit()
 	{
@@ -187,6 +189,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
+		$this->registerChatCommand('maintenance', 'onMaintenance', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 
 		$this->connection->restartMap();
 		
@@ -311,6 +314,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			$timers['blocked'] = microtime(true) - $mtime;
 		}
+		
+		if ($this->tick % 15 == 0 && $this->maintenanceMode)
+		{
+			$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
+							array('textId' => 'maintenance')
+			)));
+		}
 
 		//If there is some match needing players
 		//find backup in ready players and send them to the match server
@@ -321,7 +331,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
-		if (($this->config->matchMakerDelay == 0 && $this->allowRunMatchMaker && $this->tick % 5 == 0) || ($this->config->matchMakerDelay != 0 && $this->tick % $this->config->matchMakerDelay == 0))
+		if (($this->config->matchMakerDelay == 0 && $this->isMatchMakerAllowed() && $this->tick % 5 == 0) || ($this->config->matchMakerDelay != 0 && $this->tick % $this->config->matchMakerDelay == 0))
 		{
 			$this->runMatchMaker();
 		}
@@ -452,6 +462,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			\ManiaLive\Utilities\Logger::debug(implode('|', $line));
 		}
+	}
+	
+	function onMaintenance()
+	{
+		$this->maintenanceMode = !$this->maintenanceMode;
+	}
+	
+	protected function isMatchMakerAllowed()
+	{
+		return ($this->allowRunMatchMaker && !$this->maintenanceMode);
 	}
 
 	protected function runJumper()

@@ -5,6 +5,11 @@
  * @date        $Date: $:
  */
 $lang = array(
+	'nPlayers' => '%d players',
+	'avgWaitingTime' => '%d min',
+	'avgWaitingHelper' => 'Average waiting time',
+	'nPlayersHelper' => 'Online players',
+	'maintenance' => 'The server is in maintenance mode. No match will be started.',
 	'quitMatchQuestion' => 'You will be suspended if you leave an ingoing match',
 	'notReadyPlayer' => '$o$F90Press F6 to play a match$z',
 	'readyPlayer' => 'Searching for a match, press F6 to cancel',
