@@ -24,12 +24,12 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 	/**
 	 * Lower waiting step = faster decrease
 	 */
-	const WAITING_STEP = 40;
+	const WAITING_STEP = 60;
 
 	/**
 	 * Threshold used to make team with near players
 	 */
-	const DISTANCE_PLAYERS_THRESHOLD = 20000;
+	const DISTANCE_PLAYERS_THRESHOLD = 15000;
 
 	/**
 	 * Threshold used to matchmake teams
