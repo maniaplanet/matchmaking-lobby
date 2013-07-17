@@ -170,7 +170,7 @@ class Match
 		}
 		else
 		{
-			return (array_diff($this->players,$m->players) != array());
+			return ($m->players != $this->players);
 		}
 	}
 
