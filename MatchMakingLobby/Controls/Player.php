@@ -59,7 +59,7 @@ class Player extends \ManiaLive\Gui\Control
 
 	function __construct($nickname)
 	{
-		$this->setSize(70, 5);
+		$this->setSize(47, 5);
 
 		$this->bg = new Elements\Bgs1InRace($this->sizeX, $this->sizeY);
 		$this->bg->setBgcolor('3338');

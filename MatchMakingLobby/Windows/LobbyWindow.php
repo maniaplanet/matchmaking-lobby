@@ -14,50 +14,133 @@ use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 
 class LobbyWindow extends \ManiaLive\Gui\Window
 {
-
-	/**
-	 * @var \ManiaLivePlugins\MatchMakingLobby\Controls\Counters
-	 */
-	protected $counters;
-
-
+	const SIZE_X = 91;
+	
+	const SIZE_Y = 27;
 	/** @var array */
 	protected $dico;
-
+	
+	/**
+	 * @var Elements\Quad 
+	 */
+	protected $bg;
+	
+	/**
+	 * @var Elements\Label 
+	 */
+	protected $serverNameLabel;
+	
+	/**
+	 * @var Elements\Label 
+	 */
+	protected $avgWaitingTimeLabel;
+	
+	/**
+	 * @var Elements\Label 
+	 */
+	protected $playerCountLabel;
+	
+	
+	/**
+	 * @var Elements\Label 
+	 */
+	protected $avgWaitingTimeHelperLabel;
+	
+	/**
+	 * @var Elements\Label 
+	 */
+	protected $playerCountHelperLabel;
+	
+	static protected $playerCount;
+	static protected $avgWaitingTime;
+	static protected $serverName;
+	
 	protected function onConstruct()
 	{
-		$this->setSize(50, 32);
-
-		$this->dico = array(
-			'playing' => 'playing',
-			'ready' => 'ready',
-			'avgWaiting' => 'waitingScreenWaitingLabel'
-		);
-
-		$ui = new Elements\Bgs1InRace(49, 32);
-//		$ui->setSubStyle(Elements\Bgs1InRace::BgListLine);
-		$ui->setBgcolor('111A');
-		$ui->setPosition(0.2, -2);
-		$this->addComponent($ui);
+		$this->setLayer(\ManiaLive\Gui\Window::LAYER_CUT_SCENE);
 		
-		$ui = new \ManiaLivePlugins\MatchMakingLobby\Controls\ServerName();
-		$ui->setScale(0.45);
-		$this->addComponent($ui);
+		$this->setSize(self::SIZE_X, self::SIZE_Y);
+		
+		$this->setRelativeAlign('center', 'top');
+		
+		$this->setPosition(0, 85);
 
-		$this->counters = new \ManiaLivePlugins\MatchMakingLobby\Controls\Counters();
-		$this->counters->setPosition(23, -9);
-		$this->counters->setHeightMargin(19);
-		$this->counters->setScale(0.6);
-		$this->addComponent($this->counters);
+		$this->bg = new Elements\Quad(self::SIZE_X, self::SIZE_Y);
+		$this->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/header.png');
+		$this->bg->setAlign('center');
+		$this->addComponent($this->bg);
+		
+		$this->serverNameLabel = new Elements\Label(self::SIZE_X);
+		$this->serverNameLabel->setStyle(Elements\Label::TextRaceMessage);
+		$this->serverNameLabel->setAlign('center', 'top');
+		$this->serverNameLabel->setPosition(0, -4);
+		$this->serverNameLabel->setTextSize(3);
+		$this->addComponent($this->serverNameLabel);
+		
+		$this->avgWaitingTimeLabel = new Elements\Label(self::SIZE_X/3);
+		$this->avgWaitingTimeLabel->setAlign('right', 'center');
+		$this->avgWaitingTimeLabel->setStyle(Elements\Label::TextRaceMessage);
+		$this->avgWaitingTimeLabel->setPosition(self::SIZE_X/2-5,-16);
+		$this->avgWaitingTimeLabel->setTextId('avgWaiting');
+		$this->avgWaitingTimeLabel->setTextSize(2);
+		$this->avgWaitingTimeLabel->setOpacity(0.75);
+		$this->addComponent($this->avgWaitingTimeLabel);
+		
+		$this->avgWaitingTimeHelperLabel = new Elements\Label(self::SIZE_X/3);
+		$this->avgWaitingTimeHelperLabel->setAlign('right', 'top');
+		$this->avgWaitingTimeHelperLabel->setStyle(Elements\Label::TextRaceMessage);
+		$this->avgWaitingTimeHelperLabel->setPosition($this->avgWaitingTimeLabel->getPosX(),-18);
+		$this->avgWaitingTimeHelperLabel->setTextId('avgWaitingHelper');
+		$this->avgWaitingTimeHelperLabel->setTextSize(1.5);
+		$this->avgWaitingTimeHelperLabel->setOpacity(0.3);
+		$this->addComponent($this->avgWaitingTimeHelperLabel);
+		
+		$this->playerCountLabel = new Elements\Label(self::SIZE_X/3);
+		$this->playerCountLabel->setAlign('left', 'center');
+		$this->playerCountLabel->setStyle(Elements\Label::TextRaceMessage);
+		$this->playerCountLabel->setPosition(-self::SIZE_X/2+5, -16);
+		$this->playerCountLabel->setOpacity(0.75);
+		$this->playerCountLabel->setTextSize(2);
+		$this->playerCountLabel->setTextid('nPlayers');
+		$this->addComponent($this->playerCountLabel);
+		
+		$this->playerCountHelperLabel = new Elements\Label(self::SIZE_X/3);
+		$this->playerCountHelperLabel->setAlign('left', 'top');
+		$this->playerCountHelperLabel->setStyle(Elements\Label::TextRaceMessage);
+		$this->playerCountHelperLabel->setPosition($this->playerCountLabel->getPosX(),-18);
+		$this->playerCountHelperLabel->setTextId('nPlayersHelper');
+		$this->playerCountHelperLabel->setTextSize(1.5);
+		$this->playerCountHelperLabel->setOpacity(0.3);
+		$this->addComponent($this->playerCountHelperLabel);
+	}
+	
+	static function setPlayercount($count)
+	{
+		static::$playerCount = $count;
 	}
 
-	function set($serverName, $readyPlayersCount, $playingPlayersCount, $averageTime)
+	static function setAverageWaitingTime($time)
 	{
+		static::$avgWaitingTime = $time;
+	}
+	
+	static function setServerName($serverName)
+	{
+		static::$serverName = $serverName;
 	}
 
 	function onDraw()
 	{
-		$this->dico[$this->counters->getNextMatchmakerTimeTextid()] = $this->counters->getNextMatchmakerTimeDictionaryElement();
+		$this->dico = array(
+			'playing' => 'playing',
+			'ready' => 'ready',
+			'nPlayersHelper' => 'nPlayersHelper',
+			'avgWaitingHelper' => 'avgWaitingHelper',
+			'avgWaiting' => array('textId' => 'avgWaitingTime', 'params' => array(static::$avgWaitingTime)),
+			'nPlayers' => array('textId' => 'nPlayers', 'params' => array(static::$playerCount))
+		);
+				
+		$this->serverNameLabel->setText(static::$serverName);
 		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink($this->dico));
 	}
 

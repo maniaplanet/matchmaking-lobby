@@ -9,14 +9,22 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
+use ManiaLib\Gui\Elements;
 use ManiaLivePlugins\MatchMakingLobby\Controls\Player;
 use ManiaLivePlugins\MatchMakingLobby\Controls\PlayerSmall;
 
 class PlayerList extends \ManiaLive\Gui\Window
 {
+	const SIZE_X = 52;
+	const SIZE_Y = 127;
+	
 	static protected $playerList = array();
 	
 	public $smallCards = false;
+	
+	public $bg;
+	
+	public $title;
 
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
@@ -27,9 +35,25 @@ class PlayerList extends \ManiaLive\Gui\Window
 	{
 		$this->setLayer(\ManiaLive\Gui\Window::LAYER_CUT_SCENE);
 		
-		$this->setSize(70, 100);
+		$this->setSize(self::SIZE_X, self::SIZE_Y);
+		
+		$this->setAlign('right', 'center');
+		
+		$this->setPosition(162, 0, 5);
+		
+		$this->bg = new \ManiaLib\Gui\Elements\Quad(self::SIZE_X, self::SIZE_Y);
+		$this->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/side-frame.png', true);
+		$this->addComponent($this->bg);
+		
+		$this->title = new Elements\Label(self::SIZE_X);
+		$this->title->setAlign('center');
+		$this->title->setPosition(self::SIZE_X/2, -7);
+		$this->title->setStyle(Elements\Label::TextRaceMessage);
+		$this->title->setOpacity(0.9);
+		$this->title->setTextid('players');
+		$this->addComponent($this->title);
 
-		$this->frame = new \ManiaLive\Gui\Controls\Frame(0,0, new \ManiaLib\Gui\Layouts\Column());
+		$this->frame = new \ManiaLive\Gui\Controls\Frame(2.2,-15, new \ManiaLib\Gui\Layouts\Column());
 		$this->frame->getLayout()->setMarginHeight(0.5);
 		$this->addComponent($this->frame);
 	}
@@ -79,7 +103,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 	function onDraw()
 	{
 		$this->updateItemList();
-		$this->posZ = 5;
+		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance()->getManiaLink(array('players' => 'players')));
 	}
 
 	protected function updateItemList()

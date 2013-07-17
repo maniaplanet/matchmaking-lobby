@@ -269,38 +269,20 @@ abstract class AbstractGUI
 	 */
 	final function updateLobbyWindow($serverName, $playersCount, $playingPlayersCount, $averageTime)
 	{
-		$lobbyWindow = Windows\LobbyWindow::Create(Group::Create($this->readyGroupName));
-		$lobbyWindow->setAlign('right','bottom');
-		$lobbyWindow->setPosition(165, $this->lobbyBoxPosY);
-		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($serverName);
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setPlayingCount($playingPlayersCount);
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setWaitingCount($playersCount);
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setAverageWaitingTime($averageTime);
+		$lobbyWindow = Windows\LobbyWindow::Create();
+		Windows\LobbyWindow::setServerName($serverName);
+		Windows\LobbyWindow::setAverageWaitingTime($averageTime);
+		Windows\LobbyWindow::setPlayercount($playersCount + $playingPlayersCount);
 		$lobbyWindow->show();
 	}
 
 	/**
 	 * Create the player list to display to a player
-	 * @param string $login
-	 * @param string[] $blockedPlayerList
 	 */
 	final function createPlayerList($isReady = false)
 	{
 		$group = \ManiaLive\Gui\Group::Create($isReady ? $this->readyGroupName : $this->nonReadyGroupName);
 		$playerList = Windows\PlayerList::Create($group);
-		if($isReady)
-		{
-			$align = array('right');
-			$position = array(185.2, $this->lobbyBoxPosY - 2.5);
-			$playerList->smallCards = true;
-		}
-		else
-		{
-			$align = array('left');
-			$position = array(-143.3, 43);
-		}
-		call_user_func_array(array($playerList,'setAlign'), $align);
-		call_user_func_array(array($playerList,'setPosition'), $position);
 		$playerList->show();
 	}
 	
@@ -367,13 +349,6 @@ abstract class AbstractGUI
 		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setPlayingCount($playingCount);
 		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setWaitingCount($readyCount);
 		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setAverageWaitingTime($avgWaitTime);
-		Windows\WaitingScreen::RedrawAll();
-	}
-	
-	final function updateMatchmakerCounter($count)
-	{
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setNextMatchmakerTime($count);
-		Windows\LobbyWindow::RedrawAll();
 		Windows\WaitingScreen::RedrawAll();
 	}
 	

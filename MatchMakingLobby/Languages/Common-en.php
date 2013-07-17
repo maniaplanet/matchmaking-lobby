@@ -10,6 +10,7 @@ $lang = array(
 	'avgWaitingHelper' => 'Average waiting time',
 	'nPlayersHelper' => 'Online players',
 	'maintenance' => 'The server is in maintenance mode: %s',
+	'tab' => 'press `tab` to show all players',
 	'quitMatchQuestion' => 'You will be suspended if you leave an ingoing match',
 	'notReadyPlayer' => '$o$F90Press F6 to play a match$z',
 	'readyPlayer' => 'Searching for a match, press F6 to cancel',

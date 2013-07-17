@@ -336,7 +336,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$this->runMatchMaker();
 		}
-		$this->gui->updateMatchmakerCounter(16 - ($this->tick % 16));
 
 		foreach($this->replacerCountDown as $login => $countDown)
 		{
