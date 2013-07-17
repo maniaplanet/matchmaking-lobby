@@ -846,9 +846,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		try
 		{
-			$this->connection->forceSpectator($login, 2, true);
-			$this->connection->forceSpectator($login, 0, true);
-			$this->connection->executeMulticall();
+			$this->connection->forceSpectator($login, 2);
 		}
 		catch (\Exception $e)
 		{
@@ -865,12 +863,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setNotReadyLabel($login);
 
 		$this->gui->addToGroup($login, false);
-		$this->gui->addToGroup($login, false);
 		$this->updatePlayerList = true;
 
-		if(!Services\PlayerInfo::Get($login)->isAway())
+		try
 		{
 			$this->connection->forceSpectator($login, 1);
+		}
+		catch (\Exception $e)
+		{
+			//Do nothing
+			//Maybe log because it's strange :)
 		}
 
 		$this->gui->showWaitingScreen($login);
