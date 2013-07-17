@@ -77,6 +77,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	protected $allowRunMatchMaker = false;
 	
 	protected $maintenanceMode = false;
+	
+	protected $maintenanceMessage;
 
 	function onInit()
 	{
@@ -189,7 +191,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerChatCommand('kickNonReady', 'onKickNotReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetPenalty', 'onResetPenalty', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 		$this->registerChatCommand('resetAllPenalties', 'onResetAllPenalties', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
-		$this->registerChatCommand('maintenance', 'onMaintenance', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
+		$this->registerChatCommand('maintenance', 'onMaintenance', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 
 		$this->connection->restartMap();
 		
@@ -317,7 +319,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if ($this->tick % 15 == 0 && $this->maintenanceMode)
 		{
 			$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-							array('textId' => 'maintenance')
+							array('textId' => 'maintenance', 'params' => array($this->maintenanceMessage))
 			)));
 		}
 
@@ -462,9 +464,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		}
 	}
 	
-	function onMaintenance()
+	function onMaintenance($login, $message)
 	{
 		$this->maintenanceMode = !$this->maintenanceMode;
+		$this->maintenanceMessage = $message;
 	}
 	
 	protected function isMatchMakerAllowed()
