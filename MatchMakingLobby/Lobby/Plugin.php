@@ -225,9 +225,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			$player->isInMatch = true;
 
-			$jumper = Windows\ForceManialink::Create($login);
-			$jumper->set('maniaplanet://#qjoin='.$match->matchServerLogin.'@'.$match->titleIdString);
-			$jumper->show();
+			$this->sendToServer($login, $match->matchServerLogin);
+			
 			$this->gui->updateWaitingScreenLabel($this->gui->getMatchInProgressText(), $login);
 			return;
 		}
@@ -354,8 +353,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 						$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
 						//TODO Add transfer textId to AbstractGUI
 						$this->gui->createLabel($this->gui->getTransferText(), $login, null, false, false);
-						$link = $this->generateServerLink($match->matchServerLogin);
-						$this->connection->sendOpenLink($login, $link, 1);
+						$this->sendToServer($login, $match->matchServerLogin);
 						$this->connection->addGuest($login, true);
 						$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
 							array('textId' => 'substituteMoved', 'params' => array(self::PREFIX, $player->nickName))
@@ -493,8 +491,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					if($players)
 					{
 						\ManiaLive\Utilities\Logger::debug('re-display jumper for: '.implode(',', $players));
-						$link = $this->generateServerLink($match->matchServerLogin);
-						$this->connection->sendOpenLink($players, $link, 1);
+						$this->sendToServer($players, $match->matchServerLogin);
 					}
 					$this->countDown[$matchId] = $countDown;
 					break;
@@ -505,8 +502,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					{
 						\ManiaLive\Utilities\Logger::debug(sprintf('jumping to server : %s', $match->matchServerLogin));
 						$players = array_map(array($this->storage, 'getPlayerObject'), $match->players);
-						$link = $this->generateServerLink($match->matchServerLogin);
-						$this->connection->sendOpenLink($match->players, $link, 1);
+						
+						$this->sendToServer($match->players, $match->matchServerLogin);
 
 						$nicknames = array();
 						foreach($players as $player)
@@ -1200,6 +1197,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->resetShortKey($player->login);
 			}
 		}
+	}
+	
+	protected function sendToServer($login, $serverLogin)
+	{
+		$this->connection->sendOpenLink($login, $this->generateServerLink($serverLogin), 1);
 	}
 
 	protected function generateServerLink($serverLogin)
