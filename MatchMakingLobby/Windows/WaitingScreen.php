@@ -142,7 +142,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setAlign('center', 'top');
 		$ui->setPosition(0, 38);
 		$ui->setTextColor('fff');
-		$ui->setTextSize(3);
+		$ui->setScale(0.9);
+		$ui->setTextSize(2.5);
 		$ui->enableAutonewline();
 		$ui->setTextid('text');
 		$ui->setOpacity(0.9);
@@ -185,8 +186,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setAlign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextRaceMessageBig);
 		$ui->setTextid('readyButton');
-		$ui->setOpacity(0.7);
-		$ui->setTextSize(3);
+		$ui->setOpacity(0.8);
+		$ui->setTextSize(2.5);
 		$this->readyButtonFrame->addComponent($ui);
 		//ready button  end
 		

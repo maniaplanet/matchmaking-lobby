@@ -281,8 +281,7 @@ abstract class AbstractGUI
 	 */
 	final function createPlayerList($isReady = false)
 	{
-		$group = \ManiaLive\Gui\Group::Create($isReady ? $this->readyGroupName : $this->nonReadyGroupName);
-		$playerList = Windows\PlayerList::Create($group);
+		$playerList = Windows\PlayerList::Create();
 		$playerList->show();
 	}
 	

@@ -30,6 +30,11 @@ class PlayerList extends \ManiaLive\Gui\Window
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $frame;
+	
+	/**
+	 * @var \ManiaLive\Gui\Controls\Pager 
+	 */
+	protected $pager;
 
 	protected function onConstruct()
 	{
@@ -39,7 +44,8 @@ class PlayerList extends \ManiaLive\Gui\Window
 		
 		$this->setAlign('right', 'center');
 		
-		$this->setPosition(162, 0, 5);
+		//162
+		$this->setPosition(162, 0, 15);
 		
 		$this->bg = new \ManiaLib\Gui\Elements\Quad(self::SIZE_X, self::SIZE_Y);
 		$this->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/side-frame.png', true);
@@ -53,9 +59,14 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->title->setTextid('players');
 		$this->addComponent($this->title);
 
-		$this->frame = new \ManiaLive\Gui\Controls\Frame(2.2,-15, new \ManiaLib\Gui\Layouts\Column());
-		$this->frame->getLayout()->setMarginHeight(0.5);
-		$this->addComponent($this->frame);
+//		$this->frame = new \ManiaLive\Gui\Controls\Frame(2.2,-15, new \ManiaLib\Gui\Layouts\Column());
+//		$this->frame->getLayout()->setMarginHeight(0.5);
+//		$this->addComponent($this->frame);
+		
+		$this->pager = new \ManiaLive\Gui\Controls\Pager(); 
+		$this->pager->setPosition(2.2,-15);
+		$this->pager->setSize(40, 100); 
+		$this->addComponent($this->pager);
 	}
 
 	static function addPlayer($login, $state = 0, $zone = 'World', $ladderPoints = -1, $flagURL = '')
@@ -108,7 +119,8 @@ class PlayerList extends \ManiaLive\Gui\Window
 
 	protected function updateItemList()
 	{
-		$this->frame->clearComponents();
+		$this->pager->clearItems();
+		//$this->frame->clearComponents();
 		
 		uasort(self::$playerList,
 			function ($p1, $p2)
@@ -127,7 +139,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		
 		$count = 0;
 		reset(self::$playerList);
-		while(current(self::$playerList) && $count++ < 17)
+		while(current(self::$playerList) && $count++ < 52)
 		{
 			$player = current(self::$playerList);
 
@@ -142,8 +154,9 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$component->state = $player['state'];
 			$component->ladderPoints = $player['ladderPoints'];
 			$component->zoneFlagURL = $player['zoneFlag'];
-			$this->frame->addComponent(clone $component);
-			next(self::$playerList);
+			$this->pager->addItem($component);
+			//$this->frame->addComponent(clone $component);
+			//next(self::$playerList);
 		}
 	}
 
