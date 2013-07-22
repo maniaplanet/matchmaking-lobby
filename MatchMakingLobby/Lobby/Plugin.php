@@ -128,7 +128,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
 			ServerEvent::ON_PLAYER_ALLIES_CHANGED |
-			ServerEvent::ON_MODE_SCRIPT_CALLBACK
+			ServerEvent::ON_MODE_SCRIPT_CALLBACK |
+			ServerEvent::ON_BEGIN_MAP
 		);
 		$this->enableStorageEvents(
 			StorageEvent::ON_PLAYER_CHANGE_SIDE |
@@ -148,7 +149,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->registerLobby();
 
 		$this->gui->createPlayerList();
-		$this->gui->createPlayerList(true);
 
 		$this->setLobbyInfo();
 
@@ -196,6 +196,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->connection->restartMap();
 		
 		$this->callPublicMethod('Standard\AutoTagMatchSettings', 'setModeScriptSettingsTags');
+	}
+	
+	/**
+	 * For some reason, players stop spawing in lobby mode, a restart on map start fixes that.
+	 */
+	function onBeginMap($map, $warmUp, $matchContinuation)
+	{
+		$this->connection->restartMap();
 	}
 
 	function onUnload()
