@@ -472,7 +472,7 @@ class MatchMakingService
 	 * @param string $lobbyLogin
 	 * @param string $scriptName
 	 * @param string $titleIdString
-	 * @return float
+	 * @return float Number of seconds
 	 */
 	function getAverageTimeBetweenMatches($lobbyLogin, $scriptName, $titleIdString)
 	{

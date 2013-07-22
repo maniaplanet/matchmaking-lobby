@@ -271,7 +271,7 @@ abstract class AbstractGUI
 	{
 		$lobbyWindow = Windows\LobbyWindow::Create();
 		Windows\LobbyWindow::setServerName($serverName);
-		Windows\LobbyWindow::setAverageWaitingTime($averageTime);
+		Windows\LobbyWindow::setAverageWaitingTime($averageTime == -1 ?  -1 : ceil($averageTime/60));
 		Windows\LobbyWindow::setPlayercount($playersCount + $playingPlayersCount);
 		$lobbyWindow->show();
 	}
