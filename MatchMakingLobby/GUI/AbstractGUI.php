@@ -329,12 +329,13 @@ abstract class AbstractGUI
 		$waitingScreen->show();
 	}
 	
-	final function createWaitingScreen($serverName, $readyAction, $scriptName, $partySize, $logoURL = '', $logoLink = '')
+	final function createWaitingScreen($serverName, $readyAction, $scriptName, $partySize, $rulesManialink, $logoURL = '', $logoLink = '')
 	{
 		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($serverName);
 		Windows\WaitingScreen::setReadyAction($readyAction);
 		Windows\WaitingScreen::setScriptName($scriptName);
 		Windows\WaitingScreen::setPartySize($partySize);
+		Windows\WaitingScreen::setRulesManialink($rulesManialink);
 		Windows\WaitingScreen::setLogo($logoURL, $logoLink);
 	}
 	

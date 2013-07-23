@@ -109,6 +109,12 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * @var int
 	 */
 	public $matchMakerDelay = 0;
+	
+	/**
+	 * Set manialink for button 'Rules'
+	 * @var string 
+	 */
+	public $rulesManialink;
 
 	public function getMatchSettingsClassName($scriptName)
 	{

@@ -66,7 +66,7 @@ Your Elite game will start automatically.
 	'players' => 'Players',
 	'allies' => 'Allies',
 	'party'=> 'Your party',
-	'rules' => 'Learn',
+	'rules' => 'Rules',
 	'back' => 'Back',
 	'quit' => 'Quit',
 	'red' => 'Red',

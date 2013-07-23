@@ -27,6 +27,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var string
 	 */
 	static protected $scriptName;
+	
+	/**
+	 * @var string 
+	 */
+	static protected $rulesManialink;
 
 	/**
 	 * @var int
@@ -62,6 +67,16 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $readyButtonFrame;
+	
+	/**
+	 * @var \ManiaLive\Gui\Controls\Frame
+	 */
+	protected $quitButtonFrame;
+	
+	/**
+	 * @var \ManiaLive\Gui\Controls\Frame
+	 */
+	protected $learnButtonFrame;
 
 
 	protected $playerList = array();
@@ -99,6 +114,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		static::$scriptName = $script;
 	}
 	
+	static function setRulesManialink($manialink)
+	{
+		static::$rulesManialink = $manialink;
+	}
+	
 	static function setPartySize($size)
 	{
 		static::$partySize = $size;
@@ -116,13 +136,14 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$this->dico = array(
 			'playing' => 'playing',
-				'ready' => 'ready',
-				'readyButton' => 'readyButton',
-				'players' => 'players',
-				'allies' => 'party',
-				'avgWaiting' => 'waitingScreenWaitingLabel',
-				'rules' => 'rules',
-				'back' => 'quit',
+			'rules' => 'rules',
+			'ready' => 'ready',
+			'readyButton' => 'readyButton',
+			'players' => 'players',
+			'allies' => 'party',
+			'avgWaiting' => 'waitingScreenWaitingLabel',
+			'rules' => 'rules',
+			'back' => 'quit',
 		);
 		
 		$ui = new Elements\Quad(320, 20);
@@ -163,12 +184,60 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->playerListFrame->getLayout()->setMarginHeight(3);
 		$frame->addComponent($this->playerListFrame);
 
+		
 		$ui = new Elements\Label(40,5);
 		$ui->setHalign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextButtonBig);
 		$ui->setTextid('back');
 		$ui->setTextColor('fff');
 		$ui->setAction('maniaplanet:quitserver');
+		
+		//quit button start
+		$this->quitButtonFrame = new Frame();
+		$this->quitButtonFrame->setSize(35,10);
+		$this->quitButtonFrame->setPosition(-45, -34);
+		$this->addComponent($this->quitButtonFrame);
+	
+		$ui = new Elements\Quad($this->quitButtonFrame->getSizeX(),10);
+		$ui->setAlign('center', 'center');
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/small-button-RED.dds', true);
+		$ui->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/small-button-RED-ON.dds', true);
+		$ui->setAction('maniaplanet:quitserver');
+		$this->quitButtonFrame->addComponent($ui);
+		
+		$ui = new Elements\Label($this->quitButtonFrame->getSizeX());
+		$ui->setAlign('center', 'center2');
+		$ui->setStyle(Elements\Label::TextRaceMessageBig);
+		$ui->setTextid('back');
+		$ui->setOpacity(0.8);
+		$ui->setTextSize(2.5);
+		$this->quitButtonFrame->addComponent($ui);
+		//quit button  end
+		
+		//learn button start
+		if (static::$rulesManialink)
+		{
+			$this->learnButtonFrame = new Frame();
+			$this->learnButtonFrame->setSize(35,10);
+			$this->learnButtonFrame->setPosition(45, -34);
+			$this->addComponent($this->learnButtonFrame);
+
+			$ui = new Elements\Quad($this->learnButtonFrame->getSizeX(),10);
+			$ui->setAlign('center', 'center');
+			$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/small-button-BLUE.dds', true);
+			$ui->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/small-button-BLUE-ON.dds', true);
+			$ui->setManialink(static::$rulesManialink);
+			$this->learnButtonFrame->addComponent($ui);
+
+			$ui = new Elements\Label($this->learnButtonFrame->getSizeX());
+			$ui->setAlign('center', 'center2');
+			$ui->setStyle(Elements\Label::TextRaceMessageBig);
+			$ui->setTextid('rules');
+			$ui->setOpacity(0.8);
+			$ui->setTextSize(2.5);
+			$this->learnButtonFrame->addComponent($ui);
+		}
+		//learn button  end
 		
 		//ready button start
 		$this->readyButtonFrame = new Frame();

@@ -157,6 +157,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')),
 			$this->scriptName,
 			($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1),
+			$this->config->rulesManialink,
 			$this->config->logoURL, $this->config->logoLink
 		);
 
