@@ -53,18 +53,10 @@ class StartMatch extends \ManiaLive\Gui\Window
 	{
 		$this->setLayer(\ManiaLive\Gui\Window::LAYER_CUT_SCENE);
 		
-		$this->background = new Elements\Quad(320, 142);
+		$this->background = new Elements\Quad(190, 190);
 		$this->background->setAlign('center', 'center');
-		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/background.png',true);
+		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/versus-bg.dds',true);
 		$this->addComponent($this->background);
-		
-		$this->versus = new Elements\Label(70);
-		$this->versus->setAlign('center', 'center2');
-		$this->versus->setTextColor('fff7');
-		$this->versus->setText('VS');
-		$this->versus->setTextSize(50);
-		$this->versus->setStyle(Elements\Label::TextTitle3);
-		$this->addComponent($this->versus);
 		
 		$this->label = new Elements\Label(200, 20);
 		$this->label->setPosY(47);
@@ -97,11 +89,11 @@ class StartMatch extends \ManiaLive\Gui\Window
 		
 		$this->team1 = new \ManiaLive\Gui\Controls\Frame();
 		$this->team1->setLayout($layout);
-		$this->team1->setPosition(-70);
+		$this->team1->setPosition(-45);
 		$this->addComponent($this->team1);
 		
 		$this->team2 = clone $this->team1;
-		$this->team2->setPosX(70);
+		$this->team2->setPosX(45);
 		$this->addComponent($this->team2);
 	}
 	
@@ -118,6 +110,7 @@ class StartMatch extends \ManiaLive\Gui\Window
 	function addElements(array $players, \ManiaLive\Gui\Controls\Frame $frame)
 	{
 		$playerCard = new \ManiaLivePlugins\MatchMakingLobby\Controls\PlayerDetailed();
+		$playerCard->setScale(0.7);
 		$playerCard->setAlign('center');
 		
 		foreach($players as $player)
