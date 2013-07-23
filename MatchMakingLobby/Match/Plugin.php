@@ -411,6 +411,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerDisconnect($login, $disconnectionReason)
 	{
+		\ManiaLive\Utilities\Logger::debug(sprintf('Player disconnected: %s (%s)', $login, $disconnectionReason));
 		$this->gui->removeFromGroup($login);
 		switch ($this->state)
 		{

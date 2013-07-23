@@ -768,8 +768,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onPlayerCancelReplacement($login)
 	{
-		\ManiaLive\Utilities\Logger::debug('Player cancel replacement: '.$login);
-
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 
 		if ($match)
@@ -947,6 +945,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function cancelReplacement($login, Match $match)
 	{
+		\ManiaLive\Utilities\Logger::debug(sprintf('%s cancel replacement at countdown %d', $login, array_key_exists($login, $this->replacerCountDown) ? $this->replacerCountDown[$login] : '-1'));
+		
 		$this->gui->eraseJump($login);
 		$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
