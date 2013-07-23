@@ -33,6 +33,8 @@ class Dialog extends \ManiaLive\Gui\Window
 		
 	function onConstruct()
 	{
+		$this->setLayer(\ManiaLive\Gui\Window::LAYER_CUT_SCENE);
+		
 		$ui = new Elements\Bgs1(320, 180);
 		$ui->setAlign('center','center');
 		$ui->setSubStyle(Elements\Bgs1::BgDialogBlur);
