@@ -683,24 +683,24 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$mtime = microtime(true);
 		if(!$this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString))
 		{
-//			$tokenInfos = $this->connection->getPlayerTokenInfos($login);
-//			if($tokenInfos->TokenCost > 0 && $tokenInfos->CanPayToken)
-//			{
-//				$question = sprintf("Playing this game will cost you %d planets.\nDo you want to continue ?", $tokenInfos->TokenCost);
-//				$this->gui->removeFromGroup($login);
-//				$this->gui->removeWaitingScreen($login);
-//				$this->gui->showDialog($login, $question, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
-//			}
-//			elseif($tokenInfos->TokenCost > 0 && !$tokenInfos->CanPayToken)
-//			{
-//				$this->gui->removeFromGroup($login);
-//				$this->gui->removeWaitingScreen($login);
-//				$this->gui->showSplash($login, null, array($this, 'onClickOnSplashBackground'), array($this,'onCloseSplash'));
-//			}
-//			elseif($tokenInfos->TokenCost == 0)
-//			{
+			$tokenInfos = $this->connection->getDemoTokenInfosForPlayer($login);
+			if($tokenInfos->TokenCost > 0 && $tokenInfos->CanPayToken)
+			{
+				$question = sprintf("Playing this game will cost you %d planets.\nDo you want to continue ?", $tokenInfos->TokenCost);
+				$this->gui->removeFromGroup($login);
+				$this->gui->removeWaitingScreen($login);
+				$this->gui->showDialog($login, $question, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
+			}
+			elseif($tokenInfos->TokenCost > 0 && !$tokenInfos->CanPayToken)
+			{
+				$this->gui->removeFromGroup($login);
+				$this->gui->removeWaitingScreen($login);
+				$this->gui->showSplash($login, null, array($this, 'onClickOnSplashBackground'), array($this,'onCloseSplash'));
+			}
+			elseif($tokenInfos->TokenCost == 0)
+			{
 				$this->setPlayerReady($login);
-//			}
+			}
 		}
 		else
 		{
