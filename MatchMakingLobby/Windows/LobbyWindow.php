@@ -51,7 +51,8 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	 */
 	protected $playerCountHelperLabel;
 	
-	static protected $playerCount;
+	static protected $playingPlayerCount;
+	static protected $readyPlayerCount;
 	static protected $avgWaitingTime;
 	static protected $serverName;
 	
@@ -114,9 +115,9 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->addComponent($this->playerCountHelperLabel);
 	}
 	
-	static function setPlayercount($count)
+	static function setPlayingPlayerCount($count)
 	{
-		static::$playerCount = $count;
+		static::$playingPlayerCount = $count;
 	}
 
 	static function setAverageWaitingTime($time)
@@ -128,16 +129,21 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 	{
 		static::$serverName = $serverName;
 	}
+	
+	static function setReadyPlayerCount($count)
+	{
+		static::$readyPlayerCount = $count;
+	}
 
 	function onDraw()
 	{
 		$this->dico = array(
 			'playing' => 'playing',
 			'ready' => 'ready',
-			'nPlayersHelper' => 'nPlayersHelper',
 			'avgWaitingHelper' => 'avgWaitingHelper',
 			'avgWaiting' => array('textId' => 'avgWaitingTime', 'params' => array(static::$avgWaitingTime)),
-			'nPlayers' => array('textId' => 'nPlayers', 'params' => array(static::$playerCount))
+			'nPlayers' => array('textId' => 'nPlayersPlaying', 'params' => array(static::$playingPlayerCount)),
+			'nPlayersHelper' => array('textId' => 'nPlayersReady', 'params' => array(static::$readyPlayerCount))
 		);
 				
 		$this->serverNameLabel->setText(static::$serverName);

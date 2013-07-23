@@ -5,7 +5,8 @@
  * @date        $Date: $:
  */
 $lang = array(
-	'nPlayers' => '%d players',
+	'nPlayersReady' => '%d ready',
+	'nPlayersPlaying' => '%d playing',
 	'avgWaitingTime' => '%d min',
 	'avgWaitingHelper' => 'Average waiting time',
 	'nPlayersHelper' => 'Online players',
