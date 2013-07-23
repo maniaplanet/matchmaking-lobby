@@ -179,7 +179,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->nextTick = new \DateTime();
 
 		$ratios = array(
-			new \DedicatedApi\Structures\VoteRatio('SetModeScriptSettings', -1.),
+			new \DedicatedApi\Structures\VoteRatio('SetModeScriptSettingsAndCommands', -1.),
 			new \DedicatedApi\Structures\VoteRatio('Kick', 0.7),
 			new \DedicatedApi\Structures\VoteRatio('Ban', -1.),
 			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.),
