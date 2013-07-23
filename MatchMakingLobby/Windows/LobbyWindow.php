@@ -70,7 +70,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->bg->setAlign('center');
 		$this->addComponent($this->bg);
 		
-		$this->serverNameLabel = new Elements\Label(self::SIZE_X);
+		$this->serverNameLabel = new Elements\Label(self::SIZE_X-7);
 		$this->serverNameLabel->setStyle(Elements\Label::TextRaceMessage);
 		$this->serverNameLabel->setAlign('center', 'top');
 		$this->serverNameLabel->setPosition(0, -4);
