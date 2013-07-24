@@ -59,16 +59,16 @@ class StartMatch extends \ManiaLive\Gui\Window
 		$this->addComponent($this->background);
 		
 		$this->label = new Elements\Label(200, 20);
-		$this->label->setPosY(47);
+		$this->label->setPosY(40);
 		$this->label->setAlign('center', 'center2');
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
 		$this->label->setTextid('text');
 		$this->label->setId('info-label');
-		$this->label->setTextSize(7);
+		$this->label->setTextSize(2);
 		$this->addComponent($this->label);
 		
 		$this->transferLabel = clone $this->label;
-		$this->transferLabel->setPosY(47);
+		$this->transferLabel->setPosY(35);
 		$this->transferLabel->setTextColor(null);
 		$this->transferLabel->setTextid('transferText');
 		$this->transferLabel->setId('transfer-label');
