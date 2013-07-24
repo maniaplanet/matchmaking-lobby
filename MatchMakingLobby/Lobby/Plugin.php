@@ -946,19 +946,23 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function cancelReplacement($login, Match $match)
 	{
-		\ManiaLive\Utilities\Logger::debug(sprintf('%s cancel replacement at countdown %d', $login, array_key_exists($login, $this->replacerCountDown) ? $this->replacerCountDown[$login] : '-1'));
-		
-		$this->gui->eraseJump($login);
-		$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
+		//If trying to cancel replacement too late, not replacing
+		if (array_key_exists($login, $this->replacerCountDown) && $this->replacerCountDown[$login] > 1)
+		{
+			\ManiaLive\Utilities\Logger::debug(sprintf('%s cancel replacement at countdown %d', $login, array_key_exists($login, $this->replacerCountDown) ? $this->replacerCountDown[$login] : '-1'));
 
-		//FIXME: it could have been QUITTER or GIVEUP
-		$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id,
-			Services\PlayerInfo::PLAYER_STATE_QUITTER);
+			$this->gui->eraseJump($login);
+			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
-		unset($this->replacerCountDown[$login]);
-		unset($this->replacers[$login]);
+			//FIXME: it could have been QUITTER or GIVEUP
+			$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id,
+				Services\PlayerInfo::PLAYER_STATE_QUITTER);
 
-		$this->setPlayerReady($login);
+			unset($this->replacerCountDown[$login]);
+			unset($this->replacers[$login]);
+
+			$this->setPlayerReady($login);
+		}
 	}
 
 	private function prepareMatch($server, $match)
