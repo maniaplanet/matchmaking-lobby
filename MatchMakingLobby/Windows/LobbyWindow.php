@@ -93,7 +93,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->avgWaitingTimeHelperLabel->setPosition($this->avgWaitingTimeLabel->getPosX(),-18);
 		$this->avgWaitingTimeHelperLabel->setTextId('avgWaitingHelper');
 		$this->avgWaitingTimeHelperLabel->setScale(0.5);
-		$this->avgWaitingTimeHelperLabel->setOpacity(0.3);
+		$this->avgWaitingTimeHelperLabel->setOpacity(0.5);
 		$this->addComponent($this->avgWaitingTimeHelperLabel);
 		
 		$this->playerCountLabel = new Elements\Label(self::SIZE_X/3);
@@ -111,7 +111,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->playerCountHelperLabel->setPosition($this->playerCountLabel->getPosX(),-18);
 		$this->playerCountHelperLabel->setTextId('nPlayersHelper');
 		$this->playerCountHelperLabel->setScale(0.5);
-		$this->playerCountHelperLabel->setOpacity(0.3);
+		$this->playerCountHelperLabel->setOpacity(0.5);
 		$this->addComponent($this->playerCountHelperLabel);
 	}
 	
