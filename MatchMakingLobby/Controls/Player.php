@@ -59,7 +59,7 @@ class Player extends \ManiaLive\Gui\Control
 
 	function __construct($nickname)
 	{
-		$this->setSize(47, 5);
+		$this->setSize(46, 5);
 
 		$this->bg = new Elements\Bgs1InRace($this->sizeX, $this->sizeY);
 		$this->bg->setBgcolor('3338');
@@ -139,6 +139,19 @@ class Player extends \ManiaLive\Gui\Control
 		$this->countryFlag->setImage($this->zoneFlagURL, true);
 		$this->echelonLabel->setText($echelon);
 		$this->echelonQuad->setImage(sprintf('file://Media/Manialinks/Common/Echelons/echelon%d.dds',$echelon), true);
+	}
+	
+	function destroy()
+	{
+		parent::destroy();
+		
+		$this->bg = null;
+		$this->countryFlag = null;
+		$this->echelonFrame = null;
+		$this->echelonLabel = null;
+		$this->echelonQuad = null;
+		$this->icon = null;
+		$this->label = null;
 	}
 }
 

@@ -15,8 +15,8 @@ use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
 class WaitingScreen extends \ManiaLive\Gui\Window
 {
 
-	const SIZE_X = 136;
-	const SIZE_Y = 94;
+	const SIZE_X = 141;
+	const SIZE_Y = 99;
 	
 	/**
 	 * @var string
@@ -185,17 +185,10 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$frame->addComponent($this->playerListFrame);
 
 		
-		$ui = new Elements\Label(40,5);
-		$ui->setHalign('center', 'center2');
-		$ui->setStyle(Elements\Label::TextButtonBig);
-		$ui->setTextid('back');
-		$ui->setTextColor('fff');
-		$ui->setAction('maniaplanet:quitserver');
-		
 		//quit button start
 		$this->quitButtonFrame = new Frame();
 		$this->quitButtonFrame->setSize(35,10);
-		$this->quitButtonFrame->setPosition(-45, -34);
+		$this->quitButtonFrame->setPosition(-47, -36);
 		$this->addComponent($this->quitButtonFrame);
 	
 		$ui = new Elements\Quad($this->quitButtonFrame->getSizeX(),10);
@@ -210,7 +203,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setStyle(Elements\Label::TextRaceMessageBig);
 		$ui->setTextid('back');
 		$ui->setOpacity(0.8);
-		$ui->setTextSize(2.5);
+		$ui->setTextSize(2);
+		$ui->setScale(0.95);
 		$this->quitButtonFrame->addComponent($ui);
 		//quit button  end
 		
@@ -219,7 +213,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		{
 			$this->learnButtonFrame = new Frame();
 			$this->learnButtonFrame->setSize(35,10);
-			$this->learnButtonFrame->setPosition(45, -34);
+			$this->learnButtonFrame->setPosition(47, -36);
 			$this->addComponent($this->learnButtonFrame);
 
 			$ui = new Elements\Quad($this->learnButtonFrame->getSizeX(),10);
@@ -234,24 +228,25 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			$ui->setStyle(Elements\Label::TextRaceMessageBig);
 			$ui->setTextid('rules');
 			$ui->setOpacity(0.8);
-			$ui->setTextSize(2.5);
+			$ui->setTextSize(2);
+			$ui->setScale(0.95);
 			$this->learnButtonFrame->addComponent($ui);
 		}
 		//learn button  end
 		
 		//ready button start
 		$this->readyButtonFrame = new Frame();
-		$this->readyButtonFrame->setSize(48,10);
-		$this->readyButtonFrame->setPosition(0, -34);
+		$this->readyButtonFrame->setSize(48,12);
+		$this->readyButtonFrame->setPosition(0, -36);
 		$this->addComponent($this->readyButtonFrame);
 	
-		$this->readyButton = new Elements\Quad(48,10);
+		$this->readyButton = new Elements\Quad(48,$this->readyButtonFrame->getSizeY());
 		$this->readyButton->setAlign('center', 'center');
 		$this->readyButton->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/ready-button-GREEN.dds', true);
 		$this->readyButton->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/ready-button-GREEN-ON.dds', true);
 		$this->readyButtonFrame->addComponent($this->readyButton);
 		
-		$ui = new Elements\Label(48);
+		$ui = new Elements\Label(48, $this->readyButtonFrame->getSizeY());
 		$ui->setAlign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextRaceMessageBig);
 		$ui->setTextid('readyButton');
@@ -259,13 +254,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setTextSize(2.5);
 		$this->readyButtonFrame->addComponent($ui);
 		//ready button  end
-		
-		$ui = new Elements\Label(40,6);
-		$ui->setHalign('center', 'center2');
-		$ui->setStyle(Elements\Label::TextButtonBig);
-		$ui->setTextid('rules');
-		$ui->setTextColor('fff');
-		$ui->setManialink('');
 		
 		$this->logo = new Elements\Quad(80, 20);
 		$this->logo->setAlign('center', 'top');

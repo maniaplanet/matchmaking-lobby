@@ -45,7 +45,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->setAlign('right', 'center');
 		
 		//162
-		$this->setPosition(162, 0, 15);
+		$this->setPosition(163, 0, 15);
 		
 		$this->bg = new \ManiaLib\Gui\Elements\Quad(self::SIZE_X, self::SIZE_Y);
 		$this->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/side-frame.png', true);
@@ -53,7 +53,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		
 		$this->title = new Elements\Label(self::SIZE_X);
 		$this->title->setAlign('center');
-		$this->title->setPosition(self::SIZE_X/2, -7);
+		$this->title->setPosition(self::SIZE_X/2, -6);
 		$this->title->setStyle(Elements\Label::TextRaceMessage);
 		$this->title->setOpacity(0.9);
 		$this->title->setTextid('players');

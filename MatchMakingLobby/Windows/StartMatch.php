@@ -68,7 +68,7 @@ class StartMatch extends \ManiaLive\Gui\Window
 		$this->addComponent($this->label);
 		
 		$this->transferLabel = clone $this->label;
-		$this->transferLabel->setPosY(35);
+		$this->transferLabel->setPosY(40);
 		$this->transferLabel->setTextColor(null);
 		$this->transferLabel->setTextid('transferText');
 		$this->transferLabel->setId('transfer-label');
