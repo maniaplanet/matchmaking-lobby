@@ -691,7 +691,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->gui->removeWaitingScreen($login);
 				$this->gui->showDemoReadyDialog($login, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
 			}
-			elseif($tokenInfos->TokenCost == 0 && !$tokenInfos->CanPayToken)
+			elseif($tokenInfos->TokenCost > 0 && !$tokenInfos->CanPayToken)
 			{
 				$this->gui->removeFromGroup($login);
 				$this->gui->removeWaitingScreen($login);
