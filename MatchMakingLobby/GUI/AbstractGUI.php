@@ -466,11 +466,42 @@ abstract class AbstractGUI
 	final function showDialog($login, $question, $yesCallBack, $noCallBack)
 	{
 		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
+		
 		$splash = Windows\Dialog::Create($login);
 		$splash->setQuestionText($question);
 		$splash->setYesAction($ah->createAction($yesCallBack));
 		$splash->setNoAction($ah->createAction($noCallBack));
 		$splash->show();
+	}
+	
+	final function showDemoReadyDialog($login, $answerYesCallBack, $answerNoCallback)
+	{
+		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
+		
+		$window = Windows\AlertReady::Create($login);
+		$window->yesAction = $ah->createAction($answerYesCallBack);
+		$window->noAction = $ah->createAction($answerNoCallback);
+		$window->show();
+	}
+	
+	final function removeDemoReadyDialog($login)
+	{
+		Windows\AlertReady::Erase($login);
+	}
+	
+	final function showDemoPlayDialog($login, $answerYesCallBack, $answerNoCallback)
+	{
+		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
+		
+		$window = Windows\AlertPlay::Create($login);
+		$window->yesAction = $ah->createAction($answerYesCallBack);
+		$window->noAction = $ah->createAction($answerNoCallback);
+		$window->show();
+	}
+	
+	final function removeDemoPayDialog($login)
+	{
+		Windows\AlertPay::Erase($login);
 	}
 	
 	function hideDialog($login)

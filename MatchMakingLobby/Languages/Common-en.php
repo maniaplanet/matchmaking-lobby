@@ -5,6 +5,16 @@
  * @date        $Date: $:
  */
 $lang = array(
+	'ok' => 'Ok',
+	'noPlanet' => 'NOT ENOUGH PLANETS TO PLAY
+Play again tomorrow!',
+	'noPlanetBuy' => 'HAVE FUN NOW! BUY FULL VERSION!',
+	'noPlanetThanks' => 'Thanks in both cases... even more for buying ;)',
+	'noPlanetTips' => 'Each day, 300 planets are credited on your account',
+	'noPlanetBye' => 'GG, SEE YOU TOMORROW',
+	'demoReadyTips' => 'Each games uses 100 planets from your account',
+	'demoReady' => 'AS A GUEST, YOU HAVE A LIMITED AMOUNT OF FREE GAMES DAILY.',
+	'demoReady2' => 'ARE YOU READY TO PLAY?',
 	'nPlayersReady' => '%d ready',
 	'nPlayersPlaying' => '%d playing',
 	'avgWaitingTime' => '%d min',

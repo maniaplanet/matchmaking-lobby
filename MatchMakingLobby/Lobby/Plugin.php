@@ -669,7 +669,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		if($oldSide == 'spectator' && !Services\PlayerInfo::Get($player->login)->isReady())
 		{
-				$this->onPlayerReady($player->login);
+			$this->onPlayerReady($player->login);
 		}
 		$this->updateLobbyWindow();
 	}
@@ -678,7 +678,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		$this->connection->forceSpectator($login, 1);
 	}
-
+	
 	function onPlayerReady($login)
 	{
 		$mtime = microtime(true);
@@ -687,16 +687,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$tokenInfos = $this->connection->getDemoTokenInfosForPlayer($login);
 			if($tokenInfos->TokenCost > 0 && $tokenInfos->CanPayToken)
 			{
-				$question = sprintf("Playing this game will cost you %d planets.\nDo you want to continue ?", $tokenInfos->TokenCost);
 				$this->gui->removeFromGroup($login);
 				$this->gui->removeWaitingScreen($login);
-				$this->gui->showDialog($login, $question, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
+				$this->gui->showDemoReadyDialog($login, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
 			}
-			elseif($tokenInfos->TokenCost > 0 && !$tokenInfos->CanPayToken)
+			elseif($tokenInfos->TokenCost == 0 && !$tokenInfos->CanPayToken */)
 			{
 				$this->gui->removeFromGroup($login);
 				$this->gui->removeWaitingScreen($login);
-				$this->gui->showSplash($login, null, array($this, 'onClickOnSplashBackground'), array($this,'onCloseSplash'));
+				$this->gui->showDemoPlayDialog($login, array($this, 'onClickOnSplashBackground'), array($this,'onCloseSplash'));
 			}
 			elseif($tokenInfos->TokenCost == 0)
 			{
@@ -847,7 +846,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onAnswerNoToDialog($login)
 	{
-		$this->gui->hideDialog($login);
+		$this->gui->removeDemoReadyDialog($login);
 		$this->gui->addToGroup($login, false);
 		$this->gui->showWaitingScreen($login);
 		$this->updatePlayerList = true;
@@ -855,7 +854,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onAnswerYesToDialog($login)
 	{
-		$this->gui->hideDialog($login);
+		$this->gui->removeDemoReadyDialog($login);
 		$this->setPlayerReady($login);
 	}
 
