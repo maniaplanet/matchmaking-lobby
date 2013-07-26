@@ -146,11 +146,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			'back' => 'quit',
 		);
 		
-		$ui = new Elements\Quad(320, 20);
-		$ui->setAlign('center', 'bottom');
-		$ui->setBgcolor('000');
-		$ui->setPosition(0,-90);
-		$this->addComponent($ui);
+//		$ui = new Elements\Quad(320, 20);
+//		$ui->setAlign('center', 'bottom');
+//		$ui->setBgcolor('000');
+//		$ui->setPosition(0,-90);
+//		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(320, 20);
 		
