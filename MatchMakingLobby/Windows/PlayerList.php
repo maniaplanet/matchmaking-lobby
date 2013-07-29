@@ -159,7 +159,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$component->zoneFlagURL = $player['zoneFlag'];
 			$this->pager->addItem($component);
 			//$this->frame->addComponent(clone $component);
-			//next(self::$playerList);
+			next(self::$playerList);
 		}
 	}
 
