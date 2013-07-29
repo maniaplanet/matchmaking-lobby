@@ -211,6 +211,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			throw new \Exception('The lobby can\'t be found in the database. Are you sure that lobby and match server are sharing the same database?');
 		}
 
+		$this->connection->setServerTag('nl.lobbylogin', $this->config->lobbyLogin);
+		
 		//setup the Lobby info window
 		$this->updateLobbyWindow();
 
