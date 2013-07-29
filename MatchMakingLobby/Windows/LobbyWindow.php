@@ -141,7 +141,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 			'playing' => 'playing',
 			'ready' => 'ready',
 			'avgWaitingHelper' => 'avgWaitingHelper',
-			'avgWaiting' => array('textId' => 'avgWaitingTime', 'params' => array(static::$avgWaitingTime)),
+			'avgWaiting' => array('textId' => 'avgWaitingTime', 'params' => array(static::$avgWaitingTime == -1 ? "-" : static::$avgWaitingTime)),
 			'nPlayers' => array('textId' => 'nPlayersPlaying', 'params' => array(static::$playingPlayerCount)),
 			'nPlayersHelper' => array('textId' => 'nPlayersReady', 'params' => array(static::$readyPlayerCount))
 		);
