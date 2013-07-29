@@ -832,7 +832,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onCloseSplash($login)
 	{
-		$this->gui->hideSplash($login);
+		$this->gui->removeDemoPayDialog($login);
 		$this->gui->addToGroup($login, false);
 		$this->gui->showWaitingScreen($login);
 		$this->updatePlayerList = true;
