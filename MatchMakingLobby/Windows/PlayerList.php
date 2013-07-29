@@ -48,7 +48,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->setPosition(163, 0, 15);
 		
 		$this->bg = new \ManiaLib\Gui\Elements\Quad(self::SIZE_X, self::SIZE_Y);
-		$this->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/side-frame.png', true);
+		$this->bg->setImage('file://Media/Manialinks/Common/Lobbies/side-frame.png', true);
 		$this->addComponent($this->bg);
 		
 		$this->title = new Elements\Label(self::SIZE_X);

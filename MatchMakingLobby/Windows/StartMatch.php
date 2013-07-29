@@ -55,7 +55,7 @@ class StartMatch extends \ManiaLive\Gui\Window
 		
 		$this->background = new Elements\Quad(190, 190);
 		$this->background->setAlign('center', 'center');
-		$this->background->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/versus-bg.dds',true);
+		$this->background->setImage('file://Media/Manialinks/Common/Lobbies/versus-bg.dds',true);
 		$this->addComponent($this->background);
 		
 		$this->label = new Elements\Label(200, 20);

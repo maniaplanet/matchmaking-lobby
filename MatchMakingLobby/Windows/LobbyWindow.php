@@ -67,7 +67,7 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->setPosition(0, 84);
 
 		$this->bg = new Elements\Quad(self::SIZE_X, self::SIZE_Y);
-		$this->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/header.png');
+		$this->bg->setImage('file://Media/Manialinks/Common/Lobbies/header.png');
 		$this->bg->setAlign('center');
 		$this->addComponent($this->bg);
 		

@@ -156,7 +156,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$ui = new Elements\Quad(self::SIZE_X, self::SIZE_Y);
 		$ui->setAlign('center', 'center');
-		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/main-bg.png',true);
+		$ui->setImage('file://Media/Manialinks/Common/Lobbies/main-bg.png',true);
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(self::SIZE_X);
@@ -193,8 +193,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	
 		$ui = new Elements\Quad($this->quitButtonFrame->getSizeX(),10);
 		$ui->setAlign('center', 'center');
-		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/small-button-RED.dds', true);
-		$ui->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/small-button-RED-ON.dds', true);
+		$ui->setImage('file://Media/Manialinks/Common/Lobbies/small-button-RED.dds', true);
+		$ui->setImageFocus('file://Media/Manialinks/Common/Lobbies/small-button-RED-ON.dds', true);
 		$ui->setAction('maniaplanet:quitserver');
 		$this->quitButtonFrame->addComponent($ui);
 		
@@ -218,8 +218,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 
 			$ui = new Elements\Quad($this->learnButtonFrame->getSizeX(),10);
 			$ui->setAlign('center', 'center');
-			$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/small-button-BLUE.dds', true);
-			$ui->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/small-button-BLUE-ON.dds', true);
+			$ui->setImage('file://Media/Manialinks/Common/Lobbies/small-button-BLUE.dds', true);
+			$ui->setImageFocus('file://Media/Manialinks/Common/Lobbies/small-button-BLUE-ON.dds', true);
 			$ui->setManialink(static::$rulesManialink);
 			$this->learnButtonFrame->addComponent($ui);
 
@@ -242,8 +242,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	
 		$this->readyButton = new Elements\Quad(48,$this->readyButtonFrame->getSizeY());
 		$this->readyButton->setAlign('center', 'center');
-		$this->readyButton->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/ready-button-GREEN.dds', true);
-		$this->readyButton->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-15/ready-button-GREEN-ON.dds', true);
+		$this->readyButton->setImage('file://Media/Manialinks/Common/Lobbies/ready-button-GREEN.dds', true);
+		$this->readyButton->setImageFocus('file://Media/Manialinks/Common/Lobbies/ready-button-GREEN-ON.dds', true);
 		$this->readyButtonFrame->addComponent($this->readyButton);
 		
 		$ui = new Elements\Label(48, $this->readyButtonFrame->getSizeY());
