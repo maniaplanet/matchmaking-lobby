@@ -65,7 +65,10 @@ class PlayerList extends \ManiaLive\Gui\Window
 		
 		$this->pager = new \ManiaLive\Gui\Controls\Pager(); 
 		$this->pager->setPosition(2.2,-15);
-		$this->pager->setSize(40, 100); 
+		$this->pager->setSize(40, 110); 
+		$this->pager->pageNavigatorFrame->setPosition(5,5);
+		$this->pager->label->setTextColor('fff');
+		
 		$this->addComponent($this->pager);
 	}
 
@@ -156,7 +159,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$component->zoneFlagURL = $player['zoneFlag'];
 			$this->pager->addItem($component);
 			//$this->frame->addComponent(clone $component);
-			next(self::$playerList);
+			//next(self::$playerList);
 		}
 	}
 
