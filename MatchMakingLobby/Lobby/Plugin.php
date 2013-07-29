@@ -841,7 +841,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onClickOnSplashBackground($login)
 	{
 		$this->onCloseSplash($login);
-		$this->connection->sendOpenLink($login, 'http://www.google.fr', 0);
+		$this->connection->sendOpenLink($login, 'elite-ads', 1);
 	}
 
 	function onAnswerNoToDialog($login)
