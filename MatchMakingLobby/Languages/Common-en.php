@@ -66,7 +66,7 @@ A match is expecting a substitute',
 	'waitingScreenWaitingLabel' => 'AVG Waiting Time',
 	'waitingHelp' => 'Welcome to the matchmaking waiting room.
 Press $oREADY$o to play while waiting your match.
-Your Elite game will start automatically.
+Your game will start automatically.
 
 ',
 	'nextMatch' => 'Next matchmaking: %d sec',
