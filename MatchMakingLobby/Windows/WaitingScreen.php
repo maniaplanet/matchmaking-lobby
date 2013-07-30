@@ -256,8 +256,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		//ready button  end
 		
 		$this->logo = new Elements\Quad(80, 20);
-		$this->logo->setAlign('center', 'top');
-		$this->logo->setPosY(90);
+		$this->logo->setAlign('center', 'bottom');
+		$this->logo->setPosY(-90);
 	}
 	
 	function createParty(\DedicatedApi\Structures\Player $player)
