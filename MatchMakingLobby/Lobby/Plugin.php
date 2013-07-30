@@ -82,7 +82,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('3.0.0');
+		$this->setVersion('3.0.1');
 
 		$this->addDependency(new \ManiaLive\PluginHandler\Dependency('Standard\AutoTagMatchSettings'));
 

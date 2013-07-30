@@ -132,7 +132,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onInit()
 	{
-		$this->setVersion('3.0.0');
+		$this->setVersion('3.0.1');
 
 		if (version_compare(\ManiaLiveApplication\Version, \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE) < 0)
 		{
