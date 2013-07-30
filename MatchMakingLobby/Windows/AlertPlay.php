@@ -43,6 +43,7 @@ class AlertPlay extends Alert
 		$this->yesButton->setPosition(0, 6);
 		$this->yesButton->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-26/large-button-GREEN-OFF.png', true);
 		$this->yesButton->bg->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-26/large-button-GREEN-ON.png', true);
+		$this->yesButton->bg->setManialink('elite-ads');
 		$this->yesButton->text->setTextid('noPlanetBuy');
 		$this->addComponent($this->yesButton);
 		
@@ -50,6 +51,7 @@ class AlertPlay extends Alert
 		$this->noButton->setPosition(0, -6);
 		$this->noButton->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-26/large-button-RED-OFF.png', true);
 		$this->noButton->bg->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-26/large-button-RED-ON.png', true);
+		$this->noButton->bg->setAction('maniaplanet:quitserver');
 		$this->noButton->text->setTextid('noPlanetBye');
 		$this->addComponent($this->noButton);
 		
@@ -87,8 +89,8 @@ class AlertPlay extends Alert
 				'noPlanetTips' => 'noPlanetTips',
 		)));
 		
-		$this->yesButton->bg->setAction($this->yesAction);
-		$this->noButton->bg->setAction($this->noAction);
+		//$this->yesButton->bg->setAction($this->yesAction);
+		//$this->noButton->bg->setAction($this->noAction);
 	}
 }
 
