@@ -411,7 +411,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->setLobbyInfo();
 			$timers['lobbyInfo'] = microtime(true) - $mtime;
 		}
-		if($this->tick % 3 == 0)
+		if($this->tick % 6 == 0)
 		{
 			$mtime = microtime(true);
 			$this->updateLobbyWindow();
