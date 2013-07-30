@@ -697,7 +697,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				break;
 			case static::WAITING_BACKUPS:
 				$this->connection->chatSendServerMessageToLanguage(array(
-					array('Lang' => 'fr', 'Text' => static::PREFIX.'Les remplaçants sont connecté.'),
+					array('Lang' => 'fr', 'Text' => static::PREFIX.'Les remplaçants sont connectés.'),
 					array('Lang' => 'en', 'Text' => static::PREFIX.'Substitutes are connected.'),
 				));
 				break;
