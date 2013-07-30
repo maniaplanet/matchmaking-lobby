@@ -1,4 +1,11 @@
-# 2.2.0-testonetouonetou
+# 3.0.0
+
+* New UI
+* Many bug fix
+* Support "waves" for MatchMaker
+* Many more :-)
+
+# 2.2.0
 
 ### Lobby
 

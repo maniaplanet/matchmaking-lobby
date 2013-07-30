@@ -3,19 +3,19 @@ MatchMaking Lobby
 
 ManiaLive plugins to manage match making across multiple servers.
 
-Download : https://github.com/ManiaPlanet/MatchMakingLobby/tags
+Download: https://github.com/maniaplanet/matchmaking-lobby/releases
 
-Feedbacks or questions : http://forum.maniaplanet.com/viewtopic.php?f=435&t=16768
+Feedbacks or questions: http://forum.maniaplanet.com/viewtopic.php?f=435&t=16768
 
 Requirements
 ------------
 * At least **two ManiaPlanet servers**
-* Two instances of **ManiaLive 2.8.0** or higher
+* Two instances of **ManiaLive 3.1.0** or higher
 * **MySQL** database
 
 Installation
 ------------
-Online guide : https://github.com/maniaplanet/documentation/blob/master/dedicated-server/start-a-combo-lobby.md
+Online guide : http://maniaplanet.github.io/documentation/dedicated-server/start-a-combo-lobby.html
 
 It does not work!
 -----------------
