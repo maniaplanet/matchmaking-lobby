@@ -684,7 +684,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$mtime = microtime(true);
 		if(!$this->matchMakingService->isInMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString))
 		{
-			$tokenInfos = $this->connection->getDemoTokenInfosForPlayer($login);
+			try
+			{
+				$tokenInfos = $this->connection->getDemoTokenInfosForPlayer($login);
+			}
+			catch (\Exception $e)
+			{
+				//Player is disconnected ?
+				return;
+			}
 			if($tokenInfos->TokenCost > 0 && $tokenInfos->CanPayToken)
 			{
 				$this->gui->removeFromGroup($login);
