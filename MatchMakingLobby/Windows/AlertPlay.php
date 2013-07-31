@@ -43,7 +43,7 @@ class AlertPlay extends Alert
 		$this->yesButton->setPosition(0, 6);
 		$this->yesButton->bg->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-26/large-button-GREEN-OFF.png', true);
 		$this->yesButton->bg->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-07-26/large-button-GREEN-ON.png', true);
-		$this->yesButton->bg->setManialink('elite-ads');
+		$this->yesButton->bg->setUrl('http://fr-maniaplanet.gamesplanet.com/eshop/maniaplanet/shootmania-storm-3202.html?affiliate=EliteLobby');
 		$this->yesButton->text->setTextid('noPlanetBuy');
 		$this->addComponent($this->yesButton);
 		
