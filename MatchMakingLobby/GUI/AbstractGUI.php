@@ -280,9 +280,9 @@ abstract class AbstractGUI
 	/**
 	 * Create the player list to display to a player
 	 */
-	final function createPlayerList($isReady = false)
+	final function createPlayerList($login)
 	{
-		$playerList = Windows\PlayerList::Create();
+		$playerList = Windows\PlayerList::Create($login);
 		$playerList->show();
 	}
 	

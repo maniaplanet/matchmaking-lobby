@@ -148,8 +148,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->registerLobby();
 
-		$this->gui->createPlayerList();
-
 		$this->setLobbyInfo();
 
 		$this->gui->createWaitingScreen(
@@ -250,6 +248,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			return;
 		}
+		
+		$this->gui->createPlayerList($login);
 
 		$this->gui->addToGroup($login, false);
 		$this->gui->showWaitingScreen($login);
