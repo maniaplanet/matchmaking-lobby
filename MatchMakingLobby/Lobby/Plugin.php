@@ -913,6 +913,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected function cancelMatch($login, Match $match)
 	{
+		\ManiaLive\Utilities\Logger::debug(sprintf('Cancelling match %d', $match->id));
+		
 		$this->gui->eraseJump($match->id);
 		unset($this->countDown[$match->id]);
 
