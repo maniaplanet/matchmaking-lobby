@@ -166,7 +166,7 @@ class Match
 	{
 		if($m->id != $this->id)
 		{
-			return false;
+			return true;
 		}
 		else
 		{
