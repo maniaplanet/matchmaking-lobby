@@ -78,7 +78,7 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * Duration in second of the penalty for leaving a match
 	 * @var int
 	 */
-	public $penaltyForQuitter = 150;
+	public $penaltyForQuitter = 190;
 
 	/**
 	 * @var int
