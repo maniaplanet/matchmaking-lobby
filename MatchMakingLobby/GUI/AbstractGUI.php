@@ -11,7 +11,6 @@ namespace ManiaLivePlugins\MatchMakingLobby\GUI;
 
 use ManiaLive\Gui\Windows\Shortkey;
 use ManiaLive\Data\Storage;
-use ManiaLive\Gui\Group;
 use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
@@ -286,6 +285,20 @@ abstract class AbstractGUI
 		$playerList->show();
 	}
 	
+	final function createMasterList()
+	{
+		$masterList = Windows\MasterList::Create();
+		$masterList->show();
+	}
+	
+	final function updateMasterList(array $masters)
+	{
+		foreach ($masters as $master)
+		{
+			Windows\MasterList::addMaster($master['login'], $master['nickName'], $master['ladderPoints']);
+		}
+	}
+	
 	final function addToGroup($login, $isReady)
 	{
 		if($isReady)
@@ -394,25 +407,19 @@ abstract class AbstractGUI
 			{
 				continue;
 			}
+			$ladderPoints = $player->ladderStats['PlayerRankings'][0]['Score'];
 
 			$playerInfo = PlayerInfo::Get($player->login);
-			$playerObj = $storage->getPlayerObject($player->login);
 			$state = Player::STATE_NOT_READY;
 			if($playerInfo->isReady()) $state = Player::STATE_READY;
 			if($playerInfo->isInMatch) $state = Player::STATE_IN_MATCH;
 			if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
 
-			/* @var $playerList Windows\PlayerList */
-			$path = explode('|', $playerObj->path);
-			$zone = $path[1];
-			$path = array_slice($path, 0, 3);
-			$flagURL = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
-			$ladderPoints = $playerObj->ladderStats['PlayerRankings'][0]['Score'];
-			Windows\PlayerList::setPlayer($player->login, $state, $zone, $ladderPoints, $flagURL);
+			Windows\PlayerList::setPlayer($player->login, $player->nickName, $ladderPoints, $state);
 		}
 		Windows\PlayerList::RedrawAll();
 	}
-
+	
 	/**
 	 * Remove a player from the playerlist and destroy his list
 	 * @param string $login

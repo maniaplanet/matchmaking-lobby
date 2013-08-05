@@ -74,11 +74,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	protected $setReadyAction;
 
+	/**
+	 * @var boolean 
+	 */
 	protected $allowRunMatchMaker = false;
 	
 	protected $maintenanceMode = false;
 	
 	protected $maintenanceMessage;
+	
+	/**
+	 * @var int 
+	 */
+	protected $lastMasterId = 0;
 
 	function onInit()
 	{
@@ -183,7 +191,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->updateLobbyWindow();
 
 		//$this->gui->showHelp($this->scriptName);
-
+		
+		if ($this->config->showMasters)
+		{
+			$this->gui->createMasterList();
+			$this->updateMasterList();
+		}
+		
 		$this->connection->disableServiceAnnounces(true);
 
 		$this->registerChatCommand('setAllReady', 'onSetAllReady', 0, true, \ManiaLive\Features\Admin\AdminGroup::get());
@@ -417,6 +431,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$this->updateLobbyWindow();
 			$timers['lobbyWindow'] = microtime(true) - $mtime;
 		}
+		
+		if ($this->config->showMasters && $this->tick % 6 == 0)
+		{
+			$this->updateMasterList();
+		}
 
 		//Moving players that are not ready for a long time
 		if($this->tick % 12 == 0)
@@ -470,6 +489,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			}
 			\ManiaLive\Utilities\Logger::debug(implode('|', $line));
 		}
+	}
+	
+	function updateMasterList()
+	{
+		$masters = $this->matchMakingService->getLatestMasters($this->storage->serverLogin, $this->scriptName, $this->titleIdString, $this->lastMasterId);
+		$this->gui->updateMasterList($masters);
+		$this->lastMasterId = array_key_exists(0, $masters) ? $masters[0]['id'] : $this->lastMasterId;
 	}
 	
 	function onMaintenance($login, $message)
@@ -843,7 +869,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->removeDemoPayDialog($login);
 		$this->gui->addToGroup($login, false);
 		$this->gui->showWaitingScreen($login);
-		$this->updatePlayerList = true;
 	}
 
 	function onClickOnSplashBackground($login)
@@ -857,7 +882,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->gui->removeDemoReadyDialog($login);
 		$this->gui->addToGroup($login, false);
 		$this->gui->showWaitingScreen($login);
-		$this->updatePlayerList = true;
 	}
 
 	function onAnswerYesToDialog($login)

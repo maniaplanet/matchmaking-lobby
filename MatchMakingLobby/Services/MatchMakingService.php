@@ -740,6 +740,34 @@ class MatchMakingService
 			$this->db->quote($titleIdString)
 		);
 	}
+	
+	function addMaster($playerLogin, $nickName, $ladderPoints, $lobbyLogin, $scriptName, $titleIdString)
+	{
+		$this->db->execute('INSERT INTO `Masters` (`lobbyLogin`, `scriptName`, `titleIdString`, `login`, `nickName`, `ladderPoints`) VALUES (%s, %s, %s, %s, %s, %d)',
+				$this->db->quote($lobbyLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString),
+				$this->db->quote($playerLogin),
+				$this->db->quote($nickName),
+				(int) $ladderPoints);
+	}
+	
+	/**
+	 * 
+	 * @param string $lobbyLogin
+	 * @param string $scriptName
+	 * @param string $titleIdString
+	 * @param int $lastId
+	 * @return type
+	 */
+	function getLatestMasters($lobbyLogin, $scriptName, $titleIdString, $lastId)
+	{
+		return $this->db->execute('SELECT login, nickName, ladderPoints, id FROM Masters WHERE lobbyLogin = %s AND scriptName = %s AND titleIdString = %s AND id > %d ORDER BY id DESC LIMIT 0,18',
+				$this->db->quote($lobbyLogin),
+				$this->db->quote($scriptName),
+				$this->db->quote($titleIdString),
+				$lastId)->fetchArrayOfAssoc();
+	}
 
 
 	function createTables()
@@ -836,6 +864,24 @@ CREATE TABLE IF NOT EXISTS  `PlayersPenalties` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 EOPenalties
+		);
+		
+		$this->db->execute(
+			<<<EOQuery
+CREATE TABLE IF NOT EXISTS `Masters` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`lobbyLogin` VARCHAR(25) NOT NULL,
+	`scriptName` VARCHAR(75) NOT NULL,
+	`titleIdString` VARCHAR(51) NOT NULL,
+	`login` VARCHAR(25) NOT NULL,
+	`nickName` VARCHAR(255) NOT NULL,
+	`ladderPoints` MEDIUMINT UNSIGNED NOT NULL NULL,
+	PRIMARY KEY (`id`),
+	INDEX `lobbyLogin_scriptName_titleIdString` (`lobbyLogin`, `scriptName`, `titleIdString`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+EOQuery
 		);
 	}
 }

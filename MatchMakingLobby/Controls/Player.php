@@ -122,9 +122,10 @@ class Player extends \ManiaLive\Gui\Control
 				$subStyle = '000D';
 				break;
 			case static::STATE_NOT_READY:
-				//nobreak
-			default :
 				$subStyle = 'F00D';
+				break;
+			default :
+				$subStyle = '';
 		}
 		
 		$this->icon->setSize(1, $this->sizeY);

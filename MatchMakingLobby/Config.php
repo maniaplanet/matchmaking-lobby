@@ -115,6 +115,12 @@ class Config extends \ManiaLib\Utils\Singleton
 	 * @var string 
 	 */
 	public $rulesManialink;
+	
+	/**
+	 * Show a window with latest 'Masters' in the lobby
+	 * @var boolean 
+	 */
+	public $showMasters = false;
 
 	public function getMatchSettingsClassName($scriptName)
 	{

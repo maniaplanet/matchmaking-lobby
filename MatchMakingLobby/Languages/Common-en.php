@@ -5,6 +5,7 @@
  * @date        $Date: $:
  */
 $lang = array(
+	'masters' => 'Masters',
 	'ok' => 'Ok',
 	'noPlanet' => 'NOT ENOUGH PLANETS TO PLAY
 Play again tomorrow!',

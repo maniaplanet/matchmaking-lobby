@@ -490,6 +490,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		switch($param1)
 		{
+			case 'Master':
+				$login = $param2[0];
+				$service = new Services\MatchMakingService();
+				$player = $this->storage->getPlayerObject($login);
+				$service->addMaster($login, $player->nickName, $player->ladderStats['PlayerRankings'][0]['Score'], $this->lobby->login, $this->scriptName, $this->titleIdString);
+				break;
 			case 'LibXmlRpc_Scores':
 				if($this->matchId)
 				{
