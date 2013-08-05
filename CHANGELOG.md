@@ -1,4 +1,4 @@
-# 3.0.2
+# 3.1.0
 
 * Adding support for masters
 * Minor fixes
