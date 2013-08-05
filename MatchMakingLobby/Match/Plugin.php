@@ -434,7 +434,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				// If a player gave up, no need to punish him!
 				if($disconnectionReason != '')
 				{
-					$this->onPlayerGiveUp($login);
+					$this->giveUp($login);
 					return;
 				}
 				if(array_key_exists($login, $this->players) && $this->players[$login] != Services\PlayerInfo::PLAYER_STATE_GIVE_UP)
