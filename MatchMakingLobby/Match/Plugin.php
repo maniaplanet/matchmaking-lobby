@@ -129,6 +129,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary */
 	protected $dictionary;
+	
+	/**
+	 * @var \DateTime 
+	 */
+	protected $ignoreEndMatchUntil;
 
 	function onInit()
 	{
@@ -452,6 +457,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onEndMatch($rankings, $winnerTeamOrMap)
 	{
+		if (new \DateTime() < $this->ignoreEndMatchUntil)
+		{
+			\ManiaLive\Utilities\Logger::debug('onEndMach ignored');
+			return;
+		}
 		\ManiaLive\Utilities\Logger::debug('onEndMach');
 		\ManiaLive\Utilities\Logger::debug($this->connection->checkEndMatchCondition());
 		switch ($this->state)
@@ -526,18 +536,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->giveUp($login);
 	}
 
-	function onVoteUpdated($stateName, $login, $cmdName, $cmdParam)
-	{
-		if($stateName == 'NewVote' && $this->state == self::DECIDING && in_array($cmdName, array('NextMap','JumpToMapIndex')))
-		{
-			$diff = $this->nextTick->diff(new \DateTime);
-			if($diff->s <= 10 && $diff->invert == 1 && $cmdName )
-			{
-				$this->connection->cancelVote();
-			}
-		}
-	}
-
 	protected function updateLobbyWindow()
 	{
 		return;
@@ -590,8 +588,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			ServerEvent::ON_END_ROUND |
 			ServerEvent::ON_PLAYER_INFO_CHANGED |
 			ServerEvent::ON_MODE_SCRIPT_CALLBACK |
-			ServerEvent::ON_MODE_SCRIPT_CALLBACK_ARRAY |
-			ServerEvent::ON_VOTE_UPDATED
+			ServerEvent::ON_MODE_SCRIPT_CALLBACK_ARRAY
 		);
 
 		\ManiaLive\Utilities\Logger::debug(sprintf('Preparing match for %s (%s)',$this->lobby->login, implode(',', array_keys($this->players))));
@@ -671,6 +668,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', 0.5);
 			$ratios[] = new \DedicatedApi\Structures\VoteRatio('JumpToMapIndex', 0.5);
 			$this->connection->setCallVoteRatiosEx(false, $ratios);
+			
+			$this->ignoreEndMatchUntil = new \DateTime('+ 3 minutes');
 		}
 
 		$this->changeState(self::DECIDING);
