@@ -19,7 +19,7 @@ use ManiaLivePlugins\MatchMakingLobby\Config;
 use ManiaLivePlugins\MatchMakingLobby\GUI;
 use ManiaLivePlugins\MatchMakingLobby\Services\Match;
 
-class Plugin extends \ManiaLive\PluginHandler\Plugin
+class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyListener
 {
 
 	const PREFIX = '$000»$09f ';
@@ -53,6 +53,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	/** @var Services\MatchMakingService */
 	protected $matchMakingService;
+	
+	/** @var Services\AllyService */
+	protected $allyService;
 
 	/** @var string */
 	protected $scriptName;
@@ -123,6 +126,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->setMatchMaker($matchMakerClassName::getInstance());
 
 		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->config->getDictionnary($this->scriptName));
+		
+		$this->allyService = Services\AllyService::getInstance();
 	}
 
 	function onLoad()
@@ -135,7 +140,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->enableDedicatedEvents(
 			ServerEvent::ON_PLAYER_CONNECT |
 			ServerEvent::ON_PLAYER_DISCONNECT |
-			ServerEvent::ON_PLAYER_ALLIES_CHANGED |
 			ServerEvent::ON_MODE_SCRIPT_CALLBACK |
 			ServerEvent::ON_BEGIN_MAP
 		);
@@ -143,6 +147,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			StorageEvent::ON_PLAYER_CHANGE_SIDE |
 			StorageEvent::ON_PLAYER_JOIN_GAME
 		);
+		
+		/** Register to Ally Service Event */
+		\ManiaLive\Event\Dispatcher::register(Services\AllyEvent::getClass(), $this);
 
 		$matchSettingsClass = $this->config->getMatchSettingsClassName($this->scriptName);
 		/* @var $matchSettings \ManiaLivePlugins\MatchMakingLobby\MatchSettings\MatchSettings */
@@ -237,7 +244,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if($playerObject)
 		{
 			$player->ladderPoints = $playerObject->ladderStats['PlayerRankings'][0]['Score'];
-			$player->allies = $playerObject->allies;
+			$player->allies = $this->allyService->get($login);
 		}
 
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
@@ -587,7 +594,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$obj = $storage->getPlayerObject($login);
 				if($obj)
 				{
-					return !count($obj->allies);
+					return !count($this->allyService->get($obj->login));
 				}
 			});
 			if ($potentialBackups)
@@ -755,14 +762,13 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if($time > 0.05)
 			\ManiaLive\Utilities\Logger::debug(sprintf('onPlayerNotReady:%f',$time));
 	}
-
-	function onPlayerAlliesChanged($login)
+	
+	public function onAlliesChanged($login)
 	{
 		$player = $this->storage->getPlayerObject($login);
-		\ManiaLive\Utilities\Logger::debug('onPlayerAlliesChanged:'.$login);
+		\ManiaLive\Utilities\Logger::debug('onAlliesChanged:'.$login);
 		if($player)
 		{
-			Services\PlayerInfo::Get($login)->allies = $player->allies;
 			$this->checkAllies($player);
 			if(!Services\PlayerInfo::Get($login)->isReady())
 			{
@@ -777,7 +783,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			$alliesMax = ($this->matchMaker->getPlayersPerMatch()/$this->matchMaker->getNumberOfTeam())-1;
 			//Too many allies
-			if (count($player->allies) > $alliesMax)
+			if (count($this->allyService->get($player->login)) > $alliesMax)
 			{
 				$tooManyAlly = Windows\TooManyAllies::Create($player->login);
 				$tooManyAlly->setPosition(0,60);
@@ -868,15 +874,20 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 	function onCloseSplash($login)
 	{
-		$this->gui->removeDemoPayDialog($login);
-		$this->gui->addToGroup($login, false);
-		$this->gui->showWaitingScreen($login);
+		$this->closeSplash($login);
 	}
 
 	function onClickOnSplashBackground($login)
 	{
-		$this->onCloseSplash($login);
+		$this->closeSplash($login);
 		$this->connection->sendOpenLink($login, 'elite-ads', 1);
+	}
+	
+	function closeSplash($login)
+	{
+		$this->gui->removeDemoPayDialog($login);
+		$this->gui->addToGroup($login, false);
+		$this->gui->showWaitingScreen($login);
 	}
 
 	function onAnswerNoToDialog($login)

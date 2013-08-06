@@ -260,11 +260,9 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->logo->setPosY(-90);
 	}
 	
-	function createParty(\DedicatedApi\Structures\Player $player)
+	function createParty($playersLogin)
 	{
-		$this->addPlayerToParty($player);
-		
-		foreach($player->allies as $ally)
+		foreach($playersLogin as $ally)
 		{
 			$allyObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($ally);
 			if($allyObject)

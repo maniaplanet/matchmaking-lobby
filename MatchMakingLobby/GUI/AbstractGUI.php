@@ -338,7 +338,9 @@ abstract class AbstractGUI
 	{
 		$waitingScreen = Windows\WaitingScreen::Create($login);
 		$waitingScreen->clearParty();
-		$waitingScreen->createParty(Storage::getInstance()->getPlayerObject($login));
+		$allyService = \ManiaLivePlugins\MatchMakingLobby\Services\AllyService::getInstance();
+		$party = array_merge((array) $login, $allyService->get($login), $allyService->getNonBilateralAlliances($login));
+		$waitingScreen->createParty($party);
 		$waitingScreen->show();
 	}
 	
