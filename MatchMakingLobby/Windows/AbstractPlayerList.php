@@ -170,6 +170,7 @@ abstract class AbstractPlayerList extends \ManiaLive\Gui\Window
 	
 	function onDraw()
 	{
+		$this->setPosZ(3);
 		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance()->getManiaLink($this->dictionnary));
 		$this->updateItemList();
 	}

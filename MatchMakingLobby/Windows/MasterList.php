@@ -8,7 +8,7 @@ namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 class MasterList extends AbstractPlayerList
 {
-	const MAX = 18;
+	const MAX = 21;
 	
 	static protected $playerList = array();
 	
