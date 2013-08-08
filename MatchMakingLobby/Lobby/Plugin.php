@@ -719,17 +719,19 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				//Player is disconnected ?
 				return;
 			}
-			if($tokenInfos->TokenCost > 0 && $tokenInfos->CanPayToken)
+			if($tokenInfos->TokenCost > 0)
 			{
 				$this->gui->removeFromGroup($login);
 				$this->gui->removeWaitingScreen($login);
-				$this->gui->showDemoReadyDialog($login, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
-			}
-			elseif($tokenInfos->TokenCost > 0 && !$tokenInfos->CanPayToken)
-			{
-				$this->gui->removeFromGroup($login);
-				$this->gui->removeWaitingScreen($login);
-				$this->gui->showDemoPlayDialog($login, array($this, 'onClickOnSplashBackground'), array($this,'onCloseSplash'));
+				$this->resetShortKey($login);
+				if ($tokenInfos->CanPayToken)
+				{
+					$this->gui->showDemoReadyDialog($login, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
+				}
+				else
+				{
+					$this->gui->showDemoPlayDialog($login, array($this, 'onClickOnSplashBackground'), array($this,'onCloseSplash'));
+				}
 			}
 			elseif($tokenInfos->TokenCost == 0)
 			{
