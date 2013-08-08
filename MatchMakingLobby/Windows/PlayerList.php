@@ -80,7 +80,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->dictionnary['title'] = 'players';
 	}
 	
-	function addPlayer($login, $nickName = null, $ladderPoints = 0, $state = 0, $action = null)
+	function addPlayer($login, $nickName = null, $ladderPoints = 0, $state = 0, $action = null, $isAlly = false)
 	{
 		try
 		{
@@ -90,6 +90,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 				'ladderPoints' => $ladderPoints,
 				'state' => $state,
 				'action' => $action,
+				'isAlly' => $isAlly,
 				);
 			
 			$this->playerList[$login] = $player;
@@ -108,9 +109,9 @@ class PlayerList extends \ManiaLive\Gui\Window
 		}
 	}
 	
-	function setPlayer($login, $nickName, $ladderPoints, $state, $action)
+	function setPlayer($login, $nickName, $ladderPoints, $state, $action, $isAlly)
 	{
-		$this->addPlayer($login, $nickName, $ladderPoints, $state, $action);
+		$this->addPlayer($login, $nickName, $ladderPoints, $state, $action, $isAlly);
 	}
 	
 	protected function updateItemList()
@@ -154,8 +155,19 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$component->ladderPoints = $player['ladderPoints'];
 			$component->zoneFlagURL = $flagURL = sprintf('file://ZoneFlags/Login/%s/country', $player['login']);
 			$component->setAction($player['action']);
+			if($player['isAlly'] && $player['action'] != null)
+			{
+				$component->setBackgroundColor('09F8','07C8');
+			}
+			elseif($player['action'])
+			{
+				$component->setBackgroundColor('3338','CCC8');
+			}
+			else
+			{
+				$component->setBackgroundColor();
+			}
 			$this->pager->addItem($component);
-			//$this->frame->addComponent(clone $component);
 			next($this->playerList);
 		}
 	}

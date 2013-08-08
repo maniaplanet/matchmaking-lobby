@@ -457,11 +457,23 @@ abstract class AbstractGUI
 				if($playerInfo->isReady()) $state = Player::STATE_READY;
 				if($playerInfo->isInMatch) $state = Player::STATE_IN_MATCH;
 				if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
-				if(in_array($player->login, $loginsWithNoAction)) $action = null;
-				elseif(in_array($player->login, $loginsWithUnsetAction)) $action = $unsetLocalAllyAction;
-				else $action = $setLocalAllyAction;
+				if(in_array($player->login, $loginsWithNoAction))
+				{
+					$action = null;
+					$isAlly = true;
+				}
+				elseif(in_array($player->login, $loginsWithUnsetAction))
+				{
+					$action = $unsetLocalAllyAction;
+					$isAlly = true;
+				}
+				else
+				{
+					$action = $setLocalAllyAction;
+					$isAlly = false;
+				}
 
-				$playerList->setPlayer($player->login, $player->nickName, $ladderPoints, $state, $action);
+				$playerList->setPlayer($player->login, $player->nickName, $ladderPoints, $state, $action, $isAlly);
 			}
 		}
 		Windows\PlayerList::RedrawAll();
