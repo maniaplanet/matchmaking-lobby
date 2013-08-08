@@ -63,6 +63,7 @@ class Player extends \ManiaLive\Gui\Control
 
 		$this->bg = new Elements\Bgs1InRace($this->sizeX, $this->sizeY);
 		$this->bg->setBgcolor('3338');
+		$this->bg->setBgcolorFocus('CCC8');
 		$this->addComponent($this->bg);
 
 		$this->icon = new Elements\Quad(2, $this->sizeY);
@@ -156,11 +157,21 @@ class Player extends \ManiaLive\Gui\Control
 		$this->icon = null;
 		$this->label = null;
 	}
-	
 	function onIsRemoved(\ManiaLive\Gui\Container $target)
 	{
 		parent::onIsRemoved($target);
 		$this->destroy();
+	}
+
+	function setAction($action)
+	{
+		$this->bg->setAction($action);
+	}
+	
+	function setBackgroundColor($color = '3338', $focusColor = null)
+	{
+		$this->bg->setBgcolor($color);
+		$this->bg->setBgcolorFocus($focusColor);
 	}
 }
 

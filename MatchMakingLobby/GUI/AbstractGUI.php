@@ -338,9 +338,23 @@ abstract class AbstractGUI
 	{
 		$waitingScreen = Windows\WaitingScreen::Create($login);
 		$waitingScreen->clearParty();
-		$allyService = \ManiaLivePlugins\MatchMakingLobby\Services\AllyService::getInstance();
-		$party = array_merge((array) $login, $allyService->get($login), $allyService->getNonBilateralAlliances($login));
-		$waitingScreen->createParty($party);
+		$allies = \ManiaLivePlugins\MatchMakingLobby\Services\AllyService::getInstance()->getAll($login);
+		$bilateralAllies = array();
+		$unilateralAllies = array();
+		foreach($allies as $ally)
+		{
+			if($ally->isBilateral)
+			{
+				$bilateralAllies[] = $ally->login;
+			}
+			else
+			{
+				$unilateralAllies[] = $ally->login;
+			}
+		}
+		$party = array_merge(array($login), $bilateralAllies);
+		
+		$waitingScreen->createParty($party, $unilateralAllies);
 		$waitingScreen->show();
 	}
 	
@@ -400,24 +414,55 @@ abstract class AbstractGUI
 	 * @param string $login
 	 * @param string[] $blockedPlayerList
 	 */
-	final function updatePlayerList(array $blockedPlayerList)
+	final function updatePlayerList(array $blockedPlayerList, $setLocalAllyAction, $unsetLocalAllyAction, $player = '')
 	{
-		$storage = Storage::getInstance();
-		foreach(array_merge($storage->players, $storage->spectators) as $player)
+		if($player)
 		{
-			if(PlayerInfo::Get($player->login)->isAway())
+			$playerLists = Windows\PlayerList::Get($player);
+		}
+		else
+		{
+			$playerLists = Windows\PlayerList::GetAll();
+		}
+		foreach($playerLists as $playerList)
+		{
+			$recipient = $playerList->getRecipient();
+			$allies = \ManiaLivePlugins\MatchMakingLobby\Services\AllyService::getInstance()->getAll($recipient);
+			$loginsWithUnsetAction = array_map(function (\ManiaLivePlugins\MatchMakingLobby\Services\Ally $a) 
 			{
-				continue;
+				if($a->type == \ManiaLivePlugins\MatchMakingLobby\Services\Ally::TYPE_LOCAL)
+				{
+					return $a->login;
+				}
+			}, $allies);
+			$loginsWithNoAction = array_map(function (\ManiaLivePlugins\MatchMakingLobby\Services\Ally $a) 
+			{
+				if($a->type == \ManiaLivePlugins\MatchMakingLobby\Services\Ally::TYPE_GENERAL)
+				{
+					return $a->login;
+				}
+			}, $allies);
+			$loginsWithNoAction[] = $recipient;
+			$storage = Storage::getInstance();
+			foreach(array_merge($storage->players, $storage->spectators) as $player)
+			{
+				if(PlayerInfo::Get($player->login)->isAway())
+				{
+					continue;
+				}
+				$ladderPoints = $player->ladderStats['PlayerRankings'][0]['Score'];
+
+				$playerInfo = PlayerInfo::Get($player->login);
+				$state = Player::STATE_NOT_READY;
+				if($playerInfo->isReady()) $state = Player::STATE_READY;
+				if($playerInfo->isInMatch) $state = Player::STATE_IN_MATCH;
+				if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
+				if(in_array($player->login, $loginsWithNoAction)) $action = null;
+				elseif(in_array($player->login, $loginsWithUnsetAction)) $action = $unsetLocalAllyAction;
+				else $action = $setLocalAllyAction;
+
+				$playerList->setPlayer($player->login, $player->nickName, $ladderPoints, $state, $action);
 			}
-			$ladderPoints = $player->ladderStats['PlayerRankings'][0]['Score'];
-
-			$playerInfo = PlayerInfo::Get($player->login);
-			$state = Player::STATE_NOT_READY;
-			if($playerInfo->isReady()) $state = Player::STATE_READY;
-			if($playerInfo->isInMatch) $state = Player::STATE_IN_MATCH;
-			if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
-
-			Windows\PlayerList::setPlayer($player->login, $player->nickName, $ladderPoints, $state);
 		}
 		Windows\PlayerList::RedrawAll();
 	}
@@ -429,7 +474,11 @@ abstract class AbstractGUI
 	final function removePlayerFromPlayerList($login)
 	{
 		Windows\PlayerList::Erase($login);
-		Windows\PlayerList::removePlayer($login);
+		$playerLists = Windows\PlayerList::GetAll();
+		foreach($playerLists as $playerList)
+		{
+			$playerList->removePlayer($login);
+		}
 		Windows\PlayerList::RedrawAll();
 	}
 

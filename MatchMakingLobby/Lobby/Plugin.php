@@ -76,6 +76,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	protected $dictionary;
 
 	protected $setReadyAction;
+	
+	protected $setLocalAllyAction;
+	
+	protected $unsetLocalAllyAction;
 
 	/**
 	 * @var boolean 
@@ -101,7 +105,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		{
 			throw new \ManiaLive\Application\FatalException(sprintf('You ManiaLive version is too old, please update to %s', \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE));
 		}
-
+		
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
 		$this->scriptName = \ManiaLivePlugins\MatchMakingLobby\Config::getInstance()->script ? : preg_replace('~(?:.*?[\\\/])?(.*?)\.Script\.txt~ui', '$1', $this->storage->gameInfos->scriptName);
@@ -216,6 +220,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$this->connection->restartMap();
 		
 		$this->callPublicMethod('Standard\AutoTagMatchSettings', 'setModeScriptSettingsTags');
+		
+		$this->setLocalAllyAction = \ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this,'onPlayerSetLocalAlly'));
+		$this->unsetLocalAllyAction = \ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this,'onPlayerUnsetLocalAlly'));
 	}
 	
 	/**
@@ -474,7 +481,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 		if($this->updatePlayerList)
 		{
-			$this->gui->updatePlayerList($this->blockedPlayers);
+			$this->gui->updatePlayerList($this->blockedPlayers, $this->setLocalAllyAction, $this->unsetLocalAllyAction);
 			$this->updatePlayerList = false;
 		}
 		if ($this->tick % 12 == 0)
@@ -901,6 +908,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	{
 		$this->gui->removeDemoReadyDialog($login);
 		$this->setPlayerReady($login);
+	}
+	
+	function onPlayerSetLocalAlly($login, $allyLogin = '')
+	{
+		\ManiaLive\Utilities\Logger::debug('onPlayerSetLocalAlly('.$login.','.$allyLogin.')');
+//		$this->allyService->set($login, $allyLogin);
+	}
+	
+	function onPlayerUnsetLocalAlly($login, $allyLogin = '')
+	{
+		\ManiaLive\Utilities\Logger::debug('onPlayerUnsetLocalAlly('.$login.','.$allyLogin.')');
+//		$this->allyService->remove($login, $allyLogin);
 	}
 
 	protected function setPlayerReady($login)

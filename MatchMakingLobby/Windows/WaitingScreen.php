@@ -260,19 +260,28 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->logo->setPosY(-90);
 	}
 	
-	function createParty($playersLogin)
+	function createParty($playersLogin, $disabledPlayersLogin = array())
 	{
-		foreach($playersLogin as $ally)
+		foreach($playersLogin as $login)
 		{
-			$allyObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($ally);
-			if($allyObject)
+			$playerObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login);
+			if($playerObject)
 			{
-				$this->addPlayerToParty($allyObject);
+				$this->addPlayerToParty($playerObject);
+			}
+		}
+		
+		foreach($disabledPlayersLogin as $login)
+		{
+			$playerObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login);
+			if($playerObject)
+			{
+				$this->addPlayerToParty($playerObject, true);
 			}
 		}
 	}
 	
-	protected function addPlayerToParty(\DedicatedApi\Structures\Player $player)
+	protected function addPlayerToParty(\DedicatedApi\Structures\Player $player, $disable = false)
 	{
 		$path = explode('|', $player->path);
 		$zone = $path[1];
@@ -284,6 +293,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->playerList[$player->login]->echelon = floor($player->ladderStats['PlayerRankings'][0]['Score'] / 10000);
 		$this->playerList[$player->login]->countryFlagUrl = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
 		$this->playerList[$player->login]->setHalign('center');
+		$this->playerList[$player->login]->disable($disable);
 	}
 	
 	function removeAlly($login)
