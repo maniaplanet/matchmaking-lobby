@@ -11,15 +11,30 @@ use ManiaLive\Database\MySQL\Connection;
 use ManiaLive\DedicatedApi\Callback\Event;
 use ManiaLive\Event\Dispatcher;
 
-class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\DedicatedApi\Callback\Listener
+class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 {
+	protected static $instances = array();
 
 	/**
 	 * @var Connection
 	 */
 	protected $db;
 	
-	protected function __construct()
+	protected $lobbyLogin;
+	protected $scriptName;
+	protected $titleIdString;
+
+	static function getInstance($lobbyLogin = '', $scriptName = '', $titleIdString = '')
+	{
+		$class = get_called_class();
+		if(!isset(self::$instances[$class]))
+		{
+			self::$instances[$class] = new $class($lobbyLogin, $scriptName, $titleIdString);
+		}
+		return self::$instances[$class];
+	}
+	
+	protected function __construct($lobbyLogin, $scriptName, $titleIdString)
 	{
 		$config = \ManiaLive\Database\Config::getInstance();
 		$this->db = Connection::getConnection(
@@ -32,6 +47,9 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 		);
 		
 		Dispatcher::register(Event::getClass(), $this, Event::ON_PLAYER_ALLIES_CHANGED | Event::ON_PLAYER_CONNECT | Event::ON_PLAYER_DISCONNECT);
+		$this->lobbyLogin = $lobbyLogin;
+		$this->scriptName = $scriptName;
+		$this->titleIdString = $titleIdString;
 		$this->createTable();
 	}
 	
@@ -78,7 +96,10 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 	
 	public function set($playerLogin, $allyLogin)
 	{
-		$this->db->execute('INSERT IGNORE INTO Allies VALUES (%1$s, %2$s)', $this->db->quote($playerLogin), $this->db->quote($allyLogin));
+		$this->db->execute('INSERT IGNORE INTO Allies VALUES (%s, %s, %s, %s, %s)', 
+			$this->db->quote($playerLogin), $this->db->quote($allyLogin),
+			$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
+		);
 		$this->fireEvent($playerLogin);
 		if($this->isAlly($playerLogin, $allyLogin))
 		{
@@ -90,14 +111,21 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 	
 	public function remove($playerLogin, $allyLogin)
 	{
-		$this->db->execute('DELETE FROM Allies WHERE playerLogin = %s AND allyLogin = %s', $this->db->quote($playerLogin), $this->db->quote($allyLogin));
-		$this->fireEvent($playerLogin);
-		$count = $this->db->execute(
-			'SELECT COUNT(*) FROM Allies WHERE playerLogin = %s AND allyLogin = %s',
-			$this->db->quote($allyLogin),
-			$this->db->quote($playerLogin)
+		$fireEvent = false; 
+		if($this->isAlly($playerLogin, $allyLogin))
+		{
+			$fireEvent = true;
+		}
+		
+		$this->db->execute(
+			'DELETE FROM Allies WHERE playerLogin = %s AND allyLogin = %s '.
+			'AND lobbyLogin = %s AND scriptName = %s AND titleIdString = %s', 
+			$this->db->quote($playerLogin), $this->db->quote($allyLogin),
+			$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
 			);
-		if($count == 1)
+		
+		$this->fireEvent($playerLogin);
+		if($fireEvent)
 		{
 			$this->fireEvent($allyLogin);
 		}
@@ -110,8 +138,11 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 			'SELECT A1.allyLogin as login '.
 			'FROM Allies A1 '.
 			'INNER JOIN Allies A2 ON A1.playerLogin = A2.allyLogin '.
-			'WHERE A1.playerLogin = %s AND A1.allyLogin = A2.playerLogin',
-			$this->db->quote($playerLogin)
+			'AND A1.lobbyLogin = A2.lobbyLogin AND A1.scriptName = A2.scriptName AND A1.titleIdString = A2.titleIdString '.
+			'WHERE A1.playerLogin = %s AND A1.allyLogin = A2.playerLogin '.
+			'AND A1.lobbyLogin = %s AND A1.scriptName = %s AND A1.titleIdString = %s',
+			$this->db->quote($playerLogin),
+			$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
 		)->fetchArrayOfSingleValues();
 		$localAllies = array_filter($localAllies, array($this, 'isPlayerConnected'));
 		return array_merge($allies, $localAllies);
@@ -132,9 +163,12 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 				'SELECT A1.allyLogin as login, IF(A1.allyLogin != A2.playerLogin OR A2.playerLogin IS NULL, FALSE, TRUE) as IsBilateral, %d as type '.
 				'FROM Allies A1 '.
 				'LEFT JOIN Allies A2 ON A1.playerLogin = A2.allyLogin '.
-				'WHERE A1.playerLogin = %s ',
+				'AND A1.lobbyLogin = A2.lobbyLogin AND A1.scriptName = A2.scriptName AND A1.titleIdString = A2.titleIdString '.
+				'WHERE A1.playerLogin = %s '.
+				'AND A1.lobbyLogin = %s AND A1.scriptName = %s AND A1.titleIdString = %s', 
 				Ally::TYPE_LOCAL, 
-				$this->db->quote($playerLogin)
+				$this->db->quote($playerLogin),
+				$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
 			)->fetchArrayOfObject('\ManiaLivePlugins\MatchMakingLobby\Services\Ally');
 		foreach($localAllies as $ally)
 		{
@@ -152,8 +186,11 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 			'SELECT A1.playerLogin '.
 			'FROM Allies A1 '.
 			'LEFT JOIN Allies A2 ON A1.allyLogin = A2.playerLogin '.
-			'WHERE A1.allyLogin = %s AND (A1.playerLogin != A2.allyLogin OR A2.allyLogin IS NULL)',
-			$this->db->quote($allyLogin)
+			'AND A1.lobbyLogin = A2.lobbyLogin AND A1.scriptName = A2.scriptName AND A1.titleIdString = A2.titleIdString '.
+			'WHERE A1.allyLogin = %s AND (A1.playerLogin != A2.allyLogin OR A2.allyLogin IS NULL) '.
+			'AND A1.lobbyLogin = %s AND A1.scriptName = %s AND A1.titleIdString = %s', 
+			$this->db->quote($allyLogin),
+			$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
 		)->fetchArrayOfSingleValues();
 		return array_filter($logins, array($this,'isPlayerConnected'));
 	}
@@ -181,10 +218,14 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 CREATE TABLE IF NOT EXISTS `Allies` (
 	`playerLogin` VARCHAR(25) NOT NULL,
 	`allyLogin` VARCHAR(25) NOT NULL,
+	`lobbyLogin` VARCHAR(25) NOT NULL,
+	`scriptName` VARCHAR(75) NOT NULL,
+	`titleIdString` VARCHAR(51) NOT NULL,
 	PRIMARY KEY (`playerLogin`, `allyLogin`),
 	INDEX `allyLogin` (`allyLogin`)
 )
 COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
 EOAlly
 		);
 	}

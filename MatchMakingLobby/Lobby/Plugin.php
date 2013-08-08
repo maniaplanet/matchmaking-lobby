@@ -131,7 +131,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->config->getDictionnary($this->scriptName));
 		
-		$this->allyService = Services\AllyService::getInstance();
+		$this->allyService = Services\AllyService::getInstance($this->storage->serverLogin, $this->scriptName, $this->connection->getSystemInfo()->titleId);
 	}
 
 	function onLoad()
@@ -910,15 +910,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$this->setPlayerReady($login);
 	}
 	
-	function onPlayerSetLocalAlly($login, $allyLogin = '')
+	function onPlayerSetLocalAlly($login, array $params = array())
 	{
-		\ManiaLive\Utilities\Logger::debug('onPlayerSetLocalAlly('.$login.','.$allyLogin.')');
+		\ManiaLive\Utilities\Logger::debug($params);
 //		$this->allyService->set($login, $allyLogin);
 	}
 	
-	function onPlayerUnsetLocalAlly($login, $allyLogin = '')
+	function onPlayerUnsetLocalAlly($login, array $params = array())
 	{
-		\ManiaLive\Utilities\Logger::debug('onPlayerUnsetLocalAlly('.$login.','.$allyLogin.')');
+		\ManiaLive\Utilities\Logger::debug($params);
 //		$this->allyService->remove($login, $allyLogin);
 	}
 
