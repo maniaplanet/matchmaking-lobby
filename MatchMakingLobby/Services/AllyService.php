@@ -63,9 +63,9 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 		$allies = $this->get($login);
 		foreach($allies as $ally)
 		{
-			if($this->isPlayerConnected($ally->login))
+			if($this->isPlayerConnected($ally))
 			{
-				$this->fireEvent($ally->login);
+				$this->fireEvent($ally);
 			}
 		}
 		
@@ -81,9 +81,9 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 		$allies = $this->get($login);
 		foreach($allies as $ally)
 		{
-			if($this->isPlayerConnected($ally->login))
+			if($this->isPlayerConnected($ally))
 			{
-				$this->fireEvent($ally->login);
+				$this->fireEvent($ally);
 			}
 		}
 		
@@ -137,9 +137,9 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 		$localAllies = $this->db->execute(
 			'SELECT A1.allyLogin as login '.
 			'FROM Allies A1 '.
-			'INNER JOIN Allies A2 ON A1.playerLogin = A2.allyLogin '.
+			'INNER JOIN Allies A2 ON A1.playerLogin = A2.allyLogin AND A1.allyLogin = A2.playerLogin '.
 			'AND A1.lobbyLogin = A2.lobbyLogin AND A1.scriptName = A2.scriptName AND A1.titleIdString = A2.titleIdString '.
-			'WHERE A1.playerLogin = %s AND A1.allyLogin = A2.playerLogin '.
+			'WHERE A1.playerLogin = %s '.
 			'AND A1.lobbyLogin = %s AND A1.scriptName = %s AND A1.titleIdString = %s',
 			$this->db->quote($playerLogin),
 			$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
@@ -160,9 +160,9 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 			$obj->isBilateral = true;
 		}
 		$localAllies = $this->db->execute(
-				'SELECT A1.allyLogin as login, IF(A1.allyLogin != A2.playerLogin OR A2.playerLogin IS NULL, FALSE, TRUE) as IsBilateral, %d as type '.
+				'SELECT A1.allyLogin as login, IF(A2.playerLogin IS NULL, FALSE, TRUE) as isBilateral, %d as type '.
 				'FROM Allies A1 '.
-				'LEFT JOIN Allies A2 ON A1.playerLogin = A2.allyLogin '.
+				'LEFT JOIN Allies A2 ON A1.playerLogin = A2.allyLogin AND A1.allyLogin = A2.playerLogin '.
 				'AND A1.lobbyLogin = A2.lobbyLogin AND A1.scriptName = A2.scriptName AND A1.titleIdString = A2.titleIdString '.
 				'WHERE A1.playerLogin = %s '.
 				'AND A1.lobbyLogin = %s AND A1.scriptName = %s AND A1.titleIdString = %s', 
