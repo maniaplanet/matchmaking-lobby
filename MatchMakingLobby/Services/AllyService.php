@@ -42,7 +42,16 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 	
 	public function onPlayerConnect($login, $isSpectator)
 	{
-		$logins = array_merge($this->get($login), $this->getNonAnsweredLinked($login));
+		$allies = $this->get($login);
+		foreach($allies as $ally)
+		{
+			if($this->isPlayerConnected($ally->login))
+			{
+				$this->fireEvent($ally->login);
+			}
+		}
+		
+		$logins = array_filter($this->getNonAnsweredLinked($login), array($this, 'isPlayerConnected'));
 		foreach($logins as $login)
 		{
 			$this->fireEvent($login);
@@ -51,7 +60,16 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 
 	public function onPlayerDisconnect($login, $disconnectionReason)
 	{
-		$logins = array_merge($this->get($login), $this->getNonAnsweredLinked($login));
+		$allies = $this->get($login);
+		foreach($allies as $ally)
+		{
+			if($this->isPlayerConnected($ally->login))
+			{
+				$this->fireEvent($ally->login);
+			}
+		}
+		
+		$logins = array_filter($this->getNonAnsweredLinked($login), array($this, 'isPlayerConnected'));
 		foreach($logins as $login)
 		{
 			$this->fireEvent($login);
@@ -62,39 +80,70 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 	{
 		$this->db->execute('INSERT IGNORE INTO Allies VALUES (%1$s, %2$s)', $this->db->quote($playerLogin), $this->db->quote($allyLogin));
 		$this->fireEvent($playerLogin);
+		if($this->isAlly($playerLogin, $allyLogin))
+		{
+			$this->fireEvent($allyLogin);
+		}
+		
+			
 	}
 	
 	public function remove($playerLogin, $allyLogin)
 	{
 		$this->db->execute('DELETE FROM Allies WHERE playerLogin = %s AND allyLogin = %s', $this->db->quote($playerLogin), $this->db->quote($allyLogin));
 		$this->fireEvent($playerLogin);
+		$count = $this->db->execute(
+			'SELECT COUNT(*) FROM Allies WHERE playerLogin = %s AND allyLogin = %s',
+			$this->db->quote($allyLogin),
+			$this->db->quote($playerLogin)
+			);
+		if($count == 1)
+		{
+			$this->fireEvent($allyLogin);
+		}
 	}
 	
 	public function get($playerLogin)
 	{
 		$allies = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin)->allies;
 		$localAllies = $this->db->execute(
-			'SELECT A1.allyLogin '.
+			'SELECT A1.allyLogin as login '.
 			'FROM Allies A1 '.
 			'INNER JOIN Allies A2 ON A1.playerLogin = A2.allyLogin '.
 			'WHERE A1.playerLogin = %s AND A1.allyLogin = A2.playerLogin',
 			$this->db->quote($playerLogin)
 		)->fetchArrayOfSingleValues();
-		$result = array_merge($allies, $localAllies);
-		return array_filter(array_unique($result), array($this,'isPlayerConnected'));
+		$localAllies = array_filter($localAllies, array($this, 'isPlayerConnected'));
+		return array_merge($allies, $localAllies);
 	}
 	
-	public function getNonBilateralAlliances($playerLogin)
+	public function getAll($playerLogin)
 	{
-		$logins = $this->db->execute(
-			'SELECT A1.allyLogin '.
-			'FROM Allies A1 '.
-			'LEFT JOIN Allies A2 ON A1.playerLogin = A2.allyLogin '.
-			'WHERE A1.playerLogin = %s AND (A1.allyLogin != A2.playerLogin OR A2.playerLogin IS NULL)',
-			$this->db->quote($playerLogin)
-		)->fetchArrayOfSingleValues();
-		
-		return array_filter($logins, array($this,'isPlayerConnected'));
+		$generalAllies = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin)->allies;
+		$allyList = array();
+		foreach($generalAllies as $ally)
+		{
+			$obj = new Ally();
+			$obj->login = $ally;
+			$obj->type = Ally::TYPE_GENERAL;
+			$obj->isBilateral = true;
+		}
+		$localAllies = $this->db->execute(
+				'SELECT A1.allyLogin as login, IF(A1.allyLogin != A2.playerLogin OR A2.playerLogin IS NULL, FALSE, TRUE) as IsBilateral, %d as type '.
+				'FROM Allies A1 '.
+				'LEFT JOIN Allies A2 ON A1.playerLogin = A2.allyLogin '.
+				'WHERE A1.playerLogin = %s ',
+				Ally::TYPE_LOCAL, 
+				$this->db->quote($playerLogin)
+			)->fetchArrayOfObject('\ManiaLivePlugins\MatchMakingLobby\Services\Ally');
+		foreach($localAllies as $ally)
+		{
+			if($this->isPlayerConnected($ally->login))
+			{
+				$allyList[] = $ally;
+			}
+		}
+		return $allyList;
 	}
 	
 	protected function getNonAnsweredLinked($allyLogin)
@@ -122,7 +171,7 @@ class AllyService extends \ManiaLib\Utils\Singleton implements \ManiaLive\Dedica
 	protected function isPlayerConnected($login)
 	{
 		$p = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login);
-		return ($p ? $p->isConnected : false);
+		return ($p && $p->isConnected !== false ? true : false);
 	}
 		
 	function createTable()
