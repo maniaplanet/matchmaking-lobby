@@ -781,6 +781,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			{
 				$this->gui->showWaitingScreen($login);
 			}
+			$this->updatePlayerList = true;
 		}
 	}
 
@@ -912,14 +913,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	
 	function onPlayerSetLocalAlly($login, array $params = array())
 	{
-		\ManiaLive\Utilities\Logger::debug($params);
-//		$this->allyService->set($login, $allyLogin);
+		$this->allyService->set($login, $params['allyLogin']);
 	}
 	
 	function onPlayerUnsetLocalAlly($login, array $params = array())
 	{
-		\ManiaLive\Utilities\Logger::debug($params);
-//		$this->allyService->remove($login, $allyLogin);
+		$this->allyService->remove($login, $params['allyLogin']);
 	}
 
 	protected function setPlayerReady($login)

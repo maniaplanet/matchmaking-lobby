@@ -75,6 +75,12 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->pager->pageNavigatorFrame->setPosition(5,5);
 		$this->pager->label->setTextColor('fff');
 		
+		$ui = new Elements\Entry();
+		$ui->setName('allyLogin');
+		$ui->setId('allyLogin_entry');
+		$ui->setHidden(true);
+		$this->addComponent($ui);
+		
 		$this->addComponent($this->pager);
 		
 		$this->dictionnary['title'] = 'players';
@@ -154,10 +160,13 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$component->state = $player['state'];
 			$component->ladderPoints = $player['ladderPoints'];
 			$component->zoneFlagURL = $flagURL = sprintf('file://ZoneFlags/Login/%s/country', $player['login']);
+			$component->login = $player['login'];
 			$component->setAction($player['action']);
+			$component->setId($count);
+			
 			if($player['isAlly'] && $player['action'] != null)
 			{
-				$component->setBackgroundColor('09F8','07C8');
+				$component->setBackgroundColor('07C8','09F8');
 			}
 			elseif($player['action'])
 			{
@@ -176,6 +185,52 @@ class PlayerList extends \ManiaLive\Gui\Window
 	{
 		$this->setPosZ(3);
 		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance()->getManiaLink($this->dictionnary));
+		\ManiaLive\Gui\Manialinks::appendScript(
+<<<EOSCRIPT
+#RequireContext CMlScript
+#Include "MathLib" as MathLib
+#Include "TextLib" as TextLib
+
+main()
+{
+	declare Text ClickedIndex;
+	declare Text ButtonIdPrefix;
+	declare Text DataIdPrefix;
+	declare Text DataEntryId;
+	declare Integer ButtonIdPrefixLength;
+	declare CMlLabel DataLabel;
+	declare CMlEntry DataEntry;
+		
+	ButtonIdPrefix = "player_button-";
+	DataIdPrefix = "player_label-";
+	DataEntryId = "allyLogin_entry";
+	
+	ButtonIdPrefixLength = TextLib::Length(ButtonIdPrefix);
+	DataEntry <=> (Page.GetFirstChild(DataEntryId) as CMlEntry);
+
+	while(True)
+	{
+		foreach(Event in PendingEvents)
+		{
+			if(Event.Type == CMlEvent::Type::MouseOver)
+			{
+				if(TextLib::SubString(Event.ControlId, 0, ButtonIdPrefixLength) == ButtonIdPrefix)
+				{
+					ClickedIndex = TextLib::SubString(Event.ControlId, ButtonIdPrefixLength, 2);
+					DataLabel <=> (Page.GetFirstChild(DataIdPrefix^ClickedIndex) as CMlLabel);
+					if(DataLabel != Null)	
+					{
+						DataEntry.Value = DataLabel.Value;
+					}
+				}
+			}
+		}
+		yield;
+	}
+}
+EOSCRIPT
+			);
+		
 		$this->updateItemList();
 	}
 }
