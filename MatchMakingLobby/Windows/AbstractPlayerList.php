@@ -69,17 +69,16 @@ abstract class AbstractPlayerList extends \ManiaLive\Gui\Window
 		$this->title->setTextid('title');
 		$this->addComponent($this->title);
 
-//		$this->frame = new \ManiaLive\Gui\Controls\Frame(2.2,-15, new \ManiaLib\Gui\Layouts\Column());
-//		$this->frame->getLayout()->setMarginHeight(0.5);
-//		$this->addComponent($this->frame);
+		$this->frame = new \ManiaLive\Gui\Controls\Frame(2.2,-15, new \ManiaLib\Gui\Layouts\Column());
+		$this->frame->getLayout()->setMarginHeight(0.5);
+		$this->addComponent($this->frame);
 		
-		$this->pager = new \ManiaLive\Gui\Controls\Pager(); 
-		$this->pager->setPosition(2.2,-15);
-		$this->pager->setSize(40, 110); 
-		$this->pager->pageNavigatorFrame->setPosition(5,5);
-		$this->pager->label->setTextColor('fff');
-		
-		$this->addComponent($this->pager);
+		// $this->pager = new \ManiaLive\Gui\Controls\Pager(); 
+		// $this->pager->setPosition(2.2,-15);
+		// $this->pager->setSize(40, 110); 
+		// $this->pager->pageNavigatorFrame->setPosition(5,5);
+		// $this->pager->label->setTextColor('fff');
+		// $this->addComponent($this->pager);
 	}
 	
 	static function addPlayer($login, $nickName = null, $ladderPoints = 0, $state = 0, $uniqLogin = true)
@@ -124,8 +123,8 @@ abstract class AbstractPlayerList extends \ManiaLive\Gui\Window
 	
 	protected function updateItemList()
 	{
-		$this->pager->clearItems();
-		//$this->frame->clearComponents();
+		//$this->pager->clearItems();
+		$this->frame->clearComponents();
 		
 		if ($this->orderList)
 		{
@@ -147,7 +146,7 @@ abstract class AbstractPlayerList extends \ManiaLive\Gui\Window
 		
 		$count = 0;
 		reset(static::$playerList);
-		while(current(static::$playerList) && $count++ < 52)
+		while(current(static::$playerList) && $count++ < 18)
 		{
 			$player = current(static::$playerList);
 
@@ -162,8 +161,8 @@ abstract class AbstractPlayerList extends \ManiaLive\Gui\Window
 			$component->state = $player['state'];
 			$component->ladderPoints = $player['ladderPoints'];
 			$component->zoneFlagURL = $flagURL = sprintf('file://ZoneFlags/Login/%s/country', $player['login']);;
-			$this->pager->addItem($component);
-			//$this->frame->addComponent(clone $component);
+			//$this->pager->addItem($component);
+			$this->frame->addComponent($component);
 			next(static::$playerList);
 		}
 	}
