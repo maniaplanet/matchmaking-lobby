@@ -218,9 +218,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 		$this->connection->setServerTag('nl.lobbylogin', $this->config->lobbyLogin);
 		
-		//setup the Lobby info window
-		$this->updateLobbyWindow();
-
 		$this->connection->customizeQuitDialog($this->gui->getCustomizedQuitDialogManiaLink(), '#qjoin='.$this->lobby->backLink, false, 10000);
 
 		//Check if a match existed before to cancel it
@@ -261,8 +258,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			case self::WAITING:
 			case self::DECIDING:
 			case self::PLAYING:
-				if ($this->tick % 30 == 0)
-					$this->updateLobbyWindow();
 				break;
 
 			case self::PLAYER_LEFT:
@@ -323,7 +318,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				$this->play();
 				break;
 			case static::PLAYING:
-				$this->updateLobbyWindow();
 				$this->changeState(static::PLAYING);
 				break;
 			case self::PLAYER_LEFT:
@@ -369,7 +363,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerConnect($login, $isSpectator)
 	{
 		$this->updateMatchPlayerState($login, Services\PlayerInfo::PLAYER_STATE_CONNECTED);
-		$this->gui->addToGroup($login, true);
 		$this->forcePlayerTeam($login);
 		//Force player as player
 		$this->connection->forceSpectator($login, ($isSpectator ? 1 : 2));
@@ -415,11 +408,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::PLAYER_LEFT))/* && $playerInfo['HasJoinedGame']*/)
 			$this->forcePlayerTeam($playerInfo['Login']);
 	}
-
+	
 	function onPlayerDisconnect($login, $disconnectionReason)
 	{
 		\ManiaLive\Utilities\Logger::debug(sprintf('Player disconnected: %s (%s)', $login, $disconnectionReason));
-		$this->gui->removeFromGroup($login);
 		switch ($this->state)
 		{
 			case static::WAITING:
@@ -534,19 +526,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onPlayerGiveUp($login)
 	{
 		$this->giveUp($login);
-	}
-
-	protected function updateLobbyWindow()
-	{
-		return;
-		$this->lobby = $this->matchMakingService->getLobby($this->lobby->login);
-		$playingPlayers = $this->matchMakingService->getPlayersPlayingCount($this->lobby->login);
-		$this->gui->updateLobbyWindow(
-			$this->lobby->name,
-			$this->lobby->readyPlayers,
-			$playingPlayers,
-			$this->matchMakingService->getAverageTimeBetweenMatches($this->lobby->login, $this->scriptName, $this->titleIdString)
-		);
 	}
 
 	protected function forcePlayerTeam($login)

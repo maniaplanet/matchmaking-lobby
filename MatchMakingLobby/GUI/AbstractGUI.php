@@ -299,41 +299,6 @@ abstract class AbstractGUI
 		}
 	}
 	
-	final function addToGroup($login, $isReady)
-	{
-		if($isReady)
-		{
-			$oldGroupName = 'nonReadyPlayers';
-			$groupName = 'readyPlayers';
-		}
-		else
-		{
-			$oldGroupName = 'readyPlayers';
-			$groupName= 'nonReadyPlayers';
-		}
-		$oldGroup = \ManiaLive\Gui\Group::Get($oldGroupName);
-		if($oldGroup && $oldGroup->contains($login))
-		{
-			$oldGroup->remove($login);
-		}
-		\ManiaLive\Gui\Group::Create($groupName, array($login));
-	}
-	
-	final function removeFromGroup($login)
-	{
-		$group = \ManiaLive\Gui\Group::Get('readyPlayers');
-		if($group && $group->contains($login))
-		{
-			$group->remove($login);
-		}
-		
-		$group = \ManiaLive\Gui\Group::Get('nonReadyPlayers');
-		if($group && $group->contains($login))
-		{
-			$group->remove($login);
-		}
-	}
-	
 	final function showWaitingScreen($login)
 	{
 		$waitingScreen = Windows\WaitingScreen::Create($login);
@@ -360,7 +325,6 @@ abstract class AbstractGUI
 	
 	final function createWaitingScreen($serverName, $readyAction, $scriptName, $partySize, $rulesManialink, $logoURL = '', $logoLink = '')
 	{
-		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($serverName);
 		Windows\WaitingScreen::setReadyAction($readyAction);
 		Windows\WaitingScreen::setScriptName($scriptName);
 		Windows\WaitingScreen::setPartySize($partySize);
@@ -373,15 +337,6 @@ abstract class AbstractGUI
 		Windows\WaitingScreen::Erase($login);
 	}
 
-	final function updateWaitingScreen($serverName, $avgWaitTime, $readyCount, $playingCount)
-	{
-		\ManiaLivePlugins\MatchMakingLobby\Controls\ServerName::setServerName($serverName);
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setPlayingCount($playingCount);
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setWaitingCount($readyCount);
-		\ManiaLivePlugins\MatchMakingLobby\Controls\Counters::setAverageWaitingTime($avgWaitTime);
-		Windows\WaitingScreen::RedrawAll();
-	}
-	
 	final function updateWaitingScreenLabel($textId, $login = null)
 	{
 		if($login)
@@ -494,30 +449,6 @@ abstract class AbstractGUI
 		Windows\PlayerList::RedrawAll();
 	}
 
-	final function prepareJump(array $players, $serverLogin, $titleIdString, $matchId, $showMessage = true)
-	{
-		$groupName = sprintf('match-%s',$matchId);
-		$this->eraseJump($matchId);
-		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
-		$jumper = Windows\ForceManialink::Create($group);
-		$jumper->setPosition(0, 21.5);
-		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString, $showMessage);
-	}
-
-	final function eraseJump($matchId)
-	{
-		$groupName = sprintf('match-%s',$matchId);
-		Windows\ForceManialink::Erase(\ManiaLive\Gui\Group::Get($groupName));
-		\ManiaLive\Gui\Group::Erase($groupName);
-	}
-
-	final function showJump($matchId)
-	{
-		$groupName = sprintf('match-%s',$matchId);
-		$group = \ManiaLive\Gui\Group::Get($groupName);
-		Windows\ForceManialink::Create($group)->show();
-	}
-
 	final function showSplash($login, $backgroudnUrl, $clickCallBack, $closeCallBack)
 	{
 		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
@@ -531,17 +462,6 @@ abstract class AbstractGUI
 	final function hideSplash($login)
 	{
 		Windows\Splash::Erase($login);
-	}
-	
-	final function showDialog($login, $question, $yesCallBack, $noCallBack)
-	{
-		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
-		
-		$splash = Windows\Dialog::Create($login);
-		$splash->setQuestionText($question);
-		$splash->setYesAction($ah->createAction($yesCallBack));
-		$splash->setNoAction($ah->createAction($noCallBack));
-		$splash->show();
 	}
 	
 	final function showDemoReadyDialog($login, $answerYesCallBack, $answerNoCallback)
@@ -574,23 +494,19 @@ abstract class AbstractGUI
 		Windows\AlertPay::Erase($login);
 	}
 	
-	function hideDialog($login)
+	final function ShowTooManyAlliesLabel($login, $maxAlliesAllowed)
 	{
-		Windows\Dialog::Erase($login);
+		$tooManyAlly = Windows\TooManyAllies::Create($login);
+		$tooManyAlly->setPosition(0, 60);
+		$tooManyAlly->setText($this->getTooManyAlliesText($maxAlliesAllowed));
+		$tooManyAlly->show();
 	}
 	
-	final function showHelp($scriptName)
+	final function eraseTooManyAlliesLabel($login)
 	{
-		$this->removeHelp();
-		$help = Windows\Help::Create(\ManiaLive\Gui\Group::Get($this->readyGroupName));
-		$help->modeName = $scriptName;
-		$help->show();
+		
 	}
 	
-	final function removeHelp()
-	{
-		Windows\Help::Erase(\ManiaLive\Gui\Group::Get($this->readyGroupName));
-	}
 }
 
 ?>

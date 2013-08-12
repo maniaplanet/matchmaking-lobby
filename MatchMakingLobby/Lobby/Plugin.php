@@ -279,7 +279,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		
 		$this->gui->createPlayerList($login);
 
-		$this->gui->addToGroup($login, false);
 		$this->gui->showWaitingScreen($login);
 		$this->updatePlayerList = true;
 
@@ -304,9 +303,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
 
-		//Erase potential replacer jumper
-		$this->gui->eraseJump($login);
-
 		if (array_key_exists($login, $this->blockedPlayers))
 		{
 			$this->matchMakingService->decreasePlayerPenalty($login, time() - $this->blockedPlayers[$login], $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
@@ -316,9 +312,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if($match)
 		{
-			//Erase potential jumper
-			$this->gui->eraseJump($match->id);
-
 			if (array_key_exists($login, $this->matchCancellers))
 			{
 				unset($this->matchCancellers[$login]);
@@ -335,7 +328,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		}
 
 		$this->gui->removePlayerFromPlayerList($login);
-		$this->gui->removeFromGroup($login);
 	}
 
 	//Core of the plugin
@@ -379,7 +371,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			switch(--$countDown)
 			{
 				case -15:
-					$this->gui->eraseJump($login);
 					unset($this->replacerCountDown[$login]);
 					break;
 
@@ -451,7 +442,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			$this->updateMasterList();
 		}
 
-		//Moving players that are not ready for a long time
 		if($this->tick % 12 == 0)
 		{
 			if($this->scriptName == 'Elite' || $this->scriptName == 'Combo')
@@ -530,13 +520,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			switch(--$countDown)
 			{
 				case -15:
-					$this->gui->eraseJump($matchId);
 					unset($this->countDown[$matchId]);
 					break;
 				case -10:
 					//nobreak;
 				case -5:
-					$this->gui->eraseJump($matchId);
 					$match = $this->matchMakingService->getMatch($matchId);
 					$players = array_filter($match->players, function ($p) { return Services\PlayerInfo::Get($p)->isReady(); });
 					if($players)
@@ -593,15 +581,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		{
 			$this->backupNeeded = true;
 			$potentialBackups = $this->getMatchablePlayers();
+			$allyService = $this->allyService;
 			$storage = $this->storage;
 
 			//removing player which has allies from the potential backups
-			$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage)
+			$potentialBackups = array_filter($potentialBackups, function ($login) use ($storage, $allyService)
 			{
 				$obj = $storage->getPlayerObject($login);
 				if($obj)
 				{
-					return !count($this->allyService->get($obj->login));
+					return !count($allyService->get($obj->login));
 				}
 			});
 			if ($potentialBackups)
@@ -735,7 +724,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			}
 			if($tokenInfos->TokenCost > 0)
 			{
-				$this->gui->removeFromGroup($login);
 				$this->gui->removeWaitingScreen($login);
 				$this->resetShortKey($login);
 				if ($tokenInfos->CanPayToken)
@@ -793,14 +781,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			//Too many allies
 			if (count($this->allyService->get($player->login)) > $alliesMax)
 			{
-				$tooManyAlly = Windows\TooManyAllies::Create($player->login);
-				$tooManyAlly->setPosition(0,60);
-				$tooManyAlly->setText($this->gui->getTooManyAlliesText($alliesMax));
-				$tooManyAlly->show();
+				$this->gui->ShowTooManyAlliesLabel($player->login, $alliesMax);
 			}
 			else
 			{
-				Windows\TooManyAllies::Erase($player->login);
+				$this->gui->eraseTooManyAlliesLabel($player->login);
 			}
 		}
 	}
@@ -894,14 +879,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	function closeSplash($login)
 	{
 		$this->gui->removeDemoPayDialog($login);
-		$this->gui->addToGroup($login, false);
 		$this->gui->showWaitingScreen($login);
 	}
 
 	function onAnswerNoToDialog($login)
 	{
 		$this->gui->removeDemoReadyDialog($login);
-		$this->gui->addToGroup($login, false);
 		$this->gui->showWaitingScreen($login);
 	}
 
@@ -929,7 +912,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$this->setReadyLabel($login);
 
 		$this->updatePlayerList = true;
-		$this->gui->addToGroup($login, true);
 		$this->gui->removeWaitingScreen($login);
 
 		try
@@ -950,7 +932,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 		$this->setNotReadyLabel($login);
 
-		$this->gui->addToGroup($login, false);
 		$this->updatePlayerList = true;
 
 		try
@@ -1040,10 +1021,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		foreach($match->players as $player)
 		{
 			$this->gui->removeLabel($player);
-			$this->gui->removeFromGroup($player);
 			$this->gui->removeWaitingScreen($player);
 			$this->gui->showMatchSumUp($match, $player, 5);
-			//$this->setShortKey($player, array($this, 'onPlayerCancelMatchStart'));
 			$this->resetShortKey($player);
 			Services\PlayerInfo::Get($player)->isInMatch = true;
 			$this->connection->forceSpectator($player, 1, true);
@@ -1088,11 +1067,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	{
 		$connectedPlayerCount = count($this->storage->players) + count($this->storage->spectators);
 		$this->matchMakingService->registerLobby($this->storage->serverLogin, $this->getReadyPlayersCount(), $connectedPlayerCount, $this->storage->server->name, $this->backLink);
-	}
-
-	private function getLeavesCount($login)
-	{
-		return $this->matchMakingService->getLeaveCount($login, $this->storage->serverLogin);
 	}
 
 	/**
@@ -1173,7 +1147,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			$avgWaitingTime
 		);
 
-		$this->gui->updateWaitingScreen($this->storage->server->name, $avgWaitingTime, $playersCount, $playingPlayersCount);
 	}
 
 	private function setLobbyInfo($enable = true)
