@@ -74,6 +74,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->pager->setSize(40, 110); 
 		$this->pager->pageNavigatorFrame->setPosition(5,5);
 		$this->pager->label->setTextColor('fff');
+		$this->addComponent($this->pager);
 		
 		$ui = new Elements\Entry();
 		$ui->setName('allyLogin');
@@ -81,12 +82,10 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$ui->setHidden(true);
 		$this->addComponent($ui);
 		
-		$this->addComponent($this->pager);
-		
 		$this->dictionnary['title'] = 'players';
 	}
 	
-	function addPlayer($login, $nickName = null, $ladderPoints = 0, $state = 0, $action = null, $isAlly = false)
+	function addPlayer($login, $nickName = null, $ladderPoints = 0, $state = 0, $action = null, $isAlly = false, $isBilateral = false)
 	{
 		try
 		{
@@ -97,6 +96,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 				'state' => $state,
 				'action' => $action,
 				'isAlly' => $isAlly,
+				'isBilateral' => $isBilateral
 				);
 			
 			$this->playerList[$login] = $player;
@@ -115,15 +115,15 @@ class PlayerList extends \ManiaLive\Gui\Window
 		}
 	}
 	
-	function setPlayer($login, $nickName, $ladderPoints, $state, $action, $isAlly)
+	function setPlayer($login, $nickName, $ladderPoints, $state, $action, $isAlly, $isBilateral)
 	{
-		$this->addPlayer($login, $nickName, $ladderPoints, $state, $action, $isAlly);
+		$this->addPlayer($login, $nickName, $ladderPoints, $state, $action, $isAlly, $isBilateral);
 	}
 	
 	protected function updateItemList()
 	{
 		$this->pager->clearItems();
-		//$this->frame->clearComponents();
+//		$this->pager->clearComponents();
 		
 		if ($this->orderList)
 		{
@@ -164,9 +164,17 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$component->setAction($player['action']);
 			$component->setId($count);
 			
-			if($player['isAlly'] && $player['action'] != null)
+			if($player['isAlly'] && $player['isBilateral'] && $player['action'] != null)
 			{
 				$component->setBackgroundColor('07C8','09F8');
+			}
+			elseif($player['isAlly'] && !$player['isBilateral'] && $player['action'] != null)
+			{
+				$component->setBackgroundColor('9998','EEE8');
+			}
+			elseif($player['isAlly'] && $player['action'] == null)
+			{
+				$component->setBackgroundColor('0848','0A68');
 			}
 			elseif($player['action'])
 			{

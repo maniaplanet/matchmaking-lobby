@@ -397,7 +397,14 @@ abstract class AbstractGUI
 					return $a->login;
 				}
 			}, $allies);
-			$loginsWithNoAction[] = $recipient;
+			
+			$bilateralAllies = array_map(function (\ManiaLivePlugins\MatchMakingLobby\Services\Ally $a)
+			{
+				if($a->isBilateral)
+				{
+					return $a->login;
+				}
+			}, $allies);
 			$storage = Storage::getInstance();
 			foreach(array_merge($storage->players, $storage->spectators) as $player)
 			{
@@ -412,7 +419,13 @@ abstract class AbstractGUI
 				if($playerInfo->isReady()) $state = Player::STATE_READY;
 				if($playerInfo->isInMatch) $state = Player::STATE_IN_MATCH;
 				if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
-				if(in_array($player->login, $loginsWithNoAction))
+				
+				if($player->login == $recipient)
+				{
+					$action = null;
+					$isAlly = false;
+				}
+				elseif(in_array($player->login, $loginsWithNoAction))
 				{
 					$action = null;
 					$isAlly = true;
@@ -427,8 +440,9 @@ abstract class AbstractGUI
 					$action = $setLocalAllyAction;
 					$isAlly = false;
 				}
+				$isBilateral = in_array($player->login, $bilateralAllies);
 
-				$playerList->setPlayer($player->login, $player->nickName, $ladderPoints, $state, $action, $isAlly);
+				$playerList->setPlayer($player->login, $player->nickName, $ladderPoints, $state, $action, $isAlly, $isBilateral);
 			}
 		}
 		Windows\PlayerList::RedrawAll();
