@@ -18,8 +18,6 @@ class PlayerList extends \ManiaLive\Gui\Window
 	const SIZE_X = 52;
 	const SIZE_Y = 127;
 	
-	public $smallCards = false;
-	
 	protected $playerList = array();
 	
 	protected $orderList = true;
@@ -149,14 +147,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		{
 			$player = current($this->playerList);
 
-			if($this->smallCards)
-			{
-				$component = new PlayerSmall($player['nickname']);
-			}
-			else
-			{
-				$component = new Player($player['nickname']);
-			}
+			$component = new Player($player['nickname']);
 			$component->state = $player['state'];
 			$component->ladderPoints = $player['ladderPoints'];
 			$component->zoneFlagURL = $flagURL = sprintf('file://ZoneFlags/Login/%s/country', $player['login']);
