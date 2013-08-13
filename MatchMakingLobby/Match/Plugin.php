@@ -262,8 +262,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 
 			case self::PLAYER_LEFT:
 			case self::WAITING_BACKUPS:
-				if ($this->tick % 6 == 0)
-					$this->updateLobbyWindow();
 				break;
 		}
 		if(new \DateTime() < $this->nextTick) return;
