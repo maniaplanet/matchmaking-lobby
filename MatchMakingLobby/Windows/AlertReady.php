@@ -36,10 +36,10 @@ class AlertReady extends Alert
 		$ui->setPosition(0, 5);
 		$ui->setTextid('demoReady');
 		$ui->enableAutonewline();
-		$this->frameContent->add($ui);
+		$this->frameContent->addComponent($ui);
 		
 		$ui = new Elements\Spacer(0,10);
-		$this->frameContent->add($ui);
+		$this->frameContent->addComponent($ui);
 		
 		$ui = new Elements\Label(static::SIZE_X-40, 10);
 		$ui->setStyle(Elements\Label::TextRaceMessage);
@@ -51,7 +51,7 @@ class AlertReady extends Alert
 		$ui->setTextid('demoReady2');
 		$ui->enableAutonewline();
 		$ui->setTextEmboss();
-		$this->frameContent->add($ui);
+		$this->frameContent->addComponent($ui);
 		
 		$this->yesButton = new \ManiaLivePlugins\MatchMakingLobby\Controls\ButtonImage(50, 10);
 		$this->yesButton->setPosition(-30, -5);
@@ -67,7 +67,7 @@ class AlertReady extends Alert
 		$this->noButton->text->setTextid('cancel');
 		$this->addComponent($this->noButton);
 		
-		$this->frameContent->add(new Elements\Spacer(0,14));
+		$this->frameContent->addComponent(new Elements\Spacer(0,14));
 		
 		$ui = new Elements\Label(static::SIZE_X-10, 10);
 		$ui->setStyle(Elements\Label::TextRaceMessage);
@@ -77,7 +77,7 @@ class AlertReady extends Alert
 		$ui->setTextPrefix('$i');
 		$ui->setOpacity(0.6);
 		$ui->enableAutonewline();
-		$this->frameContent->add($ui);
+		$this->frameContent->addComponent($ui);
 	}
 	
 	function onDraw()

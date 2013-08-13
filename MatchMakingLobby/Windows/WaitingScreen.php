@@ -353,6 +353,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->dico['text'] = $textId;
 		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink($this->dico));
 	}
+	
+	function destroy()
+	{
+		parent::destroy();
+	}
 
 }
 

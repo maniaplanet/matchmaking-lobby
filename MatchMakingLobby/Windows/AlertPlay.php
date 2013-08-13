@@ -37,7 +37,7 @@ class AlertPlay extends Alert
 		$ui->setAlign('center', 'top');
 		$ui->setTextid('noPlanet');
 		$ui->enableAutonewline();
-		$this->frameContent->add($ui);
+		$this->frameContent->addComponent($ui);
 		
 		$this->yesButton = new \ManiaLivePlugins\MatchMakingLobby\Controls\ButtonImage(100, 10);
 		$this->yesButton->setPosition(0, 6);
@@ -55,7 +55,7 @@ class AlertPlay extends Alert
 		$this->noButton->text->setTextid('noPlanetBye');
 		$this->addComponent($this->noButton);
 		
-		$this->frameContent->add(new Elements\Spacer(0,25));
+		$this->frameContent->addComponent(new Elements\Spacer(0,25));
 		
 		$ui = new Elements\Label(static::SIZE_X-10);
 		$ui->setStyle(Elements\Label::TextRaceMessage);
@@ -65,7 +65,7 @@ class AlertPlay extends Alert
 		$ui->setOpacity(0.8);
 		$ui->setTextPrefix('$i$o');
 		$ui->enableAutonewline();
-		$this->frameContent->add($ui);
+		$this->frameContent->addComponent($ui);
 		
 		
 		$ui = new Elements\Label(static::SIZE_X-10, 15);
@@ -76,7 +76,7 @@ class AlertPlay extends Alert
 		$ui->setTextPrefix('$i');
 		$ui->setOpacity(0.6);
 		$ui->enableAutonewline();
-		$this->frameContent->add($ui);
+		$this->frameContent->addComponent($ui);
 	}
 	
 	function onDraw()
