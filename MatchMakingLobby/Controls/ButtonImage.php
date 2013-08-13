@@ -39,5 +39,11 @@ class ButtonImage extends \ManiaLive\Gui\Control
 		
 		$this->addComponent($this->frame);
 	}
+	
+	function onIsRemoved(\ManiaLive\Gui\Container $target)
+	{
+		parent::onIsRemoved($target);
+		$this->destroy();
+	}
 }
 ?>

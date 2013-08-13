@@ -48,6 +48,12 @@ class EmptySlot extends \ManiaLive\Gui\Control
 		$this->text->setSize($this->sizeX - 5);
 		$this->text->setPosition($this->sizeX / 2, - $this->sizeY / 2);
 	}
+	
+	function onIsRemoved(\ManiaLive\Gui\Container $target)
+	{
+		parent::onIsRemoved($target);
+		$this->destroy();
+	}
 
 }
 

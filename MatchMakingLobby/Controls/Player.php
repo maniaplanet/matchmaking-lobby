@@ -156,6 +156,12 @@ class Player extends \ManiaLive\Gui\Control
 		$this->icon = null;
 		$this->label = null;
 	}
+	
+	function onIsRemoved(\ManiaLive\Gui\Container $target)
+	{
+		parent::onIsRemoved($target);
+		$this->destroy();
+	}
 }
 
 ?>

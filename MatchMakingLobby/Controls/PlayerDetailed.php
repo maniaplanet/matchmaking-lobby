@@ -150,6 +150,12 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->echelonQuad->setImage(sprintf('file://Media/Manialinks/Common/Echelons/echelon%d.dds',$this->echelon), true);
 		$this->echelonLabel->setText($this->echelon);
 	}
+	
+	function onIsRemoved(\ManiaLive\Gui\Container $target)
+	{
+		parent::onIsRemoved($target);
+		$this->destroy();
+	}
 }
 
 ?>
