@@ -278,14 +278,13 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	{
 		$path = explode('|', $player->path);
 		$zone = $path[1];
-		$this->playerList[$player->login] = new PlayerDetailed();
-		$this->playerList[$player->login]->nickname = $player->nickName ? : $player->login;
-		$this->playerList[$player->login]->zone = $zone;
-		$this->playerList[$player->login]->avatarUrl = 'file://Avatars/'.$player->login.'/Default';
-		$this->playerList[$player->login]->rank = $player->ladderStats['PlayerRankings'][0]['Ranking'];
-		$this->playerList[$player->login]->echelon = floor($player->ladderStats['PlayerRankings'][0]['Score'] / 10000);
-		$this->playerList[$player->login]->countryFlagUrl = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
-		$this->playerList[$player->login]->setHalign('center');
+		$this->playerList[$player->login] = array();
+		$this->playerList[$player->login]['nickname'] = $player->nickName ? : $player->login;
+		$this->playerList[$player->login]['zone'] = $zone;
+		$this->playerList[$player->login]['avatarUrl'] = 'file://Avatars/'.$player->login.'/Default';
+		$this->playerList[$player->login]['rank'] = $player->ladderStats['PlayerRankings'][0]['Ranking'];
+		$this->playerList[$player->login]['echelon'] = floor($player->ladderStats['PlayerRankings'][0]['Score'] / 10000);
+		$this->playerList[$player->login]['countryFlagUrl'] = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
 	}
 	
 	function removeAlly($login)
@@ -319,7 +318,16 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		{
 			if(array_key_exists($i, $playerKeys))
 			{
-				$this->playerListFrame->addComponent($this->playerList[$playerKeys[$i]]);
+				$player = $this->playerList[$playerKeys[$i]];
+				$ui = new PlayerDetailed();
+				$ui->nickname = $player['nickname'];
+				$ui->zone = $player['zone'];
+				$ui->avatarUrl = $player['avatarUrl'];
+				$ui->rank = $player['rank'];
+				$ui->echelon = $player['echelon'];
+				$ui->countryFlagUrl = $player['countryFlagUrl'];
+				$ui->setHalign('center');
+				$this->playerListFrame->addComponent($ui);
 			}
 			else
 			{
