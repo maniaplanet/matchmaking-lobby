@@ -152,8 +152,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 //		$ui->setPosition(0,-90);
 //		$this->addComponent($ui);
 		
-		$ui = new Elements\Label(320, 20);
-		
 		$ui = new Elements\Quad(self::SIZE_X, self::SIZE_Y);
 		$ui->setAlign('center', 'center');
 		$ui->setImage('file://Media/Manialinks/Common/Lobbies/main-bg.png',true);
