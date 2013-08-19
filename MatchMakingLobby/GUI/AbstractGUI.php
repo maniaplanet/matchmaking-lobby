@@ -376,7 +376,7 @@ abstract class AbstractGUI
 	 * @param string $login
 	 * @param string[] $blockedPlayerList
 	 */
-	final function updatePlayerList(array $blockedPlayerList, $setLocalAllyAction, $unsetLocalAllyAction, $player = '')
+	final function updatePlayerList(array $blockedPlayerList, $setLocalAllyAction, $unsetLocalAllyAction, $maxAllyCount, $player = '')
 	{
 		if($player)
 		{
@@ -444,7 +444,7 @@ abstract class AbstractGUI
 				}
 				else
 				{
-					$action = $setLocalAllyAction;
+					$action = (count($allies) >= $maxAllyCount ? null : $setLocalAllyAction);
 					$isAlly = false;
 				}
 				$isBilateral = in_array($player->login, $bilateralAllies);

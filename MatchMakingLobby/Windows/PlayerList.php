@@ -149,17 +149,13 @@ class PlayerList extends \ManiaLive\Gui\Window
 			$component->setAction($player['action']);
 			$component->setId($count);
 			
-			if($player['isAlly'] && $player['isBilateral'] && $player['action'] != null)
+			if($player['isAlly'] && $player['isBilateral'])
 			{
 				$component->setBackgroundColor('07C8','09F8');
 			}
-			elseif($player['isAlly'] && !$player['isBilateral'] && $player['action'] != null)
+			elseif($player['isAlly'] && !$player['isBilateral'])
 			{
 				$component->setBackgroundColor('9998','EEE8');
-			}
-			elseif($player['isAlly'] && $player['action'] == null)
-			{
-				$component->setBackgroundColor('0848','0A68');
 			}
 			elseif($player['action'])
 			{

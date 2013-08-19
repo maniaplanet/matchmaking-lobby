@@ -55,6 +55,7 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 	
 	public function onPlayerAlliesChanged($login)
 	{
+		PlayerInfo::Get($login)->allies = $this->get($login);
 		$this->fireEvent($login);
 	}
 	
@@ -158,6 +159,7 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 			$obj->login = $ally;
 			$obj->type = Ally::TYPE_GENERAL;
 			$obj->isBilateral = true;
+			$allyList[] = $obj;
 		}
 		$localAllies = $this->db->execute(
 				'SELECT A1.allyLogin as login, IF(A2.playerLogin IS NULL, FALSE, TRUE) as isBilateral, %d as type '.
@@ -221,7 +223,7 @@ CREATE TABLE IF NOT EXISTS `Allies` (
 	`lobbyLogin` VARCHAR(25) NOT NULL,
 	`scriptName` VARCHAR(75) NOT NULL,
 	`titleIdString` VARCHAR(51) NOT NULL,
-	PRIMARY KEY (`playerLogin`, `allyLogin`),
+	PRIMARY KEY (`playerLogin`, `allyLogin`, `lobbyLogin`, `scriptName`, `titleIdString`),
 	INDEX `allyLogin` (`allyLogin`)
 )
 COLLATE='utf8_general_ci'

@@ -471,7 +471,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 		if($this->updatePlayerList)
 		{
-			$this->gui->updatePlayerList($this->blockedPlayers, $this->setLocalAllyAction, $this->unsetLocalAllyAction);
+			$maxAlliesCount = $this->matchMaker->getPlayersPerMatch() / 2 - 1;
+			$this->gui->updatePlayerList($this->blockedPlayers, $this->setLocalAllyAction, $this->unsetLocalAllyAction, $maxAlliesCount);
 			$this->updatePlayerList = false;
 		}
 		if ($this->tick % 12 == 0)
@@ -896,6 +897,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	
 	function onPlayerSetLocalAlly($login, array $params = array())
 	{
+		\ManiaLive\Utilities\Logger::info(sprintf('setLocalAlly(%s,%s)',$login, $params['allyLogin']));
 		$this->allyService->set($login, $params['allyLogin']);
 	}
 	
@@ -1203,7 +1205,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			{
 				return !in_array($p->login, $blockedPlayers) && !$p->isAway() && !$service->isInMatch($p->login, $serverLogin, $scriptName, $titleIdString);
 			});
-
+		
 		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $matchablePlayers);
 	}
 
