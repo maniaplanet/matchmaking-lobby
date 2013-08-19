@@ -462,8 +462,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			\ManiaLive\Utilities\Logger::debug('onEndMach ignored');
 			return;
 		}
-		\ManiaLive\Utilities\Logger::debug('onEndMach');
-		\ManiaLive\Utilities\Logger::debug($this->connection->checkEndMatchCondition());
+		\ManiaLive\Utilities\Logger::debug('onEndMach:'.$this->connection->checkEndMatchCondition());
 		switch ($this->state)
 		{
 			case static::SLEEPING:
