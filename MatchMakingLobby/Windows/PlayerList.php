@@ -11,7 +11,6 @@ namespace ManiaLivePlugins\MatchMakingLobby\Windows;
 
 use ManiaLib\Gui\Elements;
 use ManiaLivePlugins\MatchMakingLobby\Controls\Player;
-use ManiaLivePlugins\MatchMakingLobby\Controls\PlayerSmall;
 
 class PlayerList extends \ManiaLive\Gui\Window
 {
@@ -32,11 +31,6 @@ class PlayerList extends \ManiaLive\Gui\Window
 	 */
 	public $title;
 
-	/**
-	 * @var \ManiaLive\Gui\Controls\Frame
-	 */
-	protected $frame;
-	
 	/**
 	 * @var \ManiaLive\Gui\Controls\Pager 
 	 */

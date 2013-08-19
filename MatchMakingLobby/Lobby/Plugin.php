@@ -170,12 +170,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$this->setLobbyInfo();
 
 		$this->gui->createWaitingScreen(
-			$this->storage->server->name,
 			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')),
 			$this->scriptName,
 			($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1),
 			$this->config->rulesManialink,
-			$this->config->logoURL, $this->config->logoLink
+			$this->config->logoURL, $this->config->logoLink,
+			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerNeedAlliesHelp'))
 		);
 
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
@@ -656,7 +656,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 				break;
 		}
 	}
-
+	
 	protected function runMatchMaker()
 	{
 		//Check if a server is available
@@ -902,6 +902,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	function onPlayerUnsetLocalAlly($login, array $params = array())
 	{
 		$this->allyService->remove($login, $params['allyLogin']);
+	}
+	
+	function onPlayerNeedAlliesHelp($login)
+	{
+		$this->gui->hideWaitingScreen($login);
+		$this->gui->showAlliesHelp($login, \ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onCloseAlliesHelp')));
+	}
+	
+	function onCloseAlliesHelp($login)
+	{
+		$this->gui->removeAlliesHelp($login);
+		$this->gui->showWaitingScreen($login);
 	}
 
 	protected function setPlayerReady($login)

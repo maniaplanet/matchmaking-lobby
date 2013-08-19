@@ -22,6 +22,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var string
 	 */
 	static protected $readyAction;
+	
+	/**
+	 * @var string
+	 */
+	static protected $alliesHelpAction;
 
 	/**
 	 * @var string
@@ -109,6 +114,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		static::$readyAction = $action;
 	}
 	
+	static function setAlliesHelpAction($action)
+	{
+		static::$alliesHelpAction = $action;
+	}
+	
 	static function setScriptName($script)
 	{
 		static::$scriptName = $script;
@@ -129,6 +139,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		static::$logoURL = $URL;
 		static::$logoLink = $link;
 	}
+	
 	
 	function onConstruct()
 	{
@@ -323,6 +334,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	{
 		$this->playerListFrame->clearComponents();
 		$playerKeys = array_keys($this->playerList);
+		$this->emptySlot->setAction(static::$alliesHelpAction);
 		for($i = 0; $i < static::$partySize; $i++)
 		{
 			if(array_key_exists($i, $playerKeys))

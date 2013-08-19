@@ -323,18 +323,25 @@ abstract class AbstractGUI
 		$waitingScreen->show();
 	}
 	
-	final function createWaitingScreen($serverName, $readyAction, $scriptName, $partySize, $rulesManialink, $logoURL = '', $logoLink = '')
+	final function createWaitingScreen($readyAction, $scriptName, $partySize, $rulesManialink, $logoURL = '', $logoLink = '', $alliesHelpAction = '')
 	{
 		Windows\WaitingScreen::setReadyAction($readyAction);
 		Windows\WaitingScreen::setScriptName($scriptName);
 		Windows\WaitingScreen::setPartySize($partySize);
 		Windows\WaitingScreen::setRulesManialink($rulesManialink);
 		Windows\WaitingScreen::setLogo($logoURL, $logoLink);
+		Windows\WaitingScreen::setAlliesHelpAction($alliesHelpAction);
 	}
 	
 	final function removeWaitingScreen($login)
 	{
 		Windows\WaitingScreen::Erase($login);
+	}
+	
+	final function hideWaitingScreen($login)
+	{
+		$screen = Windows\WaitingScreen::Get($login);
+		end($screen)->hide();
 	}
 
 	final function updateWaitingScreenLabel($textId, $login = null)
@@ -519,6 +526,18 @@ abstract class AbstractGUI
 	final function eraseTooManyAlliesLabel($login)
 	{
 		
+	}
+	
+	final function showAlliesHelp($login, $action)
+	{
+		$window = Windows\AlliesHelp::Create($login);
+		$window->action = $action;
+		$window->show();
+	}
+	
+	final function removeAlliesHelp($login)
+	{
+		Windows\AlliesHelp::Erase($login);
 	}
 	
 }
