@@ -290,9 +290,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$player = Services\PlayerInfo::Get($login);
 		$player->setAway();
 
-		//Erase potential replacer jumper
-		$this->gui->eraseJump($login);
-
 		if (array_key_exists($login, $this->blockedPlayers))
 		{
 			$this->matchMakingService->decreasePlayerPenalty($login, time() - $this->blockedPlayers[$login], $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
@@ -302,9 +299,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$match = $this->matchMakingService->getPlayerCurrentMatch($login, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 		if($match)
 		{
-			//Erase potential jumper
-			$this->gui->eraseJump($match->id);
-
 			if (array_key_exists($login, $this->matchCancellers))
 			{
 				unset($this->matchCancellers[$login]);
@@ -365,7 +359,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			switch(--$countDown)
 			{
 				case -15:
-					$this->gui->eraseJump($login);
 					unset($this->replacerCountDown[$login]);
 					break;
 
@@ -516,13 +509,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			switch(--$countDown)
 			{
 				case -15:
-					$this->gui->eraseJump($matchId);
 					unset($this->countDown[$matchId]);
 					break;
 				case -10:
 					//nobreak;
 				case -5:
-					$this->gui->eraseJump($matchId);
 					$match = $this->matchMakingService->getMatch($matchId);
 					$players = array_filter($match->players, function ($p) { return Services\PlayerInfo::Get($p)->isReady(); });
 					if($players)
@@ -941,7 +932,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	{
 		\ManiaLive\Utilities\Logger::debug(sprintf('Cancelling match %d', $match->id));
 		
-		$this->gui->eraseJump($match->id);
 		unset($this->countDown[$match->id]);
 
 		if(array_key_exists($login, $this->matchCancellers))
@@ -986,7 +976,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			\ManiaLive\Utilities\Logger::debug(sprintf('%s cancel replacement at countdown %d', $login, array_key_exists($login, $this->replacerCountDown) ? $this->replacerCountDown[$login] : '-1'));
 
-			$this->gui->eraseJump($login);
 			$this->matchMakingService->updatePlayerState($login, $match->id, Services\PlayerInfo::PLAYER_STATE_CANCEL);
 
 			//FIXME: it could have been QUITTER or GIVEUP

@@ -431,30 +431,6 @@ abstract class AbstractGUI
 		Windows\PlayerList::RedrawAll();
 	}
 
-	final function prepareJump(array $players, $serverLogin, $titleIdString, $matchId, $showMessage = true)
-	{
-		$groupName = sprintf('match-%s',$matchId);
-		$this->eraseJump($matchId);
-		$group = \ManiaLive\Gui\Group::Create($groupName, $players);
-		$jumper = Windows\ForceManialink::Create($group);
-		$jumper->setPosition(0, 21.5);
-		$jumper->set('maniaplanet://#qjoin='.$serverLogin.'@'.$titleIdString, $showMessage);
-	}
-
-	final function eraseJump($matchId)
-	{
-		$groupName = sprintf('match-%s',$matchId);
-		Windows\ForceManialink::Erase(\ManiaLive\Gui\Group::Get($groupName));
-		\ManiaLive\Gui\Group::Erase($groupName);
-	}
-
-	final function showJump($matchId)
-	{
-		$groupName = sprintf('match-%s',$matchId);
-		$group = \ManiaLive\Gui\Group::Get($groupName);
-		Windows\ForceManialink::Create($group)->show();
-	}
-
 	final function showSplash($login, $backgroudnUrl, $clickCallBack, $closeCallBack)
 	{
 		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
