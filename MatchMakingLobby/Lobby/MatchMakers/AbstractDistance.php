@@ -95,7 +95,7 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 		}
 		$teams = array_map(function ($team) { return new Team($team); }, $teams);
 
-		unset($this->playerGraph); //Memory Usage
+		$this->playerGraph = null; //Memory Usage
 
 		return $teams;
 	}
@@ -159,7 +159,7 @@ abstract class AbstractDistance extends \ManiaLib\Utils\Singleton implements Mat
 				$nodes = $this->teamsGraph->getNodes();
 
 			}
-			unset($this->teamsGraph); //Memory Usage
+			$this->teamsGraph = null; //Memory Usage
 		}
 		return $matches;
 	}

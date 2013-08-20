@@ -160,8 +160,12 @@ class PlayerInfo
 	{
 		unset($this->isInMatch);
 		unset($this->notReadySince);
+		unset($this->readySince);
 		unset($this->awaySince);
 		unset($this->allies);
+		unset($this->isInMatch);
+		unset($this->ladderPoints);
+		unset($this->karma);
 	}
 }
 
