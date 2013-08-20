@@ -323,14 +323,13 @@ abstract class AbstractGUI
 		$waitingScreen->show();
 	}
 	
-	final function createWaitingScreen($readyAction, $scriptName, $partySize, $rulesManialink, $logoURL = '', $logoLink = '', $alliesHelpAction = '')
+	final function createWaitingScreen($readyAction, $scriptName, $partySize, $rulesManialink, $logoURL = '', $logoLink = '')
 	{
 		Windows\WaitingScreen::setReadyAction($readyAction);
 		Windows\WaitingScreen::setScriptName($scriptName);
 		Windows\WaitingScreen::setPartySize($partySize);
 		Windows\WaitingScreen::setRulesManialink($rulesManialink);
 		Windows\WaitingScreen::setLogo($logoURL, $logoLink);
-		Windows\WaitingScreen::setAlliesHelpAction($alliesHelpAction);
 	}
 	
 	final function removeWaitingScreen($login)

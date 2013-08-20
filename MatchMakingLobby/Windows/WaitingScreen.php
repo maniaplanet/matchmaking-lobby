@@ -26,11 +26,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	/**
 	 * @var string
 	 */
-	static protected $alliesHelpAction;
-
-	/**
-	 * @var string
-	 */
 	static protected $scriptName;
 	
 	/**
@@ -112,11 +107,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	static function setReadyAction($action)
 	{
 		static::$readyAction = $action;
-	}
-	
-	static function setAlliesHelpAction($action)
-	{
-		static::$alliesHelpAction = $action;
 	}
 	
 	static function setScriptName($script)
@@ -301,7 +291,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->playerList[$player->login]['rank'] = $player->ladderStats['PlayerRankings'][0]['Ranking'];
 		$this->playerList[$player->login]['echelon'] = floor($player->ladderStats['PlayerRankings'][0]['Score'] / 10000);
 		$this->playerList[$player->login]['countryFlagUrl'] = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
-		$this->playerList[$player->login]->disable($disable);
+		$this->playerList[$player->login]['disable'] = $disable;
 	}
 	
 	function removeAlly($login)
@@ -343,6 +333,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 				$ui->rank = $player['rank'];
 				$ui->echelon = $player['echelon'];
 				$ui->countryFlagUrl = $player['countryFlagUrl'];
+				$ui->disable($player['disable']);
 				$ui->setHalign('center');
 				$this->playerListFrame->addComponent($ui);
 			}

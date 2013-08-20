@@ -174,8 +174,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			$this->scriptName,
 			($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1),
 			$this->config->rulesManialink,
-			$this->config->logoURL, $this->config->logoLink,
-			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerNeedAlliesHelp'))
+			$this->config->logoURL, $this->config->logoLink
 		);
 
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
