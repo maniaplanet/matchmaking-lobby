@@ -767,7 +767,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	public function onAlliesChanged($login)
 	{
 		$player = $this->storage->getPlayerObject($login);
-		\ManiaLive\Utilities\Logger::debug('onAlliesChanged:'.$login);
 		if($player)
 		{
 			$this->checkAllies($player);
@@ -902,7 +901,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	
 	function onPlayerSetLocalAlly($login, array $params = array())
 	{
-		\ManiaLive\Utilities\Logger::info(sprintf('setLocalAlly(%s,%s)',$login, $params['allyLogin']));
 		$this->allyService->set($login, $params['allyLogin']);
 	}
 	
