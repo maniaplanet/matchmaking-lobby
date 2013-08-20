@@ -36,6 +36,11 @@ class Player extends \ManiaLive\Gui\Control
 	 * @var Elements\Label
 	 */
 	protected $label;
+	
+	/**
+	 * @var Elements\Label
+	 */
+	protected $hiddenLabel;
 
 	/**
 	 * @var Elements\Label
@@ -63,6 +68,8 @@ class Player extends \ManiaLive\Gui\Control
 
 		$this->bg = new Elements\Bgs1InRace($this->sizeX, $this->sizeY);
 		$this->bg->setBgcolor('3338');
+		$this->bg->setBgcolorFocus('CCC8');
+		$this->bg->setScriptEvents();
 		$this->addComponent($this->bg);
 
 		$this->icon = new Elements\Quad(2, $this->sizeY);
@@ -76,6 +83,10 @@ class Player extends \ManiaLive\Gui\Control
 		$this->label->setTextColor('fff');
 		$this->label->setTextSize(1);
 		$this->addComponent($this->label);
+		
+		$this->hiddenLabel = new Elements\Label();
+		$this->hiddenLabel->setHidden(true);
+		$this->addComponent($this->hiddenLabel);
 
 		$this->echelonFrame = new \ManiaLive\Gui\Controls\Frame(73.5, 1);
 		$this->echelonFrame->setScale(0.29);
@@ -108,6 +119,12 @@ class Player extends \ManiaLive\Gui\Control
 		$this->state = static::STATE_NOT_READY;
 	}
 	
+	function setId($id)
+	{
+		$this->bg->setId('player_button-'.$id);
+		$this->hiddenLabel->setId('player_label-'.$id);
+	}
+	
 	function onDraw()
 	{
 		switch($this->state)
@@ -134,6 +151,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->echelonFrame->setPosition($this->sizeX - 1, 0.5);
 		$this->countryFlag->setPosition(2, - $this->sizeY / 2);
 		$this->bg->setSize($this->sizeX, $this->sizeY);
+		$this->hiddenLabel->setText($this->login);
 		
 		$echelon = $this->ladderPoints > 0 ? floor($this->ladderPoints /10000) : 0;
 		$this->icon->setBgcolor($subStyle);
@@ -156,11 +174,21 @@ class Player extends \ManiaLive\Gui\Control
 		$this->icon = null;
 		$this->label = null;
 	}
-	
 	function onIsRemoved(\ManiaLive\Gui\Container $target)
 	{
 		parent::onIsRemoved($target);
 		$this->destroy();
+	}
+
+	function setAction($action)
+	{
+		$this->bg->setAction($action);
+	}
+	
+	function setBackgroundColor($color = '3338', $focusColor = null)
+	{
+		$this->bg->setBgcolor($color);
+		$this->bg->setBgcolorFocus($focusColor);
 	}
 }
 

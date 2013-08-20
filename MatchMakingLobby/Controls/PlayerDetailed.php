@@ -59,7 +59,13 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 	 */
 	protected $echelonLabel;
 	
-	static function fromPlayer(\DedicatedApi\Structures\Player $p)
+	/**
+	 * @var Elements\Quad
+	 */
+	protected $disableQuad;
+
+
+	static function fromPlayer(\DedicatedApi\Structures\Player $p, $disable = false)
 	{
 		$ui = new static;
 		$ui->avatarUrl = 'file://Avatars/'.$p->login.'/Default';
@@ -67,6 +73,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$path = explode('|', $p->path);
 		$ui->zone = $path[1];
 		$ui->rank = $p->ladderStats['PlayerRankings'][0]['Ranking'];
+		$ui->disable($disable);
 		return $ui;
 	}
 
@@ -137,6 +144,18 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->echelonLabel->setPosition(-0.25, -10.6);
 		$this->echelonLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$frame->addComponent($this->echelonLabel);
+		
+		$this->addComponent(new Elements\Spacer());
+		
+		$this->disableQuad = new Elements\Quad(80, 20);
+		$this->disableQuad->setBgcolor('333A');
+		$this->disableQuad->setVisibility(false);
+		$this->addComponent($this->disableQuad);
+	}
+	
+	function disable($disable = true)
+	{
+		$this->disableQuad->setVisibility($disable);
 	}
 	
 	function onDraw()
