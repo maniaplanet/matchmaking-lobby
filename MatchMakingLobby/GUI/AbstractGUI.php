@@ -338,12 +338,6 @@ abstract class AbstractGUI
 		Windows\WaitingScreen::Erase($login);
 	}
 	
-	final function hideWaitingScreen($login)
-	{
-		$screen = Windows\WaitingScreen::Get($login);
-		end($screen)->hide();
-	}
-
 	final function updateWaitingScreenLabel($textId, $login = null)
 	{
 		if($login)
@@ -526,18 +520,6 @@ abstract class AbstractGUI
 	final function eraseTooManyAlliesLabel($login)
 	{
 		
-	}
-	
-	final function showAlliesHelp($login, $action)
-	{
-		$window = Windows\AlliesHelp::Create($login);
-		$window->action = $action;
-		$window->show();
-	}
-	
-	final function removeAlliesHelp($login)
-	{
-		Windows\AlliesHelp::Erase($login);
 	}
 	
 }

@@ -334,7 +334,6 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	{
 		$this->playerListFrame->clearComponents();
 		$playerKeys = array_keys($this->playerList);
-		$this->emptySlot->setAction(static::$alliesHelpAction);
 		for($i = 0; $i < static::$partySize; $i++)
 		{
 			if(array_key_exists($i, $playerKeys))

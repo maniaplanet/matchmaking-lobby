@@ -26,8 +26,7 @@ class EmptySlot extends \ManiaLive\Gui\Control
 		$this->setSize(80, 20);
 		
 		$this->bg = new Elements\Bgs1(80, 20);
-		$this->bg->setBgcolor('111');
-		$this->bg->setBgcolorFocus('555');
+		$this->bg->setSubStyle(Elements\Bgs1::BgListLine);
 		$this->addComponent($this->bg);
 
 		$this->text = new Elements\Label(80);
@@ -48,11 +47,6 @@ class EmptySlot extends \ManiaLive\Gui\Control
 		$this->bg->setSize($this->sizeX, $this->sizeY);
 		$this->text->setSize($this->sizeX - 5);
 		$this->text->setPosition($this->sizeX / 2, - $this->sizeY / 2);
-	}
-	
-	function setAction($action)
-	{
-		$this->bg->setAction($action);
 	}
 	
 	function onIsRemoved(\ManiaLive\Gui\Container $target)
