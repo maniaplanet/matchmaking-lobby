@@ -285,6 +285,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$this->updateKarma($login);
 
 		$this->checkAllies($player);
+		$this->allyService->setPlayerPresent($login);
 
 		try
 		{
@@ -328,6 +329,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		}
 
 		$this->gui->removePlayerFromPlayerList($login);
+		$this->allyService->setPlayerAway($login);
 	}
 
 	//Core of the plugin
@@ -480,6 +482,10 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			$this->registerLobby();
 		}
 		Services\PlayerInfo::CleanUp();
+		if($this->tick % 11)
+		{
+			$this->allyService->removePlayerAway();
+		}
 
 		$this->connection->executeMulticall();
 

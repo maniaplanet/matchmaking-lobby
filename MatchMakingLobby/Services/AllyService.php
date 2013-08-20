@@ -97,7 +97,7 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 	
 	public function set($playerLogin, $allyLogin)
 	{
-		$this->db->execute('INSERT IGNORE INTO Allies VALUES (%s, %s, %s, %s, %s)', 
+		$this->db->execute('INSERT IGNORE INTO Allies VALUES (%s, %s, %s, %s, %s, NULL)', 
 			$this->db->quote($playerLogin), $this->db->quote($allyLogin),
 			$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
 		);
@@ -110,6 +110,33 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 			
 	}
 	
+	public function setPlayerAway($login)
+	{
+		$this->db->execute(
+			'UPDATE Allies SET disconnectionDate = NOW() '.
+			'WHERE playerLogin = %s AND lobbyLogin = %s AND scriptName = %s and titleIdString = %s', $this->db->quote($login),
+			$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
+		);
+	}
+
+	public function setPlayerPresent($login)
+	{
+		$this->db->execute(
+			'UPDATE Allies SET disconnectionDate = NULL '.
+			'WHERE playerLogin = %s AND lobbyLogin = %s AND scriptName = %s and titleIdString = %s', $this->db->quote($login),
+			$this->db->quote($this->lobbyLogin), $this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
+		);
+	}
+
+	public function removePlayerAway()
+	{
+		$this->db->execute('DELETE FROM Allies WHERE DATE_ADD(disconnectionDate, INTERVAL 30 MINUTE) < NOW() '.
+			'AND lobbyLogin = %s AND scriptName = %s AND titleIdString = %s', $this->db->quote($this->lobbyLogin),
+			$this->db->quote($this->scriptName), $this->db->quote($this->titleIdString)
+		);
+	}
+
+
 	public function remove($playerLogin, $allyLogin)
 	{
 		$fireEvent = false; 
@@ -223,6 +250,7 @@ CREATE TABLE IF NOT EXISTS `Allies` (
 	`lobbyLogin` VARCHAR(25) NOT NULL,
 	`scriptName` VARCHAR(75) NOT NULL,
 	`titleIdString` VARCHAR(51) NOT NULL,
+	`disconnectionDate` DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (`playerLogin`, `allyLogin`, `lobbyLogin`, `scriptName`, `titleIdString`),
 	INDEX `allyLogin` (`allyLogin`)
 )
