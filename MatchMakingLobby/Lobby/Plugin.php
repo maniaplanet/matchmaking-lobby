@@ -481,7 +481,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			$this->registerLobby();
 		}
 		Services\PlayerInfo::CleanUp();
-		if($this->tick % 11)
+		if($this->tick % 11 == 0)
 		{
 			$this->allyService->removePlayerAway();
 		}
