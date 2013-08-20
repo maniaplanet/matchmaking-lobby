@@ -55,12 +55,21 @@ class PlayerList extends \ManiaLive\Gui\Window
 		
 		$this->title = new Elements\Label(self::SIZE_X);
 		$this->title->setAlign('center');
-		$this->title->setPosition(self::SIZE_X/2, -6);
+		$this->title->setPosition(self::SIZE_X/2, -4.5);
 		$this->title->setStyle(Elements\Label::TextRaceMessage);
 		$this->title->setOpacity(0.9);
 		$this->title->setTextid('title');
 		$this->addComponent($this->title);
-
+		
+		$ui = new Elements\Label(self::SIZE_X - 6);
+		$ui->setAlign('center', 'bottom');
+		$ui->setPosition(self::SIZE_X/2, -13);
+		$ui->setStyle(Elements\Label::TextTips);
+		$ui->setTextid('help');
+		$ui->setTextSize(1);
+		$ui->setOpacity(0.75);
+		$this->addComponent($ui);
+		
 		$this->pager = new \ManiaLive\Gui\Controls\Pager(); 
 		$this->pager->setPosition(2.2,-15);
 		$this->pager->setSize(40, 110); 
@@ -75,6 +84,7 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->addComponent($ui);
 		
 		$this->dictionnary['title'] = 'players';
+		$this->dictionnary['help'] = 'alliesHelp';
 	}
 	
 	function addPlayer($login, $nickName = null, $ladderPoints = 0, $state = 0, $action = null, $isAlly = false, $isBilateral = false)
