@@ -17,6 +17,8 @@ class PlayerList extends \ManiaLive\Gui\Window
 	const SIZE_X = 52;
 	const SIZE_Y = 127;
 	
+	protected static $displayAlliesHelp = true;
+	
 	protected $playerList = array();
 	
 	protected $orderList = true;
@@ -30,6 +32,12 @@ class PlayerList extends \ManiaLive\Gui\Window
 	 * @var Elements\Label 
 	 */
 	public $title;
+	
+	/**
+	 *
+	 * @var Elements\Label
+	 */
+	public $alliesHelp;
 
 	/**
 	 * @var \ManiaLive\Gui\Controls\Pager 
@@ -37,6 +45,11 @@ class PlayerList extends \ManiaLive\Gui\Window
 	protected $pager;
 	
 	protected $dictionnary = array();
+	
+	static function setDisplayAlliesHelp($display = true)
+	{
+		static::$displayAlliesHelp = $display;
+	}
 
 	protected function onConstruct()
 	{
@@ -61,14 +74,14 @@ class PlayerList extends \ManiaLive\Gui\Window
 		$this->title->setTextid('title');
 		$this->addComponent($this->title);
 		
-		$ui = new Elements\Label(self::SIZE_X - 6);
-		$ui->setAlign('center', 'bottom');
-		$ui->setPosition(self::SIZE_X/2, -13);
-		$ui->setStyle(Elements\Label::TextTips);
-		$ui->setTextid('help');
-		$ui->setTextSize(1);
-		$ui->setOpacity(0.75);
-		$this->addComponent($ui);
+		$this->alliesHelp = new Elements\Label(self::SIZE_X - 6);
+		$this->alliesHelp->setAlign('center', 'bottom');
+		$this->alliesHelp->setPosition(self::SIZE_X/2, -13);
+		$this->alliesHelp->setStyle(Elements\Label::TextTips);
+		$this->alliesHelp->setTextid('help');
+		$this->alliesHelp->setTextSize(1);
+		$this->alliesHelp->setOpacity(0.75);
+		$this->addComponent($this->alliesHelp);
 		
 		$this->pager = new \ManiaLive\Gui\Controls\Pager(); 
 		$this->pager->setPosition(2.2,-15);
@@ -183,6 +196,16 @@ class PlayerList extends \ManiaLive\Gui\Window
 	function onDraw()
 	{
 		$this->setPosZ(3);
+		if(static::$displayAlliesHelp)
+		{
+			$this->title->setPosY(-4.5);
+			$this->alliesHelp->setVisibility(true);
+		}
+		else
+		{
+			$this->title->setPosY(-6);
+			$this->alliesHelp->setVisibility(false);
+		}
 		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance()->getManiaLink($this->dictionnary));
 		\ManiaLive\Gui\Manialinks::appendScript(
 <<<EOSCRIPT

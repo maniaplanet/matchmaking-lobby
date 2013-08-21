@@ -169,13 +169,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 		$this->setLobbyInfo();
 
+		$partySize = ($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1);
 		$this->gui->createWaitingScreen(
 			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')),
 			$this->scriptName,
-			($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1),
+			$partySize,
 			$this->config->rulesManialink,
 			$this->config->logoURL, $this->config->logoLink
 		);
+		
+		$this->gui->configurePlayerList($partySize > 1 ? true : false);
 
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
