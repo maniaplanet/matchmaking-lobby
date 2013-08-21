@@ -164,8 +164,6 @@ class Player extends \ManiaLive\Gui\Control
 	{
 		parent::destroy();
 		
-		\ManiaLive\Utilities\Logger::runtime(sprintf('destroy player: %s', $this->login));
-		
 		$this->bg = null;
 		$this->countryFlag = null;
 		$this->echelonFrame = null;
