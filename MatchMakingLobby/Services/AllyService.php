@@ -161,7 +161,8 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 	
 	public function get($playerLogin)
 	{
-		$allies = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin)->allies;
+		$player = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin);
+		$allies = ($player ? $player->allies : array());
 		$localAllies = $this->db->execute(
 			'SELECT A1.allyLogin as login '.
 			'FROM Allies A1 '.
@@ -178,7 +179,8 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 	
 	public function getAll($playerLogin)
 	{
-		$generalAllies = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin)->allies;
+		$player = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin);
+		$generalAllies = ($player ? $player->allies : array());
 		$allyList = array();
 		foreach($generalAllies as $ally)
 		{
