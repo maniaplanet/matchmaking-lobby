@@ -25,6 +25,7 @@ class AlertReady extends Alert
 		$ui = new Elements\Quad(static::SIZE_X, static::SIZE_Y);
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-07-26/limited-games-bg.png', true);
 		$ui->setAlign('center','center');
+		$ui->setPosZ(-0.1);
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(static::SIZE_X-40, 10);
