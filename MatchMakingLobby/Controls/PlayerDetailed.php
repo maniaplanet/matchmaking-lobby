@@ -145,11 +145,10 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->echelonLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$frame->addComponent($this->echelonLabel);
 		
-		$this->addComponent(new Elements\Spacer());
-		
 		$this->disableQuad = new Elements\Quad(80, 20);
 		$this->disableQuad->setBgcolor('333A');
 		$this->disableQuad->setVisibility(false);
+		$this->disableQuad->setPosZ(3);
 		$this->addComponent($this->disableQuad);
 	}
 	
