@@ -13,7 +13,6 @@ use DedicatedApi\Structures;
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLive\Data\Event as StorageEvent;
 use ManiaLive\Gui\Windows\Shortkey;
-use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\Services;
 use ManiaLivePlugins\MatchMakingLobby\Config;
 use ManiaLivePlugins\MatchMakingLobby\GUI;
@@ -904,7 +903,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	
 	function onPlayerSetLocalAlly($login, array $params = array())
 	{
-		$this->allyService->set($login, $params['allyLogin']);
+		$allies = $this->allyService->getAll($login);
+		$maxAlliesCount = $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() - 1;
+		if(count($allies) < $maxAlliesCount)
+		{
+			$this->allyService->set($login, $params['allyLogin']);
+		}
 	}
 	
 	function onPlayerUnsetLocalAlly($login, array $params = array())
