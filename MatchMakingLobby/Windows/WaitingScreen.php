@@ -32,6 +32,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var string 
 	 */
 	static protected $rulesManialink;
+	
+	/**
+	 * @var string
+	 */
+	static protected $inviteManialink = 'elite-invite';
 
 	/**
 	 * @var int
@@ -77,6 +82,11 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $learnButtonFrame;
+	
+	/**
+	 * @var \ManiaLive\Gui\Controls\Frame
+	 */
+	protected $inviteButtonFrame;
 
 
 	protected $playerList = array();
@@ -139,6 +149,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			'playing' => 'playing',
 			'rules' => 'rules',
 			'ready' => 'ready',
+			'invite' => 'invite',
 			'readyButton' => 'readyButton',
 			'players' => 'players',
 			'allies' => 'party',
@@ -155,7 +166,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$ui = new Elements\Quad(self::SIZE_X, self::SIZE_Y);
 		$ui->setAlign('center', 'center');
-		$ui->setImage('file://Media/Manialinks/Common/Lobbies/main-bg.png',true);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/main-bg.png',true);
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(self::SIZE_X);
@@ -179,7 +190,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->emptySlot->setAlign('center');
 		$this->dico[$this->emptySlot->getLabelTextid()] = 'picked';
 		
-		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0, 0, new \ManiaLib\Gui\Layouts\Column());
+		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0, 5, new \ManiaLib\Gui\Layouts\Column());
 		$this->playerListFrame->getLayout()->setMarginHeight(3);
 		$frame->addComponent($this->playerListFrame);
 
@@ -212,13 +223,15 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		{
 			$this->learnButtonFrame = new Frame();
 			$this->learnButtonFrame->setSize(35,10);
-			$this->learnButtonFrame->setPosition(47, -36);
+			$this->learnButtonFrame->setPosition(0, -25);
 			$this->addComponent($this->learnButtonFrame);
 
 			$ui = new Elements\Quad($this->learnButtonFrame->getSizeX(),10);
 			$ui->setAlign('center', 'center');
-			$ui->setImage('file://Media/Manialinks/Common/Lobbies/small-button-BLUE.dds', true);
-			$ui->setImageFocus('file://Media/Manialinks/Common/Lobbies/small-button-BLUE-ON.dds', true);
+//			$ui->setImage('file://Media/Manialinks/Common/Lobbies/small-button-YELLOW.dds', true);
+//			$ui->setImageFocus('file://Media/Manialinks/Common/Lobbies/small-button-YELLOW-ON.dds', true);
+			$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/small-button-YELLOW.dds', true);
+			$ui->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/small-button-YELLOW-ON.dds', true);
 			$ui->setManialink(static::$rulesManialink);
 			$this->learnButtonFrame->addComponent($ui);
 
@@ -253,6 +266,29 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setTextSize(2.5);
 		$this->readyButtonFrame->addComponent($ui);
 		//ready button  end
+		
+		//Invite button start
+		$this->inviteButtonFrame = new Frame();
+		$this->inviteButtonFrame->setSize(35,10);
+		$this->inviteButtonFrame->setPosition(47, -36);
+		$this->addComponent($this->inviteButtonFrame);
+
+		$ui = new Elements\Quad($this->inviteButtonFrame->getSizeX(),10);
+		$ui->setAlign('center', 'center');
+		$ui->setImage('file://Media/Manialinks/Common/Lobbies/small-button-BLUE.dds', true);
+		$ui->setImageFocus('file://Media/Manialinks/Common/Lobbies/small-button-BLUE-ON.dds', true);
+		$ui->setManialink(static::$inviteManialink);
+		$this->inviteButtonFrame->addComponent($ui);
+
+		$ui = new Elements\Label($this->inviteButtonFrame->getSizeX());
+		$ui->setAlign('center', 'center2');
+		$ui->setStyle(Elements\Label::TextRaceMessageBig);
+		$ui->setTextid('invite');
+		$ui->setOpacity(0.8);
+		$ui->setTextSize(2);
+		$ui->setScale(0.95);
+		$this->inviteButtonFrame->addComponent($ui);
+		//Invite button end
 		
 		$this->logo = new Elements\Quad(80, 20);
 		$this->logo->setAlign('center', 'bottom');
