@@ -776,6 +776,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			{
 				$this->gui->showWaitingScreen($login);
 			}
+			Services\PlayerInfo::Get($login)->allies = $this->allyService->get($login);
 			$this->updatePlayerList = true;
 		}
 	}

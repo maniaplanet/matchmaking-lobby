@@ -55,7 +55,6 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 	
 	public function onPlayerAlliesChanged($login)
 	{
-		PlayerInfo::Get($login)->allies = $this->get($login);
 		$this->fireEvent($login);
 	}
 	
@@ -246,7 +245,7 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 		$p = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login);
 		return ($p && $p->isConnected !== false ? true : false);
 	}
-		
+	
 	function createTable()
 	{
 		$this->db->execute(
