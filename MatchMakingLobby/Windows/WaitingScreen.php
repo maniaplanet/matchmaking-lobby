@@ -166,7 +166,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		
 		$ui = new Elements\Quad(self::SIZE_X, self::SIZE_Y);
 		$ui->setAlign('center', 'center');
-		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/main-bg.png',true);
+		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-08-23/main-bg.png',true);
 		$this->addComponent($ui);
 		
 		$ui = new Elements\Label(self::SIZE_X);
@@ -230,8 +230,8 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			$ui->setAlign('center', 'center');
 //			$ui->setImage('file://Media/Manialinks/Common/Lobbies/small-button-YELLOW.dds', true);
 //			$ui->setImageFocus('file://Media/Manialinks/Common/Lobbies/small-button-YELLOW-ON.dds', true);
-			$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/small-button-YELLOW.dds', true);
-			$ui->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/small-button-YELLOW-ON.dds', true);
+			$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-08-23/small-button-YELLOW.dds', true);
+			$ui->setImageFocus('http://static.maniaplanet.com/manialinks/lobbies/2013-08-23/small-button-YELLOW-ON.dds', true);
 			$ui->setManialink(static::$rulesManialink);
 			$this->learnButtonFrame->addComponent($ui);
 
