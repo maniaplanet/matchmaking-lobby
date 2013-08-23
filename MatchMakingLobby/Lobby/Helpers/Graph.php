@@ -43,7 +43,10 @@ class Graph
 	 */
 	function getNodes()
 	{
-		return array_keys($this->distances);
+		return array_map(function ($k)
+			{
+				return (string) $k ;
+			}, array_keys($this->distances));
 	}
 
 	/**
