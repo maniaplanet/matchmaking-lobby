@@ -1048,7 +1048,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			$this->gui->showMatchSumUp($match, $player, 5);
 			$this->resetShortKey($player);
 			Services\PlayerInfo::Get($player)->isInMatch = true;
-			$this->connection->forceSpectator($player, 1, true);
+			$this->connection->forceSpectator((string) $player, 1, true);
 		}
 		$this->connection->executeMulticall();
 
