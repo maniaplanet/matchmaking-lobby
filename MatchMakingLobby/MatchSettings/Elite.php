@@ -28,8 +28,6 @@ class Elite implements MatchSettings
 			'S_WarmUpDuration' => 5,
 			'S_UseScriptCallbacks' => true,
 			'S_Matchmaking' => true,
-			'S_TurnLimit' => 25,
-			'S_TurnWin' => 9
 		);
 		return $rules;
 	}
