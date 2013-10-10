@@ -92,6 +92,13 @@ class AlertPlay extends Alert
 		//$this->yesButton->bg->setAction($this->yesAction);
 		//$this->noButton->bg->setAction($this->noAction);
 	}
+	
+	function destroy()
+	{
+		$this->noAction = null;
+		$this->yesAction = null;
+		parent::destroy();
+	}
 }
 
 ?>

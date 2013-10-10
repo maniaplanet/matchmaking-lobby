@@ -95,6 +95,13 @@ class Clique
 	{
 		return implode(',', $this->nodes);
 	}
+	
+	function __destruct()
+	{
+		$this->neighbours = null;
+		$this->nodes = null;
+		$this->radius = null;
+	}
 
 }
 

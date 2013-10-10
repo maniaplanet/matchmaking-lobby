@@ -380,14 +380,20 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 					$player = $this->storage->getPlayerObject($login);
 					if($match && $match->state >= Match::PREPARED)
 					{
-						$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
-						//TODO Add transfer textId to AbstractGUI
-						$this->gui->createLabel($this->gui->getTransferText(), $login, null, false, false);
-						$this->sendToServer($login, $match->matchServerLogin);
-						$this->connection->addGuest($login, true);
-						$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
-							array('textId' => 'substituteMoved', 'params' => array(self::PREFIX, $player->nickName))
-							)));
+						if ($this->sendToServer($login, $match->matchServerLogin))
+						{
+							//TODO Add transfer textId to AbstractGUI
+							$this->gui->createLabel($this->gui->getTransferText(), $login, null, false, false);
+							$this->connection->addGuest($login, true);
+							$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
+								array('textId' => 'substituteMoved', 'params' => array(self::PREFIX, $player->nickName))
+								)));
+							$this->matchMakingService->updatePlayerState($this->replacers[$login], $match->id, Services\PlayerInfo::PLAYER_STATE_REPLACED);
+						}
+						else
+						{
+							//Something bad happened 
+						}
 					}
 					else
 					{
@@ -470,7 +476,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			}
 		}
 
-		if($this->updatePlayerList)
+		// Update playerlist every 3sec
+		if($this->updatePlayerList && $this->tick % 3 == 0)
 		{
 			$maxAlliesCount = $this->matchMaker->getPlayersPerMatch() / 2 - 1;
 			$this->gui->updatePlayerList($this->blockedPlayers, $this->setLocalAllyAction, $this->unsetLocalAllyAction, $maxAlliesCount);
@@ -711,7 +718,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 	function onPlayerJoinGame($login)
 	{
-		$this->connection->forceSpectator($login, 1);
+		try
+		{
+			$this->connection->forceSpectator($login, 1);
+		}
+		catch (\DedicatedApi\Xmlrpc\Exception $e)
+		{
+			//do nothing
+		}
 	}
 	
 	function onPlayerReady($login)
@@ -1146,8 +1160,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 	protected function resetShortKey($login)
 	{
-		$shortKey = Shortkey::Create($login);
-		$shortKey->removeCallback($this->gui->actionKey);
+		Shortkey::Erase($login);
 	}
 
 	private function updateLobbyWindow()
@@ -1266,9 +1279,22 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		}
 	}
 	
+	/**
+	 * @param string $login login of the player to send
+	 * @param string $serverLogin server login to send them to
+	 * @return boolean
+	 */
 	protected function sendToServer($login, $serverLogin)
 	{
-		$this->connection->sendOpenLink($login, $this->generateServerLink($serverLogin), 1);
+		try
+		{
+			$this->connection->sendOpenLink($login, $this->generateServerLink($serverLogin), 1);
+			return true;
+		}
+		catch (\DedicatedApi\Xmlrpc\Exception $e)
+		{
+			return false;
+		}
 	}
 
 	protected function generateServerLink($serverLogin)

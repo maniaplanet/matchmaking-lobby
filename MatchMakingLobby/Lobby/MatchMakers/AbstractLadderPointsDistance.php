@@ -61,7 +61,8 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 		$points = array();
 		foreach(array($t1, $t2) as $index => $team)
 		{
-			$points[$index] = array_reduce($team, function ($result, $player) { return $result + PlayerInfo::Get($player)->ladderPoints/3; }, 0);
+			$size = count($team);
+			$points[$index] = array_reduce($team, function ($result, $player) use ($size) { return $result + PlayerInfo::Get($player)->ladderPoints/$size; }, 0);
 		}
 		return abs($points[1] - $points[0]);
 	}
@@ -88,17 +89,12 @@ abstract class AbstractLadderPointsDistance extends AbstractDistance
 			$player = array_shift($playersObject);
 
 			//If distance is too big, no replacer
-			if (abs($player->ladderPoints-$quitterInfo->ladderPoints) > $this->maxDistanceBackup)
+			if (abs($player->ladderPoints-$quitterInfo->ladderPoints) < $this->maxDistanceBackup)
 			{
-				return false;
+				return $player->login;
 			}
-
-			return $player->login;
 		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
 
 	public function findClosePlayer($closeTo, $availablePlayers, $number)

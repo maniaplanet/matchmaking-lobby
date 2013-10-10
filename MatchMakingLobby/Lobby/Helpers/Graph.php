@@ -88,6 +88,13 @@ class Graph
 
 		return $cliques;
 	}
+	
+	
+	function __destruct()
+	{
+		$this->data = null;
+		$this->distances = null;
+	}
 
 }
 

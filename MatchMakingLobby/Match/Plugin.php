@@ -491,9 +491,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case 'Master':
 				$login = $param2[0];
-				$service = new Services\MatchMakingService();
 				$player = $this->storage->getPlayerObject($login);
-				$service->addMaster($login, $player->nickName, $player->ladderStats['PlayerRankings'][0]['Score'], $this->lobby->login, $this->scriptName, $this->titleIdString);
+				if ($player !== null)
+				{
+					$service = new Services\MatchMakingService();
+					$service->addMaster($login, $player->nickName, $player->ladderStats['PlayerRankings'][0]['Score'], $this->lobby->login, $this->scriptName, $this->titleIdString);
+				}
 				break;
 			case 'LibXmlRpc_Scores':
 				if($this->matchId)
@@ -754,7 +757,14 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->showTansfertLabel(null, -50);
 		foreach($this->storage->players as $player)
 		{
-			$this->connection->sendOpenLink($player->login, '#qjoin='.$this->lobby->backLink, 1);
+			try
+			{
+				$this->connection->sendOpenLink($player->login, '#qjoin='.$this->lobby->backLink, 1);
+			}
+			catch (\DedicatedApi\Xmlrpc\Exception $e)
+			{
+				//do nothing
+			}
 		}
 		$this->connection->cleanGuestList();
 

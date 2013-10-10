@@ -51,7 +51,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 		
 		$this->label = new \ManiaLib\Gui\Elements\Label(240);
 		$this->label->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
-		$this->label->setTextSize(5);
+		$this->label->setTextSize(4);
 		$this->label->setAlign('center', 'center2');
 		$this->label->enableAutonewline();
 		$this->label->setId('info-label');
@@ -60,7 +60,7 @@ class Label extends \ManiaLive\Gui\Window implements Tick\Listener
 
 		$this->label2 = new \ManiaLib\Gui\Elements\Label(240);
 		$this->label2->setStyle(\ManiaLib\Gui\Elements\Label::TextRaceMessageBig);
-		$this->label2->setTextSize(5);
+		$this->label2->setTextSize(4);
 		$this->label2->setAlign('center', 'center2');
 		$this->label2->enableAutonewline();
 		$this->label2->setTextid('wait');

@@ -26,7 +26,7 @@ class PlayerInfo
 	public $login;
 
 	/** @var float */
-	public $ladderPoints;
+	public $ladderPoints = 0;
 
 	/** @var array */
 	public $allies = array();
@@ -151,6 +151,11 @@ class PlayerInfo
 	function isAway()
 	{
 		return (bool) $this->awaySince;
+	}
+	
+	function getEchelon()
+	{
+		return (int) floor($this->ladderPoints/10000);
 	}
 
 	/**
