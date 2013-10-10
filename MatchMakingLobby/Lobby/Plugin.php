@@ -750,7 +750,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 				$this->resetShortKey($login);
 				if ($tokenInfos->CanPayToken)
 				{
-					$this->gui->showDemoReadyDialog($login, array($this, 'onAnswerYesToDialog'), array($this, 'onAnswerNoToDialog'));
+					$this->onAnswerYesToDialog($login);
 				}
 				else
 				{
