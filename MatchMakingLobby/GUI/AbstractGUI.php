@@ -275,6 +275,11 @@ abstract class AbstractGUI
 		Windows\LobbyWindow::setReadyPlayerCount($playersCount);
 		$lobbyWindow->show();
 	}
+	
+	function configurePlayerList($displayAlliesHelp)
+	{
+		Windows\PlayerList::setDisplayAlliesHelp($displayAlliesHelp);
+	}
 
 	/**
 	 * Create the player list to display to a player

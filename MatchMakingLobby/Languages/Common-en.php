@@ -86,5 +86,7 @@ Your game will start automatically.
 	'picked' => 'Picked by matchmaking',
 	'yes' => 'Yes',
 	'no' => 'No',
+	'invite' => 'Invite',
+	'alliesHelp' => 'Click on a player to set them as ally',
 );
 ?>

@@ -46,10 +46,13 @@ class Dictionary
 			if(preg_match($pattern,$file, $match))
 			{
 				require_once $folder.$file;
-				$this->lang[$match[1]] = $lang;
+				foreach($lang as $key => $text)
+				{
+					$this->lang[$key][$match[1]] = $text;
+				}
+				$lang = null;
 			}
 		}
-		
 	}
 	
 	/**
@@ -94,19 +97,28 @@ class Dictionary
 				$textIds = explode('|', $elements);
 			}
 			
-			foreach($avalaibleLangagues as $language)
+			foreach($textIds as $text)
 			{
-				foreach($textIds as $text)
+				foreach($this->lang[$text] as $language => $string)
 				{
-					$dictionnary[$language][$outputTextId][] = $this->lang[$language][$text];
+					$dictionnary[$language][$outputTextId][] = $string;
 				}
-				$dictionnary[$language][$outputTextId] = implode('', $dictionnary[$language][$outputTextId]);
-				if(is_array($elements) && array_key_exists('params', $elements))
+			}
+			foreach($dictionnary as $language => $textIds)
+			{
+				foreach($textIds as $key => $values)
 				{
-					$params = array();
-					$params[] = $dictionnary[$language][$outputTextId];
-					$params = array_merge($params, $elements['params']);
-					$dictionnary[$language][$outputTextId] = call_user_func_array('sprintf', $params);
+					if(is_array($values))
+					{
+						$dictionnary[$language][$key] = implode('', $values);
+					}
+					if(is_array($elements) && array_key_exists('params', $elements))
+					{
+						$params = array();
+						$params[] = $dictionnary[$language][$key];
+						$params = array_merge($params, $elements['params']);
+						$dictionnary[$language][$key] = call_user_func_array('sprintf', $params);
+					}
 				}
 			}
 		}
@@ -131,7 +143,8 @@ class Dictionary
 				$lang->appendChild($node);
 			}
 		}
-		return $dom->saveXML();
+		$output = $dom->saveXML();
+		return $output;
 	}
 }
 

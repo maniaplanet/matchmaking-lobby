@@ -55,7 +55,6 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 	
 	public function onPlayerAlliesChanged($login)
 	{
-		PlayerInfo::Get($login)->allies = $this->get($login);
 		$this->fireEvent($login);
 	}
 	
@@ -161,8 +160,7 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 	
 	public function get($playerLogin)
 	{
-		$player = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin);
-		$allies = ($player ? $player->allies : array());
+		$allies = $this->getDedicatedAllies($playerLogin);
 		$localAllies = $this->db->execute(
 			'SELECT A1.allyLogin as login '.
 			'FROM Allies A1 '.
@@ -179,8 +177,7 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 	
 	public function getAll($playerLogin)
 	{
-		$player = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin);
-		$generalAllies = ($player ? $player->allies : array());
+		$generalAllies = $this->getDedicatedAllies($playerLogin);
 		$allyList = array();
 		foreach($generalAllies as $ally)
 		{
@@ -211,6 +208,13 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 		return $allyList;
 	}
 	
+	protected function getDedicatedAllies($playerLogin)
+	{
+		$player = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($playerLogin);
+		return $player ? $player->allies : array();
+	}
+
+
 	protected function getNonAnsweredLinked($allyLogin)
 	{
 		$logins = $this->db->execute(
@@ -241,7 +245,7 @@ class AllyService implements \ManiaLive\DedicatedApi\Callback\Listener
 		$p = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login);
 		return ($p && $p->isConnected !== false ? true : false);
 	}
-		
+	
 	function createTable()
 	{
 		$this->db->execute(

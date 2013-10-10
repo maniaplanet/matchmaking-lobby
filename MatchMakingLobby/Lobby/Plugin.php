@@ -13,7 +13,6 @@ use DedicatedApi\Structures;
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLive\Data\Event as StorageEvent;
 use ManiaLive\Gui\Windows\Shortkey;
-use ManiaLivePlugins\MatchMakingLobby\Windows;
 use ManiaLivePlugins\MatchMakingLobby\Services;
 use ManiaLivePlugins\MatchMakingLobby\Config;
 use ManiaLivePlugins\MatchMakingLobby\GUI;
@@ -169,13 +168,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 		$this->setLobbyInfo();
 
+		$partySize = ($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1);
 		$this->gui->createWaitingScreen(
 			\ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this, 'onPlayerReady')),
 			$this->scriptName,
-			($this->matchMaker->getNumberOfTeam() ? (int) $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() : 1),
+			$partySize,
 			$this->config->rulesManialink,
 			$this->config->logoURL, $this->config->logoLink
 		);
+		
+		$this->gui->configurePlayerList($partySize > 1 ? true : false);
 
 		foreach(array_merge($this->storage->players, $this->storage->spectators) as $login => $obj)
 		{
@@ -788,6 +790,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			{
 				$this->gui->showWaitingScreen($login);
 			}
+			Services\PlayerInfo::Get($login)->allies = $this->allyService->get($login);
 			$this->updatePlayerList = true;
 		}
 	}
@@ -915,7 +918,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	
 	function onPlayerSetLocalAlly($login, array $params = array())
 	{
-		$this->allyService->set($login, $params['allyLogin']);
+		$allies = $this->allyService->getAll($login);
+		$maxAlliesCount = $this->matchMaker->getPlayersPerMatch() / $this->matchMaker->getNumberOfTeam() - 1;
+		if(count($allies) < $maxAlliesCount)
+		{
+			$this->allyService->set($login, $params['allyLogin']);
+		}
 	}
 	
 	function onPlayerUnsetLocalAlly($login, array $params = array())
@@ -1046,7 +1054,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		\ManiaLive\Utilities\Logger::debug($match);
 
 		$this->countDown[$id] = 7;
-
+		
 		foreach($match->players as $player)
 		{
 			$this->gui->removeLabel($player);
