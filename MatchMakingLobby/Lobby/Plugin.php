@@ -364,7 +364,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		}
 		$timers['backups'] = microtime(true) - $mtime;
 
-		if (($this->config->matchMakerDelay == 0 && $this->isMatchMakerAllowed() && $this->tick % 5 == 0) || ($this->config->matchMakerDelay != 0 && $this->tick % $this->config->matchMakerDelay == 0))
+		if (($this->config->matchMakerDelay == 0 && $this->isMatchMakerAllowed() && $this->tick % 2 == 0) || ($this->config->matchMakerDelay != 0 && $this->tick % $this->config->matchMakerDelay == 0))
 		{
 			$this->runMatchMaker();
 		}
@@ -677,7 +677,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		//Check if a server is available
 		if ($this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
 		{
-			$matches = $this->matchMaker->run($this->getMatchablePlayers());
+			$matches = $this->matchMaker->run(shuffle($this->getMatchablePlayers()));
 			foreach($matches as $match)
 			{
 				/** @var Match $match */
