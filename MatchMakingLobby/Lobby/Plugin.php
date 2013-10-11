@@ -677,7 +677,9 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		//Check if a server is available
 		if ($this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) > 0)
 		{
-			$matches = $this->matchMaker->run(shuffle($this->getMatchablePlayers()));
+			$players = $this->getMatchablePlayers();
+			shuffle($players);
+			$matches = $this->matchMaker->run($players);
 			foreach($matches as $match)
 			{
 				/** @var Match $match */
