@@ -1062,7 +1062,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			$this->gui->showMatchSumUp($match, $player, 5);
 			$this->resetShortKey($player);
 			Services\PlayerInfo::Get($player)->isInMatch = true;
-			$this->connection->forceSpectator($player, 1, true);
+			$this->connection->forceSpectator((string) $player, 1, true);
 		}
 		$this->connection->executeMulticall();
 
@@ -1228,7 +1228,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 				return !in_array($p->login, $blockedPlayers) && !$p->isAway() && !$service->isInMatch($p->login, $serverLogin, $scriptName, $titleIdString);
 			});
 		
-		return array_map(function (Services\PlayerInfo $p) { return $p->login; }, $matchablePlayers);
+		return array_map(function (Services\PlayerInfo $p) { return (string) $p->login; }, $matchablePlayers);
 	}
 
 	/**
