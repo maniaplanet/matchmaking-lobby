@@ -750,14 +750,15 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			if(in_array($state, array(Services\PlayerInfo::PLAYER_STATE_QUITTER, Services\PlayerInfo::PLAYER_STATE_GIVE_UP)))
 			{
 				unset($this->players[$login]);
-				$this->connection->removeGuest($login);
+				$this->connection->removeGuest((string) $login, true);
 			}
 		}
 		foreach($newPlayers as $player)
 		{
-			$this->connection->addGuest($player);
+			$this->connection->addGuest((string) $player, true);
 			$this->players[$player] = Services\PlayerInfo::PLAYER_STATE_NOT_CONNECTED;
 		}
+		$this->connection->executeMulticall();
 		$this->match = $match;
 	}
 
@@ -773,7 +774,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			try
 			{
-				$this->connection->sendOpenLink($player->login, '#qjoin='.$this->lobby->backLink, 1);
+				$this->connection->sendOpenLink((string) $player->login, '#qjoin='.$this->lobby->backLink, 1);
 			}
 			catch (\DedicatedApi\Xmlrpc\Exception $e)
 			{
