@@ -96,7 +96,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 	function onInit()
 	{
-		$this->setVersion('3.1.0');
+		$this->setVersion('3.5.0');
 
 		$this->addDependency(new \ManiaLive\PluginHandler\Dependency('Standard\AutoTagMatchSettings'));
 
