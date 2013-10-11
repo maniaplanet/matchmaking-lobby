@@ -499,15 +499,18 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 				}
 				break;
 			case 'MatchmakingGetOrder':
-				$allyService = Services\AllyService::getInstance($this->lobby->login, $this->scriptName, $this->titleIdString);
-				
-				$alliesList = array();
-				foreach($this->match->players as $login)
+				if($this->match)
 				{
-					$alliesList = array_merge($alliesList, $allyService->get($login));
+					$allyService = Services\AllyService::getInstance($this->lobby->login, $this->scriptName, $this->titleIdString);
+
+					$alliesList = array();
+					foreach($this->match->players as $login)
+					{
+						$alliesList = array_merge($alliesList, $allyService->get($login));
+					}
+					$alliesList = array_unique($alliesList);
+					$this->connection->triggerModeScriptEvent('MatchmakingSetTempAllies', implode(',', $alliesList));
 				}
-				$alliesList = array_unique($alliesList);
-				$this->connection->triggerModeScriptEvent('MatchmakingSetTempAllies', implode(',', $alliesList));
 				break;
 			case 'LibXmlRpc_Scores':
 				if($this->matchId)
