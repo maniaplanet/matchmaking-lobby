@@ -404,7 +404,16 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		//TODO Find something to continue match at 2v3 for Elite
 		//FIXME: Prevent player from changing team
 		if(in_array($this->state, array(self::DECIDING, self::PLAYING, self::PLAYER_LEFT))/* && $playerInfo['HasJoinedGame']*/)
-			$this->forcePlayerTeam($playerInfo['Login']);
+		{
+			try
+			{
+				$this->forcePlayerTeam($playerInfo['Login']);
+			}
+			catch (\DedicatedApi\Xmlrpc\Exception $e)
+			{
+				//do thing
+			}
+		}
 	}
 	
 	function onPlayerDisconnect($login, $disconnectionReason)
