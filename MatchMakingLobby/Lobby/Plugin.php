@@ -93,6 +93,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	 * @var int 
 	 */
 	protected $lastMasterId = 0;
+	
+	/**
+	 * @var \DateTime 
+	 */
+	protected $lobbyFullUntil = false;
 
 	function onInit()
 	{
@@ -1187,13 +1192,30 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 	}
 
+	/**
+	 * 
+	 * @param boolean $enable
+	 */
 	private function setLobbyInfo($enable = true)
 	{
 		if($enable)
 		{
-			$lobbyPlayers = $this->getTotalPlayerCount();
 			$maxPlayers = $this->getTotalSlots();
 			$averageLevel = $this->getAveragePlayerLadder();
+			if ($this->matchMakingService->countAvailableServer($this->storage->serverLogin, $this->scriptName, $this->titleIdString) == 0)
+			{
+				$lobbyPlayers = $maxPlayers;
+				$this->lobbyFullUntil = new \DateTime('+ 10 minutes');
+			}
+			elseif ($this->lobbyFullUntil !== false && new \DateTime < $this->lobbyFullUntil)
+			{
+				$lobbyPlayers = $maxPlayers;
+			}
+			else
+			{
+				$this->lobbyFullUntil = false;
+				$lobbyPlayers = $this->getTotalPlayerCount();
+			}
 		}
 		else
 		{
