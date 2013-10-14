@@ -1,3 +1,8 @@
+# 3.5.1
+
+* Multiple fixes to avoid crashes
+* Set lobby full when no match server are available
+
 # 3.1.0
 
 * Adding support for masters
