@@ -319,15 +319,18 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	protected function addPlayerToParty(\DedicatedApi\Structures\Player $player, $disable = false)
 	{
 		$path = explode('|', $player->path);
-		$zone = $path[1];
-		$this->playerList[$player->login] = array();
-		$this->playerList[$player->login]['nickname'] = $player->nickName ? : $player->login;
-		$this->playerList[$player->login]['zone'] = $zone;
-		$this->playerList[$player->login]['avatarUrl'] = 'file://Avatars/'.$player->login.'/Default';
-		$this->playerList[$player->login]['rank'] = $player->ladderStats['PlayerRankings'][0]['Ranking'];
-		$this->playerList[$player->login]['echelon'] = floor($player->ladderStats['PlayerRankings'][0]['Score'] / 10000);
-		$this->playerList[$player->login]['countryFlagUrl'] = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
-		$this->playerList[$player->login]['disable'] = $disable;
+		if (array_key_exists(1, $path))
+		{
+			$zone = $path[1];
+			$this->playerList[$player->login] = array();
+			$this->playerList[$player->login]['nickname'] = $player->nickName ? : $player->login;
+			$this->playerList[$player->login]['zone'] = $zone;
+			$this->playerList[$player->login]['avatarUrl'] = 'file://Avatars/'.$player->login.'/Default';
+			$this->playerList[$player->login]['rank'] = $player->ladderStats['PlayerRankings'][0]['Ranking'];
+			$this->playerList[$player->login]['echelon'] = floor($player->ladderStats['PlayerRankings'][0]['Score'] / 10000);
+			$this->playerList[$player->login]['countryFlagUrl'] = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
+			$this->playerList[$player->login]['disable'] = $disable;
+		}
 	}
 	
 	function removeAlly($login)
