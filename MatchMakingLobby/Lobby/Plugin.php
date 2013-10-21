@@ -376,6 +376,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 		foreach($this->replacerCountDown as $login => $countDown)
 		{
+			$login = (string) $login;
 			switch(--$countDown)
 			{
 				case -15:
@@ -546,7 +547,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 					//nobreak;
 				case -5:
 					$match = $this->matchMakingService->getMatch($matchId);
-					$players = array_filter($match->players, function ($p) { return Services\PlayerInfo::Get($p)->isReady(); });
+					$players = array_filter($match->players, function ($p) { return Services\PlayerInfo::Get($p)->isAway(); });
 					if($players)
 					{
 						\ManiaLive\Utilities\Logger::debug('re-display jumper for: '.implode(',', $players));
