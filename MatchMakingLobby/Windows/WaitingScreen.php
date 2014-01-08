@@ -328,7 +328,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			$this->playerList[$player->login]['zone'] = $zone;
 			$this->playerList[$player->login]['avatarUrl'] = 'file://Avatars/'.$player->login.'/Default';
 			$this->playerList[$player->login]['rank'] = $player->ladderStats['PlayerRankings'][0]['Ranking'];
-			$this->playerList[$player->login]['echelon'] = PlayerInfo::ComputeEchelon($player->ladderStats['PlayerRankings'][0]['Ranking']);
+			$this->playerList[$player->login]['echelon'] = PlayerInfo::ComputeEchelon($player->ladderStats['PlayerRankings'][0]['Score']);
 			$this->playerList[$player->login]['countryFlagUrl'] = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
 			$this->playerList[$player->login]['disable'] = $disable;
 		}
