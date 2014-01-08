@@ -26,7 +26,7 @@ class ElitePractice extends Joust
 					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1),
 					'zoneFlag' => sprintf('file://ZoneFlags/Login/%s/country', $login),
 					'ladderPoints' => $p->ladderStats['PlayerRankings'][0]['Score'],
-					'echelon' => floor($p->ladderStats['PlayerRankings'][0]['Score'] / 10000)
+					'echelon' => \ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo::ComputeEchelon($p->ladderStats['PlayerRankings'][0]['Score'])
 				);
 			};
 		$sortPlayerCallback = function ($player1, $player2)
@@ -39,7 +39,7 @@ class ElitePractice extends Joust
 		};
 		$players = array_map($getPlayerInfosCallback, $match->players);
 		usort($players, $sortPlayerCallback);
-		
+
 		$window = \ManiaLivePlugins\MatchMakingLobby\Windows\StartSoloMatch::Create($receiver);
 		$window->set($players, $time);
 		$window->show();

@@ -10,6 +10,7 @@
 namespace ManiaLivePlugins\MatchMakingLobby\Controls;
 
 use ManiaLib\Gui\Elements;
+use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
 class Player extends \ManiaLive\Gui\Control
 {
@@ -26,7 +27,7 @@ class Player extends \ManiaLive\Gui\Control
 	public $zoneFlagURL;
 
 	protected $bg;
-	
+
 	/**
 	 * @var Elements\Icons64x64_1
 	 */
@@ -36,7 +37,7 @@ class Player extends \ManiaLive\Gui\Control
 	 * @var Elements\Label
 	 */
 	protected $label;
-	
+
 	/**
 	 * @var Elements\Label
 	 */
@@ -46,17 +47,17 @@ class Player extends \ManiaLive\Gui\Control
 	 * @var Elements\Label
 	 */
 	protected $echelonLabel;
-	
+
 	/**
 	 * @var Elements\Quad
 	 */
 	protected $echelonQuad;
-	
+
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $echelonFrame;
-	
+
 	/**
 	 * @var Elements\Quad
 	 */
@@ -83,7 +84,7 @@ class Player extends \ManiaLive\Gui\Control
 		$this->label->setTextColor('fff');
 		$this->label->setTextSize(1);
 		$this->addComponent($this->label);
-		
+
 		$this->hiddenLabel = new Elements\Label();
 		$this->hiddenLabel->setHidden(true);
 		$this->addComponent($this->hiddenLabel);
@@ -91,12 +92,12 @@ class Player extends \ManiaLive\Gui\Control
 		$this->echelonFrame = new \ManiaLive\Gui\Controls\Frame(73.5, 1);
 		$this->echelonFrame->setScale(0.29);
 		$this->addComponent($this->echelonFrame);
-		
+
 		$this->echelonQuad = new Elements\Quad(14.1551, 17.6938);
 		$this->echelonQuad->setPosition(-1.25, -1.25);
 		$this->echelonQuad->setAlign('center', 'top');
 		$this->echelonFrame->addComponent($this->echelonQuad);
-		
+
 		$ui = new Elements\Label(15);
 		$ui->setAlign('center', 'top');
 		$ui->setStyle(Elements\Label::TextRaceMessage);
@@ -104,13 +105,13 @@ class Player extends \ManiaLive\Gui\Control
 		$ui->setTextSize(0.5);
 		$ui->setText('Echelon');
 		$this->echelonFrame->addComponent($ui);
-		
+
 		$this->echelonLabel = new Elements\Label(10, 10);
 		$this->echelonLabel->setAlign('center','center');
 		$this->echelonLabel->setPosition(-1, -11.895);
 		$this->echelonLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$this->echelonFrame->addComponent($this->echelonLabel);
-		
+
 		$this->countryFlag = new Elements\Quad(5, 5);
 		$this->countryFlag->setAlign('left','center');
 		$this->addComponent($this->countryFlag);
@@ -118,13 +119,13 @@ class Player extends \ManiaLive\Gui\Control
 		$this->nickname = $nickname;
 		$this->state = static::STATE_NOT_READY;
 	}
-	
+
 	function setId($id)
 	{
 		$this->bg->setId('player_button-'.$id);
 		$this->hiddenLabel->setId('player_label-'.$id);
 	}
-	
+
 	function onDraw()
 	{
 		switch($this->state)
@@ -144,7 +145,7 @@ class Player extends \ManiaLive\Gui\Control
 			default :
 				$subStyle = '';
 		}
-		
+
 		$this->icon->setSize(1, $this->sizeY);
 		$this->icon->setPosition(0, - $this->sizeY / 2);
 		$this->label->setPosition(8, - $this->sizeY / 2);
@@ -152,18 +153,18 @@ class Player extends \ManiaLive\Gui\Control
 		$this->countryFlag->setPosition(2, - $this->sizeY / 2);
 		$this->bg->setSize($this->sizeX, $this->sizeY);
 		$this->hiddenLabel->setText($this->login);
-		
-		$echelon = $this->ladderPoints > 0 ? floor($this->ladderPoints /10000) : 0;
+
+		$echelon = PlayerInfo::ComputeEchelon($this->ladderPoints);
 		$this->icon->setBgcolor($subStyle);
 		$this->countryFlag->setImage($this->zoneFlagURL, true);
 		$this->echelonLabel->setText($echelon);
 		$this->echelonQuad->setImage(sprintf('file://Media/Manialinks/Common/Echelons/echelon%d.dds',$echelon), true);
 	}
-	
+
 	function destroy()
 	{
 		parent::destroy();
-		
+
 		$this->bg = null;
 		$this->countryFlag = null;
 		$this->echelonFrame = null;
@@ -182,7 +183,7 @@ class Player extends \ManiaLive\Gui\Control
 	{
 		$this->bg->setAction($action);
 	}
-	
+
 	function setBackgroundColor($color = '3338', $focusColor = null)
 	{
 		$this->bg->setBgcolor($color);

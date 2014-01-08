@@ -36,7 +36,7 @@ abstract class AbstractGUI
 	 * @var bool
 	 */
 	public $displayAllies = false;
-	
+
 	protected $nonReadyGroupName = 'nonReadyPlayers';
 	protected $readyGroupName = 'readyPlayers';
 
@@ -173,7 +173,7 @@ abstract class AbstractGUI
 	{
 		return 'expectingReadyPlayers';
 	}
-	
+
 	function getTransferText()
 	{
 		return 'transfer';
@@ -198,7 +198,7 @@ abstract class AbstractGUI
 		$ui->showBackground = $showBackgroud;
 		$ui->show();
 	}
-	
+
 	final function removeLabel($login = null)
 	{
 		if($login)
@@ -226,7 +226,7 @@ abstract class AbstractGUI
 					'rank' => ($p ? $p->ladderStats['PlayerRankings'][0]['Ranking'] : -1),
 					'zoneFlag' => sprintf('file://ZoneFlags/Login/%s/country', $login),
 					'ladderPoints' => $p->ladderStats['PlayerRankings'][0]['Score'],
-					'echelon' => floor($p->ladderStats['PlayerRankings'][0]['Score'] / 10000)
+					'echelon' => PlayerInfo::ComputeEchelon($p->ladderStats['PlayerRankings'][0]['Score']),
 				);
 			};
 		$sortPlayerCallback = function ($player1, $player2)
@@ -275,7 +275,7 @@ abstract class AbstractGUI
 		Windows\LobbyWindow::setReadyPlayerCount($playersCount);
 		$lobbyWindow->show();
 	}
-	
+
 	function configurePlayerList($displayAlliesHelp)
 	{
 		Windows\PlayerList::setDisplayAlliesHelp($displayAlliesHelp);
@@ -289,13 +289,13 @@ abstract class AbstractGUI
 		$playerList = Windows\PlayerList::Create($login);
 		$playerList->show();
 	}
-	
+
 	final function createMasterList()
 	{
 		$masterList = Windows\MasterList::Create();
 		$masterList->show();
 	}
-	
+
 	final function updateMasterList(array $masters)
 	{
 		foreach ($masters as $master)
@@ -303,7 +303,7 @@ abstract class AbstractGUI
 			Windows\MasterList::addMaster($master['login'], $master['nickName'], $master['ladderPoints']);
 		}
 	}
-	
+
 	final function showWaitingScreen($login)
 	{
 		$waitingScreen = Windows\WaitingScreen::Create($login);
@@ -323,11 +323,11 @@ abstract class AbstractGUI
 			}
 		}
 		$party = array_merge(array($login), $bilateralAllies);
-		
+
 		$waitingScreen->createParty($party, $unilateralAllies);
 		$waitingScreen->show();
 	}
-	
+
 	final function createWaitingScreen($readyAction, $scriptName, $partySize, $rulesManialink, $logoURL = '', $logoLink = '')
 	{
 		Windows\WaitingScreen::setReadyAction($readyAction);
@@ -336,12 +336,12 @@ abstract class AbstractGUI
 		Windows\WaitingScreen::setRulesManialink($rulesManialink);
 		Windows\WaitingScreen::setLogo($logoURL, $logoLink);
 	}
-	
+
 	final function removeWaitingScreen($login)
 	{
 		Windows\WaitingScreen::Erase($login);
 	}
-	
+
 	final function updateWaitingScreenLabel($textId, $login = null)
 	{
 		if($login)
@@ -358,7 +358,7 @@ abstract class AbstractGUI
 			$screen->redraw();
 		}
 	}
-	
+
 	function disableReadyButton($login, $disable = true)
 	{
 		$screens = Windows\WaitingScreen::Get($login);
@@ -388,21 +388,21 @@ abstract class AbstractGUI
 		{
 			$recipient = $playerList->getRecipient();
 			$allies = \ManiaLivePlugins\MatchMakingLobby\Services\AllyService::getInstance()->getAll($recipient);
-			$loginsWithUnsetAction = array_map(function (\ManiaLivePlugins\MatchMakingLobby\Services\Ally $a) 
+			$loginsWithUnsetAction = array_map(function (\ManiaLivePlugins\MatchMakingLobby\Services\Ally $a)
 			{
 				if($a->type == \ManiaLivePlugins\MatchMakingLobby\Services\Ally::TYPE_LOCAL)
 				{
 					return $a->login;
 				}
 			}, $allies);
-			$loginsWithNoAction = array_map(function (\ManiaLivePlugins\MatchMakingLobby\Services\Ally $a) 
+			$loginsWithNoAction = array_map(function (\ManiaLivePlugins\MatchMakingLobby\Services\Ally $a)
 			{
 				if($a->type == \ManiaLivePlugins\MatchMakingLobby\Services\Ally::TYPE_GENERAL)
 				{
 					return $a->login;
 				}
 			}, $allies);
-			
+
 			$bilateralAllies = array_map(function (\ManiaLivePlugins\MatchMakingLobby\Services\Ally $a)
 			{
 				if($a->isBilateral)
@@ -424,7 +424,7 @@ abstract class AbstractGUI
 				if($playerInfo->isReady()) $state = Player::STATE_READY;
 				if($playerInfo->isInMatch) $state = Player::STATE_IN_MATCH;
 				if(array_key_exists($player->login, $blockedPlayerList)) $state = Player::STATE_BLOCKED;
-				
+
 				if($player->login == $recipient)
 				{
 					$action = null;
@@ -452,7 +452,7 @@ abstract class AbstractGUI
 		}
 		Windows\PlayerList::RedrawAll();
 	}
-	
+
 	/**
 	 * Remove a player from the playerlist and destroy his list
 	 * @param string $login
@@ -482,37 +482,37 @@ abstract class AbstractGUI
 	{
 		Windows\Splash::Erase($login);
 	}
-	
+
 	final function showDemoReadyDialog($login, $answerYesCallBack, $answerNoCallback)
 	{
 		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
-		
+
 		$window = Windows\AlertReady::Create($login);
 		$window->yesAction = $ah->createAction($answerYesCallBack);
 		$window->noAction = $ah->createAction($answerNoCallback);
 		$window->show();
 	}
-	
+
 	final function removeDemoReadyDialog($login)
 	{
 		Windows\AlertReady::Erase($login);
 	}
-	
+
 	final function showDemoPlayDialog($login, $answerYesCallBack, $answerNoCallback)
 	{
 		$ah = \ManiaLive\Gui\ActionHandler::getInstance();
-		
+
 		$window = Windows\AlertPlay::Create($login);
 		$window->yesAction = $ah->createAction($answerYesCallBack);
 		$window->noAction = $ah->createAction($answerNoCallback);
 		$window->show();
 	}
-	
+
 	final function removeDemoPayDialog($login)
 	{
 		Windows\AlertPay::Erase($login);
 	}
-	
+
 	final function ShowTooManyAlliesLabel($login, $maxAlliesAllowed)
 	{
 		$tooManyAlly = Windows\TooManyAllies::Create($login);
@@ -520,12 +520,12 @@ abstract class AbstractGUI
 		$tooManyAlly->setText($this->getTooManyAlliesText($maxAlliesAllowed));
 		$tooManyAlly->show();
 	}
-	
+
 	final function eraseTooManyAlliesLabel($login)
 	{
-		
+
 	}
-	
+
 }
 
 ?>

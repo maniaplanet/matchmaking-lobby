@@ -11,28 +11,29 @@ use ManiaLib\Gui\Elements;
 use ManiaLive\Gui\Controls\Frame;
 use ManiaLivePlugins\MatchMakingLobby\Controls\PlayerDetailed;
 use ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary;
+use ManiaLivePlugins\MatchMakingLobby\Services\PlayerInfo;
 
 class WaitingScreen extends \ManiaLive\Gui\Window
 {
 
 	const SIZE_X = 141;
 	const SIZE_Y = 99;
-	
+
 	/**
 	 * @var string
 	 */
 	static protected $readyAction;
-	
+
 	/**
 	 * @var string
 	 */
 	static protected $scriptName;
-	
+
 	/**
-	 * @var string 
+	 * @var string
 	 */
 	static protected $rulesManialink;
-	
+
 	/**
 	 * @var string
 	 */
@@ -42,7 +43,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var int
 	 */
 	static protected $partySize;
-	
+
 	/**
 	 * @var string
 	 */
@@ -62,27 +63,27 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $buttonFrame;
-	
+
 	/**
 	 * @var Elements\Quad
 	 */
 	protected $readyButton;
-	
+
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $readyButtonFrame;
-	
+
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $quitButtonFrame;
-	
+
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $learnButtonFrame;
-	
+
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
@@ -90,17 +91,17 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 
 
 	protected $playerList = array();
-	
+
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $palyerListFrame;
-	
+
 	/**
 	 * @var \ManiaLive\Gui\Controls\Frame
 	 */
 	protected $emptySlot;
-	
+
 	/**
 	 * @var Elements\Quad
 	 */
@@ -110,7 +111,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	 * @var string
 	 */
 	protected $textId;
-	
+
 	protected $dico = array();
 
 
@@ -118,33 +119,33 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 	{
 		static::$readyAction = $action;
 	}
-	
+
 	static function setScriptName($script)
 	{
 		static::$scriptName = $script;
 	}
-	
+
 	static function setRulesManialink($manialink)
 	{
 		static::$rulesManialink = $manialink;
 	}
-	
+
 	static function setPartySize($size)
 	{
 		static::$partySize = $size;
 	}
-	
+
 	static function setLogo($URL, $link = '')
 	{
 		static::$logoURL = $URL;
 		static::$logoLink = $link;
 	}
-	
-	
+
+
 	function onConstruct()
 	{
 		$this->setLayer(\ManiaLive\Gui\Window::LAYER_CUT_SCENE);
-		
+
 		$this->dico = array(
 			'playing' => 'playing',
 			'rules' => 'rules',
@@ -157,18 +158,18 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			'rules' => 'rules',
 			'back' => 'quit',
 		);
-		
+
 //		$ui = new Elements\Quad(320, 20);
 //		$ui->setAlign('center', 'bottom');
 //		$ui->setBgcolor('000');
 //		$ui->setPosition(0,-90);
 //		$this->addComponent($ui);
-		
+
 		$ui = new Elements\Quad(self::SIZE_X, self::SIZE_Y);
 		$ui->setAlign('center', 'center');
 		$ui->setImage('http://static.maniaplanet.com/manialinks/lobbies/2013-08-23/main-bg.png',true);
 		$this->addComponent($ui);
-		
+
 		$ui = new Elements\Label(self::SIZE_X);
 		$ui->setAlign('center', 'top');
 		$ui->setPosition(0, 38);
@@ -179,35 +180,35 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setTextid('text');
 		$ui->setOpacity(0.9);
 		$this->addComponent($ui);
-		
+
 		$frame = new Frame();
 		$frame->setScale(0.6);
 		$frame->setPosition(0, 20);
 		$this->addComponent($frame);
-		
+
 		$this->emptySlot = new \ManiaLivePlugins\MatchMakingLobby\Controls\EmptySlot();
 		$this->emptySlot->setSize(80, 20);
 		$this->emptySlot->setAlign('center');
 		$this->dico[$this->emptySlot->getLabelTextid()] = 'picked';
-		
+
 		$this->playerListFrame = new \ManiaLive\Gui\Controls\Frame(0, 5, new \ManiaLib\Gui\Layouts\Column());
 		$this->playerListFrame->getLayout()->setMarginHeight(3);
 		$frame->addComponent($this->playerListFrame);
 
-		
+
 		//quit button start
 		$this->quitButtonFrame = new Frame();
 		$this->quitButtonFrame->setSize(35,10);
 		$this->quitButtonFrame->setPosition(-47, -36);
 		$this->addComponent($this->quitButtonFrame);
-	
+
 		$ui = new Elements\Quad($this->quitButtonFrame->getSizeX(),10);
 		$ui->setAlign('center', 'center');
 		$ui->setImage('file://Media/Manialinks/Common/Lobbies/small-button-RED.dds', true);
 		$ui->setImageFocus('file://Media/Manialinks/Common/Lobbies/small-button-RED-ON.dds', true);
 		$ui->setAction('maniaplanet:quitserver');
 		$this->quitButtonFrame->addComponent($ui);
-		
+
 		$ui = new Elements\Label($this->quitButtonFrame->getSizeX());
 		$ui->setAlign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextRaceMessageBig);
@@ -217,7 +218,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setScale(0.95);
 		$this->quitButtonFrame->addComponent($ui);
 		//quit button  end
-		
+
 		//learn button start
 		if (static::$rulesManialink)
 		{
@@ -245,19 +246,19 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			$this->learnButtonFrame->addComponent($ui);
 		}
 		//learn button  end
-		
+
 		//ready button start
 		$this->readyButtonFrame = new Frame();
 		$this->readyButtonFrame->setSize(48,12);
 		$this->readyButtonFrame->setPosition(0, -36);
 		$this->addComponent($this->readyButtonFrame);
-	
+
 		$this->readyButton = new Elements\Quad(48,$this->readyButtonFrame->getSizeY());
 		$this->readyButton->setAlign('center', 'center');
 		$this->readyButton->setImage('file://Media/Manialinks/Common/Lobbies/ready-button-GREEN.dds', true);
 		$this->readyButton->setImageFocus('file://Media/Manialinks/Common/Lobbies/ready-button-GREEN-ON.dds', true);
 		$this->readyButtonFrame->addComponent($this->readyButton);
-		
+
 		$ui = new Elements\Label(48, $this->readyButtonFrame->getSizeY());
 		$ui->setAlign('center', 'center2');
 		$ui->setStyle(Elements\Label::TextRaceMessageBig);
@@ -266,7 +267,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setTextSize(2.5);
 		$this->readyButtonFrame->addComponent($ui);
 		//ready button  end
-		
+
 		//Invite button start
 		$this->inviteButtonFrame = new Frame();
 		$this->inviteButtonFrame->setSize(35,10);
@@ -289,12 +290,12 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$ui->setScale(0.95);
 		$this->inviteButtonFrame->addComponent($ui);
 		//Invite button end
-		
+
 		$this->logo = new Elements\Quad(80, 20);
 		$this->logo->setAlign('center', 'bottom');
 		$this->logo->setPosY(-90);
 	}
-	
+
 	function createParty($playersLogin, $disabledPlayersLogin = array())
 	{
 		foreach($playersLogin as $login)
@@ -305,7 +306,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 				$this->addPlayerToParty($playerObject);
 			}
 		}
-		
+
 		foreach($disabledPlayersLogin as $login)
 		{
 			$playerObject = \ManiaLive\Data\Storage::getInstance()->getPlayerObject($login);
@@ -315,7 +316,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			}
 		}
 	}
-	
+
 	protected function addPlayerToParty(\DedicatedApi\Structures\Player $player, $disable = false)
 	{
 		$path = explode('|', $player->path);
@@ -327,12 +328,12 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			$this->playerList[$player->login]['zone'] = $zone;
 			$this->playerList[$player->login]['avatarUrl'] = 'file://Avatars/'.$player->login.'/Default';
 			$this->playerList[$player->login]['rank'] = $player->ladderStats['PlayerRankings'][0]['Ranking'];
-			$this->playerList[$player->login]['echelon'] = floor($player->ladderStats['PlayerRankings'][0]['Score'] / 10000);
+			$this->playerList[$player->login]['echelon'] = PlayerInfo::ComputeEchelon($player->ladderStats['PlayerRankings'][0]['Ranking']);
 			$this->playerList[$player->login]['countryFlagUrl'] = sprintf('file://ZoneFlags/Login/%s/country', $player->login);
 			$this->playerList[$player->login]['disable'] = $disable;
 		}
 	}
-	
+
 	function removeAlly($login)
 	{
 		if(array_key_exists($login, self::$playerList))
@@ -340,22 +341,22 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			unset($this->playerList[$login]);
 		}
 	}
-	
+
 	function disableReadyButton($disable = true)
 	{
 		$this->disableReadyButton = $disable;
 	}
-	
+
 	function clearParty()
 	{
 		$this->playerList = array();
 	}
-	
+
 	function setTextId($textId = null)
 	{
 		$this->textId = $textId ? : array('textId' => 'waitingHelp', 'params' => array(static::$scriptName));
 	}
-	
+
 	function onDraw()
 	{
 		$this->playerListFrame->clearComponents();
@@ -390,9 +391,9 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 			$this->readyButtonFrame->setVisibility(true);
 			$this->readyButton->setAction(static::$readyAction);
 		}
-		
+
 		$this->posZ = 3.9;
-		
+
 		if(static::$logoURL)
 		{
 			$this->logo->setImage(static::$logoURL, true);
@@ -408,7 +409,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		$this->dico['text'] = $textId;
 		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink($this->dico));
 	}
-	
+
 	function destroy()
 	{
 		parent::destroy();

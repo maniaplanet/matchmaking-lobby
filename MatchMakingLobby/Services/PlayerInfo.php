@@ -92,6 +92,11 @@ class PlayerInfo
 			if($player->awaySince && $player->awaySince < $limit) unset(self::$instances[$login]);
 	}
 
+	static function ComputeEchelon($ladderPoints)
+	{
+		return (int) (floor($ladderPoints/10000) > 9 ? 9 : floor($ladderPoints/10000));
+	}
+
 	private function __construct($login)
 	{
 		$this->login = $login;
@@ -152,10 +157,10 @@ class PlayerInfo
 	{
 		return (bool) $this->awaySince;
 	}
-	
+
 	function getEchelon()
 	{
-		return (int) floor($this->ladderPoints/10000);
+		return static::ComputeEchelon($this->ladderPoints);
 	}
 
 	/**
