@@ -1,0 +1,31 @@
+{
+    "name": "maniaplanet/matchmaking-lobby",
+    "type": "library",
+    "description": "ManiaLive matchmaking lobby plugin",
+    "keywords": ["maniaplanet", "shootmania", "trackmania", "manialive"],
+    "homepage": "https://github.com/maniaplanet/matchmaking-lobby",
+    "license": "LGPL-3.0",
+    "authors": [
+        {
+            "name": "NadeoLive",
+            "email": "livedev@nadeo.com",
+            "homepage": "http://www.nadeo.com/"
+        }
+    ],
+    "support": {
+        "forum": "http://forum.maniaplanet.com/viewforum.php?f=463"
+    },
+    "require": {
+        "php": ">=5.3",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require": {
+        "maniaplanet/manialive": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "ManiaLivePlugins\\": "/"
+        }
+    }
+}
