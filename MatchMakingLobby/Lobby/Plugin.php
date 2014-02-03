@@ -9,7 +9,7 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Lobby;
 
-use DedicatedApi\Structures;
+use Maniaplanet\DedicatedServer\Structures;
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLive\Data\Event as StorageEvent;
 use ManiaLive\Gui\Windows\Shortkey;
@@ -131,6 +131,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$this->dictionary = \ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance($this->config->getDictionnary($this->scriptName));
 		
 		$this->allyService = Services\AllyService::getInstance($this->storage->serverLogin, $this->scriptName, $this->connection->getSystemInfo()->titleId);
+		
+		return true;
 	}
 
 	function onLoad()
@@ -290,7 +292,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		{
 			$this->connection->removeGuest($login);
 		}
-		catch(\DedicatedApi\Xmlrpc\Exception $e)
+		catch(\Maniaplanet\DedicatedServer\Xmlrpc\Exception $e)
 		{
 
 		}
@@ -725,7 +727,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		{
 			$this->connection->forceSpectator($login, 1);
 		}
-		catch (\DedicatedApi\Xmlrpc\Exception $e)
+		catch (\Maniaplanet\DedicatedServer\Xmlrpc\Exception $e)
 		{
 			//do nothing
 		}
@@ -1317,7 +1319,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 			$this->connection->sendOpenLink($login, $this->generateServerLink($serverLogin), 1);
 			return true;
 		}
-		catch (\DedicatedApi\Xmlrpc\Exception $e)
+		catch (\Maniaplanet\DedicatedServer\Xmlrpc\Exception $e)
 		{
 			return false;
 		}

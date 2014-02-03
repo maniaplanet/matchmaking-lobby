@@ -9,6 +9,7 @@
 
 namespace ManiaLivePlugins\MatchMakingLobby\Match;
 
+use Maniaplanet\DedicatedServer\Structures;
 use ManiaLive\DedicatedApi\Callback\Event as ServerEvent;
 use ManiaLivePlugins\MatchMakingLobby\Windows\Label;
 use ManiaLivePlugins\MatchMakingLobby\Services;
@@ -181,11 +182,11 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		$this->nextTick = new \DateTime();
 
 		$ratios = array(
-			new \DedicatedApi\Structures\VoteRatio('SetModeScriptSettingsAndCommands', -1.),
-			new \DedicatedApi\Structures\VoteRatio('Kick', 0.7),
-			new \DedicatedApi\Structures\VoteRatio('Ban', -1.),
-			new \DedicatedApi\Structures\VoteRatio('AutoTeamBalance', -1.),
-			new \DedicatedApi\Structures\VoteRatio('RestartMap', -1.)
+			new Structures\VoteRatio('SetModeScriptSettingsAndCommands', -1.),
+			new Structures\VoteRatio('Kick', 0.7),
+			new Structures\VoteRatio('Ban', -1.),
+			new Structures\VoteRatio('AutoTeamBalance', -1.),
+			new Structures\VoteRatio('RestartMap', -1.)
 		);
 
 		$this->connection->setCallVoteRatiosEx(false, $ratios);

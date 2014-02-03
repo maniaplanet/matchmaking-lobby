@@ -317,7 +317,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 		}
 	}
 
-	protected function addPlayerToParty(\DedicatedApi\Structures\Player $player, $disable = false)
+	protected function addPlayerToParty(\Maniaplanet\DedicatedServer\Structures\Player $player, $disable = false)
 	{
 		$path = explode('|', $player->path);
 		if (array_key_exists(1, $path))

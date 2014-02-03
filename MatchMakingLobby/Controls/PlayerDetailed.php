@@ -65,7 +65,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 	protected $disableQuad;
 
 
-	static function fromPlayer(\DedicatedApi\Structures\Player $p, $disable = false)
+	static function fromPlayer(\Maniaplanet\DedicatedServer\Structures\Player $p, $disable = false)
 	{
 		$ui = new static;
 		$ui->avatarUrl = 'file://Avatars/'.$p->login.'/Default';
