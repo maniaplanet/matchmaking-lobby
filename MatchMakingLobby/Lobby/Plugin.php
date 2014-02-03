@@ -101,7 +101,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 	function onInit()
 	{
-		$this->setVersion('3.6.0');
+		$this->setVersion('4.0.0');
 
 		$this->addDependency(new \ManiaLive\PluginHandler\Dependency('ManiaLive', '4.0.0'));
 		
