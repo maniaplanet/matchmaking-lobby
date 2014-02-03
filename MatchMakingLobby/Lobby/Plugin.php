@@ -103,8 +103,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	{
 		$this->setVersion('3.6.0');
 
-		$this->addDependency(new \ManiaLive\PluginHandler\Dependency('Standard\AutoTagMatchSettings'));
-
 		$this->addDependency(new \ManiaLive\PluginHandler\Dependency('ManiaLive', '4.0.0'));
 		
 		//Load MatchMaker and helpers for GUI
@@ -138,7 +136,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	function onLoad()
 	{
 		//Check if Lobby is not running with the match plugin
-		if($this->isPluginLoaded('MatchMakingLobby/Match'))
+		if($this->isPluginLoaded('\ManiaLivePlugins\MatchMakingLobby\Match'))
 		{
 			throw new \Exception('Lobby and match cannot be one the same server.');
 		}
@@ -221,8 +219,6 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$this->registerChatCommand('maintenance', 'onMaintenance', 1, true, \ManiaLive\Features\Admin\AdminGroup::get());
 
 		$this->connection->restartMap();
-		
-		$this->callPublicMethod('Standard\AutoTagMatchSettings', 'setModeScriptSettingsTags');
 		
 		$this->setLocalAllyAction = \ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this,'onPlayerSetLocalAlly'));
 		$this->unsetLocalAllyAction = \ManiaLive\Gui\ActionHandler::getInstance()->createAction(array($this,'onPlayerUnsetLocalAlly'));
