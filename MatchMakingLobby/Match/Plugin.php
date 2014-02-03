@@ -166,7 +166,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 	function onLoad()
 	{
 		//Check if the plugin is not connected on the lobby server
-		if($this->isPluginLoaded('\ManiaLivePlugins\MatchMakingLobby\Lobby'))
+		if($this->isPluginLoaded('\ManiaLivePlugins\MatchMakingLobby\Lobby\Plugin'))
 		{
 			throw new Exception('Lobby and match cannot be one the same server.');
 		}

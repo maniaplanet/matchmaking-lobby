@@ -136,7 +136,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	function onLoad()
 	{
 		//Check if Lobby is not running with the match plugin
-		if($this->isPluginLoaded('\ManiaLivePlugins\MatchMakingLobby\Match'))
+		if($this->isPluginLoaded('\ManiaLivePlugins\MatchMakingLobby\Match\Plugin'))
 		{
 			throw new \Exception('Lobby and match cannot be one the same server.');
 		}
