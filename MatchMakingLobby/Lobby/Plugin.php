@@ -105,10 +105,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 
 		$this->addDependency(new \ManiaLive\PluginHandler\Dependency('Standard\AutoTagMatchSettings'));
 
-		if (version_compare(\ManiaLiveApplication\Version, \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE) < 0)
-		{
-			throw new \ManiaLive\Application\FatalException(sprintf('You ManiaLive version is too old, please update to %s', \ManiaLivePlugins\MatchMakingLobby\Config::REQUIRED_MANIALIVE));
-		}
+		$this->addDependency(new \ManiaLive\PluginHandler\Dependency('ManiaLive', '4.0.0'));
 		
 		//Load MatchMaker and helpers for GUI
 		$this->config = Config::getInstance();
