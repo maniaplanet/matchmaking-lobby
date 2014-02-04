@@ -18,7 +18,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 	public $rank;
 	public $countryFlagUrl;
 	public $echelon;
-	
+
 	/**
 	 * @var Elements\Icons64x64_1
 	 */
@@ -33,17 +33,17 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 	 * @var Elements\Label
 	 */
 	protected $rankLabel;
-	
+
 	/**
 	 * @var Elements\Quad
 	 */
 	protected $countryFlag;
-	
+
 	/**
 	 * @var Elements\Label
 	 */
 	protected $teamLabel;
-	
+
 	/**
 	 * @var Elements\Quad
 	 */
@@ -58,7 +58,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 -	 * @var Elements\Label
 	 */
 	protected $echelonLabel;
-	
+
 	/**
 	 * @var Elements\Quad
 	 */
@@ -95,7 +95,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->label->setTextSize(3);
 		$this->label->setStyle(Elements\Label::TextRaceMessage);
 		$this->addComponent($this->label);
-		
+
 		$this->teamLabel = new Elements\Label(25);
 		$this->teamLabel->setPosition(27, -11.5);
 		$this->teamLabel->setValign('center2');
@@ -103,7 +103,7 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->teamLabel->setTextSize(2);
 		$this->teamLabel->setText('$o$09FLorem$z Ipsum Team');
 //		$this->addComponent($this->teamLabel);
-		
+
 		$this->teamIcon = new Elements\Quad(4, 4);
 		$this->teamIcon->setValign('center');
 		$this->teamIcon->setPosition(22, -11.5);
@@ -117,20 +117,21 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->rankLabel->setStyle(Elements\Label::TextRaceMessage);
 		$this->rankLabel->setTextSize(1);
 		$this->addComponent($this->rankLabel);
-		
+
 		$this->countryFlag = new Elements\Quad(4, 4);
 		$this->countryFlag->setAlign('left','center');
 		$this->countryFlag->setPosition(22, -17.5);
 		$this->addComponent($this->countryFlag);
-		
+
 		$frame = new \ManiaLive\Gui\Controls\Frame(72, 0);
 		$frame->setScale(1.13);
+		$frame->setPosZ(0.1);
 		$this->addComponent($frame);
-		
+
 		$this->echelonQuad = new Elements\Quad(14.1551, 17.6938);
 		$this->echelonQuad->setAlign('center', 'top');
 		$frame->addComponent($this->echelonQuad);
-		
+
 		$ui = new Elements\Label(15);
 		$ui->setAlign('center', 'top');
 		$ui->setStyle(Elements\Label::TextRaceMessage);
@@ -138,25 +139,25 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$ui->setTextSize(0.5);
 		$ui->setText('Echelon');
 		$frame->addComponent($ui);
-		
+
 		$this->echelonLabel = new Elements\Label(10, 10);
 		$this->echelonLabel->setAlign('center','center');
 		$this->echelonLabel->setPosition(-0.25, -10.6);
 		$this->echelonLabel->setStyle(Elements\Label::TextRaceMessageBig);
 		$frame->addComponent($this->echelonLabel);
-		
+
 		$this->disableQuad = new Elements\Quad(80, 20);
 		$this->disableQuad->setBgcolor('333A');
 		$this->disableQuad->setVisibility(false);
 		$this->disableQuad->setPosZ(3);
 		$this->addComponent($this->disableQuad);
 	}
-	
+
 	function disable($disable = true)
 	{
 		$this->disableQuad->setVisibility($disable);
 	}
-	
+
 	function onDraw()
 	{
 		$this->icon->setImage($this->avatarUrl, true);
@@ -164,11 +165,11 @@ class PlayerDetailed extends \ManiaLive\Gui\Control
 		$this->label->setText($this->nickname);
 		$this->rankLabel->setText(sprintf('%s: %d', $this->zone, $this->rank));
 		$this->countryFlag->setImage($this->countryFlagUrl, true);
-		
+
 		$this->echelonQuad->setImage(sprintf('file://Media/Manialinks/Common/Echelons/echelon%d.dds',$this->echelon), true);
 		$this->echelonLabel->setText($this->echelon);
 	}
-	
+
 	function onIsRemoved(\ManiaLive\Gui\Container $target)
 	{
 		parent::onIsRemoved($target);
