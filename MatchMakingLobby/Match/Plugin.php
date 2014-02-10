@@ -407,7 +407,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 			{
 				$this->forcePlayerTeam($playerInfo['Login']);
 			}
-			catch (\DedicatedApi\Xmlrpc\Exception $e)
+			catch (\Maniaplanet\DedicatedServer\Xmlrpc\Exception $e)
 			{
 				//do thing
 			}
@@ -665,8 +665,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 					array('textId' => 'matchDeciding', 'params' => array(static::PREFIX))
 			)));
 			$ratios = array();
-			$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', 0.5);
-			$ratios[] = new \DedicatedApi\Structures\VoteRatio('JumpToMapIndex', 0.5);
+			$ratios[] = new Structures\VoteRatio('NextMap', 0.5);
+			$ratios[] = new Structures\VoteRatio('JumpToMapIndex', 0.5);
 			$this->connection->setCallVoteRatiosEx(false, $ratios);
 			
 			$this->ignoreEndMatchUntil = new \DateTime('+ 3 minutes');
@@ -686,8 +686,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin
 		{
 			case self::DECIDING:
 				$ratios = array();
-				$ratios[] = new \DedicatedApi\Structures\VoteRatio('NextMap', -1.);
-				$ratios[] = new \DedicatedApi\Structures\VoteRatio('JumpToMapIndex', -1.);
+				$ratios[] = new Structures\VoteRatio('NextMap', -1.);
+				$ratios[] = new Structures\VoteRatio('JumpToMapIndex', -1.);
 				$this->connection->setCallVoteRatiosEx(false, $ratios);
 
 				$this->connection->chatSendServerMessageToLanguage($this->dictionary->getChat(array(
