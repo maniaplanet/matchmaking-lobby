@@ -359,7 +359,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 
 	function onDraw()
 	{
-		$this->playerListFrame->clearComponents();
+		$this->playerListFrame->destroyComponents();
 		$playerKeys = array_keys($this->playerList);
 		for($i = 0; $i < static::$partySize; $i++)
 		{
@@ -412,6 +412,7 @@ class WaitingScreen extends \ManiaLive\Gui\Window
 
 	function destroy()
 	{
+		$this->destroyComponents();
 		parent::destroy();
 	}
 

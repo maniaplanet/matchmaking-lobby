@@ -45,5 +45,11 @@ class ButtonImage extends \ManiaLive\Gui\Control
 		parent::onIsRemoved($target);
 		$this->destroy();
 	}
+	
+	function destroy()
+	{
+		$this->destroyComponents();
+		parent::destroy();
+	}
 }
 ?>

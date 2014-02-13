@@ -180,6 +180,12 @@ MANIASCRIPT
 		return array_map(function ($e) { return '$<'.$e.'$>'; }, $array);
 	}
 	
+	function destroy()
+	{
+		$this->destroyComponents();
+		parent::destroy();
+	}
+	
 
 }
 

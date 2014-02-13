@@ -124,7 +124,7 @@ abstract class AbstractPlayerList extends \ManiaLive\Gui\Window
 	protected function updateItemList()
 	{
 		//$this->pager->clearItems();
-		$this->frame->clearComponents();
+		$this->frame->destroyComponents();
 		
 		if ($this->orderList)
 		{
@@ -172,6 +172,12 @@ abstract class AbstractPlayerList extends \ManiaLive\Gui\Window
 		$this->setPosZ(3);
 		\ManiaLive\Gui\Manialinks::appendXML(\ManiaLivePlugins\MatchMakingLobby\Utils\Dictionary::getInstance()->getManiaLink($this->dictionnary));
 		$this->updateItemList();
+	}
+	
+	function destroy()
+	{
+		$this->destroyComponents();
+		parent::destroy();
 	}
 }
 

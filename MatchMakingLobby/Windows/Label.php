@@ -153,6 +153,12 @@ main()
 MANIASCRIPT
 		);
 	}
+	
+	function destroy()
+	{
+		$this->destroyComponents();
+		parent::destroy();
+	}
 }
 
 ?>

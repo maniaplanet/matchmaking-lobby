@@ -149,6 +149,12 @@ class LobbyWindow extends \ManiaLive\Gui\Window
 		$this->serverNameLabel->setText(static::$serverName);
 		\ManiaLive\Gui\Manialinks::appendXML(Dictionary::getInstance()->getManiaLink($this->dico));
 	}
+	
+	function destroy()
+	{
+		$this->destroyComponents();
+		parent::destroy();
+	}
 
 }
 

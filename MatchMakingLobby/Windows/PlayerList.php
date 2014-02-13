@@ -255,6 +255,13 @@ EOSCRIPT
 		
 		$this->updateItemList();
 	}
+	
+	function destroy()
+	{
+		$this->destroyComponents();
+		
+		parent::destroy();
+	}
 }
 
 ?>

@@ -340,6 +340,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 		$this->tick++;
 		if ($this->tick % 8 == 0)
 		{
+			gc_collect_cycles();
+			
 			$mtime = microtime(true);
 			foreach($this->blockedPlayers as $login => $time)
 			{
@@ -881,7 +883,7 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 	{
 		$this->matchMakingService->decreasePlayerPenalty($login, 86000, $this->storage->serverLogin, $this->scriptName, $this->titleIdString);
 	}
-
+	
 	public function onResetAllPenalties()
 	{
 		foreach (array_merge($this->storage->players, $this->storage->spectators) as $player)

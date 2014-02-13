@@ -163,15 +163,9 @@ class Player extends \ManiaLive\Gui\Control
 
 	function destroy()
 	{
+		$this->destroyComponents();
+		
 		parent::destroy();
-
-		$this->bg = null;
-		$this->countryFlag = null;
-		$this->echelonFrame = null;
-		$this->echelonLabel = null;
-		$this->echelonQuad = null;
-		$this->icon = null;
-		$this->label = null;
 	}
 	function onIsRemoved(\ManiaLive\Gui\Container $target)
 	{
