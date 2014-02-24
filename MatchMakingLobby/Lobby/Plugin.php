@@ -544,7 +544,8 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 					//nobreak;
 				case -5:
 					$match = $this->matchMakingService->getMatch($matchId);
-					$players = array_filter($match->players, function ($p) { return Services\PlayerInfo::Get($p)->isAway(); });
+					//FIXME: maybe use storage which is a safer way to know if a player is still here
+					$players = array_filter($match->players, function ($p) { return !Services\PlayerInfo::Get($p)->isAway(); });
 					if($players)
 					{
 						\ManiaLive\Utilities\Logger::debug('re-display jumper for: '.implode(',', $players));
