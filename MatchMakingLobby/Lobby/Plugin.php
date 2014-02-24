@@ -551,6 +551,12 @@ class Plugin extends \ManiaLive\PluginHandler\Plugin implements Services\AllyLis
 						\ManiaLive\Utilities\Logger::debug('re-display jumper for: '.implode(',', $players));
 						$this->sendToServer($players, $match->matchServerLogin);
 					}
+					else
+					{
+						//no need to keep this countdown if all player are gone
+						unset($this->countDown[$matchId]);
+						continue;
+					}
 					$this->countDown[$matchId] = $countDown;
 					break;
 				case 0:
